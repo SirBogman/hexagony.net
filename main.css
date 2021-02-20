@@ -1,0 +1,76 @@
+#sourcecode {
+    width: 700px;
+    height: 100px;
+}
+
+#output {
+    width: 700px;
+    height: 100px;
+}
+
+#memory {
+    width: 700px;
+    height: 100px;
+}
+
+#puzzle_container {
+    position: relative;
+    background-color: lightgray;
+}
+
+.cell_input {
+    position:absolute;
+    font-size: 20px;
+    margin-top: -12px;
+    text-align: center;
+    outline: none;
+    width: 28px;
+    margin-left: -14px;
+    padding: 0;
+    border-width: 0;
+    background: none;
+    font-family: monospace;
+}
+
+.puzzle {
+    position: absolute;
+    left:0px;
+    top:0px;
+}
+
+#input_container {
+    position: absolute;
+    left:0px;
+    top:0px;
+}
+
+body {
+    background: #fff;
+    padding: 20px;
+    font-family: Helvetica;
+}
+
+#app {
+    background: #fff;
+    border-radius: 4px;
+    padding: 20px;
+    transition: all 0.2s;
+    /* display: flex;
+    justify-content: center; */
+}
+
+.cell {
+    fill: white;
+    stroke: #808080;
+    stroke-width: 1;
+    stroke-miterlimit: 10;
+    transition-duration: 0.25s;
+}
+
+.cell_breakpoint {
+    fill: lightcoral;
+}
+
+.cell_active {
+    fill: cyan;
+}

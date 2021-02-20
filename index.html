@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hexagony</title>
+    <link href=icon.svg rel=icon>
+    <!-- <script src="jquery-3.5.1.min.js"></script> -->
+    <script src="jquery-3.5.1.js"></script>
+    <script type="module" src="main.mjs"></script>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+
+<body>
+    <div id="app">
+        <div id="top_panel">
+            <div id="text">
+                <div>
+                    <p>Minimized Hexagony Source Code</p>
+                    <textarea id="sourcecode" spellcheck="False"></textarea>
+                </div>
+                <div>
+                    <textarea id="output"></textarea>
+                </div>
+                <div>
+                    <textarea id="memory"></textarea>
+                </div>
+            </div>
+            <div>
+                <label>Steps Taken</label>
+                <p id='stepcount'>0</p>
+            </div>
+            <input type="button" value="-" id="smaller"></input>
+            <input type="button" value="Reset" id="reset"></input>
+            <input type="button" value="+" id="bigger"></input>
+            <input type="button" value="Step" id="step"></input>
+        </div>
+        <br>
+        <div id="puzzle_container">
+            <div id="input_container"></div>
+            <svg id="puzzle" xmlns="http://www.w3.org/2000/svg" version="1.1"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
+                <defs>
+                    <g class="cell">
+                        <path
+                            d="m 17.32050807568877 10 l 0 -20 l -17.32050807568877 -10 l -17.32050807568877 10 l 0 20 l 17.32050807568877 10 z" />
+                    </g>
+                </defs>
+                <g id="cell_container">
+                </g>
+            </svg>
+        </div>
+    </div>
+</body>
+
+</html>
