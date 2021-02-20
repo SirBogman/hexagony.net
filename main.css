@@ -1,21 +1,22 @@
 #sourcecode {
-    width: 700px;
+    width: 500px;
     height: 100px;
 }
 
 #output {
-    width: 700px;
+    width: 500px;
     height: 100px;
 }
 
 #memory {
-    width: 700px;
+    width: 500px;
     height: 100px;
 }
 
 #puzzle_container {
     position: relative;
     background-color: lightgray;
+    margin: 1rem;
 }
 
 .cell_input {
@@ -55,8 +56,8 @@ body {
     border-radius: 4px;
     padding: 20px;
     transition: all 0.2s;
-    /* display: flex;
-    justify-content: center; */
+    display: flex;
+    justify-content: center;
 }
 
 .cell {
