@@ -204,14 +204,15 @@ function createGrid(newSize) {
             let pathRow = [];
             let inputRow = [];
             for (let j = 0; j < getRowSize(size, i); j++) {
+                const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
                 let $cell = $template.clone();
                 pathRow.push($cell);
                 const cellX = getX(size, i, j) + offsets[k][0] * cellWidth;
                 const cellY = getY(size, i, j) + offsets[k][1] * cellOffsetY;
                 $cell.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})`, id: `path_${i}_${j}_${k}` });
+                $cell.find('title').html(tooltip);
                 $parent.append($cell);
 
-                const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
                 let text = $(document.createElement('input'));
                 inputRow.push(text);
                 text.attr({ type: 'text', class: 'cell_input', maxlength: 1, id: `input_${i}_${j}_${k}`, title: tooltip });
@@ -479,7 +480,7 @@ function updateMemorySVG() {
     }
 }
 
-function resize(size) {
+function resizeCode(size) {
     const oldCode = sourceCode;
     const oldSize = getHexagonSize(oldCode.length);
     let newCode = '';
@@ -508,6 +509,29 @@ function resize(size) {
 
     newCode += '.'.repeat(getCodeLength(size) - newCode.length);
     newCode = minify(newCode);
+    return newCode;
+}
+
+function countOperators(code) {
+    let count = 0;
+    for (let char of code) {
+        if (char != '.') {
+            count++;
+        }
+    }
+    return count;
+}
+
+function onShrink() {
+    let newCode = resizeCode(size - 1);
+    if (countOperators(sourceCode) == countOperators(newCode) ||
+        confirm('Shrink the hexagon? Code may be lost and this cannot be undone.')) {
+        resize(Math.max(1, size - 1));
+    }
+}
+
+function resize(size) {
+    let newCode = resizeCode(size);
     $('#sourcecode').val(newCode);
     updateFromSourceCode();
 }
@@ -615,11 +639,7 @@ function init() {
     });
 
     $('#bigger').click(() => resize(size + 1));
-    $('#smaller').click(() => {
-        if (confirm('Shrink the hexagon? Code may be lost and this cannot be undone.')) {
-            resize(Math.max(1, size - 1));
-        }
-    });
+    $('#smaller').click(onShrink);
     $('#step').click(onStep);
     $('#stop').click(onStop);
     updateButtons();

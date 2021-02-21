@@ -17,6 +17,9 @@
     position: relative;
     background-color: lightgray;
     margin: 1rem;
+    max-width: 1000px;
+    max-height: 1000px;
+    overflow: hidden;
 }
 
 .cell_input {

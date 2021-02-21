@@ -4,8 +4,8 @@
 <head>
     <title>Hexagony</title>
     <link href=icon.svg rel=icon>
-    <!-- <script src="jquery-3.5.1.min.js"></script> -->
-    <script src="jquery-3.5.1.js"></script>
+    <script src="jquery-3.5.1.min.js"></script>
+    <!-- <script src="jquery-3.5.1.js"></script> -->
     <script type="module" src="main.mjs"></script>
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
@@ -45,8 +45,10 @@
             <svg id="puzzle" xmlns="http://www.w3.org/2000/svg" version="1.1"
                 xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs>
-                    <path class="cell"
-                        d="m 17.32050807568877 10 l 0 -20 l -17.32050807568877 -10 l -17.32050807568877 10 l 0 20 l 17.32050807568877 10 z"/>
+                    <g class="cell">
+                        <path d="m 17.32050807568877 10 l 0 -20 l -17.32050807568877 -10 l -17.32050807568877 10 l 0 20 l 17.32050807568877 10 z"/>
+                        <title/>
+                    </g>
                     <path class="outline"/>
                     <path class="neutral_connector connector" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
                     <g class="positive_connector connector">
