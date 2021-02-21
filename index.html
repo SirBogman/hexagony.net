@@ -29,11 +29,15 @@
                 <label>Steps Taken</label>
                 <p id='stepcount'>0</p>
             </div>
-            <input type="button" class="edit_button" value="-" id="smaller"></input>
-            <input type="button" class="edit_button" value="Reset" id="reset"></input>
-            <input type="button" class="edit_button" value="+" id="bigger"></input>
-            <input type="button" value="Step" id="step"></input>
-            <input type="button" value="Stop" id="stop"></input>
+            <div class="button_container">
+                <input type="button" class="edit_button" value="-" id="smaller"></input>
+                <input type="button" class="edit_button" value="Reset" id="reset"></input>
+                <input type="button" class="edit_button" value="+" id="bigger"></input>
+            </div>
+            <div class="button_container">
+                <input type="button" value="Step" id="step"></input>
+                <input type="button" value="Stop" id="stop"></input>
+            </div>
         </div>
         <br>
         <div id="puzzle_container">
@@ -44,6 +48,12 @@
                     <g class="cell">
                         <path
                             d="m 17.32050807568877 10 l 0 -20 l -17.32050807568877 -10 l -17.32050807568877 10 l 0 20 l 17.32050807568877 10 z" />
+                    </g>
+                    <g class="outline">
+                        <path d="m -20 20 l 40 0 l 0 -40 l -40 0 z" />
+                    </g>
+                    <g class="connector">
+                        <path class="st0" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
                     </g>
                 </defs>
                 <g id="cell_container">

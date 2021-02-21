@@ -63,9 +63,16 @@ body {
 .cell {
     fill: white;
     stroke: #808080;
-    stroke-width: 1;
+    stroke-width: 0.5;
     stroke-miterlimit: 10;
     transition-duration: 0.25s;
+}
+
+.outline {
+    fill: none;
+    stroke: black;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
 }
 
 .cell_breakpoint {
@@ -74,4 +81,23 @@ body {
 
 .cell_active {
     fill: cyan;
+}
+
+.button_container {
+    margin: 1em;
+}
+
+.connector {
+    fill: none;
+    stroke: #F7941D;
+    stroke-width: 1.5;
+    stroke-miterlimit: 10;
+}
+
+.positive_connector {
+    stroke: #ed1c24;
+}
+
+.negative_connector {
+    stroke: #00aeef;
 }

@@ -9,6 +9,7 @@ let oldActiveCell = null;
 let size = -1;
 let rowCount = -1;
 let user_data;
+let timeoutID = null;
 
 function loadData() {
     user_data = undefined;
@@ -128,6 +129,10 @@ function checkArrowKeys(elem, event) {
     return false;
 }
 
+function outlineHelper(x1, y1, x2, y2) {
+    return `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
+}
+
 function createGrid(newSize) {
     size = newSize;
     rowCount = getRowCount(size);
@@ -175,8 +180,14 @@ function createGrid(newSize) {
         [horizontalOffset, -size], // North East
         [0, rowCount + 1], // South
         [-horizontalOffset, size], // South East
-        [-horizontalOffset, -size], // South West
+        [-horizontalOffset, -size], // North West
     ];
+
+    let $outlineTemplate = $('defs [class~=outline]', $svg);
+    let $connectorTemplate = $('defs [class~=connector]', $svg);
+    let outlines = [];
+    let connectors = [];
+    let positiveConnectors = [];
 
     for (let k = 0; k < offsets.length; k++) {
         let pathGrid = [];
@@ -204,10 +215,91 @@ function createGrid(newSize) {
         }
         cellPaths.push(pathGrid);
         cellInput.push(inputGrid);
+
+        {
+            let $outline = $outlineTemplate.clone();
+            let path = `m ${-cellOffsetX} ${-radius/2}` +
+                `l ${cellOffsetX} ${-radius / 2} l ${cellOffsetX} ${radius / 2}`.repeat(size) +
+                outlineHelper(0, radius, cellOffsetX, radius / 2) +
+                outlineHelper(-cellOffsetX, radius / 2, 0, radius) +
+                outlineHelper(-cellOffsetX, -radius / 2, -cellOffsetX, radius / 2) +
+                outlineHelper(0, -radius, -cellOffsetX, -radius / 2) +
+                outlineHelper(cellOffsetX, -radius/2, 0, -radius);
+
+            $outline.children().attr({ d: path });
+            const cellX = getX(size, 0, 0) + offsets[k][0] * cellWidth;
+            const cellY = getY(size, 0, 0) + offsets[k][1] * cellOffsetY;
+            $outline.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})` });
+            outlines.push($outline);
+        }
+
+        for (let i = 0; i < size; i++) {
+            const isSpecial = i == 0 || i == size - 1;
+            let $connector, cellX, cellY;
+
+            // Top edge
+            if (offsets[k][1] >= 0) {
+                $connector = $connectorTemplate.clone();
+                if (isSpecial)
+                    $connector.addClass('positive_connector');
+                cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, 0, i) + offsets[k][1] * cellOffsetY - 0.75 * radius;
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20},${-radius / 20})rotate(60)` });
+                (isSpecial ? positiveConnectors : connectors).push($connector);
+
+                $connector = $connectorTemplate.clone();
+                if (isSpecial)
+                    $connector.addClass('negative_connector');
+                cellX = getX(size, 0, i) + offsets[k][0] * cellWidth - 0.5 * cellOffsetX;
+                cellY = getY(size, 0, i) + offsets[k][1] * cellOffsetY - 0.75 * radius;
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})rotate(240)` });
+                connectors.push($connector);
+            }
+
+            // North east edge
+            if (offsets[k][0] <= 0 && offsets[k][1] >= -size) {
+                $connector = $connectorTemplate.clone();
+                if (isSpecial)
+                    $connector.addClass('positive_connector');
+                cellX = getX(size, i, getRowSize(size, i) - 1) + offsets[k][0] * cellWidth + cellOffsetX;
+                cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY;
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20},${-radius / 20})` });
+                (isSpecial ? positiveConnectors : connectors).push($connector);
+
+                $connector = $connectorTemplate.clone();
+                if (isSpecial)
+                    $connector.addClass('negative_connector');
+                cellX = getX(size, i, getRowSize(size, i) - 1) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY - 0.75 * radius;
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})rotate(300)` });
+                connectors.push($connector);
+            }
+
+            // South east edge
+            if (offsets[k][0] <= 0 && offsets[k][1] <= size) {
+                let a = i + size - 1;
+                $connector = $connectorTemplate.clone();
+                if (isSpecial)
+                    $connector.addClass('positive_connector');
+                cellX = getX(size, a, getRowSize(size, a) - 1) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, a, getRowSize(size, a) - 1) + offsets[k][1] * cellOffsetY + 0.75 * radius;
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20},${-radius / 20})rotate(300)` });
+                (isSpecial ? positiveConnectors : connectors).push($connector);
+
+                $connector = $connectorTemplate.clone();
+                if (isSpecial)
+                    $connector.addClass('negative_connector');
+                cellX = getX(size, a, getRowSize(size, a) - 1) + offsets[k][0] * cellWidth + cellOffsetX;
+                cellY = getY(size, a, getRowSize(size, a) - 1) + offsets[k][1] * cellOffsetY;
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})` });
+                $parent.append($connector);
+            }
+        }
     }
 
-    console.log(`${cellPaths.length} ${cellPaths[0].length} ${cellPaths[0][0].length}`);
-    console.log(`${cellInput.length} ${cellInput[0].length} ${cellInput[0][0].length}`);
+    connectors.forEach(x => $parent.append(x));
+    positiveConnectors.forEach(x => $parent.append(x));
+    outlines.forEach(x => $parent.append(x));
 
     $('.cell_input').change(function() {
         console.log('chainge');
@@ -263,6 +355,10 @@ function onStep() {
     $('#memory').val(hexagony.memory.debugString + '\n\n' + hexagony.coords + '\n' + hexagony.dir + '\n' + hexagony.grid.getInstruction(hexagony.coords));
     $('#stepcount').html(hexagony.ticks);
     updateButtons();
+
+    if (isRunning) {
+        timeoutID = window.setTimeout(onStep, 100);
+    }
 }
 
 function resize(size) {
@@ -372,10 +468,20 @@ function onStop() {
     }
     hexagony = null;
     updateButtons();
+    if (timeoutID != null) {
+        window.clearTimeout(timeoutID);
+        timeoutID = null;
+    }
+}
+
+function isRunning() {
+    return hexagony != null && hexagony.isRunning;
 }
 
 function updateButtons() {
-    $('.edit_button').prop("disabled", hexagony != null && hexagony.isRunning);
+    const running = isRunning();
+    $('.edit_button').prop('disabled', running);
+    $('#stop').prop('disabled', !running);
 }
 
 function init() {
@@ -389,6 +495,7 @@ function init() {
     $('#smaller').click(() => resize(Math.max(1, size - 1)));
     $('#step').click(onStep);
     $('#stop').click(onStop);
+    updateButtons();
 }
 
 $(document).ready(init);
