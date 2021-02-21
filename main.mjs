@@ -1,7 +1,7 @@
 import {east, northEast, southEast} from './direction.mjs';
 import {Hexagony} from './hexagony.mjs';
 import {PointAxial} from './pointaxial.mjs';
-import {getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWhitespace} from './util.mjs';
+import {getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWhitespaceAndDebug} from './util.mjs';
 
 let cellPaths = [];
 let cellInput = [];
@@ -482,34 +482,43 @@ function updateMemorySVG() {
 
 function resizeCode(size) {
     const oldCode = sourceCode;
-    const oldSize = getHexagonSize(oldCode.length);
+    const oldSize = getHexagonSize(countCodepoints(oldCode));
     let newCode = '';
 
     if (size > oldSize) {
-        let m = 0;
+        let iterator = oldCode[Symbol.iterator]();
         for (let i = 0; i < getRowCount(oldSize); i++) {
             for (let j = 0; j < getRowSize(oldSize, i); j++) {
-                const char = m < oldCode.length ? oldCode[m++] : '.';
-                newCode += char;
+                newCode += iterator.next().value || '.';
             }
 
             newCode += '.'.repeat(getRowSize(size, i) - getRowSize(oldSize, i));
         }
     } else {
-        let m = 0;
+        let iterator = oldCode[Symbol.iterator]();
         for (let i = 0; i < getRowCount(size); i++) {
             for (let j = 0; j < getRowSize(size, i); j++) {
-                const char = m < oldCode.length ? oldCode[m++] : '.';
-                newCode += char;
+                newCode += iterator.next().value || '.';
             }
 
-            m += getRowSize(oldSize, i) - getRowSize(size, i);
+            for (let j = getRowSize(oldSize, i) - getRowSize(size, i); j > 0; j--) {
+                iterator.next();
+            }
         }
     }
 
-    newCode += '.'.repeat(getCodeLength(size) - newCode.length);
+    newCode += '.'.repeat(getCodeLength(size) - countCodepoints(newCode));
     newCode = minify(newCode);
     return newCode;
+}
+
+function countCodepoints(code) {
+    let count = 0;
+    // eslint-disable-next-line no-unused-vars
+    for (let _ of code) {
+        count++;
+    }
+    return count;
 }
 
 function countOperators(code) {
@@ -554,9 +563,9 @@ function updateFromSourceCode(isProgrammatic) {
         hexagony = null;
     }
 
-    code = removeWhitespace(code);
+    code = removeWhitespaceAndDebug(code);
 
-    const newSize = getHexagonSize(code.length);
+    const newSize = getHexagonSize(countCodepoints(code));
     if (newSize != size) {
         createGrid(newSize);
     }
@@ -567,12 +576,10 @@ function updateFromSourceCode(isProgrammatic) {
 }
 
 function updateHexagonWithCode(index, code) {
-    let m = 0;
+    let iterator = code[Symbol.iterator]();
     for (let i = 0; i < cellInput[index].length; i++) {
         for (let j = 0; j < cellInput[index][i].length; j++) {
-            let v = m < code.length ? code[m] : '.';
-            cellInput[index][i][j].val(v);
-            m++;
+            cellInput[index][i][j].val(iterator.next().value || '.');
         }
     }
 }

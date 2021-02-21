@@ -18,8 +18,8 @@ export function minify(code) {
     return code;
 }
 
-export function removeWhitespace(code) {
-    return code.replaceAll(/ |\t|\r|\n/g, '');
+export function removeWhitespaceAndDebug(code) {
+    return code.replaceAll(/ |\t|\r|\n|`/g, '');
 }
 
 export function getRowCount(size) {

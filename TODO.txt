@@ -1,1 +1,5 @@
 When executing, don't allow the code to be changed in the hexagon or source code box.
+
+Make No-Ops a lighter color.
+
+It's slow having so many input elements. Maybe generate them on demand.
