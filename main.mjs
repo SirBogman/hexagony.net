@@ -135,6 +135,10 @@ function outlineHelper(x1, y1, x2, y2) {
     return `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
 }
 
+function indexToAxial(size, rowIndex, columnIndex) {
+    return new PointAxial(Math.max(1 - size, -rowIndex) + columnIndex, rowIndex - size + 1);
+}
+
 function createGrid(newSize) {
     size = newSize;
     rowCount = getRowCount(size);
@@ -207,9 +211,10 @@ function createGrid(newSize) {
                 $cell.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})`, id: `path_${i}_${j}_${k}` });
                 $parent.append($cell);
 
+                const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
                 let text = $(document.createElement('input'));
                 inputRow.push(text);
-                text.attr({ type: 'text', class: 'cell_input', maxlength: 1, id: `input_${i}_${j}_${k}` });
+                text.attr({ type: 'text', class: 'cell_input', maxlength: 1, id: `input_${i}_${j}_${k}`, title: tooltip });
                 text.css({ left: `${cellX}px`, top: `${cellY}px` });
                 text.val('.');
                 textParent.append(text);
@@ -230,7 +235,7 @@ function createGrid(newSize) {
                 outlineHelper(0, -radius, -cellOffsetX, -radius / 2) +
                 outlineHelper(cellOffsetX, -radius/2, 0, -radius);
 
-            $outline.children().attr({ d: path });
+            $outline.attr({ d: path });
             const cellX = getX(size, 0, 0) + offsets[k][0] * cellWidth;
             const cellY = getY(size, 0, 0) + offsets[k][1] * cellOffsetY;
             $outline.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})` });
