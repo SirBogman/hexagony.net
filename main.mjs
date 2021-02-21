@@ -1,5 +1,7 @@
-import {getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWhitespace} from './util.mjs';
+import {east, northEast, southEast} from './direction.mjs';
 import {Hexagony} from './hexagony.mjs';
+import {PointAxial} from './pointaxial.mjs';
+import {getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWhitespace} from './util.mjs';
 
 let cellPaths = [];
 let cellInput = [];
@@ -165,7 +167,7 @@ function createGrid(newSize) {
     let $svg = $('#puzzle');
     $svg.attr({ width: fullWidth, height: fullHeight });
     let $template = $('defs [class~=cell]', $svg);
-    let $parent = $('#cell_container');
+    let $parent = $('#cell_container', $svg);
     const textParent = $('#input_container');
     $parent.empty();
     textParent.empty();
@@ -366,7 +368,8 @@ function createGrid(newSize) {
 
 function onStep() {
     if (hexagony == null) {
-        hexagony = new Hexagony(sourceCode, '');
+        let input = $('#input').val().replaceAll(/\n/g, '\0');
+        hexagony = new Hexagony(sourceCode, input);
     }
 
     const [i, j] = hexagony.grid.axialToIndex(hexagony.coords);
@@ -382,12 +385,92 @@ function onStep() {
     }
 
     $('#output').val(hexagony.output);
-    $('#memory').val(hexagony.memory.debugString + '\n\n' + hexagony.coords + '\n' + hexagony.dir + '\n' + hexagony.grid.getInstruction(hexagony.coords));
     $('#stepcount').html(hexagony.ticks);
     updateButtons();
+    updateMemorySVG();
 
     if (isRunning) {
-        timeoutID = window.setTimeout(onStep, 100);
+        //timeoutID = window.setTimeout(onStep, 100);
+    }
+}
+
+function updateMemorySVG() {
+    let $svg = $('#memory_svg');
+    let $lineTemplate = $('defs [class~=memory_cell]', $svg);
+    let $mpTemplate = $('defs [class~=memory_pointer]', $svg);
+    let $textTemplate = $('defs [class~=memory_text]', $svg);
+    let $parent = $('#cell_container', $svg);
+    $parent.empty();
+    if (hexagony == null) {
+        return;
+    }
+
+    const padding = 3;
+    const xFactor = 20;
+    const yFactor = 34;
+    const maxX = hexagony.memory.maxX + padding;
+    const minX = hexagony.memory.minX - padding;
+    const maxY = hexagony.memory.maxY + padding;
+    const minY = hexagony.memory.minY - padding;
+
+    $svg.attr({ width: (maxX - minX) * xFactor, height: (maxY - minY) * yFactor });
+
+    for (let y = minY; y <= maxY; y++) {
+        for (let x = minX; x <= maxX; x++) {
+            if (!((y % 2 == 0 && x % 2 == 0) ||
+                ((y % 4 + 4) % 4 == 1 && (x % 4 + 4) % 4 == 1) ||
+                ((y % 4 + 4) % 4 == 3 && (x % 4 + 4) % 4 == 3))) {
+                continue;
+            }
+
+            let dir, mp;
+
+            if (y % 2 != 0) {
+                dir = east;
+                mp = new PointAxial((x - y) / 4, (y - 1) / 2);
+            }
+            else if ((x - y) % 4 == 0) {
+                dir = northEast;
+                mp = new PointAxial((x - y) / 4, y / 2);
+            }
+            else {
+                dir = southEast;
+                mp = new PointAxial((x - y + 2) / 4, (y - 2) / 2);
+            }
+
+            const xx = (x - minX) * xFactor;
+            const yy = (y - minY) * yFactor;
+            const hasValue = hexagony.memory.hasKey(mp, dir);
+            const $line = $lineTemplate.clone();
+            let angle = dir == northEast ? 30 : dir == southEast ? -30 : -90;
+            $line.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
+            if (hasValue) {
+                $line.addClass('memory_value');
+            }
+            $parent.append($line);
+
+            if (hasValue) {
+                const value = hexagony.memory.getValueAt(mp, dir);
+                let string = value.toString();
+
+                if (value >= 0x20 && value <= 0xff && value != 0x7f) {
+                    string += ` '${String.fromCharCode(Number(value % 256n))}'`;
+                }
+
+                let $text = $textTemplate.clone();
+                $text.find('text').html(string);
+                $text.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
+                $parent.append($text);
+            }
+
+            if (mp.q == hexagony.memory.mp.q && mp.r == hexagony.memory.mp.r && dir == hexagony.memory.dir) {
+                // Add the memory pointer (arrow) showing the position and direction.
+                angle = (dir == northEast ? -60 : dir == southEast ? 60 : 0) + (hexagony.memory.cw ? 180 : 0);
+                let $pointer = $mpTemplate.clone();
+                $pointer.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
+                $parent.append($pointer);
+            }
+        }
     }
 }
 
@@ -520,9 +603,18 @@ function init() {
     $('#sourcecode').bind('input propertychange', updateFromSourceCode);
     updateFromSourceCode(true);
 
-    $('#reset').click(() => reset(size));
+    $('#reset').click(() => {
+        if (confirm('Remove all code from the hexagon? This cannot be undone.')) {
+            reset(size);
+        }
+    });
+
     $('#bigger').click(() => resize(size + 1));
-    $('#smaller').click(() => resize(Math.max(1, size - 1)));
+    $('#smaller').click(() => {
+        if (confirm('Shrink the hexagon? Code may be lost and this cannot be undone.')) {
+            resize(Math.max(1, size - 1));
+        }
+    });
     $('#step').click(onStep);
     $('#stop').click(onStop);
     updateButtons();

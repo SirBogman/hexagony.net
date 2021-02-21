@@ -7,6 +7,8 @@ export class Memory {
         this.mp = new PointAxial(0, 0);
         this.dir = east;
         this.cw = false;
+        this.maxX = this.minX = this.getX(this.mp, this.dir);
+        this.maxY = this.minY = this.getY(this.mp, this.dir);
     }
 
     reverse() {
@@ -39,8 +41,26 @@ export class Memory {
         return this.getValueAt(mp, dir);
     }
 
+    hasKey(mp, dir) {
+        return `${mp},${dir}` in this.data;
+    }
+
     setValue(value) {
         this.data[`${this.mp},${this.dir}`] = BigInt(value);
+        const x = this.getX(this.mp, this.dir);
+        const y = this.getY(this.mp, this.dir);
+        if (x > this.maxX) this.maxX = x;
+        if (x < this.minX) this.minX = x;
+        if (y > this.maxY) this.maxY = y;
+        if (y < this.minY) this.minY = y;
+    }
+
+    getX(mp, dir) {
+        return 4 * mp.q + 2 * mp.r + (dir == east ? 1 : 0);
+    }
+
+    getY(mp, dir) {
+        return 2 * mp.r + (dir == northEast ? 0 : dir == east ? 1 : 2);
     }
 
     get leftIndex() {
