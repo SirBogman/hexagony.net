@@ -184,7 +184,9 @@ function createGrid(newSize) {
     ];
 
     let $outlineTemplate = $('defs [class~=outline]', $svg);
-    let $connectorTemplate = $('defs [class~=connector]', $svg);
+    let $connectorTemplate = $('defs [class~=neutral_connector]', $svg);
+    let $positiveConnector = $('defs [class~=positive_connector]', $svg);
+    let $negativeConnector = $('defs [class~=negative_connector]', $svg);
     let outlines = [];
     let connectors = [];
     let positiveConnectors = [];
@@ -235,63 +237,91 @@ function createGrid(newSize) {
 
         for (let i = 0; i < size; i++) {
             const isSpecial = i == 0 || i == size - 1;
-            let $connector, cellX, cellY;
+            let $connector, cellX, cellY, scaleX, scaleY;
 
             // Top edge
             if (offsets[k][1] >= 0) {
-                $connector = $connectorTemplate.clone();
-                if (isSpecial)
-                    $connector.addClass('positive_connector');
+                $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
                 cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, 0, i) + offsets[k][1] * cellOffsetY - 0.75 * radius;
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20},${-radius / 20})rotate(60)` });
+                scaleX = radius / 20;
+                scaleY = -radius / 20;
+                if (i == 0) {
+                    cellX -= cellOffsetX;
+                    cellY -= cellOffsetY;
+                    scaleX *= -1;
+                    scaleY *= -1;
+                }
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)` });
                 (isSpecial ? positiveConnectors : connectors).push($connector);
 
-                $connector = $connectorTemplate.clone();
-                if (isSpecial)
-                    $connector.addClass('negative_connector');
-                cellX = getX(size, 0, i) + offsets[k][0] * cellWidth - 0.5 * cellOffsetX;
-                cellY = getY(size, 0, i) + offsets[k][1] * cellOffsetY - 0.75 * radius;
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})rotate(240)` });
+                $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
+                cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, 0, i) + (offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
+                scaleX = scaleY = -radius / 20;
+                if (i == 0) {
+                    cellX -= cellOffsetX;
+                    cellY += cellOffsetY;
+                    scaleX = scaleY *= -1;
+                }
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)` });
                 connectors.push($connector);
             }
 
             // North east edge
             if (offsets[k][0] <= 0 && offsets[k][1] >= -size) {
-                $connector = $connectorTemplate.clone();
-                if (isSpecial)
-                    $connector.addClass('positive_connector');
+                $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
                 cellX = getX(size, i, getRowSize(size, i) - 1) + offsets[k][0] * cellWidth + cellOffsetX;
                 cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY;
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20},${-radius / 20})` });
+                scaleX = radius / 20;
+                scaleY = -radius / 20;
+                if (i == 0) {
+                    cellX += cellOffsetX;
+                    cellY -= cellOffsetY;
+                    scaleX *= -1;
+                    scaleY *= -1;
+                }
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})` });
                 (isSpecial ? positiveConnectors : connectors).push($connector);
 
-                $connector = $connectorTemplate.clone();
-                if (isSpecial)
-                    $connector.addClass('negative_connector');
-                cellX = getX(size, i, getRowSize(size, i) - 1) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
+                cellX = getX(size, i, getRowSize(size, i) - 1) + (offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY - 0.75 * radius;
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})rotate(300)` });
+                scaleX = scaleY = -radius / 20;
+                if (i == 0) {
+                    cellX -= cellWidth;
+                    scaleX = scaleY *= -1;
+                }
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)` });
                 connectors.push($connector);
             }
 
             // South east edge
             if (offsets[k][0] <= 0 && offsets[k][1] <= size) {
                 let a = i + size - 1;
-                $connector = $connectorTemplate.clone();
-                if (isSpecial)
-                    $connector.addClass('positive_connector');
+                $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
                 cellX = getX(size, a, getRowSize(size, a) - 1) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, a, getRowSize(size, a) - 1) + offsets[k][1] * cellOffsetY + 0.75 * radius;
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20},${-radius / 20})rotate(300)` });
+                scaleX = radius / 20;
+                scaleY = -radius / 20;
+                if (i == 0) {
+                    cellX += cellWidth;
+                    scaleX *= -1;
+                    scaleY *= -1;
+                }
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)` });
                 (isSpecial ? positiveConnectors : connectors).push($connector);
 
-                $connector = $connectorTemplate.clone();
-                if (isSpecial)
-                    $connector.addClass('negative_connector');
-                cellX = getX(size, a, getRowSize(size, a) - 1) + offsets[k][0] * cellWidth + cellOffsetX;
-                cellY = getY(size, a, getRowSize(size, a) - 1) + offsets[k][1] * cellOffsetY;
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})` });
+                $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
+                cellX = getX(size, a, getRowSize(size, a) - 1) + (offsets[k][0] + 1) * cellWidth;
+                cellY = getY(size, a, getRowSize(size, a) - 1) + (offsets[k][1] + 1) * cellOffsetY;
+                scaleX = scaleY = -radius / 20;
+                if (i == 0) {
+                    cellX -= cellOffsetX;
+                    cellY -= cellOffsetY;
+                    scaleX = scaleY *= -1;
+                }
+                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})` });
                 $parent.append($connector);
             }
         }

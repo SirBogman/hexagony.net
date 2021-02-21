@@ -71,7 +71,7 @@ body {
 .outline {
     fill: none;
     stroke: black;
-    stroke-width: 2;
+    stroke-width: 1.5;
     stroke-miterlimit: 10;
 }
 
@@ -99,5 +99,19 @@ body {
 }
 
 .negative_connector {
-    stroke: #00aeef;
+    stroke: #1c74bc;
+}
+
+.positive_text {
+    fill: #ed1c24;
+    stroke: none;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.negative_text {
+    fill: #1c74bc;
+    stroke: none;
+    font-size: 20px;
+    font-weight: bold;
 }
