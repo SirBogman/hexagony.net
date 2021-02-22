@@ -50,6 +50,8 @@ function navigateTo(i, j) {
     cell.bind('input propertychange', function() {
         const newText = $(this).val() || '.';
         updateFromHexagons(i, j, newText);
+        // Reselect the text so that backspace can work normally.
+        $(this).select();
     });
 
     cell.focusout(function() {
@@ -92,9 +94,17 @@ function checkArrowKeys(elem, event) {
         event.preventDefault();
         return;
     }
+    if (event.key == 'Delete') {
+        $(elem).val('.');
+        $(elem).select();
+        updateFromHexagons(0, 0, '.');
+
+        event.preventDefault();
+        return;
+    }
 
     let di = 0, dj = 0;
-    if (event.key == 'ArrowLeft') {
+    if (event.key == 'ArrowLeft' || event.key == 'Tab' && event.shiftKey) {
         if (j > 0) {
             dj = -1;
         } else if (i > 0) {
@@ -105,7 +115,7 @@ function checkArrowKeys(elem, event) {
             event.preventDefault();
             return;
         }
-    } else if (event.key == 'ArrowRight') {
+    } else if (event.key == 'ArrowRight' || event.key == 'Tab' && !event.shiftKey) {
         if (j < cellPaths[0][i].length - 1) {
             dj = 1;
         } else if (i < cellPaths[0].length - 1) {
