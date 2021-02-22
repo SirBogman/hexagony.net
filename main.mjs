@@ -34,8 +34,30 @@ function saveData() {
 }
 
 function navigateTo(i, j) {
-    cellInput[0][i][j].focus();
-    cellInput[0][i][j].select();
+    // Hide the text in the SVG cell, create an input element, and select it.
+    let cell = cellInput[0][i][j]();
+    let $svgCell = cellPaths[0][i][j];
+    $(cell).val($svgCell.find('text').html());
+    $svgCell.find('text').html('');
+
+    cell.focus();
+    cell.select();
+
+    cell.keydown(function(e) {
+        checkArrowKeys(this, e);
+    });
+
+    cell.bind('input propertychange', function() {
+        const newText = $(this).val() || '.';
+        updateFromHexagons(i, j, newText);
+    });
+
+    cell.focusout(function() {
+        const newText = $(this).val() || '.';
+        this.remove();
+        updateFromHexagons(i, j, newText);
+        updateHexagonWithCode(0, sourceCode);
+    });
 }
 
 function getIndices(elem) {
@@ -44,91 +66,90 @@ function getIndices(elem) {
 
 function checkArrowKeys(elem, event) {
     // TOOD: escape to deselect.
-    if (event) {
-        const [i, j, k] = getIndices(elem);
+    const [i, j, k] = getIndices(elem);
 
-        if (event.key == 'F9') {
-            let path = cellPaths[k][i][j];
-            if (path.hasClass('cell_breakpoint')) {
-                path.removeClass('cell_breakpoint');
-            }
-            else {
-                path.addClass('cell_breakpoint');
-            }
-            return true;
+    if (event.key == 'F9') {
+        let path = cellPaths[k][i][j];
+        if (path.hasClass('cell_breakpoint')) {
+            path.removeClass('cell_breakpoint');
         }
-        // if (event.key == 'Backspace') {
-        //     $(elem).val('.');
-        //     if (j) {
-        //         navigateTo(i, j - 1);
-        //     }
-        //     else if (i) {
-        //         navigateTo(i - 1, getRowSize(size, i - 1) - 1);
-        //     }
-        //     event.preventDefault();
-        //     return true;
-        // }
-
-        let di = 0, dj = 0;
-        if (event.key == 'ArrowLeft') {
-            if (j > 0) {
-                dj = -1;
-            } else if (i > 0) {
-                navigateTo(i - 1, cellInput[0][i - 1].length - 1);
-                event.preventDefault();
-                return true;
-            } else {
-                event.preventDefault();
-                return true;
-            }
-        } else if (event.key == 'ArrowRight') {
-            if (j < cellInput[0][i].length - 1) {
-                dj = 1;
-            } else if (i < cellInput[0].length - 1) {
-                navigateTo(i + 1, 0);
-                event.preventDefault();
-                return true;
-            } else {
-                event.preventDefault();
-                return true;
-            }
-        } else if (event.key == 'ArrowUp') {
-            di = -1;
-        } else if (event.key == 'ArrowDown') {
-            di = 1;
-        }
-        if (di != 0 || dj != 0) {
-            if (di != 0) {
-                if (event.shiftKey) {
-                    // Move in a straight line with up and down arrows in the top and bottom half.
-                    if (i < size && di < 0) {
-                        dj--;
-                    }
-                    if (i < size - 1 && di > 0) {
-                        dj++;
-                    }
-                } else {
-                    if (i >= size && di < 0) {
-                        dj++;
-                    }
-                    if (i >= size - 1 && di > 0) {
-                        dj--;
-                    }
-                }
-            }
-
-            let newI = i + di;
-            let newJ = j + dj;
-            if (newI >= 0 && newI < cellInput[0].length &&
-                newJ >= 0 && newJ < cellInput[0][newI].length) {
-                navigateTo(newI, newJ);
-            }
-            // Prevent the selection from being cancelled on key up.
-            event.preventDefault();
-            return true;
+        else {
+            path.addClass('cell_breakpoint');
         }
     }
-    return false;
+    if (event.key == 'Backspace') {
+        $(elem).val('.');
+        if (j) {
+            navigateTo(i, j - 1);
+        }
+        else if (i) {
+            navigateTo(i - 1, getRowSize(size, i - 1) - 1);
+        }
+        else {
+            updateFromHexagons(0, 0, '.');
+            $(elem).select();
+        }
+        event.preventDefault();
+        return;
+    }
+
+    let di = 0, dj = 0;
+    if (event.key == 'ArrowLeft') {
+        if (j > 0) {
+            dj = -1;
+        } else if (i > 0) {
+            navigateTo(i - 1, cellPaths[0][i - 1].length - 1);
+            event.preventDefault();
+            return;
+        } else {
+            event.preventDefault();
+            return;
+        }
+    } else if (event.key == 'ArrowRight') {
+        if (j < cellPaths[0][i].length - 1) {
+            dj = 1;
+        } else if (i < cellPaths[0].length - 1) {
+            navigateTo(i + 1, 0);
+            event.preventDefault();
+            return;
+        } else {
+            event.preventDefault();
+            return;
+        }
+    } else if (event.key == 'ArrowUp') {
+        di = -1;
+    } else if (event.key == 'ArrowDown') {
+        di = 1;
+    }
+    if (di != 0 || dj != 0) {
+        if (di != 0) {
+            if (event.shiftKey) {
+                // Move in a straight line with up and down arrows in the top and bottom half.
+                if (i < size && di < 0) {
+                    dj--;
+                }
+                if (i < size - 1 && di > 0) {
+                    dj++;
+                }
+            } else {
+                if (i >= size && di < 0) {
+                    dj++;
+                }
+                if (i >= size - 1 && di > 0) {
+                    dj--;
+                }
+            }
+        }
+
+        let newI = i + di;
+        let newJ = j + dj;
+        if (newI >= 0 && newI < cellPaths[0].length &&
+            newJ >= 0 && newJ < cellPaths[0][newI].length) {
+            navigateTo(newI, newJ);
+        }
+        // Prevent the selection from being cancelled on key up.
+        event.preventDefault();
+    }
 }
 
 function outlineHelper(x1, y1, x2, y2) {
@@ -213,12 +234,15 @@ function createGrid(newSize) {
                 $cell.find('title').html(tooltip);
                 $parent.append($cell);
 
-                let text = $(document.createElement('input'));
-                inputRow.push(text);
-                text.attr({ type: 'text', class: 'cell_input', maxlength: 1, id: `input_${i}_${j}_${k}`, title: tooltip });
-                text.css({ left: `${cellX}px`, top: `${cellY}px` });
-                text.val('.');
-                textParent.append(text);
+                inputRow.push(() => {
+                    let text = $(document.createElement('input'));
+                    inputRow.push(text);
+                    text.attr({ type: 'text', class: 'cell_input', maxlength: 1, id: `input_${i}_${j}_${k}`, title: tooltip });
+                    text.css({ left: `${cellX}px`, top: `${cellY}px` });
+                    text.val('.');
+                    textParent.append(text);
+                    return text;
+                });
             }
             pathGrid.push(pathRow);
             inputGrid.push(inputRow);
@@ -339,36 +363,10 @@ function createGrid(newSize) {
     positiveConnectors.forEach(x => $parent.append(x));
     outlines.forEach(x => $parent.append(x));
 
-    $('.cell_input').change(function() {
-        console.log('chainge');
-    });
-
-    $('.cell_input').keydown(function(e) {
-        checkArrowKeys(this, e);
-    });
-
-    $('.cell_input').keyup(function() {
-        updateFromHexagons(this);
-    });
-
-    $('.cell_input').click(function() {
-        // Select text when clicking on it.
-        $(this).select();
-    });
-
-    $('.cell_input').focusout(function() {
-        const input = $(this);
-        if (!input.val()) {
-            input.val('.');
-        }
-    });
-
     $('[class~=cell]', $svg).click(function() {
         // Select text when clicking on the background of the cell.
-        const [i, j, k] = getIndices(this);
-        const input = cellInput[k][i][j];
-        input.focus();
-        input.select();
+        const [i, j] = getIndices(this);
+        navigateTo(i, j);
     });
 }
 
@@ -570,35 +568,44 @@ function updateFromSourceCode(isProgrammatic) {
         createGrid(newSize);
     }
 
-    for (let k = 0; k < cellInput.length; k++) {
+    for (let k = 0; k < cellPaths.length; k++) {
         updateHexagonWithCode(k, code);
     }
 }
 
 function updateHexagonWithCode(index, code) {
     let iterator = code[Symbol.iterator]();
-    for (let i = 0; i < cellInput[index].length; i++) {
-        for (let j = 0; j < cellInput[index][i].length; j++) {
-            cellInput[index][i][j].val(iterator.next().value || '.');
+    for (let i = 0; i < cellPaths[index].length; i++) {
+        for (let j = 0; j < cellPaths[index][i].length; j++) {
+            const char = iterator.next().value || '.';
+            const text = cellPaths[index][i][j].find('text');
+            text.html(char);
+            if (char == '.') {
+                text.addClass('noop');
+            }
+            else {
+                text.removeClass('noop');
+            }
         }
     }
 }
 
-function updateFromHexagons(elem) {
-    const hexagonIndex = getIndices(elem)[2];
-
+function updateFromHexagons(targetI, targetJ, value) {
     let code = '';
+    let iterator = sourceCode[Symbol.iterator]();
     for (let i = 0; i < rowCount; i++) {
         for (let j = 0; j < getRowSize(size, i); j++) {
-            const v = cellInput[hexagonIndex][i][j].val();
-            code += v || '.';
+            let current = iterator.next().value;
+            if (i == targetI && j == targetJ) {
+                current = value;
+            }
+            code += current || '.';
         }
     }
 
-    for (let k = 0; k < cellInput.length; k++) {
-        if (k != hexagonIndex) {
-            updateHexagonWithCode(k, code);
-        }
+    // Skip the currently editing hexagon 0.
+    for (let k = 1; k < cellPaths.length; k++) {
+        updateHexagonWithCode(k, code);
     }
 
     code = minify(code);

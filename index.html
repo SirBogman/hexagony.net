@@ -41,43 +41,48 @@
         </div>
         <br>
         <div id="puzzle_container">
-            <div id="input_container"></div>
-            <svg id="puzzle" xmlns="http://www.w3.org/2000/svg" version="1.1"
-                xmlns:xlink="http://www.w3.org/1999/xlink">
-                <defs>
-                    <g class="cell">
-                        <path d="m 17.32050807568877 10 l 0 -20 l -17.32050807568877 -10 l -17.32050807568877 10 l 0 20 l 17.32050807568877 10 z"/>
-                        <title/>
+            <div id="puzzle_parent">
+                <div id="input_container"></div>
+                <svg id="puzzle" xmlns="http://www.w3.org/2000/svg" version="1.1"
+                    xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <defs>
+                        <g class="cell">
+                            <path d="m 17.32050807568877 10 l 0 -20 l -17.32050807568877 -10 l -17.32050807568877 10 l 0 20 l 17.32050807568877 10 z"/>
+                            <title/>
+                            <text class="cell_text" text-anchor="middle" transform="translate(0,5)"></text>
+                        </g>
+                        <path class="outline"/>
+                        <path class="neutral_connector connector" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
+                        <g class="positive_connector connector">
+                            <path class="st0" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
+                            <text class="positive_text" text-anchor="middle" transform="translate(0 5)rotate(90)scale(0.6)">+</text>
+                        </g>
+                        <g class="negative_connector connector">
+                            <path class="st0" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
+                            <text class="negative_text" text-anchor="middle" transform="translate(1 5)rotate(90)scale(0.6)">-</text>
+                        </g>
+                    </defs>
+                    <g id="cell_container">
                     </g>
-                    <path class="outline"/>
-                    <path class="neutral_connector connector" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
-                    <g class="positive_connector connector">
-                        <path class="st0" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
-                        <text class="positive_text" text-anchor="middle" transform="translate(0 5)rotate(90)scale(0.6)">+</text>
-                    </g>
-                    <g class="negative_connector connector">
-                        <path class="st0" d="M0,0h3.764c2.44553,0,4.89628,1.9825,4.89628,4.428v21.14044c0,2.44748,1.51583,4.43155,3.96331,4.43154l4.69693,0"/>
-                        <text class="negative_text" text-anchor="middle" transform="translate(1 5)rotate(90)scale(0.6)">-</text>
-                    </g>
-                </defs>
-                <g id="cell_container">
-                </g>
-            </svg>
+                </svg>
+            </div>
         </div>
-        <div id="memory_container">
+        <div id="memory_section">
             <h1>Memory</h1>
-            <svg id="memory_svg" xmlns="http://www.w3.org/2000/svg" version="1.1"
-                xmlns:xlink="http://www.w3.org/1999/xlink" width="120" height="204">
-                <defs>
-                    <path class="memory_cell" d="m -23.12 0 h 46.24" />
-                    <path class="memory_pointer" d="m 0 -23.12 l -3 46.24 h 6 z" />
-                    <g class="memory_text">
-                        <text transform="translate(0,14)" text-anchor="middle"></text>
+            <div id="memory_container">
+                <svg id="memory_svg" xmlns="http://www.w3.org/2000/svg" version="1.1"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" width="120" height="204">
+                    <defs>
+                        <path class="memory_cell" d="m -23.12 0 h 46.24" />
+                        <path class="memory_pointer" d="m 0 -23.12 l -3 46.24 h 6 z" />
+                        <g class="memory_text">
+                            <text transform="translate(0,14)" text-anchor="middle"></text>
+                        </g>
+                    </defs>
+                    <g id="cell_container">
                     </g>
-                </defs>
-                <g id="cell_container">
-                </g>
-            </svg>
+                </svg>
+            </div>
         </div>
     </div>
 </body>

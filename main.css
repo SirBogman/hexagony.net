@@ -23,9 +23,9 @@
 }
 
 .cell_input {
-    position:absolute;
+    position: absolute;
     font-size: 20px;
-    margin-top: -12px;
+    margin-top: -13px;
     text-align: center;
     outline: none;
     width: 28px;
@@ -34,6 +34,17 @@
     border-width: 0;
     background: none;
     font-family: monospace;
+}
+
+.cell_text {
+    fill: black;
+    stroke: none;
+    font-size: 20px;
+    font-family: monospace;
+}
+
+.noop {
+    fill: #808080;
 }
 
 .puzzle {
