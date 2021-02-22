@@ -12,6 +12,7 @@ let size = -1;
 let rowCount = -1;
 let user_data;
 let timeoutID = null;
+let memoryPanZoom;
 
 function loadData() {
     user_data = undefined;
@@ -96,7 +97,7 @@ function checkArrowKeys(elem, event) {
     }
     if (event.key == 'Delete') {
         $(elem).val('.');
-        $(elem).select();
+        $(elem) .select();
         updateFromHexagons(0, 0, '.');
 
         event.preventDefault();
@@ -409,6 +410,7 @@ function onStep() {
 }
 
 function updateMemorySVG() {
+    let $container = $('#memory_container');
     let $svg = $('#memory_svg');
     let $lineTemplate = $('defs [class~=memory_cell]', $svg);
     let $mpTemplate = $('defs [class~=memory_pointer]', $svg);
@@ -419,7 +421,7 @@ function updateMemorySVG() {
         return;
     }
 
-    const padding = 3;
+    const padding = 10;
     const xFactor = 20;
     const yFactor = 34;
     const maxX = hexagony.memory.maxX + padding;
@@ -483,6 +485,8 @@ function updateMemorySVG() {
                 let $pointer = $mpTemplate.clone();
                 $pointer.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
                 $parent.append($pointer);
+                // TODO: only autoscroll when pointer gets near edges.
+                memoryPanZoom.moveTo(0.5 * $container.width() - xx, 0.5 * $container.height() - yy);
             }
         }
     }
@@ -667,6 +671,9 @@ function init() {
     $('#step').click(onStep);
     $('#stop').click(onStop);
     updateButtons();
+
+    panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
+    memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
 }
 
 $(document).ready(init);

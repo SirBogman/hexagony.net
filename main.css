@@ -22,6 +22,15 @@
     overflow: hidden;
 }
 
+#memory_container {
+    border: black;
+    border-style: solid;
+    border-width: 2px;
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+}
+
 .cell_input {
     position: absolute;
     font-size: 20px;
@@ -152,9 +161,6 @@ body {
 }
 
 #memory_svg {
-    border: black;
-    border-style: solid;
-    border-width: 2px;
     /* position: absolute; */
     /* left:0px; */
     /* top:0px; */
