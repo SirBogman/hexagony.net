@@ -117,6 +117,14 @@ body {
     stroke-miterlimit: 10;
 }
 
+@keyframes connector_flash {
+    to {stroke: cyan; stroke-width: 5;}
+}
+
+.connector_flash {
+    animation: connector_flash 0.5s linear 0s 2 alternate;
+}
+
 .positive_connector {
     stroke: #ed1c24;
 }

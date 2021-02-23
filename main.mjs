@@ -5,6 +5,8 @@ import {getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWh
 
 let cellPaths = [];
 let cellInput = [];
+let edgeConnectors = {};
+let nextEdgeConnectorAnimation = null;
 let hexagony = null;
 let sourceCode = null;
 let oldActiveCell = null;
@@ -209,6 +211,7 @@ function createGrid(newSize) {
     textParent.empty();
     cellPaths = [];
     cellInput = [];
+    edgeConnectors = {};
 
     let horizontalOffset = 3 * size / 2;
     let offsets = [
@@ -217,7 +220,7 @@ function createGrid(newSize) {
         [horizontalOffset, size], // South East
         [horizontalOffset, -size], // North East
         [0, rowCount + 1], // South
-        [-horizontalOffset, size], // South East
+        [-horizontalOffset, size], // South West
         [-horizontalOffset, -size], // North West
     ];
 
@@ -279,7 +282,9 @@ function createGrid(newSize) {
         }
 
         for (let i = 0; i < size; i++) {
-            const isSpecial = i == 0 || i == size - 1;
+            const leftEnd = i == 0;
+            const rightEnd = i == size - 1;
+            const isSpecial = leftEnd || rightEnd;
             let $connector, cellX, cellY, scaleX, scaleY;
 
             // Top edge
@@ -290,6 +295,7 @@ function createGrid(newSize) {
                 scaleX = radius / 20;
                 scaleY = -radius / 20;
                 if (i == 0) {
+                    // Move the symbol to the opposite end of the connector.
                     cellX -= cellOffsetX;
                     cellY -= cellOffsetY;
                     scaleX *= -1;
@@ -297,6 +303,14 @@ function createGrid(newSize) {
                 }
                 $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)` });
                 (isSpecial ? positiveConnectors : connectors).push($connector);
+
+                if (k == 0) {
+                    edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = $connector;
+                }
+                // Connectors from south hexagon.
+                if (k == 4) {
+                    edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = $connector;
+                }
 
                 $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
                 cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
@@ -309,6 +323,14 @@ function createGrid(newSize) {
                 }
                 $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)` });
                 connectors.push($connector);
+
+                if (k == 0) {
+                    edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = $connector;
+                }
+                // Connectors from south hexagon.
+                if (k == 4) {
+                    edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = $connector;
+                }
             }
 
             // North east edge
@@ -327,6 +349,14 @@ function createGrid(newSize) {
                 $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})` });
                 (isSpecial ? positiveConnectors : connectors).push($connector);
 
+                if (k == 0) {
+                    edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = $connector;
+                }
+                // Connectors from south west hexagon.
+                if (k == 5) {
+                    edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = $connector;
+                }
+
                 $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
                 cellX = getX(size, i, getRowSize(size, i) - 1) + (offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY - 0.75 * radius;
@@ -337,6 +367,14 @@ function createGrid(newSize) {
                 }
                 $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)` });
                 connectors.push($connector);
+
+                if (k == 0) {
+                    edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = $connector;
+                }
+                // Connectors from south west hexagon.
+                if (k == 5) {
+                    edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = $connector;
+                }
             }
 
             // South east edge
@@ -355,6 +393,14 @@ function createGrid(newSize) {
                 $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)` });
                 (isSpecial ? positiveConnectors : connectors).push($connector);
 
+                if (k == 0) {
+                    edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = $connector;
+                }
+                // Connectors from north west hexagon.
+                if (k == 6) {
+                    edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = $connector;
+                }
+
                 $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
                 cellX = getX(size, a, getRowSize(size, a) - 1) + (offsets[k][0] + 1) * cellWidth;
                 cellY = getY(size, a, getRowSize(size, a) - 1) + (offsets[k][1] + 1) * cellOffsetY;
@@ -366,6 +412,14 @@ function createGrid(newSize) {
                 }
                 $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})` });
                 $parent.append($connector);
+
+                if (k == 0) {
+                    edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = $connector;
+                }
+                // Connectors from south west hexagon.
+                if (k == 6) {
+                    edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = $connector;
+                }
             }
         }
     }
@@ -374,6 +428,10 @@ function createGrid(newSize) {
     positiveConnectors.forEach(x => $parent.append(x));
     outlines.forEach(x => $parent.append(x));
 
+    $('[class~=connector]', $svg).on('animationend', function() {
+        $(this).removeClass('connector_flash');
+    });
+
     $('[class~=cell]', $svg).click(function() {
         // Select text when clicking on the background of the cell.
         const [i, j] = getIndices(this);
@@ -381,10 +439,24 @@ function createGrid(newSize) {
     });
 }
 
+function edgeEventHandler(edgeName) {
+    nextEdgeConnectorAnimation = edgeName;
+}
+
+function resetHexagony() {
+    hexagony = null;
+    nextEdgeConnectorAnimation = null;
+}
+
 function onStep() {
     if (hexagony == null) {
         let input = $('#input').val().replaceAll(/\n/g, '\0');
-        hexagony = new Hexagony(sourceCode, input);
+        hexagony = new Hexagony(sourceCode, input, edgeEventHandler);
+    }
+
+    if (nextEdgeConnectorAnimation && nextEdgeConnectorAnimation in edgeConnectors) {
+        edgeConnectors[nextEdgeConnectorAnimation].addClass('connector_flash');
+        nextEdgeConnectorAnimation = null;
     }
 
     const [i, j] = hexagony.grid.axialToIndex(hexagony.coords);
@@ -572,7 +644,7 @@ function updateFromSourceCode(isProgrammatic) {
 
     if (sourceCode != code) {
         sourceCode = code;
-        hexagony = null;
+        resetHexagony();
     }
 
     code = removeWhitespaceAndDebug(code);
@@ -628,7 +700,7 @@ function updateFromHexagons(targetI, targetJ, value) {
     saveData();
     if (sourceCode != code) {
         sourceCode = code;
-        hexagony = null;
+        resetHexagony();
     }
 }
 
@@ -636,7 +708,7 @@ function onStop() {
     if (oldActiveCell != null) {
         oldActiveCell.removeClass('cell_active');
     }
-    hexagony = null;
+    resetHexagony();
     updateButtons();
     if (timeoutID != null) {
         window.clearTimeout(timeoutID);

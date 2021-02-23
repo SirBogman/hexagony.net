@@ -7,3 +7,13 @@ Implement speed slider.
 Implement info panel showing IP locations.
 
 Show hexagon size, minified bytes and chars.
+
+
+
+$("#red-box")
+  .on("click", function(){
+  $(this).addClass('animate');
+})
+  .on("animationend", function(){
+  $(this).removeClass('animate');
+});

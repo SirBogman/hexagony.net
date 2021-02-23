@@ -5,11 +5,12 @@ import {PointAxial} from './pointaxial.mjs';
 import {rubyStyleDivide, rubyStyleRemainder} from './util.mjs';
 
 export class Hexagony {
-    constructor(sourceCode, input) {
+    constructor(sourceCode, input, edgeEventHandler) {
         this.grid = new Grid(sourceCode);
         this.memory = new Memory();
         this.input = input;
         this.inputPosition = 0;
+        this.edgeEventHandler = edgeEventHandler;
         this.ips = [
             new PointAxial(0, -this.grid.size + 1),
             new PointAxial(this.grid.size - 1, -this.grid.size + 1),
@@ -154,6 +155,12 @@ export class Hexagony {
         this.output += string;
     }
 
+    followEdge(edgeType=0) {
+        if (this.edgeEventHandler) {
+            this.edgeEventHandler(`${this.coords},${this.dir},${edgeType}`);
+        }
+    }
+
     handleEdges() {
         if (this.grid.size == 1) {
             this.ips[this.activeIp] = new PointAxial(0, 0);
@@ -177,18 +184,22 @@ export class Hexagony {
 
         // If two values are still in range, we are wrapping around an edge (not a corner).
         if (!xBigger && !yBigger) {
+            this.followEdge();
             this.ips[this.activeIp] = new PointAxial(coords.q + coords.r, -coords.r);
         }
         else if (!yBigger && !zBigger) {
+            this.followEdge();
             this.ips[this.activeIp] = new PointAxial(-coords.q, coords.q + coords.r);
         }
         else if (!zBigger && !xBigger) {
+            this.followEdge();
             this.ips[this.activeIp] = new PointAxial(-coords.r, -coords.q);
         }
         else {
             // If two values are out of range, we navigated into a corner.
             // We teleport to a location that depends on the current memory value.
             const isPositive = this.memory.getValue() > 0;
+            this.followEdge(isPositive ? '+' : '-');
 
             if (!xBigger && !isPositive || !yBigger && isPositive)
                 this.ips[this.activeIp] = new PointAxial(coords.q + coords.r, -coords.r);
