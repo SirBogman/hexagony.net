@@ -223,6 +223,17 @@ function createGrid(newSize) {
         [0, rowCount + 1, 'S'],
         [-horizontalOffset, size, 'SW'],
         [-horizontalOffset, -size, 'NW'],
+        [horizontalOffset, size + rowCount + 1, 'SE2'],
+        [-horizontalOffset, size + rowCount + 1, 'SW2'],
+        [-horizontalOffset, -size - rowCount - 1, 'NW2'],
+        [horizontalOffset, -size - rowCount - 1, 'NE2'],
+        [rowCount + 1 + size, 0, 'EE0'],
+        [rowCount + 1 + size, -rowCount - 1, 'EE1'],
+        [rowCount + 1 + size, rowCount + 1, 'EE2'],
+        [-rowCount - 1 - size, 0, 'WW0'],
+        [-rowCount - 1 - size, -rowCount - 1, 'WW1'],
+        [-rowCount - 1 - size, rowCount + 1, 'WW2'],
+        [0, 2 * rowCount + 2, 'SS'],
     ];
 
     let offsetsDict = {};
@@ -294,7 +305,7 @@ function createGrid(newSize) {
             let $connector, cellX, cellY, scaleX, scaleY;
 
             // Top edge
-            if (offsets[k][1] >= 0) {
+            {
                 $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
                 cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, 0, i) + offsets[k][1] * cellOffsetY - 0.75 * radius;
@@ -344,7 +355,7 @@ function createGrid(newSize) {
             }
 
             // North east edge
-            if (offsets[k][0] <= 0 && offsets[k][1] >= -size) {
+            {
                 $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
                 cellX = getX(size, i, getRowSize(size, i) - 1) + offsets[k][0] * cellWidth + cellOffsetX;
                 cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY;
@@ -392,7 +403,7 @@ function createGrid(newSize) {
             }
 
             // South east edge
-            if (offsets[k][0] <= 0 && offsets[k][1] <= size) {
+            {
                 let a = i + size - 1;
                 $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
                 cellX = getX(size, a, getRowSize(size, a) - 1) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
