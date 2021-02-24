@@ -6,8 +6,13 @@ import {getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWh
 let cellPaths = [];
 let cellInput = [];
 let edgeConnectors = {};
+let offsets = [];
+let globalOffsetX = 0;
+let globalOffsetY = 0;
 let nextEdgeConnectorAnimation = null;
 let activeHexagon = 0;
+let activeI = 0;
+let activeJ = 0;
 let hexagony = null;
 let sourceCode = null;
 let oldActiveCell = null;
@@ -16,6 +21,8 @@ let rowCount = -1;
 let user_data;
 let timeoutID = null;
 let memoryPanZoom;
+let fullWidth;
+let fullHeight;
 
 function loadData() {
     user_data = undefined;
@@ -184,12 +191,15 @@ function createGrid(newSize) {
     const cellWidth = cellOffsetX * 2;
     const padding = 10;
 
+    globalOffsetX = cellWidth;
+    globalOffsetY = cellOffsetY;
+
     // When showing 6 hexagons around a center hexagon,
     // the "rowCount" below represents the number of rows in the center of one of the side hexagons.
     // the "size" represents the number of rows on the top and bottom edges of the center hexagons.
     // and 1 represents the gap between them.
-    const fullWidth = cellWidth * (rowCount * 2 + size + 1) + padding;
-    const fullHeight = cellOffsetY * (rowCount * 3 + 3) + padding;
+    fullWidth = 2*(cellWidth * (rowCount * 2 + size + 1) + padding);
+    fullHeight = 2*(cellOffsetY * (rowCount * 3 + 3) + padding);
     const centerX = fullWidth / 2;
     const centerY = fullHeight / 2;
 
@@ -203,6 +213,9 @@ function createGrid(newSize) {
         return centerY + (i - size + 1) * cellOffsetY;
     }
 
+    $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-fullWidth*0.25},${-fullHeight*0.25})`, 'transition-property': 'none'});
+    $('#puzzle_container').css({'max-width': fullWidth / 2, 'max-height': fullHeight /2 });
+
     let $svg = $('#puzzle');
     $svg.attr({ width: fullWidth, height: fullHeight });
     let $template = $('defs [class~=cell]', $svg);
@@ -214,31 +227,45 @@ function createGrid(newSize) {
     cellInput = [];
     edgeConnectors = {};
 
-    let horizontalOffset = 3 * size / 2;
-    let offsets = [
+    const largeGridTwoColumnOffset = size * 3;
+    const largeGridTwoRowOffset = size * 2;
+    const largeGridOneColumnOffset = largeGridTwoColumnOffset / 2;
+    const largeGridOneRowOffset = size;
+
+    offsets = [
         [0,0], // Center
-        [0, -rowCount - 1, 'N'],
-        [horizontalOffset, size, 'SE'],
-        [horizontalOffset, -size, 'NE'],
-        [0, rowCount + 1, 'S'],
-        [-horizontalOffset, size, 'SW'],
-        [-horizontalOffset, -size, 'NW'],
-        [horizontalOffset, size + rowCount + 1, 'SE2'],
-        [-horizontalOffset, size + rowCount + 1, 'SW2'],
-        [-horizontalOffset, -size - rowCount - 1, 'NW2'],
-        [horizontalOffset, -size - rowCount - 1, 'NE2'],
-        [rowCount + 1 + size, 0, 'EE0'],
-        [rowCount + 1 + size, -rowCount - 1, 'EE1'],
-        [rowCount + 1 + size, rowCount + 1, 'EE2'],
-        [-rowCount - 1 - size, 0, 'WW0'],
-        [-rowCount - 1 - size, -rowCount - 1, 'WW1'],
-        [-rowCount - 1 - size, rowCount + 1, 'WW2'],
-        [0, 2 * rowCount + 2, 'SS'],
+        [0, -largeGridTwoRowOffset, 'N'],
+        [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
+        [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
+        [0, largeGridTwoRowOffset, 'S'],
+        [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
+        [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
     ];
+
+    for (let i = 1; i <= 2; i++) {
+        offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+        offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+        offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
+        offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
+    }
+
+    for (let i = -5; i <= 5; i++) {
+        offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]); // EE
+        offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]); // WW
+
+        offsets.push([-largeGridOneColumnOffset - largeGridTwoColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+        offsets.push([largeGridOneColumnOffset + largeGridTwoColumnOffset, -size - i * largeGridTwoRowOffset]);
+
+        if (i < -1 || i > 1) {
+            offsets.push([0, i * largeGridTwoRowOffset]); // Center
+        }
+    }
 
     let offsetsDict = {};
     for (let i = 1; i < offsets.length; i++) {
-        offsetsDict[offsets[i][2]] = i;
+        if (offsets[i][2]) {
+            offsetsDict[offsets[i][2]] = i;
+        }
     }
 
     let $outlineTemplate = $('defs [class~=outline]', $svg);
@@ -478,6 +505,20 @@ function resetHexagony() {
     activeHexagon = 0;
 }
 
+function updateActiveCell(transition) {
+    const activeCell = cellPaths[activeHexagon][activeI][activeJ];
+
+    if (oldActiveCell != activeCell) {
+        if (oldActiveCell != null) {
+            $(oldActiveCell).css('transition-property', transition ? 'fill': 'none');
+            $(oldActiveCell).removeClass('cell_active');
+        }
+        $(activeCell).css('transition-property', transition ? 'fill': 'none');
+        $(activeCell).addClass('cell_active');
+        oldActiveCell = activeCell;
+    }
+}
+
 function onStep() {
     if (hexagony == null) {
         let input = $('#input').val().replaceAll(/\n/g, '\0');
@@ -485,30 +526,25 @@ function onStep() {
     }
 
     if (nextEdgeConnectorAnimation && nextEdgeConnectorAnimation in edgeConnectors) {
-        edgeConnectors[nextEdgeConnectorAnimation].addClass('connector_flash');
-        activeHexagon = edgeConnectors[nextEdgeConnectorAnimation].data('next');
+        const $connector = edgeConnectors[nextEdgeConnectorAnimation];
+        $connector.addClass('connector_flash');
+        activeHexagon = $connector.data('next');
+        const x = offsets[activeHexagon][0] * globalOffsetX;
+        const y = offsets[activeHexagon][1] * globalOffsetY;
+        $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-x - fullWidth/4},${-y - fullHeight/4})`, 'transition-property': 'transform'});
         nextEdgeConnectorAnimation = null;
     }
 
-    const [i, j] = hexagony.grid.axialToIndex(hexagony.coords);
+    [activeI, activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
     hexagony.step();
-    const activeCell = cellPaths[activeHexagon][i][j];
-
-    if (oldActiveCell != activeCell) {
-        if (oldActiveCell != null) {
-            $(oldActiveCell).removeClass('cell_active');
-        }
-        $(activeCell).addClass('cell_active');
-        oldActiveCell = activeCell;
-    }
-
-    $('#output').val(hexagony.output);
+    updateActiveCell(true);
+    $('#output').html(hexagony.output);
     $('#stepcount').html(hexagony.ticks);
     updateButtons();
     updateMemorySVG();
 
     if (isRunning) {
-        //timeoutID = window.setTimeout(onStep, 100);
+        timeoutID = window.setTimeout(onStep, 1000);
     }
 }
 
@@ -533,6 +569,11 @@ function updateMemorySVG() {
     const minY = hexagony.memory.minY - padding;
 
     $svg.attr({ width: (maxX - minX) * xFactor, height: (maxY - minY) * yFactor });
+
+    const centerX = 0.5 * (maxX - minX) * xFactor;
+    const centerY = 0.5 * (maxY - minY) * yFactor;
+    //$svg.css({ transform: `matrix(1 0,0,1, ${0.5 * $container.width() - centerX}, ${0.5 * $container.height() - centerY})` });
+    //$svg.attr({ transform: `translate(${0.5 * $container.width() - centerX}, ${0.5 * $container.height() - centerY})` });
 
     for (let y = minY; y <= maxY; y++) {
         for (let x = minX; x <= maxX; x++) {
@@ -573,7 +614,7 @@ function updateMemorySVG() {
                 let string = value.toString();
 
                 if (value >= 0x20 && value <= 0xff && value != 0x7f) {
-                    string += ` '${String.fromCharCode(Number(value % 256n))}'`;
+                    string += ` ‘${String.fromCharCode(Number(value % 256n))}’`;
                 }
 
                 let $text = $textTemplate.clone();
@@ -589,7 +630,7 @@ function updateMemorySVG() {
                 $pointer.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
                 $parent.append($pointer);
                 // TODO: only autoscroll when pointer gets near edges.
-                memoryPanZoom.moveTo(0.5 * $container.width() - xx, 0.5 * $container.height() - yy);
+                memoryPanZoom.moveTo(0.5 * $container.width() - centerX, 0.5 * $container.height() - centerY);
             }
         }
     }
@@ -775,7 +816,15 @@ function init() {
     $('#stop').click(onStop);
     updateButtons();
 
-    panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
+    $('#puzzle_parent').on('transitionend', function(e) {
+        if (e.target == this) {
+            $(this).css({transform: `matrix(1,0,0,1,${-fullWidth/4},${-fullHeight/4})`, 'transition-property': 'none'});
+            activeHexagon = 0;
+            updateActiveCell(false);
+        }
+    });
+
+    // panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
     memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
 }
 

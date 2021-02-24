@@ -1,11 +1,28 @@
+.pre {
+    white-space: pre;
+    font-family: monospace;
+}
+
+.pre:after {
+    /* Allows user to see a trailing line break. */
+    content: '';
+}
+
 #sourcecode {
     width: 500px;
     height: 100px;
 }
 
-#output, #input {
-    width: 500px;
+#input {
+    width: 300px;
     height: 100px;
+}
+
+#output {
+    background-color: lightgray;
+    width: 300px;
+    min-height: 1em;
+    padding: 0.5em;
 }
 
 #memory {
@@ -20,6 +37,11 @@
     max-width: 1000px;
     max-height: 1000px;
     overflow: hidden;
+}
+
+#puzzle_parent {
+    transition-duration: 0.75s;
+    transition-timing-function: ease-in-out;
 }
 
 #memory_container {
@@ -89,6 +111,7 @@ body {
     stroke-width: 0.5;
     stroke-miterlimit: 10;
     transition-duration: 0.25s;
+    transition-timing-function: ease-out;
 }
 
 .outline {
@@ -122,7 +145,8 @@ body {
 }
 
 .connector_flash {
-    animation: connector_flash 0.5s linear 0s 2 alternate;
+    /* animation: connector_flash 0.5s linear 0s 2 alternate; */
+    animation: connector_flash 0.375s ease-out 0s 2 alternate;
 }
 
 .positive_connector {
