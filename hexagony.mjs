@@ -5,10 +5,10 @@ import {PointAxial} from './pointaxial.mjs';
 import {rubyStyleDivide, rubyStyleRemainder} from './util.mjs';
 
 export class Hexagony {
-    constructor(sourceCode, input, edgeEventHandler) {
+    constructor(sourceCode, inputString, edgeEventHandler) {
         this.grid = new Grid(sourceCode);
         this.memory = new Memory();
-        this.input = input;
+        this.input = [...inputString];
         this.inputPosition = 0;
         this.edgeEventHandler = edgeEventHandler;
         this.ips = [

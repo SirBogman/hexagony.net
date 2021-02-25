@@ -1,3 +1,22 @@
+export function countCodepoints(code) {
+    let count = 0;
+    // eslint-disable-next-line no-unused-vars
+    for (let _ of code) {
+        count++;
+    }
+    return count;
+}
+
+export function countOperators(code) {
+    let count = 0;
+    for (let char of code) {
+        if (char != '.') {
+            count++;
+        }
+    }
+    return count;
+}
+
 export function getCodeLength(hexagonSize) {
     return hexagonSize ? 1 + 6 * (hexagonSize * (hexagonSize - 1)) / 2 : 0;
 }
@@ -9,13 +28,19 @@ export function getHexagonSize(codeLength) {
 }
 
 export function minify(code) {
-    const size = getHexagonSize(code.length);
+    code = removeWhitespace(code);
+    const size = getHexagonSize(countCodepoints(code));
     const minimumLength = getCodeLength(size - 1) + 1;
     code = code.replace(/\.+$/, '');
-    if (code.length < minimumLength) {
-        code += '.'.repeat(minimumLength - code.length);
+    const newLength = countCodepoints(code);
+    if (newLength < minimumLength) {
+        code += '.'.repeat(minimumLength - newLength);
     }
     return code;
+}
+
+export function removeWhitespace(code) {
+    return code.replaceAll(/ |\t|\r|\n/g, '');
 }
 
 export function removeWhitespaceAndDebug(code) {

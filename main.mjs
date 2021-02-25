@@ -1,7 +1,7 @@
 import {east, northEast, southEast} from './direction.mjs';
 import {Hexagony} from './hexagony.mjs';
 import {PointAxial} from './pointaxial.mjs';
-import {getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWhitespaceAndDebug} from './util.mjs';
+import {countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWhitespaceAndDebug} from './util.mjs';
 
 let cellPaths = [];
 let cellInput = [];
@@ -669,25 +669,6 @@ function resizeCode(size) {
     return newCode;
 }
 
-function countCodepoints(code) {
-    let count = 0;
-    // eslint-disable-next-line no-unused-vars
-    for (let _ of code) {
-        count++;
-    }
-    return count;
-}
-
-function countOperators(code) {
-    let count = 0;
-    for (let char of code) {
-        if (char != '.') {
-            count++;
-        }
-    }
-    return count;
-}
-
 function onShrink() {
     let newCode = resizeCode(size - 1);
     if (countOperators(sourceCode) == countOperators(newCode) ||
@@ -705,6 +686,11 @@ function resize(size) {
 function reset(size) {
     $('#sourcecode').val('.'.repeat(getCodeLength(size - 1) + 1));
     updateFromSourceCode();
+}
+
+function setSourceCode(newCode) {
+    $('#sourcecode').val(newCode);
+    updateFromSourceCode(true);
 }
 
 function updateFromSourceCode(isProgrammatic) {
@@ -801,9 +787,8 @@ function updateButtons() {
 
 function init() {
     loadData();
-    $('#sourcecode').val(user_data.code);
     $('#sourcecode').bind('input propertychange', updateFromSourceCode);
-    updateFromSourceCode(true);
+    setSourceCode(user_data.code);
 
     $('#reset').click(() => {
         if (confirm('Remove all code from the hexagon? This cannot be undone.')) {
@@ -815,6 +800,9 @@ function init() {
     $('#smaller').click(onShrink);
     $('#step').click(onStep);
     $('#stop').click(onStop);
+    $('#minify').click(function() {
+        setSourceCode(minify(sourceCode));
+    });
     updateButtons();
 
     $('#puzzle_parent').on('transitionend', function(e) {
