@@ -1,7 +1,7 @@
-import {east, northEast, southEast} from './direction.mjs';
-import {Hexagony} from './hexagony.mjs';
-import {PointAxial} from './pointaxial.mjs';
-import { countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './util.mjs';
+import { east, northEast, southEast } from './hexagony/direction.mjs';
+import { Hexagony } from './hexagony/hexagony.mjs';
+import { PointAxial } from './hexagony/pointaxial.mjs';
+import { countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 
 let cellPaths = [];
 let cellInput = [];
