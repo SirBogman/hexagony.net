@@ -676,22 +676,19 @@ function onShrink() {
 }
 
 function resize(size) {
-    let newCode = resizeCode(size);
-    $('#sourcecode').val(newCode);
-    updateFromSourceCode();
+    setSourceCode(resizeCode(size));
 }
 
 function reset(size) {
-    $('#sourcecode').val('.'.repeat(getCodeLength(size - 1) + 1));
-    updateFromSourceCode();
+    setSourceCode('.'.repeat(getCodeLength(size - 1) + 1));
 }
 
-function setSourceCode(newCode) {
+function setSourceCode(newCode, isProgrammatic=false) {
     $('#sourcecode').val(newCode);
-    updateFromSourceCode(true);
+    updateFromSourceCode(true, isProgrammatic);
 }
 
-function updateFromSourceCode(isProgrammatic) {
+function updateFromSourceCode(isProgrammatic=false) {
     let code = $('#sourcecode').val();
     user_data.code = code;
 
@@ -786,7 +783,7 @@ function updateButtons() {
 function init() {
     loadData();
     $('#sourcecode').bind('input propertychange', updateFromSourceCode);
-    setSourceCode(user_data.code);
+    setSourceCode(user_data.code, true);
 
     $('#reset').click(() => {
         if (confirm('Remove all code from the hexagon? This cannot be undone.')) {
