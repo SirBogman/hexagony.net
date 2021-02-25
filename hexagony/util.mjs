@@ -1,3 +1,5 @@
+import {PointAxial} from './pointaxial.mjs';
+
 export function countCodepoints(code) {
     let count = 0;
     // eslint-disable-next-line no-unused-vars
@@ -25,6 +27,10 @@ export function getHexagonSize(codeLength) {
     return codeLength ?
         Math.ceil((3 + Math.sqrt(12 * codeLength - 3)) / 6) :
         1;
+}
+
+export function indexToAxial(size, rowIndex, columnIndex) {
+    return new PointAxial(Math.max(1 - size, -rowIndex) + columnIndex, rowIndex - size + 1);
 }
 
 export function minifySource(code) {

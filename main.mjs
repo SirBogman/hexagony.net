@@ -1,7 +1,7 @@
 import { east, northEast, southEast } from './hexagony/direction.mjs';
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { PointAxial } from './hexagony/pointaxial.mjs';
-import { countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
+import { countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, indexToAxial, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 
 let cellPaths = [];
 let cellInput = [];
@@ -176,10 +176,6 @@ function checkArrowKeys(elem, event) {
 
 function outlineHelper(x1, y1, x2, y2) {
     return `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
-}
-
-function indexToAxial(size, rowIndex, columnIndex) {
-    return new PointAxial(Math.max(1 - size, -rowIndex) + columnIndex, rowIndex - size + 1);
 }
 
 function createGrid(newSize) {
