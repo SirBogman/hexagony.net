@@ -243,22 +243,22 @@ function createGrid(newSize) {
         [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
     ];
 
-    for (let i = 1; i <= 2; i++) {
-        offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-        offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-        offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
-        offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
-    }
-
-    for (let i = -5; i <= 5; i++) {
-        offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]); // EE
-        offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]); // WW
-
-        offsets.push([-largeGridOneColumnOffset - largeGridTwoColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-        offsets.push([largeGridOneColumnOffset + largeGridTwoColumnOffset, -size - i * largeGridTwoRowOffset]);
-
-        if (i < -1 || i > 1) {
-            offsets.push([0, i * largeGridTwoRowOffset]); // Center
+    // Create extra hexagons to make it look infinite.
+    {
+        for (let i = 1; i <= 2; i++) {
+            offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+            offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+            offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
+            offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
+        }
+        for (let i = -5; i <= 5; i++) {
+            offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
+            offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
+            offsets.push([-largeGridOneColumnOffset - largeGridTwoColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+            offsets.push([largeGridOneColumnOffset + largeGridTwoColumnOffset, -size - i * largeGridTwoRowOffset]);
+            if (i < -1 || i > 1) {
+                offsets.push([0, i * largeGridTwoRowOffset]); // Center
+            }
         }
     }
 
@@ -526,7 +526,9 @@ function onStep() {
         hexagony = new Hexagony(sourceCode, input, edgeEventHandler);
     }
 
+    let isEdgeTransition = false;
     if (nextEdgeConnectorAnimation && nextEdgeConnectorAnimation in edgeConnectors) {
+        isEdgeTransition = true;
         const $connector = edgeConnectors[nextEdgeConnectorAnimation];
         $connector.addClass('connector_flash');
         activeHexagon = $connector.data('next');
@@ -545,7 +547,7 @@ function onStep() {
     updateMemorySVG();
 
     if (isRunning) {
-        timeoutID = window.setTimeout(onStep, 1000);
+        timeoutID = window.setTimeout(onStep, isEdgeTransition ? 1000 : 300);
     }
 }
 

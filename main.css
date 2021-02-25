@@ -1,3 +1,28 @@
+/* Things that affect animation duration. */
+@keyframes connector_flash {
+    to {stroke: cyan; stroke-width: 5;}
+}
+
+.connector_flash {
+    animation: connector_flash 0.425s ease-out 0s 2 alternate;
+}
+
+.cell {
+    fill: white;
+    stroke: #808080;
+    stroke-width: 0.5;
+    stroke-miterlimit: 10;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-out;
+}
+
+#puzzle_parent {
+    transition-duration: 0.85s;
+    transition-timing-function: ease-in-out;
+}
+
+/* Other things */
+
 .pre {
     white-space: pre;
     font-family: monospace;
@@ -39,10 +64,7 @@
     overflow: hidden;
 }
 
-#puzzle_parent {
-    transition-duration: 0.75s;
-    transition-timing-function: ease-in-out;
-}
+
 
 #memory_container {
     border: black;
@@ -105,15 +127,6 @@ body {
     justify-content: center;
 }
 
-.cell {
-    fill: white;
-    stroke: #808080;
-    stroke-width: 0.5;
-    stroke-miterlimit: 10;
-    transition-duration: 0.25s;
-    transition-timing-function: ease-out;
-}
-
 .outline {
     fill: none;
     stroke: black;
@@ -138,15 +151,6 @@ body {
     stroke: #F7941D;
     stroke-width: 1.0;
     stroke-miterlimit: 10;
-}
-
-@keyframes connector_flash {
-    to {stroke: cyan; stroke-width: 5;}
-}
-
-.connector_flash {
-    /* animation: connector_flash 0.5s linear 0s 2 alternate; */
-    animation: connector_flash 0.375s ease-out 0s 2 alternate;
 }
 
 .positive_connector {
