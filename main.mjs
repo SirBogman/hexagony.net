@@ -48,7 +48,8 @@ function navigateTo(i, j) {
     // Hide the text in the SVG cell, create an input element, and select it.
     let cell = cellInput[0][i][j]();
     let $svgCell = cellPaths[0][i][j];
-    $(cell).val($svgCell.find('text').html());
+    // Getting the html content would return "&amp;" for "&". Get the node value instead.
+    $(cell).val($svgCell.find('text')[0].childNodes[0].nodeValue);
     $svgCell.find('text').html('');
 
     cell.focus();
@@ -750,7 +751,7 @@ function updateHexagonWithCode(index, code) {
 
 function updateFromHexagons(targetI, targetJ, value) {
     let code = '';
-    let iterator = sourceCode[Symbol.iterator]();
+    let iterator = removeWhitespaceAndDebug(sourceCode)[Symbol.iterator]();
     for (let i = 0; i < rowCount; i++) {
         for (let j = 0; j < getRowSize(size, i); j++) {
             let current = iterator.next().value;
