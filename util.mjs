@@ -27,7 +27,7 @@ export function getHexagonSize(codeLength) {
         1;
 }
 
-export function minify(code) {
+export function minifySource(code) {
     code = removeWhitespace(code);
     const size = getHexagonSize(countCodepoints(code));
     const minimumLength = getCodeLength(size - 1) + 1;
@@ -37,6 +37,34 @@ export function minify(code) {
         code += '.'.repeat(minimumLength - newLength);
     }
     return code;
+}
+
+export function layoutSource(code) {
+    code = removeWhitespace(code);
+    const size = getHexagonSize(countCodepoints(removeDebug(code)));
+    let iterator = code[Symbol.iterator]();
+    let newCode = '';
+    const rowCount = getRowCount(size);
+    for (let i = 0; i < rowCount; i++) {
+        newCode += ' '.repeat(rowCount - getRowSize(size, i));
+        for (let j = 0; j < getRowSize(size, i); j++) {
+            let prefix = ' ';
+            let next = iterator.next();
+            if (next.value == '`') {
+                prefix = '`';
+                next = iterator.next();
+            }
+            newCode += `${prefix}${next.value || '.'}`;
+        }
+        if (i != rowCount - 1) {
+            newCode += '\n';
+        }
+    }
+    return newCode;
+}
+
+export function removeDebug(code) {
+    return code.replaceAll(/`/g, '');
 }
 
 export function removeWhitespace(code) {

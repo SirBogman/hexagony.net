@@ -1,7 +1,7 @@
 import {east, northEast, southEast} from './direction.mjs';
 import {Hexagony} from './hexagony.mjs';
 import {PointAxial} from './pointaxial.mjs';
-import {countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, minify, removeWhitespaceAndDebug} from './util.mjs';
+import { countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './util.mjs';
 
 let cellPaths = [];
 let cellInput = [];
@@ -665,7 +665,7 @@ function resizeCode(size) {
     }
 
     newCode += '.'.repeat(getCodeLength(size) - countCodepoints(newCode));
-    newCode = minify(newCode);
+    newCode = minifySource(newCode);
     return newCode;
 }
 
@@ -753,7 +753,7 @@ function updateFromHexagons(targetI, targetJ, value) {
         updateHexagonWithCode(k, code);
     }
 
-    code = minify(code);
+    code = minifySource(code);
     user_data.code = code;
     $('#sourcecode').val(code);
     saveData();
@@ -801,7 +801,10 @@ function init() {
     $('#step').click(onStep);
     $('#stop').click(onStop);
     $('#minify').click(function() {
-        setSourceCode(minify(sourceCode));
+        setSourceCode(minifySource(sourceCode));
+    });
+    $('#layout').click(function() {
+        setSourceCode(layoutSource(sourceCode));
     });
     updateButtons();
 
