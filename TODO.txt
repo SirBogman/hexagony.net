@@ -1,8 +1,7 @@
 When executing, don't allow the code to be changed in the hexagon or source code box.
+Make sure the editing cell loses focus on start/step.
 
 Implement breakpoints.
-Implement play button.
-Implement pause button.
 Implement speed slider.
 
 Implement info panel showing IP locations.
@@ -14,7 +13,7 @@ Implement undo/redo.
 
 Hotkeys:
 Ctrl + B: breakpoints
-Ctrl + enter: run
+Ctrl + enter: start/pause
 Ctrl + '.': step
 ctrl + shift + enter: stop
 Ctrl + Z: undo
@@ -24,3 +23,7 @@ Document hotkeys.
 Tab
 Shift+tab,
 Shift +up/down arrows.
+
+Tool bar at the top (sticky scrolling), like code.golf. Hexagony Icon (white), about page?, play, step, pause, stop with tooltips for hotkeys.
+
+Undo redo buttons on toolbar showing state.

@@ -1,3 +1,4 @@
+// Contains code related to creating the view of Hexagony's memory.
 import { east, northEast, southEast } from '../hexagony/direction.mjs';
 import { PointAxial } from '../hexagony/pointaxial.mjs';
 

@@ -12,34 +12,52 @@ export function updateHexagonWithCode(gridState, index, code) {
     let iterator = code[Symbol.iterator]();
     for (let i = 0; i < gridState.cellPaths[index].length; i++) {
         for (let j = 0; j < gridState.cellPaths[index][i].length; j++) {
+            const cell = gridState.cellPaths[index][i][j];
             const char = iterator.next().value || '.';
-            const text = gridState.cellPaths[index][i][j].find('text');
-            text.html(char);
-            if (char == '.') {
-                text.addClass('noop');
+            const input = cell.data('input');
+            if (input) {
+                $(input).val(char);
+                $(input).select();
             }
             else {
-                text.removeClass('noop');
+                const text = cell.find('text');
+                text.html(char);
+                if (char == '.') {
+                    text.addClass('noop');
+                }
+                else {
+                    text.removeClass('noop');
+                }
             }
         }
     }
 }
 
-function updateFromHexagons(gridState, targetI, targetJ, value) {
+function updateFromHexagons(gridState, targetI, targetJ, value, updateActiveHexagon=true) {
     let code = '';
+    let oldValue = '.';
+
     let iterator = removeWhitespaceAndDebug(gridState.sourceCode)[Symbol.iterator]();
     for (let i = 0; i < gridState.rowCount; i++) {
         for (let j = 0; j < getRowSize(gridState.size, i); j++) {
             let current = iterator.next().value;
             if (i == targetI && j == targetJ) {
+                oldValue = current;
+                if (oldValue == value) {
+                    return;
+                }
                 current = value;
             }
             code += current || '.';
         }
     }
 
-    // Skip the currently editing hexagon 0.
-    for (let k = 1; k < gridState.cellPaths.length; k++) {
+    gridState.pushUndoItem(
+        () => updateFromHexagons(gridState, targetI, targetJ, oldValue),
+        () => updateFromHexagons(gridState, targetI, targetJ, value));
+
+    // Assume that currently editing hexagon 0.
+    for (let k = updateActiveHexagon ? 0 : 1; k < gridState.cellPaths.length; k++) {
         updateHexagonWithCode(gridState, k, code);
     }
 
@@ -60,7 +78,9 @@ function checkArrowKeys(gridState, elem, event) {
         }
     }
     if (event.key == 'Backspace') {
+        // TODO: do nothing if no text selected?
         $(elem).val('.');
+        // focusout will apply update.
         if (j) {
             navigateTo(gridState, i, j - 1);
         }
@@ -68,7 +88,7 @@ function checkArrowKeys(gridState, elem, event) {
             navigateTo(gridState, i - 1, getRowSize(gridState.size, i - 1) - 1);
         }
         else {
-            updateFromHexagons(gridState, 0, 0, '.');
+            updateFromHexagons(gridState, 0, 0, '.', false);
             $(elem).select();
         }
         event.preventDefault();
@@ -77,7 +97,7 @@ function checkArrowKeys(gridState, elem, event) {
     if (event.key == 'Delete') {
         $(elem).val('.');
         $(elem) .select();
-        updateFromHexagons(gridState, 0, 0, '.');
+        updateFromHexagons(gridState, 0, 0, '.', false);
 
         event.preventDefault();
         return;
@@ -148,7 +168,9 @@ function navigateTo(gridState, i, j) {
     let $svgCell = gridState.cellPaths[0][i][j];
     // Getting the html content would return "&amp;" for "&". Get the node value instead.
     $(cell).val($svgCell.find('text')[0].childNodes[0].nodeValue);
+    // Temporarily clear the text.
     $svgCell.find('text').html('');
+    $svgCell.data('input', `#input_${i}_${j}_${0}`);
 
     cell.focus();
     cell.select();
@@ -159,7 +181,7 @@ function navigateTo(gridState, i, j) {
 
     cell.bind('input propertychange', function() {
         const newText = $(this).val() || '.';
-        updateFromHexagons(gridState, i, j, newText);
+        updateFromHexagons(gridState, i, j, newText, false);
         // Reselect the text so that backspace can work normally.
         $(this).select();
     });
@@ -167,6 +189,7 @@ function navigateTo(gridState, i, j) {
     cell.focusout(function() {
         const newText = $(this).val() || '.';
         this.remove();
+        $svgCell.data('input', null);
         updateFromHexagons(gridState, i, j, newText);
         updateHexagonWithCode(gridState, 0, gridState.sourceCode);
     });

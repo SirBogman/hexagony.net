@@ -21,6 +21,9 @@ let gridState = {
     fullWidth: 0,
     fullHeight: 0,
     sourceCode: null,
+    undoStack: [],
+    redoStack: [],
+    isUndoRedoInProgress: false,
     updateCode: function(code) {
         user_data.code = code;
         $('#sourcecode').val(code);
@@ -28,6 +31,48 @@ let gridState = {
         if (this.sourceCode != code) {
             this.sourceCode = code;
             resetHexagony();
+        }
+    },
+    updateUndoButtons: function() {
+        $('#undo').prop('disabled', this.undoStack.length == 0);
+        $('#redo').prop('disabled', this.redoStack.length == 0);
+    },
+    undo: function() {
+        if (this.undoStack.length) {
+            let undoItem = this.undoStack.pop();
+            this.redoStack.push(undoItem);
+            this.isUndoRedoInProgress = true;
+            try {
+                undoItem.undo();
+            }
+            finally {
+                this.isUndoRedoInProgress = false;
+            }
+            this.updateUndoButtons();
+        }
+    },
+    redo: function() {
+        if (this.redoStack.length) {
+            let undoItem = this.redoStack.pop();
+            this.undoStack.push(undoItem);
+            this.isUndoRedoInProgress = true;
+            try {
+                undoItem.redo();
+            }
+            finally {
+                this.isUndoRedoInProgress = false;
+            }
+            this.updateUndoButtons();
+        }
+    },
+    pushUndoItem: function(undoFunction, redoFunction) {
+        if (!this.isUndoRedoInProgress) {
+            this.undoStack.push({
+                undo: undoFunction,
+                redo: redoFunction
+            });
+            this.redoStack = [];
+            this.updateUndoButtons();
         }
     }
 };
@@ -80,7 +125,19 @@ function updateActiveCell(gridState, transition) {
     }
 }
 
+function onStart() {
+    const isEdgeTransition = stepHelper();
+    if (isRunning) {
+        gridState.timeoutID = window.setTimeout(onStart, isEdgeTransition ? 1000 : 300);
+    }
+}
+
 function onStep() {
+    stepHelper();
+    onPause();
+}
+
+function stepHelper() {
     if (hexagony == null) {
         let input = $('#input').val().replaceAll(/\n/g, '\0');
         hexagony = new Hexagony(gridState.sourceCode, input, edgeEventHandler);
@@ -106,10 +163,7 @@ function onStep() {
     $('#stepcount').html(hexagony.ticks);
     updateButtons();
     updateMemorySVG(hexagony, memoryPanZoom);
-
-    if (isRunning) {
-        gridState.timeoutID = window.setTimeout(onStep, isEdgeTransition ? 1000 : 300);
-    }
+    return isEdgeTransition;
 }
 
 function resizeCode(size) {
@@ -190,16 +244,25 @@ function updateFromSourceCode(isProgrammatic=false) {
     }
 }
 
+function onPause() {
+    if (gridState.timeoutID != null) {
+        window.clearTimeout(gridState.timeoutID);
+        gridState.timeoutID = null;
+        updateButtons();
+    }
+}
+
 function onStop() {
     if (gridState.oldActiveCell != null) {
         gridState.oldActiveCell.removeClass('cell_active');
     }
     resetHexagony();
+    onPause();
     updateButtons();
-    if (gridState.timeoutID != null) {
-        window.clearTimeout(gridState.timeoutID);
-        gridState.timeoutID = null;
-    }
+}
+
+function isPlaying() {
+    return gridState.timeoutID != null;
 }
 
 function isRunning() {
@@ -209,7 +272,9 @@ function isRunning() {
 function updateButtons() {
     const running = isRunning();
     $('.edit_button').prop('disabled', running);
+    $('#start').prop('disabled', gridState.timeoutID != null);
     $('#stop').prop('disabled', !running);
+    $('#pause').prop('disabled', gridState.timeoutID == null);
 }
 
 function init() {
@@ -225,14 +290,20 @@ function init() {
 
     $('#bigger').click(() => resize(gridState.size + 1));
     $('#smaller').click(onShrink);
+    $('#start').click(onStart);
     $('#step').click(onStep);
     $('#stop').click(onStop);
+    $('#pause').click(onPause);
     $('#minify').click(function() {
         setSourceCode(minifySource(gridState.sourceCode));
     });
     $('#layout').click(function() {
         setSourceCode(layoutSource(gridState.sourceCode));
     });
+
+    $('#undo').click(() => gridState.undo());
+    $('#redo').click(() => gridState.redo());
+
     updateButtons();
 
     $('#puzzle_parent').on('transitionend', function(e) {
@@ -250,11 +321,33 @@ function init() {
 $(document).ready(init);
 
 $(document).keydown(function(e) {
-    if (e.key == 'F10') {
-        onStep();
-        e.preventDefault();
-        return true;
+    if (e.ctrlKey) {
+        if (e.key == '.') {
+            onStep();
+            e.preventDefault();
+        }
+        else if (e.key == 'Enter') {
+            if (e.shiftKey) {
+                onStop();
+            }
+            else if (isPlaying()) {
+                console.log(`onpause`);
+                onPause();
+            }
+            else {
+                onStart();
+            }
+        }
+        else if (e.key == 'z') {
+            gridState.undo();
+            e.preventDefault();
+        }
+        else if (e.key == 'y') {
+            gridState.redo();
+            e.preventDefault();
+        }
     }
+    //console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
 });
 
 // Keys:
