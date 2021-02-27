@@ -2,7 +2,7 @@
   "name": "hexagony.net",
   "version": "1.0.0",
   "description": "",
-  "main": "",
+  "private": true,
   "dependencies": {},
   "devDependencies": {
     "eslint": "^7.20.0"

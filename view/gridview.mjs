@@ -170,7 +170,9 @@ function navigateTo(gridState, i, j) {
     $(cell).val($svgCell.find('text')[0].childNodes[0].nodeValue);
     // Temporarily clear the text.
     $svgCell.find('text').html('');
-    $svgCell.data('input', `#input_${i}_${j}_${0}`);
+    const selector = `#input_${i}_${j}_${0}`;
+    $svgCell.data('input', selector);
+    gridState.activeEditingCell = selector;
 
     cell.focus();
     cell.select();
@@ -190,7 +192,11 @@ function navigateTo(gridState, i, j) {
         const newText = $(this).val() || '.';
         this.remove();
         $svgCell.data('input', null);
+        if (gridState.activeEditingCell == selector) {
+            gridState.activeEditingCell = null;
+        }
         updateFromHexagons(gridState, i, j, newText);
+        // TODO: is this necessary?
         updateHexagonWithCode(gridState, 0, gridState.sourceCode);
     });
 }

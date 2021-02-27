@@ -24,6 +24,7 @@ let gridState = {
     undoStack: [],
     redoStack: [],
     isUndoRedoInProgress: false,
+    activeEditingCell: null,
     updateCode: function(code) {
         user_data.code = code;
         $('#sourcecode').val(code);
@@ -331,12 +332,12 @@ $(document).keydown(function(e) {
                 onStop();
             }
             else if (isPlaying()) {
-                console.log(`onpause`);
                 onPause();
             }
             else {
                 onStart();
             }
+            e.preventDefault();
         }
         else if (e.key == 'z') {
             gridState.undo();
