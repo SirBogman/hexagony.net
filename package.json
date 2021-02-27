@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "panzoom": "^9.4.1"
+  },
   "devDependencies": {
     "eslint": "^7.20.0"
   },
