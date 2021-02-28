@@ -228,7 +228,7 @@ function updateButtons() {
 
 function init() {
     loadData();
-    $('#sourcecode').bind('input propertychange', updateFromSourceCode);
+    $('#sourcecode').on('input propertychange', updateFromSourceCode);
     setSourceCode(user_data.code, true);
 
     $('#reset').on('click', () => {

@@ -110,7 +110,7 @@ export class GridView {
                 const input = cell.data('input');
                 if (input) {
                     $(input).val(char);
-                    $(input).select();
+                    $(input).trigger('select');
                 }
                 else {
                     const text = cell.find('text');
@@ -184,14 +184,14 @@ function checkArrowKeys(gridView, elem, event) {
         }
         else {
             gridView.updateFromHexagons(0, 0, '.', false);
-            $(elem).select();
+            $(elem).trigger('select');
         }
         event.preventDefault();
         return;
     }
     if (event.key == 'Delete') {
         $(elem).val('.');
-        $(elem) .select();
+        $(elem).trigger('select');
         gridView.updateFromHexagons(0, 0, '.', false);
 
         event.preventDefault();
@@ -259,31 +259,31 @@ function checkArrowKeys(gridView, elem, event) {
 
 function navigateTo(gridView, i, j) {
     // Hide the text in the SVG cell, create an input element, and select it.
-    let cell = gridView.cellInput[0][i][j]();
+    let $cell = $(gridView.cellInput[0][i][j]());
     let $svgCell = gridView.cellPaths[0][i][j];
     // Getting the html content would return "&amp;" for "&". Get the node value instead.
-    cell.val($svgCell.find('text')[0].childNodes[0].nodeValue);
+    $cell.val($svgCell.find('text')[0].childNodes[0].nodeValue);
     // Temporarily clear the text.
     $svgCell.find('text').html('');
     const selector = `#input_${i}_${j}_${0}`;
     $svgCell.data('input', selector);
     gridView.activeEditingCell = selector;
 
-    cell.focus();
-    cell.select();
+    $cell.trigger('focus');
+    $cell.trigger('select');
 
-    cell.keydown(function(e) {
+    $cell.on('keydown', function(e) {
         checkArrowKeys(gridView, this, e);
     });
 
-    cell.bind('input propertychange', function() {
+    $cell.on('input propertychange', function() {
         const newText = $(this).val() || '.';
         gridView.updateFromHexagons(i, j, newText, false);
         // Reselect the text so that backspace can work normally.
-        $(this).select();
+        $(this).trigger('select');
     });
 
-    cell.focusout(function() {
+    $cell.on('focusout', function() {
         const newText = $(this).val() || '.';
         this.remove();
         $svgCell.data('input', null);
@@ -409,7 +409,6 @@ export function createGrid(gridView, size) {
 
                 inputRow.push(() => {
                     let text = $(document.createElement('input'));
-                    inputRow.push(text);
                     text.attr({ type: 'text', class: 'cell_input', maxlength: 1, id: `input_${i}_${j}_${k}`, title: tooltip });
                     text.css({ left: `${cellX}px`, top: `${cellY}px` });
                     text.val('.');
