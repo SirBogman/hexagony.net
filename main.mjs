@@ -270,7 +270,7 @@ function init() {
     memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
 }
 
-$(init);
+init();
 
 $(document).on('keydown', function(e) {
     if (e.ctrlKey) {

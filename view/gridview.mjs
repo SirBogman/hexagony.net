@@ -93,11 +93,11 @@ export class GridView {
     
         if (this.oldActiveCell != activeCell) {
             if (this.oldActiveCell != null) {
-                $(this.oldActiveCell).css('transition-property', transition ? 'fill': 'none');
-                $(this.oldActiveCell).removeClass('cell_active');
+                this.oldActiveCell.style['transition-property'] = transition ? 'fill': 'none';
+                this.oldActiveCell.classList.remove('cell_active');
             }
-            $(activeCell).css('transition-property', transition ? 'fill': 'none');
-            $(activeCell).addClass('cell_active');
+            activeCell.style['transition-property'] = transition ? 'fill': 'none';
+            activeCell.classList.add('cell_active');
             this.oldActiveCell = activeCell;
         }
     }

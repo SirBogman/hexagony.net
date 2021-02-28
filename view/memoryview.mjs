@@ -1,17 +1,21 @@
 // Contains code related to creating the view of Hexagony's memory.
 import { east, northEast, southEast } from '../hexagony/direction.mjs';
 import { PointAxial } from '../hexagony/pointaxial.mjs';
+import { emptyElement } from "./viewutil.mjs";
 
 export function updateMemorySVG(hexagony, memoryPanZoom) {
-    let $container = $('#memory_container');
-    let $svg = $('#memory_svg');
-    let $lineTemplate = $('defs [class~=memory_cell]', $svg);
-    let $mpTemplate = $('defs [class~=memory_pointer]', $svg);
-    let $textTemplate = $('defs [class~=memory_text]', $svg);
-    let $parent = $('#cell_container', $svg);
-    $parent.empty();
+    const svg = document.querySelector('#memory_svg');
+    const lineTemplate = svg.querySelector('defs [class~=memory_cell]');
+    const mpTemplate = svg.querySelector('defs [class~=memory_pointer]');
+    const textTemplate = svg.querySelector('defs [class~=memory_text]');
+    const parent = svg.querySelector('#cell_container');
+    emptyElement(parent);
 
-    const padding = 10;
+    const containerStyle = getComputedStyle(document.querySelector('#memory_container'));
+    const containerWidth = parseFloat(containerStyle.width);
+    const containerHeight = parseFloat(containerStyle.height);
+
+    const padding = 20;
     const xFactor = 20;
     const yFactor = 34;
     const maxX = hexagony.memory.maxX + padding;
@@ -19,12 +23,11 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
     const maxY = hexagony.memory.maxY + padding;
     const minY = hexagony.memory.minY - padding;
 
-    $svg.attr({ width: (maxX - minX) * xFactor, height: (maxY - minY) * yFactor });
+    svg.setAttribute('width', (maxX - minX) * xFactor);
+    svg.setAttribute('height', (maxY - minY) * yFactor);
 
     const centerX = 0.5 * (maxX - minX) * xFactor;
     const centerY = 0.5 * (maxY - minY) * yFactor;
-    //$svg.css({ transform: `matrix(1 0,0,1, ${0.5 * $container.width() - centerX}, ${0.5 * $container.height() - centerY})` });
-    //$svg.attr({ transform: `translate(${0.5 * $container.width() - centerX}, ${0.5 * $container.height() - centerY})` });
 
     for (let y = minY; y <= maxY; y++) {
         for (let x = minX; x <= maxX; x++) {
@@ -52,13 +55,13 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
             const xx = (x - minX) * xFactor;
             const yy = (y - minY) * yFactor;
             const hasValue = hexagony.memory.hasKey(mp, dir);
-            const $line = $lineTemplate.clone();
+            const line = lineTemplate.cloneNode();
             let angle = dir == northEast ? 30 : dir == southEast ? -30 : -90;
-            $line.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
+            line.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
             if (hasValue) {
-                $line.addClass('memory_value');
+                line.classList.add('memory_value');
             }
-            $parent.append($line);
+            parent.appendChild(line);
 
             if (hasValue) {
                 const value = hexagony.memory.getValueAt(mp, dir);
@@ -68,20 +71,20 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
                     string += ` ‘${String.fromCharCode(Number(value % 256n))}’`;
                 }
 
-                let $text = $textTemplate.clone();
-                $text.find('text').html(string);
-                $text.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
-                $parent.append($text);
+                let text = textTemplate.cloneNode(true);
+                text.querySelector('text').textContent = string;
+                text.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
+                parent.appendChild(text);
             }
 
             if (mp.q == hexagony.memory.mp.q && mp.r == hexagony.memory.mp.r && dir == hexagony.memory.dir) {
                 // Add the memory pointer (arrow) showing the position and direction.
                 angle = (dir == northEast ? -60 : dir == southEast ? 60 : 0) + (hexagony.memory.cw ? 180 : 0);
-                let $pointer = $mpTemplate.clone();
-                $pointer.attr({ transform: `translate(${xx},${yy})rotate(${angle})` });
-                $parent.append($pointer);
+                let pointer = mpTemplate.cloneNode();
+                pointer.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
+                parent.appendChild(pointer);
                 // TODO: only autoscroll when pointer gets near edges.
-                memoryPanZoom.moveTo(0.5 * $container.width() - centerX, 0.5 * $container.height() - centerY);
+                memoryPanZoom.moveTo(0.5 * containerWidth - centerX, 0.5 * containerHeight - centerY);
             }
         }
     }
