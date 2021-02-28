@@ -26,7 +26,7 @@ function loadData() {
     } catch (e) {
     }
     if (!user_data || !user_data.code) {
-        user_data = { code: '.'.repeat(getCodeLength(3)) };
+        user_data = { code: '.'.repeat(getCodeLength(2) + 1) };
     }
 }
 
