@@ -68,7 +68,7 @@ function checkArrowKeys(gridState, elem, event) {
     // TOOD: escape to deselect.
     const [i, j, k] = getIndices(elem);
 
-    if (event.key == 'F9') {
+    if (event.key == 'b' && event.ctrlKey) {
         let path = gridState.cellPaths[k][i][j];
         if (path.hasClass('cell_breakpoint')) {
             path.removeClass('cell_breakpoint');
@@ -76,6 +76,7 @@ function checkArrowKeys(gridState, elem, event) {
         else {
             path.addClass('cell_breakpoint');
         }
+        event.preventDefault();
     }
     if (event.key == 'Backspace') {
         // TODO: do nothing if no text selected?
@@ -508,7 +509,7 @@ export function createGrid(gridState, size) {
         $(this).removeClass('connector_flash');
     });
 
-    $('[class~=cell]', $svg).click(function() {
+    $('[class~=cell]', $svg).on('click', function() {
         // Select text when clicking on the background of the cell.
         const [i, j] = getIndices(this);
         navigateTo(gridState, i, j);

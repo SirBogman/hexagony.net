@@ -1,5 +1,9 @@
 import {PointAxial} from './pointaxial.mjs';
 
+export function countBytes(code) {
+    return new TextEncoder().encode(code).length;
+}
+
 export function countCodepoints(code) {
     let count = 0;
     // eslint-disable-next-line no-unused-vars

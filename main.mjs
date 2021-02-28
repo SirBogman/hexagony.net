@@ -1,7 +1,9 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
-import { countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
-import { createGrid, updateHexagonWithCode } from './view/gridview.mjs'
-import { updateMemorySVG } from './view/memoryview.mjs'
+import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
+import { createGrid, updateHexagonWithCode } from './view/gridview.mjs';
+import { updateMemorySVG } from './view/memoryview.mjs';
+// import { $ } from 'jquery';
+// import { panzoom } from 'panzoom';
 
 let gridState = {
     cellPaths: [],
@@ -20,7 +22,7 @@ let gridState = {
     timeoutID: null,
     fullWidth: 0,
     fullHeight: 0,
-    sourceCode: null,
+    sourceCode: '',
     undoStack: [],
     redoStack: [],
     isUndoRedoInProgress: false,
@@ -33,6 +35,7 @@ let gridState = {
             this.sourceCode = code;
             resetHexagony();
         }
+        updateInfo();
     },
     updateUndoButtons: function() {
         $('#undo').prop('disabled', this.undoStack.length == 0);
@@ -220,6 +223,16 @@ function setSourceCode(newCode, isProgrammatic=false) {
     updateFromSourceCode(true, isProgrammatic);
 }
 
+function updateInfo() {
+    const code = gridState.sourceCode;
+    const filteredCode = removeWhitespaceAndDebug(code);
+    const filteredCodepoints = countCodepoints(filteredCode);
+    $('#hexagon_size').html(getHexagonSize(filteredCodepoints));
+    $('#char_count').html(countCodepoints(code));
+    $('#byte_count').html(countBytes(code));
+    $('#operator_count').html(countOperators(filteredCode));
+}
+
 function updateFromSourceCode(isProgrammatic=false) {
     let code = $('#sourcecode').val();
     user_data.code = code;
@@ -232,6 +245,8 @@ function updateFromSourceCode(isProgrammatic=false) {
         gridState.sourceCode = code;
         resetHexagony();
     }
+
+    updateInfo();
 
     code = removeWhitespaceAndDebug(code);
 
@@ -274,8 +289,22 @@ function updateButtons() {
     const running = isRunning();
     $('.edit_button').prop('disabled', running);
     $('#start').prop('disabled', gridState.timeoutID != null);
+    // TODO: use stop button to explicitly go back to edit mode.
     $('#stop').prop('disabled', !running);
     $('#pause').prop('disabled', gridState.timeoutID == null);
+
+    if (running) {
+        $('.play_content').removeClass('hidden_section');
+        $('.edit_content').addClass('hidden_section');
+        $('#grid_container').removeClass('edit_grid');
+        $('#grid_container').addClass('play_grid');
+    }
+    else {
+        $('.play_content').addClass('hidden_section');
+        $('.edit_content').removeClass('hidden_section');
+        $('#grid_container').addClass('edit_grid');
+        $('#grid_container').removeClass('play_grid');
+    }
 }
 
 function init() {
@@ -283,27 +312,27 @@ function init() {
     $('#sourcecode').bind('input propertychange', updateFromSourceCode);
     setSourceCode(user_data.code, true);
 
-    $('#reset').click(() => {
+    $('#reset').on('click', () => {
         if (confirm('Remove all code from the hexagon? This cannot be undone.')) {
             reset(gridState.size);
         }
     });
 
-    $('#bigger').click(() => resize(gridState.size + 1));
-    $('#smaller').click(onShrink);
-    $('#start').click(onStart);
-    $('#step').click(onStep);
-    $('#stop').click(onStop);
-    $('#pause').click(onPause);
-    $('#minify').click(function() {
+    $('#bigger').on('click', () => resize(gridState.size + 1));
+    $('#smaller').on('click', onShrink);
+    $('#start').on('click', onStart);
+    $('#step').on('click', onStep);
+    $('#stop').on('click', onStop);
+    $('#pause').on('click', onPause);
+    $('#minify').on('click', function() {
         setSourceCode(minifySource(gridState.sourceCode));
     });
-    $('#layout').click(function() {
+    $('#layout').on('click', function() {
         setSourceCode(layoutSource(gridState.sourceCode));
     });
 
-    $('#undo').click(() => gridState.undo());
-    $('#redo').click(() => gridState.redo());
+    $('#undo').on('click', () => gridState.undo());
+    $('#redo').on('click', () => gridState.redo());
 
     updateButtons();
 
@@ -319,9 +348,9 @@ function init() {
     memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
 }
 
-$(document).ready(init);
+$(init);
 
-$(document).keydown(function(e) {
+$(document).on('keydown', function(e) {
     if (e.ctrlKey) {
         if (e.key == '.') {
             onStep();
@@ -350,8 +379,3 @@ $(document).keydown(function(e) {
     }
     //console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
 });
-
-// Keys:
-// Up/Down arrows: Navigate on the NE-SW axis.
-// Shift + Up/Down arrows: Navigate on the NW-SE axis.
-// Left/Right arrows: Navigate on the W-E axis.
