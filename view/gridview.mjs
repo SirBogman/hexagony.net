@@ -262,7 +262,7 @@ function navigateTo(gridView, i, j) {
     let cell = gridView.cellInput[0][i][j]();
     let $svgCell = gridView.cellPaths[0][i][j];
     // Getting the html content would return "&amp;" for "&". Get the node value instead.
-    $(cell).val($svgCell.find('text')[0].childNodes[0].nodeValue);
+    cell.val($svgCell.find('text')[0].childNodes[0].nodeValue);
     // Temporarily clear the text.
     $svgCell.find('text').html('');
     const selector = `#input_${i}_${j}_${0}`;
