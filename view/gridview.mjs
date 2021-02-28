@@ -2,7 +2,7 @@ import { getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAn
 import { emptyElement } from "./viewutil.mjs";
 
 function getIndices(elem) {
-    return $(elem).attr('id').match(/\d+/g).map(x => parseInt(x));
+    return elem.id.match(/\d+/g).map(x => parseInt(x));
 }
 
 function outlineHelper(x1, y1, x2, y2, size) {
@@ -43,8 +43,8 @@ export class GridView {
     }
 
     updateUndoButtons() {
-        $('#undo').prop('disabled', this.undoStack.length == 0);
-        $('#redo').prop('disabled', this.redoStack.length == 0);
+        document.querySelector('#undo').disabled = this.undoStack.length == 0;
+        document.querySelector('#redo').disabled = this.redoStack.length == 0;
     }
 
     undo() {

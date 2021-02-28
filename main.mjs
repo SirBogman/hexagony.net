@@ -82,8 +82,12 @@ function stepHelper() {
     [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
     hexagony.step();
     gridView.updateActiveCell(true);
-    $('#output').html(hexagony.output);
-    $('#stepcount').html(hexagony.ticks);
+
+    const output = document.querySelector('#output');
+    output.textContent = hexagony.output;
+    output.scrollTop = output.scrollHeight;
+
+    document.querySelector('#stepcount').textContent = hexagony.ticks;
     updateButtons();
     updateMemorySVG(hexagony, memoryPanZoom);
     return isEdgeTransition;
@@ -192,7 +196,7 @@ function onPause() {
 
 function onStop() {
     if (gridView.oldActiveCell != null) {
-        gridView.oldActiveCell.removeClass('cell_active');
+        gridView.oldActiveCell.classList.remove('cell_active');
     }
     resetHexagony();
     onPause();
@@ -209,23 +213,25 @@ function isRunning() {
 
 function updateButtons() {
     const running = isRunning();
-    $('.edit_button').prop('disabled', running);
-    $('#start').prop('disabled', gridView.timeoutID != null);
+    document.querySelectorAll('.edit_button').forEach(x => x.disabled = running);
+    document.querySelector('#start').disabled = gridView.timeoutID != null;
     // TODO: use stop button to explicitly go back to edit mode.
-    $('#stop').prop('disabled', !running);
-    $('#pause').prop('disabled', gridView.timeoutID == null);
+    document.querySelector('#stop').disabled = !running;
+    document.querySelector('#pause').disabled = gridView.timeoutID == null;
+
+    const gridContainer = document.querySelector('#grid_container');
 
     if (running) {
-        $('.play_content').removeClass('hidden_section');
-        $('.edit_content').addClass('hidden_section');
-        $('#grid_container').removeClass('edit_grid');
-        $('#grid_container').addClass('play_grid');
+        document.querySelectorAll('.play_content').forEach(x => x.classList.remove('hidden_section'));
+        document.querySelectorAll('.edit_content').forEach(x => x.classList.add('hidden_section'));
+        gridContainer.classList.remove('edit_grid');
+        gridContainer.classList.add('play_grid');
     }
     else {
-        $('.play_content').addClass('hidden_section');
-        $('.edit_content').removeClass('hidden_section');
-        $('#grid_container').addClass('edit_grid');
-        $('#grid_container').removeClass('play_grid');
+        document.querySelectorAll('.play_content').forEach(x => x.classList.add('hidden_section'));
+        document.querySelectorAll('.edit_content').forEach(x => x.classList.remove('hidden_section'));
+        gridContainer.classList.add('edit_grid');
+        gridContainer.classList.remove('play_grid');
     }
 }
 
@@ -272,7 +278,7 @@ function init() {
 
 init();
 
-$(document).on('keydown', function(e) {
+document.addEventListener('keydown', function(e) {
     if (e.ctrlKey) {
         if (e.key == '.') {
             onStep();
