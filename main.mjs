@@ -48,20 +48,6 @@ function resetHexagony() {
     gridView.activeHexagon = 0;
 }
 
-function updateActiveCell(gridView, transition) {
-    const activeCell = gridView.cellPaths[gridView.activeHexagon][gridView.activeI][gridView.activeJ];
-
-    if (gridView.oldActiveCell != activeCell) {
-        if (gridView.oldActiveCell != null) {
-            $(gridView.oldActiveCell).css('transition-property', transition ? 'fill': 'none');
-            $(gridView.oldActiveCell).removeClass('cell_active');
-        }
-        $(activeCell).css('transition-property', transition ? 'fill': 'none');
-        $(activeCell).addClass('cell_active');
-        gridView.oldActiveCell = activeCell;
-    }
-}
-
 function onStart() {
     const isEdgeTransition = stepHelper();
     if (isRunning) {
@@ -95,7 +81,7 @@ function stepHelper() {
 
     [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
     hexagony.step();
-    updateActiveCell(gridView, true);
+    gridView.updateActiveCell(true);
     $('#output').html(hexagony.output);
     $('#stepcount').html(hexagony.ticks);
     updateButtons();
@@ -273,7 +259,7 @@ function init() {
         if (e.target == this) {
             $(this).css({transform: `matrix(1,0,0,1,${-gridView.fullWidth/4},${-gridView.fullHeight/4})`, 'transition-property': 'none'});
             gridView.activeHexagon = 0;
-            updateActiveCell(gridView, false);
+            gridView.updateActiveCell(false);
         }
     });
 

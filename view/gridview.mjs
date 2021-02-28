@@ -78,6 +78,20 @@ export class GridView {
             this.updateUndoButtons();
         }
     }
+
+    updateActiveCell(transition) {
+        const activeCell = this.cellPaths[this.activeHexagon][this.activeI][this.activeJ];
+    
+        if (this.oldActiveCell != activeCell) {
+            if (this.oldActiveCell != null) {
+                $(this.oldActiveCell).css('transition-property', transition ? 'fill': 'none');
+                $(this.oldActiveCell).removeClass('cell_active');
+            }
+            $(activeCell).css('transition-property', transition ? 'fill': 'none');
+            $(activeCell).addClass('cell_active');
+            this.oldActiveCell = activeCell;
+        }
+    }
 }
 
 export function getIndices(elem) {
