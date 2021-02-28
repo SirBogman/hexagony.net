@@ -1,5 +1,85 @@
 import { getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 
+export class GridView {
+    constructor(updateCodeCallback) {
+        this.updateCodeCallback = updateCodeCallback;
+        this.cellPaths = [];
+        this.cellInput = [];
+        this.edgeConnectors = {};
+        this.offsets = [];
+        this.globalOffsetX = 0;
+        this.globalOffsetY = 0;
+        this.nextEdgeConnectorAnimation = null;
+        this.activeHexagon = 0;
+        this.activeI = 0;
+        this.activeJ = 0;
+        this.oldActiveCell = null;
+        this.size = -1;
+        this.rowCount = -1;
+        this.timeoutID = null;
+        this.fullWidth = 0;
+        this.fullHeight = 0;
+        this.sourceCode = '';
+        this.undoStack = [];
+        this.redoStack = [];
+        this.isUndoRedoInProgress = false;
+        this.activeEditingCell = null;
+    }
+
+    updateCode(code) {
+        if (this.sourceCode != code) {
+            this.sourceCode = code;
+            this.updateCodeCallback(code);
+        }
+    }
+
+    updateUndoButtons() {
+        $('#undo').prop('disabled', this.undoStack.length == 0);
+        $('#redo').prop('disabled', this.redoStack.length == 0);
+    }
+
+    undo() {
+        if (this.undoStack.length) {
+            let undoItem = this.undoStack.pop();
+            this.redoStack.push(undoItem);
+            this.isUndoRedoInProgress = true;
+            try {
+                undoItem.undo();
+            }
+            finally {
+                this.isUndoRedoInProgress = false;
+            }
+            this.updateUndoButtons();
+        }
+    }
+
+    redo() {
+        if (this.redoStack.length) {
+            let undoItem = this.redoStack.pop();
+            this.undoStack.push(undoItem);
+            this.isUndoRedoInProgress = true;
+            try {
+                undoItem.redo();
+            }
+            finally {
+                this.isUndoRedoInProgress = false;
+            }
+            this.updateUndoButtons();
+        }
+    }
+
+    pushUndoItem(undoFunction, redoFunction) {
+        if (!this.isUndoRedoInProgress) {
+            this.undoStack.push({
+                undo: undoFunction,
+                redo: redoFunction
+            });
+            this.redoStack = [];
+            this.updateUndoButtons();
+        }
+    }
+}
+
 export function getIndices(elem) {
     return $(elem).attr('id').match(/\d+/g).map(x => parseInt(x));
 }
@@ -8,11 +88,11 @@ function outlineHelper(x1, y1, x2, y2, size) {
     return `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
 }
 
-export function updateHexagonWithCode(gridState, index, code) {
+export function updateHexagonWithCode(gridView, index, code) {
     let iterator = code[Symbol.iterator]();
-    for (let i = 0; i < gridState.cellPaths[index].length; i++) {
-        for (let j = 0; j < gridState.cellPaths[index][i].length; j++) {
-            const cell = gridState.cellPaths[index][i][j];
+    for (let i = 0; i < gridView.cellPaths[index].length; i++) {
+        for (let j = 0; j < gridView.cellPaths[index][i].length; j++) {
+            const cell = gridView.cellPaths[index][i][j];
             const char = iterator.next().value || '.';
             const input = cell.data('input');
             if (input) {
@@ -33,13 +113,13 @@ export function updateHexagonWithCode(gridState, index, code) {
     }
 }
 
-function updateFromHexagons(gridState, targetI, targetJ, value, updateActiveHexagon=true) {
+function updateFromHexagons(gridView, targetI, targetJ, value, updateActiveHexagon=true) {
     let code = '';
     let oldValue = '.';
 
-    let iterator = removeWhitespaceAndDebug(gridState.sourceCode)[Symbol.iterator]();
-    for (let i = 0; i < gridState.rowCount; i++) {
-        for (let j = 0; j < getRowSize(gridState.size, i); j++) {
+    let iterator = removeWhitespaceAndDebug(gridView.sourceCode)[Symbol.iterator]();
+    for (let i = 0; i < gridView.rowCount; i++) {
+        for (let j = 0; j < getRowSize(gridView.size, i); j++) {
             let current = iterator.next().value;
             if (i == targetI && j == targetJ) {
                 oldValue = current;
@@ -52,24 +132,24 @@ function updateFromHexagons(gridState, targetI, targetJ, value, updateActiveHexa
         }
     }
 
-    gridState.pushUndoItem(
-        () => updateFromHexagons(gridState, targetI, targetJ, oldValue),
-        () => updateFromHexagons(gridState, targetI, targetJ, value));
+    gridView.pushUndoItem(
+        () => updateFromHexagons(gridView, targetI, targetJ, oldValue),
+        () => updateFromHexagons(gridView, targetI, targetJ, value));
 
     // Assume that currently editing hexagon 0.
-    for (let k = updateActiveHexagon ? 0 : 1; k < gridState.cellPaths.length; k++) {
-        updateHexagonWithCode(gridState, k, code);
+    for (let k = updateActiveHexagon ? 0 : 1; k < gridView.cellPaths.length; k++) {
+        updateHexagonWithCode(gridView, k, code);
     }
 
-    gridState.updateCode(minifySource(code));
+    gridView.updateCode(minifySource(code));
 }
 
-function checkArrowKeys(gridState, elem, event) {
+function checkArrowKeys(gridView, elem, event) {
     // TOOD: escape to deselect.
     const [i, j, k] = getIndices(elem);
 
     if (event.key == 'b' && event.ctrlKey) {
-        let path = gridState.cellPaths[k][i][j];
+        let path = gridView.cellPaths[k][i][j];
         if (path.hasClass('cell_breakpoint')) {
             path.removeClass('cell_breakpoint');
         }
@@ -83,13 +163,13 @@ function checkArrowKeys(gridState, elem, event) {
         $(elem).val('.');
         // focusout will apply update.
         if (j) {
-            navigateTo(gridState, i, j - 1);
+            navigateTo(gridView, i, j - 1);
         }
         else if (i) {
-            navigateTo(gridState, i - 1, getRowSize(gridState.size, i - 1) - 1);
+            navigateTo(gridView, i - 1, getRowSize(gridView.size, i - 1) - 1);
         }
         else {
-            updateFromHexagons(gridState, 0, 0, '.', false);
+            updateFromHexagons(gridView, 0, 0, '.', false);
             $(elem).select();
         }
         event.preventDefault();
@@ -98,7 +178,7 @@ function checkArrowKeys(gridState, elem, event) {
     if (event.key == 'Delete') {
         $(elem).val('.');
         $(elem) .select();
-        updateFromHexagons(gridState, 0, 0, '.', false);
+        updateFromHexagons(gridView, 0, 0, '.', false);
 
         event.preventDefault();
         return;
@@ -109,7 +189,7 @@ function checkArrowKeys(gridState, elem, event) {
         if (j > 0) {
             dj = -1;
         } else if (i > 0) {
-            navigateTo(gridState, i - 1, gridState.cellPaths[0][i - 1].length - 1);
+            navigateTo(gridView, i - 1, gridView.cellPaths[0][i - 1].length - 1);
             event.preventDefault();
             return;
         } else {
@@ -117,10 +197,10 @@ function checkArrowKeys(gridState, elem, event) {
             return;
         }
     } else if (event.key == 'ArrowRight' || event.key == 'Tab' && !event.shiftKey) {
-        if (j < gridState.cellPaths[0][i].length - 1) {
+        if (j < gridView.cellPaths[0][i].length - 1) {
             dj = 1;
-        } else if (i < gridState.cellPaths[0].length - 1) {
-            navigateTo(gridState, i + 1, 0);
+        } else if (i < gridView.cellPaths[0].length - 1) {
+            navigateTo(gridView, i + 1, 0);
             event.preventDefault();
             return;
         } else {
@@ -136,17 +216,17 @@ function checkArrowKeys(gridState, elem, event) {
         if (di != 0) {
             if (event.shiftKey) {
                 // Move in a straight line with up and down arrows in the top and bottom half.
-                if (i < gridState.size && di < 0) {
+                if (i < gridView.size && di < 0) {
                     dj--;
                 }
-                if (i < gridState.size - 1 && di > 0) {
+                if (i < gridView.size - 1 && di > 0) {
                     dj++;
                 }
             } else {
-                if (i >= gridState.size && di < 0) {
+                if (i >= gridView.size && di < 0) {
                     dj++;
                 }
-                if (i >= gridState.size - 1 && di > 0) {
+                if (i >= gridView.size - 1 && di > 0) {
                     dj--;
                 }
             }
@@ -154,37 +234,37 @@ function checkArrowKeys(gridState, elem, event) {
 
         let newI = i + di;
         let newJ = j + dj;
-        if (newI >= 0 && newI < gridState.cellPaths[0].length &&
-            newJ >= 0 && newJ < gridState.cellPaths[0][newI].length) {
-            navigateTo(gridState, newI, newJ);
+        if (newI >= 0 && newI < gridView.cellPaths[0].length &&
+            newJ >= 0 && newJ < gridView.cellPaths[0][newI].length) {
+            navigateTo(gridView, newI, newJ);
         }
         // Prevent the selection from being cancelled on key up.
         event.preventDefault();
     }
 }
 
-function navigateTo(gridState, i, j) {
+function navigateTo(gridView, i, j) {
     // Hide the text in the SVG cell, create an input element, and select it.
-    let cell = gridState.cellInput[0][i][j]();
-    let $svgCell = gridState.cellPaths[0][i][j];
+    let cell = gridView.cellInput[0][i][j]();
+    let $svgCell = gridView.cellPaths[0][i][j];
     // Getting the html content would return "&amp;" for "&". Get the node value instead.
     $(cell).val($svgCell.find('text')[0].childNodes[0].nodeValue);
     // Temporarily clear the text.
     $svgCell.find('text').html('');
     const selector = `#input_${i}_${j}_${0}`;
     $svgCell.data('input', selector);
-    gridState.activeEditingCell = selector;
+    gridView.activeEditingCell = selector;
 
     cell.focus();
     cell.select();
 
     cell.keydown(function(e) {
-        checkArrowKeys(gridState, this, e);
+        checkArrowKeys(gridView, this, e);
     });
 
     cell.bind('input propertychange', function() {
         const newText = $(this).val() || '.';
-        updateFromHexagons(gridState, i, j, newText, false);
+        updateFromHexagons(gridView, i, j, newText, false);
         // Reselect the text so that backspace can work normally.
         $(this).select();
     });
@@ -193,18 +273,18 @@ function navigateTo(gridState, i, j) {
         const newText = $(this).val() || '.';
         this.remove();
         $svgCell.data('input', null);
-        if (gridState.activeEditingCell == selector) {
-            gridState.activeEditingCell = null;
+        if (gridView.activeEditingCell == selector) {
+            gridView.activeEditingCell = null;
         }
-        updateFromHexagons(gridState, i, j, newText);
+        updateFromHexagons(gridView, i, j, newText);
         // TODO: is this necessary?
-        updateHexagonWithCode(gridState, 0, gridState.sourceCode);
+        updateHexagonWithCode(gridView, 0, gridView.sourceCode);
     });
 }
 
-export function createGrid(gridState, size) {
-    gridState.size = size;
-    gridState.rowCount = getRowCount(size);
+export function createGrid(gridView, size) {
+    gridView.size = size;
+    gridView.rowCount = getRowCount(size);
     const radius = 20;
     const cellHeight = radius * 2;
     const cellOffsetY = 3 / 4 * cellHeight;
@@ -212,17 +292,17 @@ export function createGrid(gridState, size) {
     const cellWidth = cellOffsetX * 2;
     const padding = 10;
 
-    gridState.globalOffsetX = cellWidth;
-    gridState.globalOffsetY = cellOffsetY;
+    gridView.globalOffsetX = cellWidth;
+    gridView.globalOffsetY = cellOffsetY;
 
     // When showing 6 hexagons around a center hexagon,
     // the "rowCount" below represents the number of rows in the center of one of the side hexagons.
     // the "size" represents the number of rows on the top and bottom edges of the center hexagons.
     // and 1 represents the gap between them.
-    gridState.fullWidth = 2*(cellWidth * (gridState.rowCount * 2 + size + 1) + padding);
-    gridState.fullHeight = 2*(cellOffsetY * (gridState.rowCount * 3 + 3) + padding);
-    const centerX = gridState.fullWidth / 2;
-    const centerY = gridState.fullHeight / 2;
+    gridView.fullWidth = 2*(cellWidth * (gridView.rowCount * 2 + size + 1) + padding);
+    gridView.fullHeight = 2*(cellOffsetY * (gridView.rowCount * 3 + 3) + padding);
+    const centerX = gridView.fullWidth / 2;
+    const centerY = gridView.fullHeight / 2;
 
     function getX(size, i, j) {
         return centerX +
@@ -234,26 +314,26 @@ export function createGrid(gridState, size) {
         return centerY + (i - size + 1) * cellOffsetY;
     }
 
-    $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-gridState.fullWidth*0.25},${-gridState.fullHeight*0.25})`, 'transition-property': 'none'});
-    $('#puzzle_container').css({'max-width': gridState.fullWidth / 2, 'max-height': gridState.fullHeight /2 });
+    $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-gridView.fullWidth*0.25},${-gridView.fullHeight*0.25})`, 'transition-property': 'none'});
+    $('#puzzle_container').css({'max-width': gridView.fullWidth / 2, 'max-height': gridView.fullHeight /2 });
 
     let $svg = $('#puzzle');
-    $svg.attr({ width: gridState.fullWidth, height: gridState.fullHeight });
+    $svg.attr({ width: gridView.fullWidth, height: gridView.fullHeight });
     let $template = $('defs [class~=cell]', $svg);
     let $parent = $('#cell_container', $svg);
     const textParent = $('#input_container');
     $parent.empty();
     textParent.empty();
-    gridState.cellPaths = [];
-    gridState.cellInput = [];
-    gridState.edgeConnectors = {};
+    gridView.cellPaths = [];
+    gridView.cellInput = [];
+    gridView.edgeConnectors = {};
 
     const largeGridTwoColumnOffset = size * 3;
     const largeGridTwoRowOffset = size * 2;
     const largeGridOneColumnOffset = largeGridTwoColumnOffset / 2;
     const largeGridOneRowOffset = size;
 
-    gridState.offsets = [
+    gridView.offsets = [
         [0,0], // Center
         [0, -largeGridTwoRowOffset, 'N'],
         [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
@@ -266,26 +346,26 @@ export function createGrid(gridState, size) {
     // Create extra hexagons to make it look infinite.
     {
         for (let i = 1; i <= 2; i++) {
-            gridState.offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-            gridState.offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-            gridState.offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
-            gridState.offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
+            gridView.offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+            gridView.offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+            gridView.offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
+            gridView.offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset - (i + 1) * largeGridTwoRowOffset]);
         }
         for (let i = -5; i <= 5; i++) {
-            gridState.offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
-            gridState.offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
-            gridState.offsets.push([-largeGridOneColumnOffset - largeGridTwoColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-            gridState.offsets.push([largeGridOneColumnOffset + largeGridTwoColumnOffset, -size - i * largeGridTwoRowOffset]);
+            gridView.offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
+            gridView.offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
+            gridView.offsets.push([-largeGridOneColumnOffset - largeGridTwoColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+            gridView.offsets.push([largeGridOneColumnOffset + largeGridTwoColumnOffset, -size - i * largeGridTwoRowOffset]);
             if (i < -1 || i > 1) {
-                gridState.offsets.push([0, i * largeGridTwoRowOffset]); // Center
+                gridView.offsets.push([0, i * largeGridTwoRowOffset]); // Center
             }
         }
     }
 
     let offsetsDict = {};
-    for (let i = 1; i < gridState.offsets.length; i++) {
-        if (gridState.offsets[i][2]) {
-            offsetsDict[gridState.offsets[i][2]] = i;
+    for (let i = 1; i < gridView.offsets.length; i++) {
+        if (gridView.offsets[i][2]) {
+            offsetsDict[gridView.offsets[i][2]] = i;
         }
     }
 
@@ -297,18 +377,18 @@ export function createGrid(gridState, size) {
     let connectors = [];
     let positiveConnectors = [];
 
-    for (let k = 0; k < gridState.offsets.length; k++) {
+    for (let k = 0; k < gridView.offsets.length; k++) {
         let pathGrid = [];
         let inputGrid = [];
-        for (let i = 0; i < gridState.rowCount; i++) {
+        for (let i = 0; i < gridView.rowCount; i++) {
             let pathRow = [];
             let inputRow = [];
             for (let j = 0; j < getRowSize(size, i); j++) {
                 const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
                 let $cell = $template.clone();
                 pathRow.push($cell);
-                const cellX = getX(size, i, j) + gridState.offsets[k][0] * cellWidth;
-                const cellY = getY(size, i, j) + gridState.offsets[k][1] * cellOffsetY;
+                const cellX = getX(size, i, j) + gridView.offsets[k][0] * cellWidth;
+                const cellY = getY(size, i, j) + gridView.offsets[k][1] * cellOffsetY;
                 $cell.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})`, id: `path_${i}_${j}_${k}` });
                 $cell.find('title').html(tooltip);
                 $parent.append($cell);
@@ -326,8 +406,8 @@ export function createGrid(gridState, size) {
             pathGrid.push(pathRow);
             inputGrid.push(inputRow);
         }
-        gridState.cellPaths.push(pathGrid);
-        gridState.cellInput.push(inputGrid);
+        gridView.cellPaths.push(pathGrid);
+        gridView.cellInput.push(inputGrid);
 
         {
             let $outline = $outlineTemplate.clone();
@@ -340,8 +420,8 @@ export function createGrid(gridState, size) {
                 outlineHelper(cellOffsetX, -radius/2, 0, -radius, size);
 
             $outline.attr({ d: path });
-            const cellX = getX(size, 0, 0) + gridState.offsets[k][0] * cellWidth;
-            const cellY = getY(size, 0, 0) + gridState.offsets[k][1] * cellOffsetY;
+            const cellX = getX(size, 0, 0) + gridView.offsets[k][0] * cellWidth;
+            const cellY = getY(size, 0, 0) + gridView.offsets[k][1] * cellOffsetY;
             $outline.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})` });
             outlines.push($outline);
         }
@@ -355,8 +435,8 @@ export function createGrid(gridState, size) {
             // Top edge
             {
                 $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
-                cellX = getX(size, 0, i) + gridState.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                cellY = getY(size, 0, i) + gridState.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                cellX = getX(size, 0, i) + gridView.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, 0, i) + gridView.offsets[k][1] * cellOffsetY - 0.75 * radius;
                 scaleX = radius / 20;
                 scaleY = -radius / 20;
                 if (i == 0) {
@@ -371,17 +451,17 @@ export function createGrid(gridState, size) {
 
                 if (k == 0) {
                     $connector.data('next', offsetsDict['N']);
-                    gridState.edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = $connector;
                 }
                 // Connectors from south hexagon.
                 if (k == offsetsDict['S']) {
                     $connector.data('next', offsetsDict['S']);
-                    gridState.edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = $connector;
                 }
 
                 $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
-                cellX = getX(size, 0, i) + gridState.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                cellY = getY(size, 0, i) + (gridState.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
+                cellX = getX(size, 0, i) + gridView.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, 0, i) + (gridView.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
                 scaleX = scaleY = -radius / 20;
                 if (i == 0) {
                     cellX -= cellOffsetX;
@@ -393,20 +473,20 @@ export function createGrid(gridState, size) {
 
                 if (k == 0) {
                     $connector.data('next', offsetsDict['N']);
-                    gridState.edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = $connector;
                 }
                 // Connectors from south hexagon.
                 if (k == offsetsDict['S']) {
                     $connector.data('next', offsetsDict['S']);
-                    gridState.edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = $connector;
                 }
             }
 
             // North east edge
             {
                 $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
-                cellX = getX(size, i, getRowSize(size, i) - 1) + gridState.offsets[k][0] * cellWidth + cellOffsetX;
-                cellY = getY(size, i, getRowSize(size, i) - 1) + gridState.offsets[k][1] * cellOffsetY;
+                cellX = getX(size, i, getRowSize(size, i) - 1) + gridView.offsets[k][0] * cellWidth + cellOffsetX;
+                cellY = getY(size, i, getRowSize(size, i) - 1) + gridView.offsets[k][1] * cellOffsetY;
                 scaleX = radius / 20;
                 scaleY = -radius / 20;
                 if (i == 0) {
@@ -420,17 +500,17 @@ export function createGrid(gridState, size) {
 
                 if (k == 0) {
                     $connector.data('next', offsetsDict['NE']);
-                    gridState.edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = $connector;
                 }
                 // Connectors from south west hexagon.
                 if (k == offsetsDict['SW']) {
                     $connector.data('next', offsetsDict['SW']);
-                    gridState.edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = $connector;
                 }
 
                 $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
-                cellX = getX(size, i, getRowSize(size, i) - 1) + (gridState.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
-                cellY = getY(size, i, getRowSize(size, i) - 1) + gridState.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                cellX = getX(size, i, getRowSize(size, i) - 1) + (gridView.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, i, getRowSize(size, i) - 1) + gridView.offsets[k][1] * cellOffsetY - 0.75 * radius;
                 scaleX = scaleY = -radius / 20;
                 if (i == 0) {
                     cellX -= cellWidth;
@@ -441,12 +521,12 @@ export function createGrid(gridState, size) {
 
                 if (k == 0) {
                     $connector.data('next', offsetsDict['NE']);
-                    gridState.edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = $connector;
                 }
                 // Connectors from south west hexagon.
                 if (k == offsetsDict['SW']) {
                     $connector.data('next', offsetsDict['SW']);
-                    gridState.edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = $connector;
                 }
             }
 
@@ -454,8 +534,8 @@ export function createGrid(gridState, size) {
             {
                 let a = i + size - 1;
                 $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
-                cellX = getX(size, a, getRowSize(size, a) - 1) + gridState.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                cellY = getY(size, a, getRowSize(size, a) - 1) + gridState.offsets[k][1] * cellOffsetY + 0.75 * radius;
+                cellX = getX(size, a, getRowSize(size, a) - 1) + gridView.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                cellY = getY(size, a, getRowSize(size, a) - 1) + gridView.offsets[k][1] * cellOffsetY + 0.75 * radius;
                 scaleX = radius / 20;
                 scaleY = -radius / 20;
                 if (i == 0) {
@@ -468,17 +548,17 @@ export function createGrid(gridState, size) {
 
                 if (k == 0) {
                     $connector.data('next', offsetsDict['SE']);
-                    gridState.edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = $connector;
                 }
                 // Connectors from north west hexagon.
                 if (k == offsetsDict['NW']) {
                     $connector.data('next', offsetsDict['NW']);
-                    gridState.edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = $connector;
                 }
 
                 $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
-                cellX = getX(size, a, getRowSize(size, a) - 1) + (gridState.offsets[k][0] + 1) * cellWidth;
-                cellY = getY(size, a, getRowSize(size, a) - 1) + (gridState.offsets[k][1] + 1) * cellOffsetY;
+                cellX = getX(size, a, getRowSize(size, a) - 1) + (gridView.offsets[k][0] + 1) * cellWidth;
+                cellY = getY(size, a, getRowSize(size, a) - 1) + (gridView.offsets[k][1] + 1) * cellOffsetY;
                 scaleX = scaleY = -radius / 20;
                 if (i == 0) {
                     cellX -= cellOffsetX;
@@ -490,12 +570,12 @@ export function createGrid(gridState, size) {
 
                 if (k == 0) {
                     $connector.data('next', offsetsDict['SE']);
-                    gridState.edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = $connector;
                 }
                 // Connectors from north west hexagon.
                 if (k == offsetsDict['NW']) {
                     $connector.data('next', offsetsDict['NW']);
-                    gridState.edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = $connector;
+                    gridView.edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = $connector;
                 }
             }
         }
@@ -512,6 +592,6 @@ export function createGrid(gridState, size) {
     $('[class~=cell]', $svg).on('click', function() {
         // Select text when clicking on the background of the cell.
         const [i, j] = getIndices(this);
-        navigateTo(gridState, i, j);
+        navigateTo(gridView, i, j);
     });
 }
