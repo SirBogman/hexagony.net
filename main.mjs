@@ -70,9 +70,9 @@ function stepHelper() {
     if (gridView.nextEdgeConnectorAnimation &&
             gridView.nextEdgeConnectorAnimation in gridView.edgeConnectors) {
         isEdgeTransition = true;
-        const $connector = gridView.edgeConnectors[gridView.nextEdgeConnectorAnimation];
-        $connector.addClass('connector_flash');
-        gridView.activeHexagon = $connector.data('next');
+        const connector = gridView.edgeConnectors[gridView.nextEdgeConnectorAnimation];
+        connector.classList.add('connector_flash');
+        gridView.activeHexagon = connector.next;
         const x = gridView.offsets[gridView.activeHexagon][0] * gridView.globalOffsetX;
         const y = gridView.offsets[gridView.activeHexagon][1] * gridView.globalOffsetY;
         $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-x - gridView.fullWidth/4},${-y - gridView.fullHeight/4})`, 'transition-property': 'transform'});
@@ -130,7 +130,10 @@ function onShrink() {
 }
 
 function resize(size) {
+    const p1 = performance.now();
     setSourceCode(resizeCode(size));
+    const p2 = performance.now();
+    console.log(`resize ${size} took ${p2 - p1}`);
 }
 
 function reset(size) {

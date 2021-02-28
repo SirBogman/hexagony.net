@@ -1,4 +1,5 @@
 import { getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
+import { emptyElement } from "./viewutil.mjs";
 
 function getIndices(elem) {
     return $(elem).attr('id').match(/\d+/g).map(x => parseInt(x));
@@ -105,15 +106,15 @@ export class GridView {
         let iterator = code[Symbol.iterator]();
         for (let i = 0; i < this.cellPaths[index].length; i++) {
             for (let j = 0; j < this.cellPaths[index][i].length; j++) {
-                const cell = this.cellPaths[index][i][j];
+                const $cell = $(this.cellPaths[index][i][j]);
                 const char = iterator.next().value || '.';
-                const input = cell.data('input');
+                const input = $cell.data('input');
                 if (input) {
                     $(input).val(char);
                     $(input).trigger('select');
                 }
                 else {
-                    const text = cell.find('text');
+                    const text = $cell.find('text');
                     text.html(char);
                     if (char == '.') {
                         text.addClass('noop');
@@ -164,11 +165,11 @@ function checkArrowKeys(gridView, elem, event) {
 
     if (event.key == 'b' && event.ctrlKey) {
         let path = gridView.cellPaths[k][i][j];
-        if (path.hasClass('cell_breakpoint')) {
-            path.removeClass('cell_breakpoint');
+        if (path.classList.contains('cell_breakpoint')) {
+            path.classList.remove('cell_breakpoint');
         }
         else {
-            path.addClass('cell_breakpoint');
+            path.classList.add('cell_breakpoint');
         }
         event.preventDefault();
     }
@@ -260,9 +261,9 @@ function checkArrowKeys(gridView, elem, event) {
 function navigateTo(gridView, i, j) {
     // Hide the text in the SVG cell, create an input element, and select it.
     let $cell = $(gridView.cellInput[0][i][j]());
-    let $svgCell = gridView.cellPaths[0][i][j];
+    let $svgCell = $(gridView.cellPaths[0][i][j]);
     // Getting the html content would return "&amp;" for "&". Get the node value instead.
-    $cell.val($svgCell.find('text')[0].childNodes[0].nodeValue);
+    $cell.val($svgCell.find('text')[0].textContent);
     // Temporarily clear the text.
     $svgCell.find('text').html('');
     const selector = `#input_${i}_${j}_${0}`;
@@ -331,13 +332,13 @@ export function createGrid(gridView, size) {
     $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-gridView.fullWidth*0.25},${-gridView.fullHeight*0.25})`, 'transition-property': 'none'});
     $('#puzzle_container').css({'max-width': gridView.fullWidth / 2, 'max-height': gridView.fullHeight /2 });
 
-    let $svg = $('#puzzle');
-    $svg.attr({ width: gridView.fullWidth, height: gridView.fullHeight });
-    let $template = $('defs [class~=cell]', $svg);
-    let $parent = $('#cell_container', $svg);
-    const textParent = $('#input_container');
-    $parent.empty();
-    textParent.empty();
+    let svg = document.querySelector('#puzzle');
+    $(svg).attr({ width: gridView.fullWidth, height: gridView.fullHeight });
+    let template = svg.querySelector('defs [class~=cell]');
+    let parent = svg.querySelector('#cell_container');
+    const textParent = document.querySelector('#input_container');
+    emptyElement(parent);
+    emptyElement(textParent);
     gridView.cellPaths = [];
     gridView.cellInput = [];
     gridView.edgeConnectors = {};
@@ -383,13 +384,21 @@ export function createGrid(gridView, size) {
         }
     }
 
-    let $outlineTemplate = $('defs [class~=outline]', $svg);
-    let $connectorTemplate = $('defs [class~=neutral_connector]', $svg);
-    let $positiveConnector = $('defs [class~=positive_connector]', $svg);
-    let $negativeConnector = $('defs [class~=negative_connector]', $svg);
+    let outlineTemplate = svg.querySelector('defs [class~=outline]');
+    let connectorTemplate = svg.querySelector('defs [class~=neutral_connector]');
+    let positiveConnector = svg.querySelector('defs [class~=positive_connector]');
+    let negativeConnector = svg.querySelector('defs [class~=negative_connector]');
     let outlines = [];
     let connectors = [];
     let positiveConnectors = [];
+
+    const outlinePath = `m ${-cellOffsetX} ${-radius/2}` +
+        `l ${cellOffsetX} ${-radius / 2} l ${cellOffsetX} ${radius / 2}`.repeat(size) +
+        outlineHelper(0, radius, cellOffsetX, radius / 2, size) +
+        outlineHelper(-cellOffsetX, radius / 2, 0, radius, size) +
+        outlineHelper(-cellOffsetX, -radius / 2, -cellOffsetX, radius / 2, size) +
+        outlineHelper(0, -radius, -cellOffsetX, -radius / 2, size) +
+        outlineHelper(cellOffsetX, -radius/2, 0, -radius, size);
 
     for (let k = 0; k < gridView.offsets.length; k++) {
         let pathGrid = [];
@@ -399,20 +408,26 @@ export function createGrid(gridView, size) {
             let inputRow = [];
             for (let j = 0; j < getRowSize(size, i); j++) {
                 const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
-                let $cell = $template.clone();
-                pathRow.push($cell);
+                let cell = template.cloneNode(true);
+                pathRow.push(cell);
                 const cellX = getX(size, i, j) + gridView.offsets[k][0] * cellWidth;
                 const cellY = getY(size, i, j) + gridView.offsets[k][1] * cellOffsetY;
-                $cell.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})`, id: `path_${i}_${j}_${k}` });
-                $cell.find('title').html(tooltip);
-                $parent.append($cell);
+                cell.id = `path_${i}_${j}_${k}`;
+                cell.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
+                cell.querySelector('title').textContent = tooltip;
+                parent.appendChild(cell);
 
                 inputRow.push(() => {
-                    let text = $(document.createElement('input'));
-                    text.attr({ type: 'text', class: 'cell_input', maxlength: 1, id: `input_${i}_${j}_${k}`, title: tooltip });
-                    text.css({ left: `${cellX}px`, top: `${cellY}px` });
-                    text.val('.');
-                    textParent.append(text);
+                    let text = document.createElement('input');
+                    text.type = 'text';
+                    text.maxLength = 1;
+                    text.id = `input_${i}_${j}_${k}`;
+                    text.title = tooltip;
+                    text.classList.add('cell_input');
+                    text.style.left = `${cellX}px`;
+                    text.style.top = `${cellY}px`;
+                    text.value = '.';
+                    textParent.appendChild(text);
                     return text;
                 });
             }
@@ -423,31 +438,23 @@ export function createGrid(gridView, size) {
         gridView.cellInput.push(inputGrid);
 
         {
-            let $outline = $outlineTemplate.clone();
-            let path = `m ${-cellOffsetX} ${-radius/2}` +
-                `l ${cellOffsetX} ${-radius / 2} l ${cellOffsetX} ${radius / 2}`.repeat(size) +
-                outlineHelper(0, radius, cellOffsetX, radius / 2, size) +
-                outlineHelper(-cellOffsetX, radius / 2, 0, radius, size) +
-                outlineHelper(-cellOffsetX, -radius / 2, -cellOffsetX, radius / 2, size) +
-                outlineHelper(0, -radius, -cellOffsetX, -radius / 2, size) +
-                outlineHelper(cellOffsetX, -radius/2, 0, -radius, size);
-
-            $outline.attr({ d: path });
             const cellX = getX(size, 0, 0) + gridView.offsets[k][0] * cellWidth;
             const cellY = getY(size, 0, 0) + gridView.offsets[k][1] * cellOffsetY;
-            $outline.attr({ transform: `translate(${cellX},${cellY})scale(${radius / 20})` });
-            outlines.push($outline);
+            let outline = outlineTemplate.cloneNode();
+            outline.setAttribute('d', outlinePath);
+            outline.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
+            outlines.push(outline);
         }
 
         for (let i = 0; i < size; i++) {
             const leftEnd = i == 0;
             const rightEnd = i == size - 1;
             const isSpecial = leftEnd || rightEnd;
-            let $connector, cellX, cellY, scaleX, scaleY;
+            let connector, cellX, cellY, scaleX, scaleY;
 
             // Top edge
             {
-                $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
+                connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
                 cellX = getX(size, 0, i) + gridView.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, 0, i) + gridView.offsets[k][1] * cellOffsetY - 0.75 * radius;
                 scaleX = radius / 20;
@@ -459,20 +466,20 @@ export function createGrid(gridView, size) {
                     scaleX *= -1;
                     scaleY *= -1;
                 }
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)` });
-                (isSpecial ? positiveConnectors : connectors).push($connector);
+                connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
+                (isSpecial ? positiveConnectors : connectors).push(connector);
 
                 if (k == 0) {
-                    $connector.data('next', offsetsDict['N']);
-                    gridView.edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = $connector;
+                    connector.next = offsetsDict['N'];
+                    gridView.edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = connector;
                 }
                 // Connectors from south hexagon.
                 if (k == offsetsDict['S']) {
-                    $connector.data('next', offsetsDict['S']);
-                    gridView.edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = $connector;
+                    connector.next = offsetsDict['S'];
+                    gridView.edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = connector;
                 }
 
-                $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
+                connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
                 cellX = getX(size, 0, i) + gridView.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, 0, i) + (gridView.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
                 scaleX = scaleY = -radius / 20;
@@ -481,23 +488,23 @@ export function createGrid(gridView, size) {
                     cellY += cellOffsetY;
                     scaleX = scaleY *= -1;
                 }
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)` });
-                connectors.push($connector);
+                connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
+                connectors.push(connector);
 
                 if (k == 0) {
-                    $connector.data('next', offsetsDict['N']);
-                    gridView.edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = $connector;
+                    connector.next = offsetsDict['N'];
+                    gridView.edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = connector;
                 }
                 // Connectors from south hexagon.
                 if (k == offsetsDict['S']) {
-                    $connector.data('next', offsetsDict['S']);
-                    gridView.edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = $connector;
+                    connector.next = offsetsDict['S'];
+                    gridView.edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = connector;
                 }
             }
 
             // North east edge
             {
-                $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
+                connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
                 cellX = getX(size, i, getRowSize(size, i) - 1) + gridView.offsets[k][0] * cellWidth + cellOffsetX;
                 cellY = getY(size, i, getRowSize(size, i) - 1) + gridView.offsets[k][1] * cellOffsetY;
                 scaleX = radius / 20;
@@ -508,20 +515,20 @@ export function createGrid(gridView, size) {
                     scaleX *= -1;
                     scaleY *= -1;
                 }
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})` });
-                (isSpecial ? positiveConnectors : connectors).push($connector);
+                connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
+                (isSpecial ? positiveConnectors : connectors).push(connector);
 
                 if (k == 0) {
-                    $connector.data('next', offsetsDict['NE']);
-                    gridView.edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = $connector;
+                    connector.next = offsetsDict['NE'];
+                    gridView.edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = connector;
                 }
                 // Connectors from south west hexagon.
                 if (k == offsetsDict['SW']) {
-                    $connector.data('next', offsetsDict['SW']);
-                    gridView.edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = $connector;
+                    connector.next = offsetsDict['SW'];
+                    gridView.edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = connector;
                 }
 
-                $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
+                connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
                 cellX = getX(size, i, getRowSize(size, i) - 1) + (gridView.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, i, getRowSize(size, i) - 1) + gridView.offsets[k][1] * cellOffsetY - 0.75 * radius;
                 scaleX = scaleY = -radius / 20;
@@ -529,24 +536,24 @@ export function createGrid(gridView, size) {
                     cellX -= cellWidth;
                     scaleX = scaleY *= -1;
                 }
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)` });
-                connectors.push($connector);
+                connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                connectors.push(connector);
 
                 if (k == 0) {
-                    $connector.data('next', offsetsDict['NE']);
-                    gridView.edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = $connector;
+                    connector.next = offsetsDict['NE'];
+                    gridView.edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = connector;
                 }
                 // Connectors from south west hexagon.
                 if (k == offsetsDict['SW']) {
-                    $connector.data('next', offsetsDict['SW']);
-                    gridView.edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = $connector;
+                    connector.next = offsetsDict['SW'];
+                    gridView.edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = connector;
                 }
             }
 
             // South east edge
             {
                 let a = i + size - 1;
-                $connector = (isSpecial ? $positiveConnector : $connectorTemplate).clone();
+                connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
                 cellX = getX(size, a, getRowSize(size, a) - 1) + gridView.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                 cellY = getY(size, a, getRowSize(size, a) - 1) + gridView.offsets[k][1] * cellOffsetY + 0.75 * radius;
                 scaleX = radius / 20;
@@ -556,20 +563,20 @@ export function createGrid(gridView, size) {
                     scaleX *= -1;
                     scaleY *= -1;
                 }
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)` });
-                (isSpecial ? positiveConnectors : connectors).push($connector);
+                connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                (isSpecial ? positiveConnectors : connectors).push(connector);
 
                 if (k == 0) {
-                    $connector.data('next', offsetsDict['SE']);
-                    gridView.edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = $connector;
+                    connector.next = offsetsDict['SE'];
+                    gridView.edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = connector;
                 }
                 // Connectors from north west hexagon.
                 if (k == offsetsDict['NW']) {
-                    $connector.data('next', offsetsDict['NW']);
-                    gridView.edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = $connector;
+                    connector.next = offsetsDict['NW'];
+                    gridView.edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = connector;
                 }
 
-                $connector = (isSpecial ? $negativeConnector : $connectorTemplate).clone();
+                connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
                 cellX = getX(size, a, getRowSize(size, a) - 1) + (gridView.offsets[k][0] + 1) * cellWidth;
                 cellY = getY(size, a, getRowSize(size, a) - 1) + (gridView.offsets[k][1] + 1) * cellOffsetY;
                 scaleX = scaleY = -radius / 20;
@@ -578,31 +585,31 @@ export function createGrid(gridView, size) {
                     cellY -= cellOffsetY;
                     scaleX = scaleY *= -1;
                 }
-                $connector.attr({ transform: `translate(${cellX},${cellY})scale(${scaleX},${scaleY})` });
-                $parent.append($connector);
+                connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
+                connectors.push(connector);
 
                 if (k == 0) {
-                    $connector.data('next', offsetsDict['SE']);
-                    gridView.edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = $connector;
+                    connector.next = offsetsDict['SE'];
+                    gridView.edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = connector;
                 }
                 // Connectors from north west hexagon.
                 if (k == offsetsDict['NW']) {
-                    $connector.data('next', offsetsDict['NW']);
-                    gridView.edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = $connector;
+                    connector.next = offsetsDict['NW'];
+                    gridView.edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = connector;
                 }
             }
         }
     }
 
-    connectors.forEach(x => $parent.append(x));
-    positiveConnectors.forEach(x => $parent.append(x));
-    outlines.forEach(x => $parent.append(x));
+    connectors.forEach(x => parent.appendChild(x));
+    positiveConnectors.forEach(x => parent.appendChild(x));
+    outlines.forEach(x => parent.appendChild(x));
 
-    $('[class~=connector]', $svg).on('animationend', function() {
+    $('[class~=connector]', $(svg)).on('animationend', function() {
         $(this).removeClass('connector_flash');
     });
 
-    $('[class~=cell]', $svg).on('click', function() {
+    $('[class~=cell]', $(svg)).on('click', function() {
         // Select text when clicking on the background of the cell.
         const [i, j] = getIndices(this);
         navigateTo(gridView, i, j);
