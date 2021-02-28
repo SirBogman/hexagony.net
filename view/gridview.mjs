@@ -1,5 +1,13 @@
 import { getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 
+function getIndices(elem) {
+    return $(elem).attr('id').match(/\d+/g).map(x => parseInt(x));
+}
+
+function outlineHelper(x1, y1, x2, y2, size) {
+    return `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
+}
+
 export class GridView {
     constructor(updateCodeCallback) {
         this.updateCodeCallback = updateCodeCallback;
@@ -92,70 +100,62 @@ export class GridView {
             this.oldActiveCell = activeCell;
         }
     }
-}
 
-export function getIndices(elem) {
-    return $(elem).attr('id').match(/\d+/g).map(x => parseInt(x));
-}
-
-function outlineHelper(x1, y1, x2, y2, size) {
-    return `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
-}
-
-export function updateHexagonWithCode(gridView, index, code) {
-    let iterator = code[Symbol.iterator]();
-    for (let i = 0; i < gridView.cellPaths[index].length; i++) {
-        for (let j = 0; j < gridView.cellPaths[index][i].length; j++) {
-            const cell = gridView.cellPaths[index][i][j];
-            const char = iterator.next().value || '.';
-            const input = cell.data('input');
-            if (input) {
-                $(input).val(char);
-                $(input).select();
-            }
-            else {
-                const text = cell.find('text');
-                text.html(char);
-                if (char == '.') {
-                    text.addClass('noop');
+    updateHexagonWithCode(index, code) {
+        let iterator = code[Symbol.iterator]();
+        for (let i = 0; i < this.cellPaths[index].length; i++) {
+            for (let j = 0; j < this.cellPaths[index][i].length; j++) {
+                const cell = this.cellPaths[index][i][j];
+                const char = iterator.next().value || '.';
+                const input = cell.data('input');
+                if (input) {
+                    $(input).val(char);
+                    $(input).select();
                 }
                 else {
-                    text.removeClass('noop');
+                    const text = cell.find('text');
+                    text.html(char);
+                    if (char == '.') {
+                        text.addClass('noop');
+                    }
+                    else {
+                        text.removeClass('noop');
+                    }
                 }
             }
         }
     }
-}
 
-function updateFromHexagons(gridView, targetI, targetJ, value, updateActiveHexagon=true) {
-    let code = '';
-    let oldValue = '.';
-
-    let iterator = removeWhitespaceAndDebug(gridView.sourceCode)[Symbol.iterator]();
-    for (let i = 0; i < gridView.rowCount; i++) {
-        for (let j = 0; j < getRowSize(gridView.size, i); j++) {
-            let current = iterator.next().value;
-            if (i == targetI && j == targetJ) {
-                oldValue = current;
-                if (oldValue == value) {
-                    return;
+    updateFromHexagons(targetI, targetJ, value, updateActiveHexagon=true) {
+        let code = '';
+        let oldValue = '.';
+    
+        let iterator = removeWhitespaceAndDebug(this.sourceCode)[Symbol.iterator]();
+        for (let i = 0; i < this.rowCount; i++) {
+            for (let j = 0; j < getRowSize(this.size, i); j++) {
+                let current = iterator.next().value;
+                if (i == targetI && j == targetJ) {
+                    oldValue = current;
+                    if (oldValue == value) {
+                        return;
+                    }
+                    current = value;
                 }
-                current = value;
+                code += current || '.';
             }
-            code += current || '.';
         }
+    
+        this.pushUndoItem(
+            () => this.updateFromHexagons(targetI, targetJ, oldValue),
+            () => this.updateFromHexagons(targetI, targetJ, value));
+    
+        // Assume that currently editing hexagon 0.
+        for (let k = updateActiveHexagon ? 0 : 1; k < this.cellPaths.length; k++) {
+            this.updateHexagonWithCode(k, code);
+        }
+    
+        this.updateCode(minifySource(code));
     }
-
-    gridView.pushUndoItem(
-        () => updateFromHexagons(gridView, targetI, targetJ, oldValue),
-        () => updateFromHexagons(gridView, targetI, targetJ, value));
-
-    // Assume that currently editing hexagon 0.
-    for (let k = updateActiveHexagon ? 0 : 1; k < gridView.cellPaths.length; k++) {
-        updateHexagonWithCode(gridView, k, code);
-    }
-
-    gridView.updateCode(minifySource(code));
 }
 
 function checkArrowKeys(gridView, elem, event) {
@@ -183,7 +183,7 @@ function checkArrowKeys(gridView, elem, event) {
             navigateTo(gridView, i - 1, getRowSize(gridView.size, i - 1) - 1);
         }
         else {
-            updateFromHexagons(gridView, 0, 0, '.', false);
+            gridView.updateFromHexagons(0, 0, '.', false);
             $(elem).select();
         }
         event.preventDefault();
@@ -192,7 +192,7 @@ function checkArrowKeys(gridView, elem, event) {
     if (event.key == 'Delete') {
         $(elem).val('.');
         $(elem) .select();
-        updateFromHexagons(gridView, 0, 0, '.', false);
+        gridView.updateFromHexagons(0, 0, '.', false);
 
         event.preventDefault();
         return;
@@ -278,7 +278,7 @@ function navigateTo(gridView, i, j) {
 
     cell.bind('input propertychange', function() {
         const newText = $(this).val() || '.';
-        updateFromHexagons(gridView, i, j, newText, false);
+        gridView.updateFromHexagons(i, j, newText, false);
         // Reselect the text so that backspace can work normally.
         $(this).select();
     });
@@ -290,9 +290,9 @@ function navigateTo(gridView, i, j) {
         if (gridView.activeEditingCell == selector) {
             gridView.activeEditingCell = null;
         }
-        updateFromHexagons(gridView, i, j, newText);
+        gridView.updateFromHexagons(i, j, newText);
         // TODO: is this necessary?
-        updateHexagonWithCode(gridView, 0, gridView.sourceCode);
+        gridView.updateHexagonWithCode(0, gridView.sourceCode);
     });
 }
 

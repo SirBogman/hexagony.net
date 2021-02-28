@@ -1,6 +1,6 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
-import { createGrid, GridView, updateHexagonWithCode } from './view/gridview.mjs';
+import { createGrid, GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
 // import { $ } from 'jquery';
 // import { panzoom } from 'panzoom';
@@ -175,7 +175,7 @@ function updateFromSourceCode(isProgrammatic=false) {
     }
 
     for (let k = 0; k < gridView.cellPaths.length; k++) {
-        updateHexagonWithCode(gridView, k, code);
+        gridView.updateHexagonWithCode(k, code);
     }
 }
 
