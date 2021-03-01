@@ -240,14 +240,12 @@ function updateButtons() {
     if (running) {
         document.querySelectorAll('.play_content').forEach(x => x.classList.remove('hidden_section'));
         document.querySelectorAll('.edit_content').forEach(x => x.classList.add('hidden_section'));
-        gridContainer.classList.remove('edit_grid');
-        gridContainer.classList.add('play_grid');
+        gridContainer.classList.replace('edit_grid', 'play_grid');
     }
     else {
         document.querySelectorAll('.play_content').forEach(x => x.classList.add('hidden_section'));
         document.querySelectorAll('.edit_content').forEach(x => x.classList.remove('hidden_section'));
-        gridContainer.classList.add('edit_grid');
-        gridContainer.classList.remove('play_grid');
+        gridContainer.classList.replace('play_grid', 'edit_grid');
     }
 }
 
