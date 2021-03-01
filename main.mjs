@@ -2,6 +2,7 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { createGrid, GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
+import { setClass } from './view/viewutil.mjs';
 // import { panzoom } from 'panzoom';
 
 const sourceCodeInput = document.querySelector('#sourcecode');
@@ -10,6 +11,11 @@ const hexagonSizeText = document.querySelector('#hexagon_size');
 const charCountText = document.querySelector('#char_count');
 const byteCountText = document.querySelector('#byte_count');
 const operatorCountText = document.querySelector('#operator_count');
+
+const startButton = document.querySelector('#start');
+const stepButton = document.querySelector('#step');
+const pauseButton = document.querySelector('#pause');
+const stopButton = document.querySelector('#stop');
 
 function updateCode(code) {
     user_data.code = code;
@@ -224,10 +230,10 @@ function isRunning() {
 function updateButtons() {
     const running = isRunning();
     document.querySelectorAll('.edit_button').forEach(x => x.disabled = running);
-    document.querySelector('#start').disabled = gridView.timeoutID != null;
+    setClass(startButton, 'disabled', gridView.timeoutID != null);
     // TODO: use stop button to explicitly go back to edit mode.
-    document.querySelector('#stop').disabled = !running;
-    document.querySelector('#pause').disabled = gridView.timeoutID == null;
+    setClass(stopButton, 'disabled', !running);
+    setClass(pauseButton, 'disabled', gridView.timeoutID == null);
 
     const gridContainer = document.querySelector('#grid_container');
 
@@ -254,10 +260,10 @@ function init() {
     document.querySelector('#reset').addEventListener('click', () => reset(gridView.size));
     document.querySelector('#bigger').addEventListener('click', () => resize(gridView.size + 1));
     document.querySelector('#smaller').addEventListener('click', onShrink);
-    document.querySelector('#start').addEventListener('click', onStart);
-    document.querySelector('#step').addEventListener('click', onStep);
-    document.querySelector('#stop').addEventListener('click', onStop);
-    document.querySelector('#pause').addEventListener('click', onPause);
+    startButton.addEventListener('click', onStart);
+    stepButton.addEventListener('click', onStep);
+    stopButton.addEventListener('click', onStop);
+    pauseButton.addEventListener('click', onPause);
     document.querySelector('#minify').addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
     document.querySelector('#layout').addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
     document.querySelector('#undo').addEventListener('click', () => gridView.undo());

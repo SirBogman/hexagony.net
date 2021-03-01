@@ -1,6 +1,7 @@
 :root {
     --background: #fdfdfd;
     --color:      #343a40;
+    --disabled-color: #808080;
     --panel-background: #eee;
 }
 
@@ -234,6 +235,7 @@ body > header nav {
 
 body > header svg {
     width: 1.5rem;
+    height: 1.5rem;
 }
 
 body > header a,
@@ -249,9 +251,25 @@ body > header > nav > div {
 
 body > header a:hover,
 body > header a:not([href]),
-body > header > nav > div:not(:empty):hover {
+body > header > nav > .svg_icon_fill:not(.disabled):hover {
     background: var(--background);
     fill: var(--color);
+}
+
+body > header > nav > .svg_icon_fill.disabled {
+    fill: var(--disabled-color);
+}
+
+body > header > nav > .svg_icon_stroke {
+    stroke: var(--background);
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    fill: none;
+}
+
+body > header > nav > .svg_icon_stroke:hover {
+    background: var(--background);
+    stroke: var(--color);
 }
 
 nav > :empty { flex: 1 }
@@ -297,4 +315,8 @@ nav > :empty { flex: 1 }
 
 td {
     padding: 0 0.5rem;
+}
+
+.svg_icon_stroke {
+    fill: none;
 }
