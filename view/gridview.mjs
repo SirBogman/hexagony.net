@@ -352,7 +352,6 @@ export function createGrid(gridView, size) {
     const puzzleContainer = document.querySelector('#puzzle_container');
     gridView.resetPuzzleParent();
 
-    console.log(puzzleContainer);
     puzzleContainer.style['max-width'] = `${gridView.fullWidth / 2}px`;
     puzzleContainer.style['max-height'] = `${gridView.fullHeight /2}px`;
 
