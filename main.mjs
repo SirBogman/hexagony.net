@@ -2,12 +2,18 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { createGrid, GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
-// import { $ } from 'jquery';
 // import { panzoom } from 'panzoom';
+
+const sourceCodeInput = document.querySelector('#sourcecode');
+const inputBox = document.querySelector('#input');
+const hexagonSizeText = document.querySelector('#hexagon_size');
+const charCountText = document.querySelector('#char_count');
+const byteCountText = document.querySelector('#byte_count');
+const operatorCountText = document.querySelector('#operator_count');
 
 function updateCode(code) {
     user_data.code = code;
-    $('#sourcecode').val(code);
+    sourceCodeInput.value = code;
     saveData();
     resetHexagony();
     updateInfo();
@@ -62,7 +68,7 @@ function onStep() {
 
 function stepHelper() {
     if (hexagony == null) {
-        let input = $('#input').val().replaceAll(/\n/g, '\0');
+        let input = inputBox.value.replaceAll(/\n/g, '\0');
         hexagony = new Hexagony(gridView.sourceCode, input, edgeEventHandler);
     }
 
@@ -75,7 +81,11 @@ function stepHelper() {
         gridView.activeHexagon = connector.next;
         const x = gridView.offsets[gridView.activeHexagon][0] * gridView.globalOffsetX;
         const y = gridView.offsets[gridView.activeHexagon][1] * gridView.globalOffsetY;
-        $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-x - gridView.fullWidth/4},${-y - gridView.fullHeight/4})`, 'transition-property': 'transform'});
+
+        const puzzleParent = document.querySelector('#puzzle_parent');
+        puzzleParent.style.transform = `matrix(1,0,0,1,${-x - gridView.fullWidth/4},${-y - gridView.fullHeight/4})`;
+        puzzleParent.style['transition-property'] = 'transform';
+
         gridView.nextEdgeConnectorAnimation = null;
     }
 
@@ -145,7 +155,7 @@ function reset(size) {
 }
 
 function setSourceCode(newCode, isProgrammatic=false) {
-    $('#sourcecode').val(newCode);
+    sourceCodeInput.value = newCode;
     updateFromSourceCode(true, isProgrammatic);
 }
 
@@ -153,14 +163,14 @@ function updateInfo() {
     const code = gridView.sourceCode;
     const filteredCode = removeWhitespaceAndDebug(code);
     const filteredCodepoints = countCodepoints(filteredCode);
-    $('#hexagon_size').html(getHexagonSize(filteredCodepoints));
-    $('#char_count').html(countCodepoints(code));
-    $('#byte_count').html(countBytes(code));
-    $('#operator_count').html(countOperators(filteredCode));
+    hexagonSizeText.textContent = getHexagonSize(filteredCodepoints);
+    charCountText.textContent = countCodepoints(code);
+    byteCountText.textContent = countBytes(code);
+    operatorCountText.textContent = countOperators(filteredCode);
 }
 
 function updateFromSourceCode(isProgrammatic=false) {
-    let code = $('#sourcecode').val();
+    let code = sourceCodeInput.value;
     user_data.code = code;
 
     if (isProgrammatic != true) {
@@ -237,36 +247,28 @@ function updateButtons() {
 
 function init() {
     loadData();
-    $('#sourcecode').on('input propertychange', updateFromSourceCode);
+    sourceCodeInput.addEventListener('input', updateFromSourceCode);
+    sourceCodeInput.addEventListener('propertychange', updateFromSourceCode);
     setSourceCode(user_data.code, true);
 
-    $('#reset').on('click', () => {
-        if (confirm('Remove all code from the hexagon? This cannot be undone.')) {
-            reset(gridView.size);
-        }
-    });
-
-    $('#bigger').on('click', () => resize(gridView.size + 1));
-    $('#smaller').on('click', onShrink);
-    $('#start').on('click', onStart);
-    $('#step').on('click', onStep);
-    $('#stop').on('click', onStop);
-    $('#pause').on('click', onPause);
-    $('#minify').on('click', function() {
-        setSourceCode(minifySource(gridView.sourceCode));
-    });
-    $('#layout').on('click', function() {
-        setSourceCode(layoutSource(gridView.sourceCode));
-    });
-
-    $('#undo').on('click', () => gridView.undo());
-    $('#redo').on('click', () => gridView.redo());
+    document.querySelector('#reset').addEventListener('click', () => reset(gridView.size));
+    document.querySelector('#bigger').addEventListener('click', () => resize(gridView.size + 1));
+    document.querySelector('#smaller').addEventListener('click', onShrink);
+    document.querySelector('#start').addEventListener('click', onStart);
+    document.querySelector('#step').addEventListener('click', onStep);
+    document.querySelector('#stop').addEventListener('click', onStop);
+    document.querySelector('#pause').addEventListener('click', onPause);
+    document.querySelector('#minify').addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
+    document.querySelector('#layout').addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
+    document.querySelector('#undo').addEventListener('click', () => gridView.undo());
+    document.querySelector('#redo').addEventListener('click', () => gridView.redo());
 
     updateButtons();
 
-    $('#puzzle_parent').on('transitionend', function(e) {
-        if (e.target == this) {
-            $(this).css({transform: `matrix(1,0,0,1,${-gridView.fullWidth/4},${-gridView.fullHeight/4})`, 'transition-property': 'none'});
+    const puzzleParent = document.querySelector('#puzzle_parent');
+    puzzleParent.addEventListener('transitionend', (e) => {
+        if (e.target == puzzleParent) {
+            gridView.resetPuzzleParent();
             gridView.activeHexagon = 0;
             gridView.updateActiveCell(false);
         }

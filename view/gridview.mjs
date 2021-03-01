@@ -171,6 +171,12 @@ export class GridView {
     
         this.updateCode(minifySource(code));
     }
+
+    resetPuzzleParent() {
+        const puzzleParent = document.querySelector('#puzzle_parent');
+        puzzleParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
+        puzzleParent.style['transition-property'] = 'none';    
+    }
 }
 
 function checkArrowKeys(gridView, elem, event) {
@@ -343,11 +349,9 @@ export function createGrid(gridView, size) {
         return centerY + (i - size + 1) * cellOffsetY;
     }
 
-    const puzzleParent = document.querySelector('#puzzle_parent');
     const puzzleContainer = document.querySelector('#puzzle_container');
+    gridView.resetPuzzleParent();
 
-    puzzleParent.style.transform = `matrix(1,0,0,1,${-gridView.fullWidth*0.25},${-gridView.fullHeight*0.25})`;
-    puzzleParent.style['transition-property'] = 'none';
     console.log(puzzleContainer);
     puzzleContainer.style['max-width'] = `${gridView.fullWidth / 2}px`;
     puzzleContainer.style['max-height'] = `${gridView.fullHeight /2}px`;

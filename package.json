@@ -4,7 +4,6 @@
   "description": "",
   "private": true,
   "dependencies": {
-    "jquery": "^3.5.1",
     "panzoom": "^9.4.1"
   },
   "devDependencies": {
