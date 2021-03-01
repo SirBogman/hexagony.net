@@ -33,6 +33,8 @@ export class GridView {
         this.redoStack = [];
         this.isUndoRedoInProgress = false;
         this.activeEditingCell = null;
+        this.edgeTransitionMode = false;
+        this.edgeTransitionAnimationMode = false;
 
         const svg = document.querySelector('#puzzle');
 
@@ -327,7 +329,7 @@ export class GridView {
         const cellOffsetY = 3 / 4 * cellHeight;
         const cellOffsetX = Math.sqrt(3) / 2 * radius;
         const cellWidth = cellOffsetX * 2;
-        const padding = 10;
+        const padding = 20;
 
         this.globalOffsetX = cellWidth;
         this.globalOffsetY = cellOffsetY;
@@ -336,8 +338,14 @@ export class GridView {
         // the "rowCount" below represents the number of rows in the center of one of the side hexagons.
         // the "size" represents the number of rows on the top and bottom edges of the center hexagons.
         // and 1 represents the gap between them.
-        this.fullWidth = 2*(cellWidth * (this.rowCount * 2 + size + 1) + padding);
-        this.fullHeight = 2*(cellOffsetY * (this.rowCount * 3 + 3) + padding);
+        if (this.edgeTransitionMode) {
+            this.fullWidth = 2*(cellWidth * (this.rowCount * 2 + size + 1) + padding);
+            this.fullHeight = 2*(cellOffsetY * (this.rowCount * 3 + 3) + padding);
+        }
+        else {
+            this.fullWidth = 2 * (cellWidth * this.rowCount + padding);
+            this.fullHeight = 2 * (cellOffsetY * this.rowCount + padding);
+        }
         const centerX = this.fullWidth / 2;
         const centerY = this.fullHeight / 2;
 
@@ -374,18 +382,23 @@ export class GridView {
         const largeGridOneColumnOffset = largeGridTwoColumnOffset / 2;
         const largeGridOneRowOffset = size;
 
-        this.offsets = [
-            [0,0], // Center
-            [0, -largeGridTwoRowOffset, 'N'],
-            [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
-            [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
-            [0, largeGridTwoRowOffset, 'S'],
-            [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
-            [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
-        ];
+        if (this.edgeTransitionMode) {
+            this.offsets = [
+                [0,0], // Center
+                [0, -largeGridTwoRowOffset, 'N'],
+                [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
+                [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
+                [0, largeGridTwoRowOffset, 'S'],
+                [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
+                [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
+            ];
+        }
+        else {
+            this.offsets = [ [0,0] ];
+        }
 
         // Create extra hexagons to make it look infinite.
-        {
+        if (this.edgeTransitionAnimationMode) {
             for (let i = 1; i <= 2; i++) {
                 this.offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
                 this.offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
@@ -472,156 +485,160 @@ export class GridView {
                 outlines.push(outline);
             }
 
-            for (let i = 0; i < size; i++) {
-                const leftEnd = i == 0;
-                const rightEnd = i == size - 1;
-                const isSpecial = leftEnd || rightEnd;
-                let connector, cellX, cellY, scaleX, scaleY;
+            if (this.edgeTransitionMode) {
+                for (let i = 0; i < size; i++) {
+                    const leftEnd = i == 0;
+                    const rightEnd = i == size - 1;
+                    const isSpecial = leftEnd || rightEnd;
+                    let connector, cellX, cellY, scaleX, scaleY;
 
-                // Top edge
-                {
-                    connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, 0, i) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
-                    scaleX = radius / 20;
-                    scaleY = -radius / 20;
-                    if (i == 0) {
-                        // Move the symbol to the opposite end of the connector.
-                        cellX -= cellOffsetX;
-                        cellY -= cellOffsetY;
-                        scaleX *= -1;
-                        scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
-                    (isSpecial ? positiveConnectors : connectors).push(connector);
+                    // Top edge.
+                    // When in edge transition animation mode, try to make it look infinite.
+                    // Otherwise, only show edges that are connected to another hexagon.
+                    if (this.edgeTransitionAnimationMode || this.offsets[k][1] >= 0) {
+                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, 0, i) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                        scaleX = radius / 20;
+                        scaleY = -radius / 20;
+                        if (i == 0) {
+                            // Move the symbol to the opposite end of the connector.
+                            cellX -= cellOffsetX;
+                            cellY -= cellOffsetY;
+                            scaleX *= -1;
+                            scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
+                        (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                    if (k == 0) {
-                        connector.next = offsetsDict['N'];
-                        this.edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = connector;
-                    }
-                    // Connectors from south hexagon.
-                    if (k == offsetsDict['S']) {
-                        connector.next = offsetsDict['S'];
-                        this.edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = connector;
-                    }
+                        if (k == 0) {
+                            connector.next = offsetsDict['N'];
+                            this.edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = connector;
+                        }
+                        // Connectors from south hexagon.
+                        if (k == offsetsDict['S']) {
+                            connector.next = offsetsDict['S'];
+                            this.edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = connector;
+                        }
 
-                    connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, 0, i) + (this.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
-                    scaleX = scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX -= cellOffsetX;
-                        cellY += cellOffsetY;
-                        scaleX = scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
-                    connectors.push(connector);
+                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, 0, i) + (this.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
+                        scaleX = scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX -= cellOffsetX;
+                            cellY += cellOffsetY;
+                            scaleX = scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
+                        connectors.push(connector);
 
-                    if (k == 0) {
-                        connector.next = offsetsDict['N'];
-                        this.edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = connector;
-                    }
-                    // Connectors from south hexagon.
-                    if (k == offsetsDict['S']) {
-                        connector.next = offsetsDict['S'];
-                        this.edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = connector;
-                    }
-                }
-
-                // North east edge
-                {
-                    connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, i, getRowSize(size, i) - 1) + this.offsets[k][0] * cellWidth + cellOffsetX;
-                    cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY;
-                    scaleX = radius / 20;
-                    scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX += cellOffsetX;
-                        cellY -= cellOffsetY;
-                        scaleX *= -1;
-                        scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
-                    (isSpecial ? positiveConnectors : connectors).push(connector);
-
-                    if (k == 0) {
-                        connector.next = offsetsDict['NE'];
-                        this.edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = connector;
-                    }
-                    // Connectors from south west hexagon.
-                    if (k == offsetsDict['SW']) {
-                        connector.next = offsetsDict['SW'];
-                        this.edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = connector;
+                        if (k == 0) {
+                            connector.next = offsetsDict['N'];
+                            this.edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = connector;
+                        }
+                        // Connectors from south hexagon.
+                        if (k == offsetsDict['S']) {
+                            connector.next = offsetsDict['S'];
+                            this.edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = connector;
+                        }
                     }
 
-                    connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, i, getRowSize(size, i) - 1) + (this.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
-                    scaleX = scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX -= cellWidth;
-                        scaleX = scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
-                    connectors.push(connector);
+                    // North east edge
+                    if (this.edgeTransitionAnimationMode || (this.offsets[k][0] <= 0 && this.offsets[k][1] >= -size)) {
+                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, i, getRowSize(size, i) - 1) + this.offsets[k][0] * cellWidth + cellOffsetX;
+                        cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY;
+                        scaleX = radius / 20;
+                        scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX += cellOffsetX;
+                            cellY -= cellOffsetY;
+                            scaleX *= -1;
+                            scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
+                        (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                    if (k == 0) {
-                        connector.next = offsetsDict['NE'];
-                        this.edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = connector;
-                    }
-                    // Connectors from south west hexagon.
-                    if (k == offsetsDict['SW']) {
-                        connector.next = offsetsDict['SW'];
-                        this.edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = connector;
-                    }
-                }
+                        if (k == 0) {
+                            connector.next = offsetsDict['NE'];
+                            this.edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = connector;
+                        }
+                        // Connectors from south west hexagon.
+                        if (k == offsetsDict['SW']) {
+                            connector.next = offsetsDict['SW'];
+                            this.edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = connector;
+                        }
 
-                // South east edge
-                {
-                    let a = i + size - 1;
-                    connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, a, getRowSize(size, a) - 1) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, a, getRowSize(size, a) - 1) + this.offsets[k][1] * cellOffsetY + 0.75 * radius;
-                    scaleX = radius / 20;
-                    scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX += cellWidth;
-                        scaleX *= -1;
-                        scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
-                    (isSpecial ? positiveConnectors : connectors).push(connector);
+                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, i, getRowSize(size, i) - 1) + (this.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                        scaleX = scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX -= cellWidth;
+                            scaleX = scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                        connectors.push(connector);
 
-                    if (k == 0) {
-                        connector.next = offsetsDict['SE'];
-                        this.edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = connector;
-                    }
-                    // Connectors from north west hexagon.
-                    if (k == offsetsDict['NW']) {
-                        connector.next = offsetsDict['NW'];
-                        this.edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = connector;
+                        if (k == 0) {
+                            connector.next = offsetsDict['NE'];
+                            this.edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = connector;
+                        }
+                        // Connectors from south west hexagon.
+                        if (k == offsetsDict['SW']) {
+                            connector.next = offsetsDict['SW'];
+                            this.edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = connector;
+                        }
                     }
 
-                    connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, a, getRowSize(size, a) - 1) + (this.offsets[k][0] + 1) * cellWidth;
-                    cellY = getY(size, a, getRowSize(size, a) - 1) + (this.offsets[k][1] + 1) * cellOffsetY;
-                    scaleX = scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX -= cellOffsetX;
-                        cellY -= cellOffsetY;
-                        scaleX = scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
-                    connectors.push(connector);
+                    // South east edge
+                    if (this.edgeTransitionAnimationMode || (this.offsets[k][0] <= 0 && this.offsets[k][1] <= size)) {
+                        let a = i + size - 1;
+                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, a, getRowSize(size, a) - 1) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, a, getRowSize(size, a) - 1) + this.offsets[k][1] * cellOffsetY + 0.75 * radius;
+                        scaleX = radius / 20;
+                        scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX += cellWidth;
+                            scaleX *= -1;
+                            scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                        (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                    if (k == 0) {
-                        connector.next = offsetsDict['SE'];
-                        this.edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = connector;
-                    }
-                    // Connectors from north west hexagon.
-                    if (k == offsetsDict['NW']) {
-                        connector.next = offsetsDict['NW'];
-                        this.edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = connector;
+                        if (k == 0) {
+                            connector.next = offsetsDict['SE'];
+                            this.edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = connector;
+                        }
+                        // Connectors from north west hexagon.
+                        if (k == offsetsDict['NW']) {
+                            connector.next = offsetsDict['NW'];
+                            this.edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = connector;
+                        }
+
+                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, a, getRowSize(size, a) - 1) + (this.offsets[k][0] + 1) * cellWidth;
+                        cellY = getY(size, a, getRowSize(size, a) - 1) + (this.offsets[k][1] + 1) * cellOffsetY;
+                        scaleX = scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX -= cellOffsetX;
+                            cellY -= cellOffsetY;
+                            scaleX = scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
+                        connectors.push(connector);
+
+                        if (k == 0) {
+                            connector.next = offsetsDict['SE'];
+                            this.edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = connector;
+                        }
+                        // Connectors from north west hexagon.
+                        if (k == offsetsDict['NW']) {
+                            connector.next = offsetsDict['NW'];
+                            this.edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = connector;
+                        }
                     }
                 }
             }
