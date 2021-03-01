@@ -33,6 +33,20 @@ export class GridView {
         this.redoStack = [];
         this.isUndoRedoInProgress = false;
         this.activeEditingCell = null;
+
+        const svg = document.querySelector('#puzzle');
+
+        svg.addEventListener('animationend', event =>
+            event.target.classList.remove('connector_flash'));
+
+        svg.addEventListener('click', event => {
+            // Select text when clicking on the background of the cell.
+            const parent = event.target.parentNode;
+            if (parent.classList.contains('cell')) {
+                const [i, j] = getIndices(parent);
+                navigateTo(this, i, j);
+            }
+        });
     }
 
     updateCode(code) {
@@ -106,21 +120,21 @@ export class GridView {
         let iterator = code[Symbol.iterator]();
         for (let i = 0; i < this.cellPaths[index].length; i++) {
             for (let j = 0; j < this.cellPaths[index][i].length; j++) {
-                const $cell = $(this.cellPaths[index][i][j]);
+                const cell = this.cellPaths[index][i][j];
                 const char = iterator.next().value || '.';
-                const input = $cell.data('input');
-                if (input) {
-                    $(input).val(char);
-                    $(input).trigger('select');
+                if (cell.input) {
+                    const input = document.querySelector(cell.input);
+                    input.value = char;
+                    input.select();
                 }
                 else {
-                    const text = $cell.find('text');
-                    text.html(char);
+                    const text = cell.querySelector('text');
+                    text.textContent = char;
                     if (char == '.') {
-                        text.addClass('noop');
+                        text.classList.add('noop');
                     }
                     else {
-                        text.removeClass('noop');
+                        text.classList.remove('noop');
                     }
                 }
             }
@@ -175,7 +189,7 @@ function checkArrowKeys(gridView, elem, event) {
     }
     if (event.key == 'Backspace') {
         // TODO: do nothing if no text selected?
-        $(elem).val('.');
+        elem.value = '.';
         // focusout will apply update.
         if (j) {
             navigateTo(gridView, i, j - 1);
@@ -185,16 +199,15 @@ function checkArrowKeys(gridView, elem, event) {
         }
         else {
             gridView.updateFromHexagons(0, 0, '.', false);
-            $(elem).trigger('select');
+            elem.select();
         }
         event.preventDefault();
         return;
     }
     if (event.key == 'Delete') {
-        $(elem).val('.');
-        $(elem).trigger('select');
+        elem.value = '.';
+        elem.select();
         gridView.updateFromHexagons(0, 0, '.', false);
-
         event.preventDefault();
         return;
     }
@@ -260,34 +273,35 @@ function checkArrowKeys(gridView, elem, event) {
 
 function navigateTo(gridView, i, j) {
     // Hide the text in the SVG cell, create an input element, and select it.
-    let $cell = $(gridView.cellInput[0][i][j]());
-    let $svgCell = $(gridView.cellPaths[0][i][j]);
+    let cell = gridView.cellInput[0][i][j]();
+    let svgCell = gridView.cellPaths[0][i][j];
     // Getting the html content would return "&amp;" for "&". Get the node value instead.
-    $cell.val($svgCell.find('text')[0].textContent);
+    const svgText = svgCell.querySelector('text');
+    cell.value = svgText.textContent;
     // Temporarily clear the text.
-    $svgCell.find('text').html('');
+    svgText.textContent = '';
     const selector = `#input_${i}_${j}_${0}`;
-    $svgCell.data('input', selector);
+    svgCell.input = selector;
     gridView.activeEditingCell = selector;
 
-    $cell.trigger('focus');
-    $cell.trigger('select');
+    cell.focus();
+    cell.select();
+    cell.addEventListener('keydown', (e) => checkArrowKeys(gridView, cell, e));
 
-    $cell.on('keydown', function(e) {
-        checkArrowKeys(gridView, this, e);
-    });
-
-    $cell.on('input propertychange', function() {
-        const newText = $(this).val() || '.';
+    const changeHandler = () => {
+        const newText = cell.value || '.';
         gridView.updateFromHexagons(i, j, newText, false);
         // Reselect the text so that backspace can work normally.
-        $(this).trigger('select');
-    });
+        cell.select();
+    };
 
-    $cell.on('focusout', function() {
-        const newText = $(this).val() || '.';
-        this.remove();
-        $svgCell.data('input', null);
+    cell.addEventListener('input', changeHandler);
+    cell.addEventListener('propertychange', changeHandler);
+
+    cell.addEventListener('focusout', () => {
+        const newText = cell.value || '.';
+        cell.parentNode.removeChild(cell);
+        svgCell.input = null;
         if (gridView.activeEditingCell == selector) {
             gridView.activeEditingCell = null;
         }
@@ -329,11 +343,18 @@ export function createGrid(gridView, size) {
         return centerY + (i - size + 1) * cellOffsetY;
     }
 
-    $('#puzzle_parent').css({transform: `matrix(1,0,0,1,${-gridView.fullWidth*0.25},${-gridView.fullHeight*0.25})`, 'transition-property': 'none'});
-    $('#puzzle_container').css({'max-width': gridView.fullWidth / 2, 'max-height': gridView.fullHeight /2 });
+    const puzzleParent = document.querySelector('#puzzle_parent');
+    const puzzleContainer = document.querySelector('#puzzle_container');
 
-    let svg = document.querySelector('#puzzle');
-    $(svg).attr({ width: gridView.fullWidth, height: gridView.fullHeight });
+    puzzleParent.style.transform = `matrix(1,0,0,1,${-gridView.fullWidth*0.25},${-gridView.fullHeight*0.25})`;
+    puzzleParent.style['transition-property'] = 'none';
+    console.log(puzzleContainer);
+    puzzleContainer.style['max-width'] = `${gridView.fullWidth / 2}px`;
+    puzzleContainer.style['max-height'] = `${gridView.fullHeight /2}px`;
+
+    const svg = document.querySelector('#puzzle');
+    svg.setAttribute('width', gridView.fullWidth);
+    svg.setAttribute('height', gridView.fullHeight);
     let template = svg.querySelector('defs [class~=cell]');
     let parent = svg.querySelector('#cell_container');
     const textParent = document.querySelector('#input_container');
@@ -604,14 +625,4 @@ export function createGrid(gridView, size) {
     connectors.forEach(x => parent.appendChild(x));
     positiveConnectors.forEach(x => parent.appendChild(x));
     outlines.forEach(x => parent.appendChild(x));
-
-    $('[class~=connector]', $(svg)).on('animationend', function() {
-        $(this).removeClass('connector_flash');
-    });
-
-    $('[class~=cell]', $(svg)).on('click', function() {
-        // Select text when clicking on the background of the cell.
-        const [i, j] = getIndices(this);
-        navigateTo(gridView, i, j);
-    });
 }
