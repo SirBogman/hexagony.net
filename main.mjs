@@ -1,6 +1,6 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
-import { createGrid, GridView } from './view/gridview.mjs';
+import { GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
 import { setClass } from './view/viewutil.mjs';
 // import { panzoom } from 'panzoom';
@@ -194,7 +194,7 @@ function updateFromSourceCode(isProgrammatic=false) {
 
     const newSize = getHexagonSize(countCodepoints(code));
     if (newSize != gridView.size) {
-        createGrid(gridView, newSize);
+        gridView.createGrid(newSize);
     }
 
     for (let k = 0; k < gridView.cellPaths.length; k++) {
