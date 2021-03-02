@@ -77,9 +77,12 @@
 
 #puzzle_container {
     position: relative;
-    background-color: lightgray;
-    margin: 1rem;
+    margin: 2rem;
     overflow: hidden;
+}
+
+.puzzle_container_background {
+    background-color: lightgray;
 }
 
 #memory_container {
@@ -136,7 +139,6 @@ body {
 #app {
     background: #fff;
     border-radius: 4px;
-    padding: 20px;
     transition: all 0.2s;
     display: grid;
     justify-content: center;
@@ -219,61 +221,6 @@ body {
     top:0px;
 } */
 
-body header {
-    background: var(--color);
-    /* margin: 0 calc(50% - 50vw); */
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-body > header nav {
-    margin: auto;
-    max-width: 1280px;
-    display: flex;
-}
-
-body > header svg {
-    width: 1.5rem;
-    height: 1.5rem;
-}
-
-body > header a,
-body > header > nav > div {
-    height: 2.75rem;
-    width: 2.75rem;
-    display: inline-block;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    fill: var(--background);
-}
-
-body > header a:hover,
-body > header a:not([href]),
-body > header > nav > .svg_icon_fill:not(.disabled):hover {
-    background: var(--background);
-    fill: var(--color);
-}
-
-body > header > nav > .svg_icon_fill.disabled {
-    fill: var(--disabled-color);
-}
-
-body > header > nav > .svg_icon_stroke {
-    stroke: var(--background);
-    stroke-width: 2;
-    stroke-miterlimit: 10;
-    fill: none;
-}
-
-body > header > nav > .svg_icon_stroke:hover {
-    background: var(--background);
-    stroke: var(--color);
-}
-
-nav > :empty { flex: 1 }
-
 #grid_container {
     display: grid;
     grid-gap: 1rem;
@@ -315,8 +262,4 @@ nav > :empty { flex: 1 }
 
 td {
     padding: 0 0.5rem;
-}
-
-.svg_icon_stroke {
-    fill: none;
 }

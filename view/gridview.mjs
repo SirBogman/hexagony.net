@@ -10,8 +10,9 @@ function outlineHelper(x1, y1, x2, y2, size) {
 }
 
 export class GridView {
-    constructor(updateCodeCallback) {
+    constructor(updateCodeCallback, updateUndoButtonsCallback) {
         this.updateCodeCallback = updateCodeCallback;
+        this.updateUndoButtonsCallback = updateUndoButtonsCallback;
         this.cellPaths = [];
         this.cellInput = [];
         this.edgeConnectors = {};
@@ -58,11 +59,6 @@ export class GridView {
         }
     }
 
-    updateUndoButtons() {
-        document.querySelector('#undo').disabled = this.undoStack.length == 0;
-        document.querySelector('#redo').disabled = this.redoStack.length == 0;
-    }
-
     undo() {
         if (this.undoStack.length) {
             let undoItem = this.undoStack.pop();
@@ -74,7 +70,7 @@ export class GridView {
             finally {
                 this.isUndoRedoInProgress = false;
             }
-            this.updateUndoButtons();
+            this.updateUndoButtonsCallback();
         }
     }
 
@@ -89,7 +85,7 @@ export class GridView {
             finally {
                 this.isUndoRedoInProgress = false;
             }
-            this.updateUndoButtons();
+            this.updateUndoButtonsCallback();
         }
     }
 
@@ -100,7 +96,7 @@ export class GridView {
                 redo: redoFunction
             });
             this.redoStack = [];
-            this.updateUndoButtons();
+            this.updateUndoButtonsCallback();
         }
     }
 

@@ -12,3 +12,7 @@ export function setClass(element, className, shouldHaveClass) {
         element.classList.remove(className);
     }
 }
+
+export function setDisabledClass(element, disabled) {
+    setClass(element, 'disabled', disabled);
+}

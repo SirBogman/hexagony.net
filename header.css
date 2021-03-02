@@ -1,0 +1,68 @@
+
+body header {
+    background: var(--color);
+    /* margin: 0 calc(50% - 50vw); */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+body > header nav {
+    margin: auto;
+    max-width: 1280px;
+    display: flex;
+}
+
+body > header svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+body > header a,
+body > header > nav > div {
+    height: 2.75rem;
+    width: 2.75rem;
+    display: inline-block;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    color: var(--background);
+    fill: var(--background);
+}
+
+body > header a:hover,
+body > header a:not([href]),
+body > header > nav > .svg_icon:not(.disabled):hover {
+    background: var(--background);
+    color: var(--color);
+    /* For elements that don't use currentColor: */
+    fill: var(--color);
+}
+
+body > header > nav > .svg_icon.disabled {
+    color: var(--disabled-color);
+}
+
+nav > :empty { flex: 1 }
+
+.svg_icon_stroke {
+    fill: none;
+}
+
+.svg_style_stroke2 {
+    fill: none;
+    stroke: currentColor;
+    stroke-miterlimit: 10;
+    stroke-width: 2px;
+}
+
+.svg_style_stroke3 {
+    fill: none;
+    stroke: currentColor;
+    stroke-miterlimit: 10;
+    stroke-width: 3px;
+}
+
+.svg_style_fill {
+    fill: currentColor;
+}

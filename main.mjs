@@ -2,7 +2,7 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
-import { setClass } from './view/viewutil.mjs';
+import { setDisabledClass } from './view/viewutil.mjs';
 // import { panzoom } from 'panzoom';
 
 const sourceCodeInput = document.querySelector('#sourcecode');
@@ -11,6 +11,13 @@ const hexagonSizeText = document.querySelector('#hexagon_size');
 const charCountText = document.querySelector('#char_count');
 const byteCountText = document.querySelector('#byte_count');
 const operatorCountText = document.querySelector('#operator_count');
+
+const smallerButton = document.querySelector('#smaller');
+const resetButton = document.querySelector('#reset');
+const biggerButton = document.querySelector('#bigger');
+const undoButton = document.querySelector('#undo');
+const redoButton = document.querySelector('#redo');
+const editButtons = [smallerButton, resetButton, biggerButton];
 
 const startButton = document.querySelector('#start');
 const stepButton = document.querySelector('#step');
@@ -25,7 +32,34 @@ function updateCode(code) {
     updateInfo();
 }
 
-let gridView = new GridView(updateCode);
+function updateButtons() {
+    const running = isRunning();
+    document.querySelectorAll('.edit_button').forEach(x => setDisabledClass(x, running));
+    editButtons.forEach(x => setDisabledClass(x, running));
+
+    setDisabledClass(undoButton, running || gridView.undoStack.length == 0);
+    setDisabledClass(redoButton, running || gridView.redoStack.length == 0);
+
+    setDisabledClass(startButton, gridView.timeoutID != null);
+    // TODO: use stop button to explicitly go back to edit mode.
+    setDisabledClass(stopButton, !running);
+    setDisabledClass(pauseButton, gridView.timeoutID == null);
+
+    const gridContainer = document.querySelector('#grid_container');
+
+    if (running) {
+        document.querySelectorAll('.play_content').forEach(x => x.classList.remove('hidden_section'));
+        document.querySelectorAll('.edit_content').forEach(x => x.classList.add('hidden_section'));
+        gridContainer.classList.replace('edit_grid', 'play_grid');
+    }
+    else {
+        document.querySelectorAll('.play_content').forEach(x => x.classList.add('hidden_section'));
+        document.querySelectorAll('.edit_content').forEach(x => x.classList.remove('hidden_section'));
+        gridContainer.classList.replace('play_grid', 'edit_grid');
+    }
+}
+
+let gridView = new GridView(updateCode, updateButtons);
 let hexagony;
 let user_data;
 let memoryPanZoom;
@@ -62,7 +96,7 @@ function resetHexagony() {
 
 function onStart() {
     const isEdgeTransition = stepHelper();
-    if (isRunning) {
+    if (isRunning()) {
         gridView.timeoutID = window.setTimeout(onStart, isEdgeTransition ? 1000 : 300);
     }
 }
@@ -139,14 +173,6 @@ function resizeCode(size) {
     newCode += '.'.repeat(getCodeLength(size) - countCodepoints(newCode));
     newCode = minifySource(newCode);
     return newCode;
-}
-
-function onShrink() {
-    let newCode = resizeCode(gridView.size - 1);
-    if (countOperators(gridView.sourceCode) == countOperators(newCode) ||
-        confirm('Shrink the hexagon? Code may be lost and this cannot be undone.')) {
-        resize(Math.max(1, gridView.size - 1));
-    }
 }
 
 function resize(size) {
@@ -227,45 +253,24 @@ function isRunning() {
     return hexagony != null && hexagony.isRunning;
 }
 
-function updateButtons() {
-    const running = isRunning();
-    document.querySelectorAll('.edit_button').forEach(x => x.disabled = running);
-    setClass(startButton, 'disabled', gridView.timeoutID != null);
-    // TODO: use stop button to explicitly go back to edit mode.
-    setClass(stopButton, 'disabled', !running);
-    setClass(pauseButton, 'disabled', gridView.timeoutID == null);
-
-    const gridContainer = document.querySelector('#grid_container');
-
-    if (running) {
-        document.querySelectorAll('.play_content').forEach(x => x.classList.remove('hidden_section'));
-        document.querySelectorAll('.edit_content').forEach(x => x.classList.add('hidden_section'));
-        gridContainer.classList.replace('edit_grid', 'play_grid');
-    }
-    else {
-        document.querySelectorAll('.play_content').forEach(x => x.classList.add('hidden_section'));
-        document.querySelectorAll('.edit_content').forEach(x => x.classList.remove('hidden_section'));
-        gridContainer.classList.replace('play_grid', 'edit_grid');
-    }
-}
-
 function init() {
     loadData();
     sourceCodeInput.addEventListener('input', updateFromSourceCode);
     sourceCodeInput.addEventListener('propertychange', updateFromSourceCode);
     setSourceCode(user_data.code, true);
 
-    document.querySelector('#reset').addEventListener('click', () => reset(gridView.size));
-    document.querySelector('#bigger').addEventListener('click', () => resize(gridView.size + 1));
-    document.querySelector('#smaller').addEventListener('click', onShrink);
+    resetButton.addEventListener('click', () => { if (!isRunning()) reset(gridView.size); });
+    biggerButton.addEventListener('click', () => { if (!isRunning()) resize(gridView.size + 1); });
+    smallerButton.addEventListener('click', () => { if (!isRunning()) resize(Math.max(1, gridView.size - 1)); });
+    undoButton.addEventListener('click', () => { if (!isRunning()) gridView.undo(); });
+    redoButton.addEventListener('click', () => { if (!isRunning()) gridView.redo(); });
+
     startButton.addEventListener('click', onStart);
     stepButton.addEventListener('click', onStep);
     stopButton.addEventListener('click', onStop);
     pauseButton.addEventListener('click', onPause);
     document.querySelector('#minify').addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
     document.querySelector('#layout').addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
-    document.querySelector('#undo').addEventListener('click', () => gridView.undo());
-    document.querySelector('#redo').addEventListener('click', () => gridView.redo());
 
     updateButtons();
 
