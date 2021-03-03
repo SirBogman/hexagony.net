@@ -16,3 +16,17 @@ export function setClass(element, className, shouldHaveClass) {
 export function setDisabledClass(element, disabled) {
     setClass(element, 'disabled', disabled);
 }
+
+export function unicodeStringToBase64(value) {
+    const utf8 = String.fromCharCode(...new TextEncoder().encode(value));
+    return btoa(utf8);
+}
+
+export function base64ToUnicodeString(value) {
+    const decoded = atob(value);
+    const array = new Uint8Array(decoded.length);
+    for (let i = 0; i < decoded.length; i++) {
+        array[i] = decoded.charCodeAt(i);
+    }
+    return new TextDecoder().decode(array);
+}

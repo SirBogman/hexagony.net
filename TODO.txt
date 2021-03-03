@@ -29,16 +29,14 @@ Tool bar at the top (sticky scrolling), like code.golf. Hexagony Icon (white), a
 Undo redo buttons on toolbar showing state.
 
 
+There can be an extra undo operation when loading from a data url.
+Compress data url?
+
 
 Before publish:
     Webpack?
 
     About page
-
-    Copy link to this
-        Decoding
-            Just JSON serialize + base64 encode the localstore.
-        Allows integration with code.golf, CGCC.
 
     Edit mode:
         Input:

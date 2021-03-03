@@ -2,7 +2,7 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
-import { setClass, setDisabledClass } from './view/viewutil.mjs';
+import { base64ToUnicodeString, setClass, setDisabledClass, unicodeStringToBase64 } from './view/viewutil.mjs';
 // import { panzoom } from 'panzoom';
 
 const sourceCodeInput = document.querySelector('#sourcecode');
@@ -17,12 +17,17 @@ const resetButton = document.querySelector('#reset');
 const biggerButton = document.querySelector('#bigger');
 const undoButton = document.querySelector('#undo');
 const redoButton = document.querySelector('#redo');
-const editButtons = [smallerButton, resetButton, biggerButton];
+const editPseudoButtons = [smallerButton, resetButton, biggerButton];
 
 const startButton = document.querySelector('#start');
 const stepButton = document.querySelector('#step');
 const pauseButton = document.querySelector('#pause');
 const stopButton = document.querySelector('#stop');
+
+const minifyButton = document.querySelector('#minify');
+const layoutButton = document.querySelector('#layout');
+const updateUrlButton = document.querySelector('#update_url');
+const editButtons = [minifyButton, layoutButton];
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
 const edgeTransitionAnimationButton = document.querySelector('#edge_transition_animation');
@@ -31,11 +36,12 @@ let gridView;
 let hexagony;
 let user_data;
 let memoryPanZoom;
+let initFinished = false;
 
 function updateCode(code, isProgrammatic=false) {
     user_data.code = code;
     sourceCodeInput.value = code;
-    if (!isProgrammatic) {
+    if (!isProgrammatic && initFinished) {
         saveData();
     }
     resetHexagony();
@@ -43,15 +49,15 @@ function updateCode(code, isProgrammatic=false) {
 }
 
 function updateButtons() {
+    // TODO: use stop button to explicitly go back to edit mode.
     const running = isRunning();
-    document.querySelectorAll('.edit_button').forEach(x => setDisabledClass(x, running));
-    editButtons.forEach(x => setDisabledClass(x, running));
+    editButtons.forEach(x => x.disabled = running);
+    editPseudoButtons.forEach(x => setDisabledClass(x, running));
 
     setDisabledClass(undoButton, running || gridView.undoStack.length == 0);
     setDisabledClass(redoButton, running || gridView.redoStack.length == 0);
 
     setDisabledClass(startButton, gridView.timeoutID != null);
-    // TODO: use stop button to explicitly go back to edit mode.
     setDisabledClass(stopButton, !running);
     setDisabledClass(pauseButton, gridView.timeoutID == null);
 
@@ -74,6 +80,7 @@ function updateViewButtons() {
     setClass(edgeTransitionAnimationButton, 'active', gridView.edgeTransitionAnimationMode);
 }
 
+// This should only be called once when initially loading.
 function loadData() {
     user_data = undefined;
     try {
@@ -93,6 +100,27 @@ function loadData() {
     if (user_data.edgeTransitionAnimationMode !== undefined) {
         gridView.edgeTransitionAnimationMode = user_data.edgeTransitionAnimationMode;
     }
+
+    (onhashchange = () => {
+        let newData = undefined;
+        try {
+            if (location.hash) {
+                newData = JSON.parse(base64ToUnicodeString(location.hash.slice(1)));
+            }
+        // eslint-disable-next-line no-empty
+        } catch (e) {
+        }
+
+        if (newData && newData.code) {
+            setSourceCode(newData.code, !initFinished);
+        }
+    })();
+}
+
+function updateUrl() {
+    const urlData = { code: user_data.code };
+    const json = JSON.stringify(urlData);
+    history.replaceState(null, '', '#' + unicodeStringToBase64(json));
 }
 
 function saveViewState() {
@@ -276,8 +304,9 @@ function init() {
     stepButton.addEventListener('click', onStep);
     stopButton.addEventListener('click', onStop);
     pauseButton.addEventListener('click', onPause);
-    document.querySelector('#minify').addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
-    document.querySelector('#layout').addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
+    minifyButton.addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
+    layoutButton.addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
+    updateUrlButton.addEventListener('click', () => updateUrl());
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
@@ -313,6 +342,7 @@ function init() {
 
     // panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
     memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
+    initFinished = true;
 }
 
 init();
