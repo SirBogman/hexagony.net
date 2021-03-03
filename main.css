@@ -2,7 +2,7 @@
     --background: #fdfdfd;
     --color:      #343a40;
     --disabled-color: #808080;
-    --panel-background: #eee;
+    --panel-background: hsl(0, 0%, 95%);
 }
 
 * {
@@ -144,6 +144,7 @@ body {
     justify-content: center;
     grid-template-rows: repeat(3, auto);
     grid-template-columns: 100%;
+    margin: 0 1rem;
 }
 
 .outline {
@@ -228,11 +229,11 @@ body {
 }
 
 .edit_grid {
-    grid-template-columns: repeat(2, 700px);
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .play_grid {
-    grid-template-columns: repeat(auto-fill, 700px);
+    grid-template-columns: repeat(auto-fill, 600px);
 }
 
 #grid_container>* {
