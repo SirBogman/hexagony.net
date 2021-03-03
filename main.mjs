@@ -24,10 +24,17 @@ const stepButton = document.querySelector('#step');
 const pauseButton = document.querySelector('#pause');
 const stopButton = document.querySelector('#stop');
 
-function updateCode(code) {
+let gridView;
+let hexagony;
+let user_data;
+let memoryPanZoom;
+
+function updateCode(code, isProgrammatic=false) {
     user_data.code = code;
     sourceCodeInput.value = code;
-    saveData();
+    if (!isProgrammatic) {
+        saveData();
+    }
     resetHexagony();
     updateInfo();
 }
@@ -58,11 +65,6 @@ function updateButtons() {
         gridContainer.classList.replace('play_grid', 'edit_grid');
     }
 }
-
-let gridView = new GridView(updateCode, updateButtons);
-let hexagony;
-let user_data;
-let memoryPanZoom;
 
 function loadData() {
     user_data = undefined;
@@ -140,7 +142,7 @@ function stepHelper() {
 }
 
 function resizeCode(size) {
-    const oldCode = gridView.sourceCode;
+    const oldCode = removeWhitespaceAndDebug(gridView.sourceCode);
     const oldSize = getHexagonSize(countCodepoints(oldCode));
     let newCode = '';
 
@@ -192,7 +194,7 @@ function reset(size) {
 
 function setSourceCode(newCode, isProgrammatic=false) {
     sourceCodeInput.value = newCode;
-    updateFromSourceCode(true, isProgrammatic);
+    updateFromSourceCode(isProgrammatic);
 }
 
 function updateInfo() {
@@ -206,22 +208,23 @@ function updateInfo() {
 }
 
 function updateFromSourceCode(isProgrammatic=false) {
+    gridView.setSourceCode(sourceCodeInput.value, isProgrammatic);
+
     let code = sourceCodeInput.value;
     user_data.code = code;
 
-    if (isProgrammatic != true) {
-        saveData();
-    }
-
     if (gridView.sourceCode != code) {
-        gridView.sourceCode = code;
+        gridView.setSourceCode(code, isProgrammatic);
+        if (!isProgrammatic) {
+            saveData();
+        }
+
         resetHexagony();
     }
 
     updateInfo();
 
     code = removeWhitespaceAndDebug(code);
-
     const newSize = getHexagonSize(countCodepoints(code));
     if (newSize != gridView.size) {
         gridView.createGrid(newSize);
@@ -258,9 +261,10 @@ function isRunning() {
 }
 
 function init() {
+    gridView = new GridView(updateCode, updateButtons);
     loadData();
-    sourceCodeInput.addEventListener('input', updateFromSourceCode);
-    sourceCodeInput.addEventListener('propertychange', updateFromSourceCode);
+    sourceCodeInput.addEventListener('input', () => updateFromSourceCode(false));
+    sourceCodeInput.addEventListener('propertychange', () => updateFromSourceCode(false));
     setSourceCode(user_data.code, true);
 
     resetButton.addEventListener('click', () => { if (!isRunning()) reset(gridView.size); });

@@ -1,4 +1,4 @@
-import { getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
+import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { emptyElement, setClass } from "./viewutil.mjs";
 
 function getIndices(elem) {
@@ -52,10 +52,34 @@ export class GridView {
         });
     }
 
-    updateCode(code) {
+    // Public API for updating source code.
+    setSourceCode(code, isProgrammatic) {
+        const oldCode = this.sourceCode;
+        if (oldCode != code) {
+            let filteredCode = removeWhitespaceAndDebug(code);
+            const newSize = getHexagonSize(countCodepoints(filteredCode));
+            if (newSize != this.size) {
+                this.createGrid(newSize);
+            }
+
+            for (let k = 0; k < this.cellPaths.length; k++) {
+                this.updateHexagonWithCode(k, filteredCode);
+            }
+
+            this.updateCode(code, isProgrammatic);
+
+            if (!isProgrammatic) {
+                this.pushUndoItem(
+                    () => this.setSourceCode(oldCode),
+                    () => this.setSourceCode(code));
+            }
+        }
+    }
+
+    updateCode(code, isProgrammatic=false) {
         if (this.sourceCode != code) {
             this.sourceCode = code;
-            this.updateCodeCallback(code);
+            this.updateCodeCallback(code, isProgrammatic);
         }
     }
 
