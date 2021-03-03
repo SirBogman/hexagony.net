@@ -359,7 +359,7 @@ export class GridView {
         const cellOffsetY = 3 / 4 * cellHeight;
         const cellOffsetX = Math.sqrt(3) / 2 * radius;
         const cellWidth = cellOffsetX * 2;
-        const padding = 20;
+        const padding = 40;
 
         this.globalOffsetX = cellWidth;
         this.globalOffsetY = cellOffsetY;
@@ -390,7 +390,6 @@ export class GridView {
         }
 
         const puzzleContainer = document.querySelector('#puzzle_container');
-        setClass(puzzleContainer, 'puzzle_container_background', this.edgeTransitionMode || this.edgeTransitionAnimationMode);
         this.resetPuzzleParent();
 
         puzzleContainer.style['max-width'] = `${this.fullWidth / 2}px`;
