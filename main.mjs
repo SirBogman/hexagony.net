@@ -182,6 +182,14 @@ function resize(size) {
     console.log(`resize ${size} took ${p2 - p1}`);
 }
 
+function onShrink() {
+    let newCode = resizeCode(gridView.size - 1);
+    if (countOperators(gridView.sourceCode) == countOperators(newCode) ||
+        confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
+        resize(Math.max(1, gridView.size - 1));
+    }
+}
+
 function reset(size) {
     setSourceCode('.'.repeat(getCodeLength(size - 1) + 1));
 }
@@ -261,7 +269,7 @@ function init() {
 
     resetButton.addEventListener('click', () => { if (!isRunning()) reset(gridView.size); });
     biggerButton.addEventListener('click', () => { if (!isRunning()) resize(gridView.size + 1); });
-    smallerButton.addEventListener('click', () => { if (!isRunning()) resize(Math.max(1, gridView.size - 1)); });
+    smallerButton.addEventListener('click', () => { if (!isRunning()) onShrink();});
     undoButton.addEventListener('click', () => { if (!isRunning()) gridView.undo(); });
     redoButton.addEventListener('click', () => { if (!isRunning()) gridView.redo(); });
 
