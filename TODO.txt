@@ -33,23 +33,12 @@ Undo redo buttons on toolbar showing state.
 Before publish:
     Webpack?
 
-    Redo layout
-
-    toolbar
-
     About page
 
     Copy link to this
         Decoding
             Just JSON serialize + base64 encode the localstore.
         Allows integration with code.golf, CGCC.
-
-    Both modes:
-        Toggle edge connectors visibility
-            localstore
-        Toggle edge connection animation mode
-            localstore
-        List keyboard shortcusts
 
     Edit mode:
         Input:
@@ -63,8 +52,6 @@ Before publish:
         Breakpoint support
         Show exception state
         Show termination state
-
-    Make undo work for any of the ways to change the text
 
     Memory:
         Autoscroll only when it gets near the edge.
