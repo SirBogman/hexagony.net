@@ -217,30 +217,6 @@ function updateInfo() {
 
 function updateFromSourceCode(isProgrammatic=false) {
     gridView.setSourceCode(sourceCodeInput.value, isProgrammatic);
-
-    let code = sourceCodeInput.value;
-    user_data.code = code;
-
-    if (gridView.sourceCode != code) {
-        gridView.setSourceCode(code, isProgrammatic);
-        if (!isProgrammatic) {
-            saveData();
-        }
-
-        resetHexagony();
-    }
-
-    updateInfo();
-
-    code = removeWhitespaceAndDebug(code);
-    const newSize = getHexagonSize(countCodepoints(code));
-    if (newSize != gridView.size) {
-        gridView.createGrid(newSize);
-    }
-
-    for (let k = 0; k < gridView.cellPaths.length; k++) {
-        gridView.updateHexagonWithCode(k, code);
-    }
 }
 
 function onPause() {
