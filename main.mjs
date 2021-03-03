@@ -81,9 +81,24 @@ function loadData() {
     // eslint-disable-next-line no-empty
     } catch (e) {
     }
+
     if (!user_data || !user_data.code) {
         user_data = { code: '.'.repeat(getCodeLength(2) + 1) };
     }
+
+    if (user_data.edgeTransitionMode !== undefined) {
+        gridView.edgeTransitionMode = user_data.edgeTransitionMode;
+    }
+
+    if (user_data.edgeTransitionAnimationMode !== undefined) {
+        gridView.edgeTransitionAnimationMode = user_data.edgeTransitionAnimationMode;
+    }
+}
+
+function saveViewState() {
+    user_data.edgeTransitionMode = gridView.edgeTransitionMode;
+    user_data.edgeTransitionAnimationMode = gridView.edgeTransitionAnimationMode;
+    saveData();
 }
 
 function saveData() {
@@ -271,6 +286,7 @@ function init() {
         }
         gridView.recreateGrid();
         updateViewButtons();
+        saveViewState();
     });
 
     edgeTransitionAnimationButton.addEventListener('click', () => {
@@ -280,9 +296,11 @@ function init() {
         }
         gridView.recreateGrid();
         updateViewButtons();
+        saveViewState();
     });
 
     updateButtons();
+    updateViewButtons();
 
     const puzzleParent = document.querySelector('#puzzle_parent');
     puzzleParent.addEventListener('transitionend', (e) => {
