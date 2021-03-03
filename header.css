@@ -32,6 +32,7 @@ body > header > nav > div {
 
 body > header a:hover,
 body > header a:not([href]),
+body > header > nav > .svg_icon.active,
 body > header > nav > .svg_icon:not(.disabled):hover {
     background: var(--background);
     color: var(--color);
