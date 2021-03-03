@@ -76,6 +76,16 @@ export class GridView {
         }
     }
 
+    // Public API to recreate the grid after changing edgeTransitionMode or edgeTransitionAnimationMode.
+    recreateGrid() {
+        this.createGrid(this.size);
+
+        let filteredCode = removeWhitespaceAndDebug(this.sourceCode);
+        for (let k = 0; k < this.cellPaths.length; k++) {
+            this.updateHexagonWithCode(k, filteredCode);
+        }
+    }
+
     updateCode(code, isProgrammatic=false) {
         if (this.sourceCode != code) {
             this.sourceCode = code;

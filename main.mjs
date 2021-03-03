@@ -2,7 +2,7 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
-import { setDisabledClass } from './view/viewutil.mjs';
+import { setClass, setDisabledClass } from './view/viewutil.mjs';
 // import { panzoom } from 'panzoom';
 
 const sourceCodeInput = document.querySelector('#sourcecode');
@@ -23,6 +23,9 @@ const startButton = document.querySelector('#start');
 const stepButton = document.querySelector('#step');
 const pauseButton = document.querySelector('#pause');
 const stopButton = document.querySelector('#stop');
+
+const edgeTransitionButton = document.querySelector('#edge_transition');
+const edgeTransitionAnimationButton = document.querySelector('#edge_transition_animation');
 
 let gridView;
 let hexagony;
@@ -64,6 +67,11 @@ function updateButtons() {
         document.querySelectorAll('.edit_content').forEach(x => x.classList.remove('hidden_section'));
         gridContainer.classList.replace('play_grid', 'edit_grid');
     }
+}
+
+function updateViewButtons() {
+    setClass(edgeTransitionButton, 'active', gridView.edgeTransitionMode);
+    setClass(edgeTransitionAnimationButton, 'active', gridView.edgeTransitionAnimationMode);
 }
 
 function loadData() {
@@ -279,6 +287,24 @@ function init() {
     pauseButton.addEventListener('click', onPause);
     document.querySelector('#minify').addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
     document.querySelector('#layout').addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
+
+    edgeTransitionButton.addEventListener('click', () => {
+        gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
+        if (!gridView.edgeTransitionMode) {
+            gridView.edgeTransitionAnimationMode = false;
+        }
+        gridView.recreateGrid();
+        updateViewButtons();
+    });
+
+    edgeTransitionAnimationButton.addEventListener('click', () => {
+        gridView.edgeTransitionAnimationMode = !gridView.edgeTransitionAnimationMode;
+        if (gridView.edgeTransitionAnimationMode) {
+            gridView.edgeTransitionMode = true;
+        }
+        gridView.recreateGrid();
+        updateViewButtons();
+    });
 
     updateButtons();
 
