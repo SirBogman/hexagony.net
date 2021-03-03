@@ -1,5 +1,5 @@
 import { getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
-import { emptyElement } from "./viewutil.mjs";
+import { emptyElement, setClass } from "./viewutil.mjs";
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
@@ -43,7 +43,7 @@ export class GridView {
             event.target.classList.remove('connector_flash'));
 
         svg.addEventListener('click', event => {
-            // Select text when clicking on the background of the cell.
+            // Select text when clicking on the background or text of the cell.
             const parent = event.target.parentNode;
             if (parent.classList.contains('cell')) {
                 const [i, j] = getIndices(parent);
@@ -356,6 +356,7 @@ export class GridView {
         }
 
         const puzzleContainer = document.querySelector('#puzzle_container');
+        setClass(puzzleContainer, 'puzzle_container_background', this.edgeTransitionMode || this.edgeTransitionAnimationMode);
         this.resetPuzzleParent();
 
         puzzleContainer.style['max-width'] = `${this.fullWidth / 2}px`;
