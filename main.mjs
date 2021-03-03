@@ -77,11 +77,7 @@ function loadData() {
 }
 
 function saveData() {
-    try {
-        localStorage['user_data'] = JSON.stringify(user_data);
-    } catch (e) {
-        // No localstorage
-    }
+    localStorage['user_data'] = JSON.stringify(user_data);
 }
 
 function edgeEventHandler(edgeName) {
