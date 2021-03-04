@@ -2,7 +2,10 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
-import { base64ToUnicodeString, setClass, setDisabledClass, unicodeStringToBase64 } from './view/viewutil.mjs';
+import { setClass, setDisabledClass } from './view/viewutil.mjs';
+
+import { LZString } from './lz-string.min.js';
+
 // import { panzoom } from 'panzoom';
 
 const sourceCodeInput = document.querySelector('#sourcecode');
@@ -105,7 +108,8 @@ function loadData() {
         let newData = undefined;
         try {
             if (location.hash) {
-                newData = JSON.parse(base64ToUnicodeString(location.hash.slice(1)));
+                newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(1)));
+                // newData = JSON.parse(base64ToUnicodeString(location.hash.slice(1)));
             }
         // eslint-disable-next-line no-empty
         } catch (e) {
@@ -120,7 +124,11 @@ function loadData() {
 function updateUrl() {
     const urlData = { code: user_data.code };
     const json = JSON.stringify(urlData);
-    history.replaceState(null, '', '#' + unicodeStringToBase64(json));
+    // history.replaceState(null, '', '#' + unicodeStringToBase64(json));
+    history.replaceState(null, '', '#' + LZString.compressToBase64(json));
+
+    const decodedJson = LZString.decompressFromBase64(LZString.compressToBase64(json));
+    console.log(`RT: ${json == decodedJson} ${json.length} ${countCodepoints(json)} ${countBytes(json)}`);
 }
 
 function saveViewState() {
