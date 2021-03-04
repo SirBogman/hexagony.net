@@ -1,7 +1,11 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
 
 body header {
     background: var(--color);
-    /* margin: 0 calc(50% - 50vw); */
+    margin: 0 calc(50% - 50vw);
     position: sticky;
     top: 0;
     z-index: 1;

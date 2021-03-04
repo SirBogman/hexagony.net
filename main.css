@@ -130,7 +130,8 @@
 
 body {
     background: #fff;
-    font-family: Helvetica;
+    font: 16px emoji,system-ui,-apple-system,sans-serif;
+    /* font-family: Helvetica; */
 }
 
 #app {
