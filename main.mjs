@@ -49,6 +49,7 @@ function updateCode(code, isProgrammatic=false) {
     }
     resetHexagony();
     updateInfo();
+    updateUrlButton.disabled = false;
 }
 
 function updateButtons() {
@@ -109,7 +110,6 @@ function loadData() {
         try {
             if (location.hash) {
                 newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(1)));
-                // newData = JSON.parse(base64ToUnicodeString(location.hash.slice(1)));
             }
         // eslint-disable-next-line no-empty
         } catch (e) {
@@ -124,11 +124,9 @@ function loadData() {
 function updateUrl() {
     const urlData = { code: user_data.code };
     const json = JSON.stringify(urlData);
-    // history.replaceState(null, '', '#' + unicodeStringToBase64(json));
     history.replaceState(null, '', '#' + LZString.compressToBase64(json));
-
-    const decodedJson = LZString.decompressFromBase64(LZString.compressToBase64(json));
-    console.log(`RT: ${json == decodedJson} ${json.length} ${countCodepoints(json)} ${countBytes(json)}`);
+    // Disable button, until the code changes.
+    updateUrlButton.disabled = true;
 }
 
 function saveViewState() {

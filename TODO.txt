@@ -53,3 +53,5 @@ Before publish:
 
     Memory:
         Autoscroll only when it gets near the edge.
+
+    Make input readonly when running.

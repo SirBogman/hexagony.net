@@ -1,5 +1,5 @@
 import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
-import { emptyElement, setClass } from "./viewutil.mjs";
+import { emptyElement } from "./viewutil.mjs";
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));

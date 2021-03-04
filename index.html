@@ -163,9 +163,12 @@
             </div>
             <div class="edit_content">
                 <h1>Import/Export</h1>
-                <input type="button" class="edit_button" value="Minify Source" id="minify"></input>
-                <input type="button" class="edit_button" value="Layout Source" id="layout"></input>
-                <input type="button" class="edit_button" value="Update URL" id="update_url"></input>
+                <input type="button" class="edit_button" value="Minify Source" id="minify"
+                    title="Remove unnecessary whitespace and trailing no-ops from the Hexagony program.">
+                <input type="button" class="edit_button" value="Layout Source" id="layout"
+                    title="Format the Hexagony program as hexagon using whitespace. Intended for export.">
+                <input type="button" class="edit_button" value="Update URL" id="update_url"
+                    title="Encode the Hexagony program and its input in the URL, which enables sharing or saving the link.">
                 <textarea id="sourcecode" spellcheck="False"></textarea>
             </div>
             <div>
