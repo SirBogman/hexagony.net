@@ -3,6 +3,11 @@ import {getRowSize} from './util.mjs';
 
 export class Grid {
     constructor(sourceCode) {
+        this.setSourceCode(sourceCode);
+    }
+
+    // This should only be called if the new source code uses the same size hexagon.
+    setSourceCode(sourceCode) {
         const data = [];
         for (const char of sourceCode) {
             switch (char) {

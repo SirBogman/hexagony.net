@@ -8,7 +8,7 @@ export class Hexagony {
     constructor(sourceCode, inputString, edgeEventHandler) {
         this.grid = new Grid(sourceCode);
         this.memory = new Memory();
-        this.input = [...inputString];
+        this.setInput(inputString);
         this.inputPosition = 0;
         this.edgeEventHandler = edgeEventHandler;
         this.ips = [
@@ -25,6 +25,14 @@ export class Hexagony {
         this.ticks = 0;
         this.output = '';
         this.nextByte = undefined;
+    }
+
+    setSourceCode(sourceCode) {
+        this.grid.setSourceCode(sourceCode);
+    }
+
+    setInput(inputString) {
+        this.input = [...inputString];
     }
 
     get dir() {

@@ -64,6 +64,9 @@ function onInputChanged() {
     userData.input = inputBox.value;
     saveData();
     invalidateGeneratedURL();
+    if (hexagony != null) {
+        hexagony.setInput(getInput());
+    }
 }
 
 function updateInputTextArea() {
@@ -74,6 +77,9 @@ function onInputModeChanged() {
     userData.inputMode = inputArgumentsRadioButton.checked ? inputArgumentsRadioButton.value : inputRawRadioButton.value;
     saveData();
     invalidateGeneratedURL();
+    if (hexagony != null) {
+        hexagony.setInput(getInput());
+    }
 }
 
 function updateInputModeButtons() {
@@ -93,7 +99,6 @@ function updateButtons() {
     // TODO: use stop button to explicitly go back to edit mode.
     const running = isRunning();
     editButtons.forEach(x => x.disabled = running);
-    inputModeRadioButtons.forEach(x => x.disabled = running);
     editPseudoButtons.forEach(x => setDisabledClass(x, running));
 
     setDisabledClass(undoButton, running || gridView.undoStack.length == 0);
@@ -102,8 +107,6 @@ function updateButtons() {
     setDisabledClass(startButton, gridView.timeoutID != null);
     setDisabledClass(stopButton, !running);
     setDisabledClass(pauseButton, gridView.timeoutID == null);
-
-    inputBox.readOnly = running;
 
     const gridContainer = document.querySelector('#grid_container');
 
@@ -230,10 +233,17 @@ function onStep() {
     onPause();
 }
 
+function getInput() {
+    let input = inputBox.value;
+    if (inputArgumentsRadioButton.checked) {
+        input = input.replaceAll(/\n/g, '\0');
+    }
+    return input;
+}
+
 function stepHelper() {
     if (hexagony == null) {
-        let input = inputBox.value.replaceAll(/\n/g, '\0');
-        hexagony = new Hexagony(gridView.sourceCode, input, edgeEventHandler);
+        hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
     }
 
     let isEdgeTransition = false;
