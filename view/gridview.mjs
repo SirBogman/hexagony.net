@@ -1,6 +1,8 @@
 import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { emptyElement } from "./viewutil.mjs";
 
+const EXECUTED_COLOR_COUNT = 5;
+
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
 }
@@ -23,7 +25,8 @@ export class GridView {
         this.activeHexagon = 0;
         this.activeI = 0;
         this.activeJ = 0;
-        this.oldActiveCell = null;
+        this.activeCell = null;
+        this.oldActiveCells = [];
         this.size = -1;
         this.rowCount = -1;
         this.timeoutID = null;
@@ -153,17 +156,72 @@ export class GridView {
         }
     }
 
+    clearCellExecutionColors() {
+        this.nextEdgeConnectorAnimation = null;
+        this.activeHexagon = 0;
+
+        if (this.activeCell != null) {
+            this.activeCell.classList.remove('cell_active');
+            this.activeCell = null;
+        }
+
+        this._removeOldActiveCellColors();
+        this.oldActiveCells = [];
+
+        for (let i = 0; i < this.cellPaths.length; i++) {
+            const grid = this.cellPaths[i];
+            for (let j = 0; j < grid.length; j++) {
+                const row = grid[j];
+                for (let k = 0; k < row.length; k++) {
+                    row[k].classList.remove('cell_executed');
+                }
+            }
+        }
+    }
+
+    _removeOldActiveCellColors() {
+        for (let i = 0; i < this.oldActiveCells.length; i++) {
+            this.oldActiveCells[i].classList.remove(`cell_executed${i + 1}`);
+        }
+    }
+
+    _updateOldActiveCellColors() {
+        for (let i = 0; i < this.oldActiveCells.length; i++) {
+            this.oldActiveCells[i].classList.add(`cell_executed${i + 1}`);
+        }
+    }
+
     updateActiveCell(transition) {
         const activeCell = this.cellPaths[this.activeHexagon][this.activeI][this.activeJ];
     
-        if (this.oldActiveCell != activeCell) {
-            if (this.oldActiveCell != null) {
-                this.oldActiveCell.style['transition-property'] = transition ? 'fill': 'none';
-                this.oldActiveCell.classList.remove('cell_active');
+        if (this.activeCell != activeCell) {
+            this._removeOldActiveCellColors();
+
+            if (this.oldActiveCells.length == EXECUTED_COLOR_COUNT) {
+                this.oldActiveCells.pop();
             }
+
+            if (this.activeCell != null) {
+                this.activeCell.style['transition-property'] = transition ? 'fill': 'none';
+                this.activeCell.classList.remove('cell_active');
+                this.oldActiveCells = [this.activeCell, ...this.oldActiveCells];
+            }
+
+            if (!this.edgeTransitionAnimationMode) {
+                // Edge transition animation mode needs to be fixed for showing the most recent executed cells
+                // when recentering.
+                this._updateOldActiveCellColors();
+            }
+
             activeCell.style['transition-property'] = transition ? 'fill': 'none';
             activeCell.classList.add('cell_active');
-            this.oldActiveCell = activeCell;
+            this.activeCell = activeCell;
+
+            // Show the previously executed cells in all hexagons.
+            const [i, j] = getIndices(this.activeCell);
+            for (let k = 0; k < this.cellPaths.length; k++) {
+                this.cellPaths[k][i][j].classList.add('cell_executed');
+            }
         }
     }
 

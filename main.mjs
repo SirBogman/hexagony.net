@@ -190,7 +190,7 @@ function loadDataFromURL() {
         updateInputTextArea();
         // Indicate that the generated URL is up to date.
         generateLinkButton.disabled = true;
-        resetHexagony();
+        onStop();
     }
 }
 
@@ -222,13 +222,6 @@ function edgeEventHandler(edgeName) {
     gridView.nextEdgeConnectorAnimation = edgeName;
 }
 
-function resetHexagony() {
-    hexagony = null;
-    gridView.nextEdgeConnectorAnimation = null;
-    gridView.activeHexagon = 0;
-    updateButtons();
-}
-
 function onStart() {
     const isEdgeTransition = stepHelper();
     if (isRunning()) {
@@ -255,7 +248,8 @@ function stepHelper() {
     }
 
     let isEdgeTransition = false;
-    if (gridView.nextEdgeConnectorAnimation &&
+    if (gridView.edgeTransitionAnimationMode &&
+            gridView.nextEdgeConnectorAnimation &&
             gridView.nextEdgeConnectorAnimation in gridView.edgeConnectors) {
         isEdgeTransition = true;
         const connector = gridView.edgeConnectors[gridView.nextEdgeConnectorAnimation];
@@ -364,10 +358,11 @@ function onPause() {
 }
 
 function onStop() {
-    if (gridView.oldActiveCell != null) {
-        gridView.oldActiveCell.classList.remove('cell_active');
-    }
-    resetHexagony();
+    hexagony = null;
+    gridView.clearCellExecutionColors();
+    gridView.nextEdgeConnectorAnimation = null;
+    gridView.activeHexagon = 0;
+    updateButtons();
     onPause();
 }
 

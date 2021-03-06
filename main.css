@@ -151,12 +151,37 @@ body {
     stroke-miterlimit: 10;
 }
 
-.cell_breakpoint {
-    fill: lightcoral;
+.cell_executed {
+    fill: hsl(180, 100%, 95%);
+}
+
+/* See EXECUTED_COLOR_COUNT */
+.cell_executed5 {
+    fill: hsl(180, 100%, 90%);
+}
+
+.cell_executed4 {
+    fill: hsl(180, 100%, 85%);
+}
+
+.cell_executed3 {
+    fill: hsl(180, 100%, 80%);
+}
+
+.cell_executed2 {
+    fill: hsl(180, 100%, 75%);
+}
+
+.cell_executed1 {
+    fill: hsl(180, 100%, 70%);
 }
 
 .cell_active {
-    fill: cyan;
+    fill: rgb(0, 255, 255);
+}
+
+.cell_breakpoint {
+    fill: hsl(0, 79%, 72%);
 }
 
 .button_container {

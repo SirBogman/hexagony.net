@@ -45,11 +45,14 @@ Before publish:
     Memory:
         Autoscroll only when it gets near the edge.
 
-    Make hexagon readonly when running, but allow setting breakpoints.
-
     Show IPs
 
     Allow editing text in any of the hexagons.
+
+    When changing view modes, preserve the visual state of breakpoints.
+
+    Edge transition animation mode:
+        recenter after stopping? Otherwise it can start at the wrong place.
 
     OG meta tags
 
@@ -59,3 +62,5 @@ Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.
         Animated SVG showing edge connection mode.
+
+    When changing view modes, preserve the cell_executed class.
