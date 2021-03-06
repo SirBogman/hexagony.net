@@ -58,7 +58,8 @@ export class GridView {
         if (oldCode != code) {
             let filteredCode = removeWhitespaceAndDebug(code);
             const newSize = getHexagonSize(countCodepoints(filteredCode));
-            if (newSize != this.size) {
+            const isSizeChange = newSize != this.size;
+            if (isSizeChange) {
                 this.createGrid(newSize);
             }
 
@@ -71,7 +72,8 @@ export class GridView {
             if (!isProgrammatic) {
                 this.pushUndoItem(
                     () => this.setSourceCode(oldCode),
-                    () => this.setSourceCode(code));
+                    () => this.setSourceCode(code),
+                    isSizeChange);
             }
         }
     }
@@ -80,7 +82,7 @@ export class GridView {
     recreateGrid() {
         this.createGrid(this.size);
 
-        let filteredCode = removeWhitespaceAndDebug(this.sourceCode);
+        const filteredCode = removeWhitespaceAndDebug(this.sourceCode);
         for (let k = 0; k < this.cellPaths.length; k++) {
             this.updateHexagonWithCode(k, filteredCode);
         }
@@ -93,9 +95,25 @@ export class GridView {
         }
     }
 
+    canUndo(isRunning) {
+        if (this.undoStack.length == 0) {
+            return false;
+        }
+
+        return !isRunning || !this.undoStack[this.undoStack.length - 1].isSizeChange;
+    }
+
+    canRedo(isRunning) {
+        if (this.redoStack.length == 0) {
+            return false;
+        }
+
+        return !isRunning || !this.redoStack[this.redoStack.length - 1].isSizeChange;
+    }
+
     undo() {
         if (this.undoStack.length) {
-            let undoItem = this.undoStack.pop();
+            const undoItem = this.undoStack.pop();
             this.redoStack.push(undoItem);
             this.isUndoRedoInProgress = true;
             try {
@@ -110,7 +128,7 @@ export class GridView {
 
     redo() {
         if (this.redoStack.length) {
-            let undoItem = this.redoStack.pop();
+            const undoItem = this.redoStack.pop();
             this.undoStack.push(undoItem);
             this.isUndoRedoInProgress = true;
             try {
@@ -123,11 +141,12 @@ export class GridView {
         }
     }
 
-    pushUndoItem(undoFunction, redoFunction) {
+    pushUndoItem(undoFunction, redoFunction, isSizeChange) {
         if (!this.isUndoRedoInProgress) {
             this.undoStack.push({
                 undo: undoFunction,
-                redo: redoFunction
+                redo: redoFunction,
+                isSizeChange: isSizeChange,
             });
             this.redoStack = [];
             this.updateUndoButtonsCallback();
@@ -191,11 +210,12 @@ export class GridView {
                 code += current || '.';
             }
         }
-    
+
         this.pushUndoItem(
             () => this.updateFromHexagons(targetI, targetJ, oldValue),
-            () => this.updateFromHexagons(targetI, targetJ, value));
-    
+            () => this.updateFromHexagons(targetI, targetJ, value),
+            false);
+
         // Assume that currently editing hexagon 0.
         for (let k = updateActiveHexagon ? 0 : 1; k < this.cellPaths.length; k++) {
             this.updateHexagonWithCode(k, code);

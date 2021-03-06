@@ -47,6 +47,10 @@ Before publish:
 
     Make hexagon readonly when running, but allow setting breakpoints.
 
+    Show IPs
+
+    Allow editing text in any of the hexagons.
+
     OG meta tags
 
     Zooming in/out on the memory grid breaks its ability to center itself.

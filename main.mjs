@@ -55,9 +55,15 @@ function updateCode(code, isProgrammatic=false) {
     if (!isProgrammatic && initFinished) {
         saveData();
     }
-    resetHexagony();
     updateInfo();
     invalidateGeneratedURL();
+
+    if (hexagony != null) {
+        // The code should be the same size hexagon.
+        // When running, undo/redo is disabled for different size hexagons,
+        // the resize buttons are disabled, and the import/export panel is hidden.
+        hexagony.setSourceCode(code);
+    }
 }
 
 function onInputChanged() {
@@ -101,8 +107,8 @@ function updateButtons() {
     editButtons.forEach(x => x.disabled = running);
     editPseudoButtons.forEach(x => setDisabledClass(x, running));
 
-    setDisabledClass(undoButton, running || gridView.undoStack.length == 0);
-    setDisabledClass(redoButton, running || gridView.redoStack.length == 0);
+    setDisabledClass(undoButton, !gridView.canUndo(running));
+    setDisabledClass(redoButton, !gridView.canRedo(running));
 
     setDisabledClass(startButton, gridView.timeoutID != null);
     setDisabledClass(stopButton, !running);
@@ -184,6 +190,7 @@ function loadDataFromURL() {
         updateInputTextArea();
         // Indicate that the generated URL is up to date.
         generateLinkButton.disabled = true;
+        resetHexagony();
     }
 }
 
@@ -219,6 +226,7 @@ function resetHexagony() {
     hexagony = null;
     gridView.nextEdgeConnectorAnimation = null;
     gridView.activeHexagon = 0;
+    updateButtons();
 }
 
 function onStart() {
@@ -361,7 +369,6 @@ function onStop() {
     }
     resetHexagony();
     onPause();
-    updateButtons();
 }
 
 function onSpeedSliderChanged() {
@@ -421,8 +428,8 @@ function init() {
     resetButton.addEventListener('click', () => { if (!isRunning()) reset(gridView.size); });
     biggerButton.addEventListener('click', () => { if (!isRunning()) resize(gridView.size + 1); });
     smallerButton.addEventListener('click', () => { if (!isRunning()) onShrink();});
-    undoButton.addEventListener('click', () => { if (!isRunning()) gridView.undo(); });
-    redoButton.addEventListener('click', () => { if (!isRunning()) gridView.redo(); });
+    undoButton.addEventListener('click', () => { if (gridView.canUndo(isRunning())) gridView.undo(); });
+    redoButton.addEventListener('click', () => { if (gridView.canRedo(isRunning())) gridView.redo(); });
 
     startButton.addEventListener('click', onStart);
     stepButton.addEventListener('click', onStep);
