@@ -40,6 +40,7 @@
             <dt>Can I see an example program?</dt>
             <dd>
                 <p><a href="/#N4Igxg9gJgpiBcICUBeAOiA9AXwHQEIBqTAWQA4BuEbIA===">This program</a> outputs the infinite series of Fibonacci numbers, separated by newlines.
+                See the original source <a href="//codegolf.stackexchange.com/a/65017">here</a>.
             </dd>
             <dt>How do the edge transitions work?</dt>
             <dd>
@@ -50,17 +51,19 @@
                 </div>
                 <p>Try edge transition mode. It helps you to line up instructions with edge transitions so that program execution can wrap around.
                     You code is automatically replicated in all of the hexagons to help you align code with the edge transitions.
+                    Corners have special behavior. The <b>+</b> transitions are followed, if the value at the current memory location is positive.
+                    If the value is zero or negative, the <b>-</b> transitions are followed.
                     Look for the above icon on the toolbar.
                 <div class="svg_icon_about">
                     <svg viewBox="0 0 16.74316 30">
                         <path class="svg_style_stroke2" d="M6.63,29.5h3.64c2.36,0,4.73-1.92,4.73-4.28V4.78C15,2.42,16.47.5,18.83.5h4.54" transform="translate(-6.63 0)"/>
                     </svg>
                 </div>
-                <p>Edge transition animation mode.
+                <p>Also try Edge transition animation mode.
             </dd>
             <dt>Where else can I use Hexagony?</dt>
             <dd>
-                <p><a href="//code.golf/fibonacci#hexagony">Code Golf</a></p>
+                <p>You can compete in Hexagony on <a href="//code.golf/fibonacci#hexagony">Code Golf</a>.
             </dd>
             <dt>Is there a fast command-line interpreter for Hexagony?</dt>
             <dd>

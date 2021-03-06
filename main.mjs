@@ -86,7 +86,6 @@ function updateInputModeButtons() {
 }
 
 function invalidateGeneratedURL() {
-    console.log(`invalidateGeneratedURL!`);
     generateLinkButton.disabled = false;
 }
 
@@ -185,7 +184,6 @@ function loadDataFromURL() {
 function generateLink() {
     const urlData = { code: userData.code, input: userData.input, inputMode: userData.inputMode };
     const json = JSON.stringify(urlData);
-    console.log(`link: ${json}`);
     // Disable button, until the code changes.
     generateLinkButton.disabled = true;
     urlExportText.value = `${location.origin}/#${LZString.compressToBase64(json)}`;
@@ -384,15 +382,19 @@ document.addEventListener('keydown', function(e) {
             e.preventDefault();
         }
         else if (e.key == 'z') {
-            gridView.undo();
-            e.preventDefault();
+            if (e.target != inputBox) {
+                gridView.undo();
+                e.preventDefault();
+            }
         }
         else if (e.key == 'y') {
-            gridView.redo();
-            e.preventDefault();
+            if (e.target != inputBox) {
+                gridView.redo();
+                e.preventDefault();
+            }
         }
     }
-    //console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
+    // console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
 });
 
 function init() {

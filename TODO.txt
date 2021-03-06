@@ -36,13 +36,6 @@ Compress data url?
 Before publish:
     Webpack?
 
-    Edit mode:
-        Input:
-            store in localstore
-        Input mode toggle:
-            Arg and Raw
-            store in localstore
-
     Play mode:
         Speed slider
         Breakpoint support
@@ -52,7 +45,9 @@ Before publish:
     Memory:
         Autoscroll only when it gets near the edge.
 
-    Make input readonly when running, but allow setting breakpoints.
+    Make input readonly when running.
+    
+    Make hexagon readonly when running, but allow setting breakpoints.
 
     OG meta tags
 
