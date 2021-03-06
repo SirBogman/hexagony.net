@@ -1,13 +1,8 @@
 :root {
     --background: #fdfdfd;
     --color:      #343a40;
-    --disabled-color: #808080;
+    --disabled-color: #707070;
     --panel-background: hsl(0, 0%, 95%);
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
 }
 
 /* Things that affect animation duration. */
@@ -48,6 +43,10 @@
 #sourcecode {
     width: 100%;
     height: 100px;
+}
+
+#url_export {
+    width: 100%;
 }
 
 #input {
@@ -251,12 +250,8 @@ body {
     margin: 0.5rem 0.5rem 0.5rem 0;
 }
 
-.nav {
-    margin: 0.5rem 0;
-}
-
-.nav a {
-    margin: 0.5rem 0.5rem 0.5rem 0;
+.radio label * {
+    margin: 8px 3px 8px 5px;
 }
 
 td {

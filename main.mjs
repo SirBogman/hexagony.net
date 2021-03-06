@@ -30,7 +30,12 @@ const stopButton = document.querySelector('#stop');
 const minifyButton = document.querySelector('#minify');
 const layoutButton = document.querySelector('#layout');
 const updateUrlButton = document.querySelector('#update_url');
+const copyUrlButton = document.querySelector('#copy_url');
 const editButtons = [minifyButton, layoutButton];
+
+const argButton = document.querySelector('#arg');
+const rawButton = document.querySelector('#raw');
+const urlExportText = document.querySelector('#url_export');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
 const edgeTransitionAnimationButton = document.querySelector('#edge_transition_animation');
@@ -115,6 +120,13 @@ function loadData() {
         } catch (e) {
         }
 
+        if (location.hash) {
+            // After consuming the hash, move the URL to the export box and remove it from the location.
+            // Otherwise, changes in localStorage will be overwritten when reloading the page.
+            urlExportText.value = location;
+            history.replaceState(null, '', location.origin);
+        }
+
         if (newData && newData.code) {
             setSourceCode(newData.code, !initFinished);
         }
@@ -124,9 +136,15 @@ function loadData() {
 function updateUrl() {
     const urlData = { code: user_data.code };
     const json = JSON.stringify(urlData);
-    history.replaceState(null, '', '#' + LZString.compressToBase64(json));
     // Disable button, until the code changes.
     updateUrlButton.disabled = true;
+    urlExportText.value = `${location.origin}/#${LZString.compressToBase64(json)}`;
+}
+
+function copyUrl() {
+    updateUrl();
+    urlExportText.select();
+    document.execCommand("copy");
 }
 
 function saveViewState() {
@@ -343,6 +361,7 @@ function init() {
     minifyButton.addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
     layoutButton.addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
     updateUrlButton.addEventListener('click', () => updateUrl());
+    copyUrlButton.addEventListener('click', () => copyUrl());
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = !gridView.edgeTransitionMode;

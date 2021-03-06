@@ -36,8 +36,6 @@ Compress data url?
 Before publish:
     Webpack?
 
-    About page
-
     Edit mode:
         Input:
             store in localstore
@@ -54,6 +52,13 @@ Before publish:
     Memory:
         Autoscroll only when it gets near the edge.
 
-    Make input readonly when running.
+    Make input readonly when running, but allow setting breakpoints.
 
     OG meta tags
+
+    Zooming in/out on the memory grid breaks its ability to center itself.
+
+Eventually:
+    About page:
+        Share printable Hexagony stuff in SVG + PDF format.
+        Animated SVG showing edge connection mode.

@@ -71,3 +71,36 @@ nav > :empty { flex: 1 }
 .svg_style_fill {
     fill: currentColor;
 }
+
+#slider_container {
+    width: 130px;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100px;
+    opacity: 0.8;
+    transition: opacity .2s;
+    height: 1px;
+    outline: none; /* don't put a weird outline on it when using it in Chrome. */
+}
+
+.slider:hover {
+    opacity: 1.0;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--background);
+    width: 10px;
+    height: 1.5rem;
+}
+
+.slider::-moz-range-thumb {
+    width: 10px;
+    height: 1.5rem;
+    background: var(--background);
+    border-radius: 0;
+    border: none;
+}

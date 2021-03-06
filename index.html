@@ -28,7 +28,7 @@
             <div id="edge_transition" class="svg_icon" title="Toggle edge transition visualization">
                 <svg viewBox="0 0 22.99022 29.5">
                     <path class="svg_style_stroke2" d="M23.54.5l1.82,3.15c1.18,2.05.71,5.06-1.34,6.24L6.32,20.11c-2.05,1.18-3,3.41-1.79,5.46L6.8,29.5M23.54,29.5l1.82-3.15c1.18-2.05.71-5.06-1.34-6.24L6.32,9.89c-2.05-1.18-3-3.41-1.79-5.46L6.8.5" transform="translate(-3.5 -0.25)"/>
-                  </svg>
+                </svg>
             </div>
             <div id="edge_transition_animation" class="svg_icon" title="Toggle edge transition animations">
                 <svg viewBox="0 0 16.74316 30">
@@ -85,6 +85,9 @@
             </div>
             <div id="stop" class="svg_icon" title="Stop (Ctrl + Shift + Enter)">
                 <svg class="svg_style_fill" viewBox="-2 -2 20 20"><path d="M 0 0 v 16 h 16 v -16 z"/></svg>
+            </div>
+            <div id="slider_container" title="Adjust the execution speed">
+                <input type="range" min="1" max="100" value="50" class="slider">
             </div>
         </nav>
     </header>
@@ -146,9 +149,13 @@
             </div>
             <div>
                 <h1>Input</h1>
-                <div id="input_picker" class="nav">
-                    <a id="arg" href="#arg">Arg</a>
-                    <a id="raw" href="#raw">Raw</a>
+                <div id="input_picker" class="radio">
+                    <label title="Arguments input mode: each line of input is considered an argument and arguments are separate by null characters (ASCII 0). This is compatible with Code Golf.">
+                        <input type="radio" name="input_mode" value="arg" checked>Arguments
+                    </label>
+                    <label title="Raw input mode: the input is passed to the Hexagony program directly.">
+                        <input type="radio" name="input_mode" value="raw">Raw
+                    </label>
                 </div>
                 <textarea id="input" spellcheck="False"></textarea>
             </div>
@@ -167,9 +174,13 @@
                     title="Remove unnecessary whitespace and trailing no-ops from the Hexagony program.">
                 <input type="button" class="edit_button" value="Layout Source" id="layout"
                     title="Format the Hexagony program as hexagon using whitespace. Intended for export.">
-                <input type="button" class="edit_button" value="Update URL" id="update_url"
-                    title="Encode the Hexagony program and its input in the URL, which enables sharing or saving the link.">
                 <textarea id="sourcecode" spellcheck="False"></textarea>
+                <h2>Generate Link</h2>
+                <input type="button" class="edit_button" value="Generate" id="update_url"
+                    title="Create a link to the current Hexagony program and its input">
+                <input type="button" class="edit_button" value="Copy to Clipboard" id="copy_url"
+                    title="Copy a link to the current Hexagony program and its input to the clipboard">
+                <textarea id="url_export" placeholder="Use the Update URL button to generate a URL to the current program and input." readonly></textarea>
             </div>
             <div>
                 <h1>Hotkeys</h1>
