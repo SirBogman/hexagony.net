@@ -293,6 +293,36 @@ function isRunning() {
     return hexagony != null && hexagony.isRunning;
 }
 
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey) {
+        if (e.key == '.') {
+            onStep();
+            e.preventDefault();
+        }
+        else if (e.key == 'Enter') {
+            if (e.shiftKey) {
+                onStop();
+            }
+            else if (isPlaying()) {
+                onPause();
+            }
+            else {
+                onStart();
+            }
+            e.preventDefault();
+        }
+        else if (e.key == 'z') {
+            gridView.undo();
+            e.preventDefault();
+        }
+        else if (e.key == 'y') {
+            gridView.redo();
+            e.preventDefault();
+        }
+    }
+    //console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
+});
+
 function init() {
     gridView = new GridView(updateCode, updateButtons);
     loadData();
@@ -352,33 +382,3 @@ function init() {
 }
 
 init();
-
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey) {
-        if (e.key == '.') {
-            onStep();
-            e.preventDefault();
-        }
-        else if (e.key == 'Enter') {
-            if (e.shiftKey) {
-                onStop();
-            }
-            else if (isPlaying()) {
-                onPause();
-            }
-            else {
-                onStart();
-            }
-            e.preventDefault();
-        }
-        else if (e.key == 'z') {
-            gridView.undo();
-            e.preventDefault();
-        }
-        else if (e.key == 'y') {
-            gridView.redo();
-            e.preventDefault();
-        }
-    }
-    //console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
-});
