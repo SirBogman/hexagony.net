@@ -26,15 +26,18 @@ const startButton = document.querySelector('#start');
 const stepButton = document.querySelector('#step');
 const pauseButton = document.querySelector('#pause');
 const stopButton = document.querySelector('#stop');
+const speedSlider = document.querySelector('#speed_slider');
 
 const minifyButton = document.querySelector('#minify');
 const layoutButton = document.querySelector('#layout');
-const updateUrlButton = document.querySelector('#update_url');
-const copyUrlButton = document.querySelector('#copy_url');
+const generateLinkButton = document.querySelector('#generate_link');
+const copyLinkButton = document.querySelector('#copy_link');
 const editButtons = [minifyButton, layoutButton];
 
-const argButton = document.querySelector('#arg');
-const rawButton = document.querySelector('#raw');
+const inputArgumentsRadioButton = document.querySelector('#arguments');
+const inputRawRadioButton = document.querySelector('#raw');
+const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
+
 const urlExportText = document.querySelector('#url_export');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
@@ -42,19 +45,49 @@ const edgeTransitionAnimationButton = document.querySelector('#edge_transition_a
 
 let gridView;
 let hexagony;
-let user_data;
+let userData;
 let memoryPanZoom;
 let initFinished = false;
 
 function updateCode(code, isProgrammatic=false) {
-    user_data.code = code;
+    userData.code = code;
     sourceCodeInput.value = code;
     if (!isProgrammatic && initFinished) {
         saveData();
     }
     resetHexagony();
     updateInfo();
-    updateUrlButton.disabled = false;
+    invalidateGeneratedURL();
+}
+
+function onInputChanged() {
+    userData.input = inputBox.value;
+    saveData();
+    invalidateGeneratedURL();
+}
+
+function updateInputTextArea() {
+    inputBox.value = userData.input ?? '';
+}
+
+function onInputModeChanged() {
+    userData.inputMode = inputArgumentsRadioButton.checked ? inputArgumentsRadioButton.value : inputRawRadioButton.value;
+    saveData();
+    invalidateGeneratedURL();
+}
+
+function updateInputModeButtons() {
+    for (const radioButton of inputModeRadioButtons) {
+        if (userData.inputMode == radioButton.value) {
+            radioButton.checked = true;
+            break;
+        }
+    }
+}
+
+function invalidateGeneratedURL() {
+    console.log(`invalidateGeneratedURL!`);
+    generateLinkButton.disabled = false;
 }
 
 function updateButtons() {
@@ -91,70 +124,87 @@ function updateViewButtons() {
 
 // This should only be called once when initially loading.
 function loadData() {
-    user_data = undefined;
+    userData = undefined;
     try {
-        user_data = JSON.parse(localStorage['user_data']);
+        userData = JSON.parse(localStorage['userData']);
     // eslint-disable-next-line no-empty
     } catch (e) {
     }
 
-    if (!user_data || !user_data.code) {
-        user_data = { code: '.'.repeat(getCodeLength(2) + 1) };
+    if (!userData || !userData.code) {
+        userData = { code: '.'.repeat(getCodeLength(2) + 1) };
     }
 
-    if (user_data.edgeTransitionMode !== undefined) {
-        gridView.edgeTransitionMode = user_data.edgeTransitionMode;
+    if (userData.edgeTransitionMode !== undefined) {
+        gridView.edgeTransitionMode = userData.edgeTransitionMode;
     }
 
-    if (user_data.edgeTransitionAnimationMode !== undefined) {
-        gridView.edgeTransitionAnimationMode = user_data.edgeTransitionAnimationMode;
+    if (userData.edgeTransitionAnimationMode !== undefined) {
+        gridView.edgeTransitionAnimationMode = userData.edgeTransitionAnimationMode;
     }
 
-    (onhashchange = () => {
-        let newData = undefined;
-        try {
-            if (location.hash) {
-                newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(1)));
-            }
-        // eslint-disable-next-line no-empty
-        } catch (e) {
-        }
-
-        if (location.hash) {
-            // After consuming the hash, move the URL to the export box and remove it from the location.
-            // Otherwise, changes in localStorage will be overwritten when reloading the page.
-            urlExportText.value = location;
-            history.replaceState(null, '', location.origin);
-        }
-
-        if (newData && newData.code) {
-            setSourceCode(newData.code, !initFinished);
-        }
-    })();
+    updateInputModeButtons();
+    updateInputTextArea();
 }
 
-function updateUrl() {
-    const urlData = { code: user_data.code };
+function loadDataFromURL() {
+    let newData = undefined;
+    try {
+        if (location.hash) {
+            newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(1)));
+        }
+    // eslint-disable-next-line no-empty
+    } catch (e) {
+    }
+
+    if (location.hash) {
+        // After consuming the hash, move the URL to the export box and remove it from the location.
+        // Otherwise, changes in localStorage will be overwritten when reloading the page.
+        urlExportText.value = location;
+        history.replaceState(null, '', location.origin);
+    }
+
+    if (newData && newData.code) {
+        setSourceCode(newData.code, !initFinished);
+
+        for (const radioButton of inputModeRadioButtons) {
+            if (newData.inputMode == radioButton.value) {
+                userData.inputMode = newData.inputMode;
+                updateInputModeButtons();
+                break;
+            }
+        }
+
+        userData.input = newData.input;
+        updateInputTextArea();
+        // Indicate that the generated URL is up to date.
+        generateLinkButton.disabled = true;
+    }
+}
+
+function generateLink() {
+    const urlData = { code: userData.code, input: userData.input, inputMode: userData.inputMode };
     const json = JSON.stringify(urlData);
+    console.log(`link: ${json}`);
     // Disable button, until the code changes.
-    updateUrlButton.disabled = true;
+    generateLinkButton.disabled = true;
     urlExportText.value = `${location.origin}/#${LZString.compressToBase64(json)}`;
 }
 
-function copyUrl() {
-    updateUrl();
+function copyLink() {
+    generateLink();
     urlExportText.select();
     document.execCommand("copy");
 }
 
 function saveViewState() {
-    user_data.edgeTransitionMode = gridView.edgeTransitionMode;
-    user_data.edgeTransitionAnimationMode = gridView.edgeTransitionAnimationMode;
+    userData.edgeTransitionMode = gridView.edgeTransitionMode;
+    userData.edgeTransitionAnimationMode = gridView.edgeTransitionAnimationMode;
     saveData();
 }
 
 function saveData() {
-    localStorage['user_data'] = JSON.stringify(user_data);
+    localStorage['userData'] = JSON.stringify(userData);
 }
 
 function edgeEventHandler(edgeName) {
@@ -303,6 +353,10 @@ function onStop() {
     updateButtons();
 }
 
+function onSpeedSliderChanged() {
+    console.log(`SPEED ${speedSlider.value}`);
+}
+
 function isPlaying() {
     return gridView.timeoutID != null;
 }
@@ -344,9 +398,10 @@ document.addEventListener('keydown', function(e) {
 function init() {
     gridView = new GridView(updateCode, updateButtons);
     loadData();
+    loadDataFromURL();
     sourceCodeInput.addEventListener('input', () => updateFromSourceCode(false));
-    sourceCodeInput.addEventListener('propertychange', () => updateFromSourceCode(false));
-    setSourceCode(user_data.code, true);
+    inputBox.addEventListener('input', onInputChanged);
+    setSourceCode(userData.code, true);
 
     resetButton.addEventListener('click', () => { if (!isRunning()) reset(gridView.size); });
     biggerButton.addEventListener('click', () => { if (!isRunning()) resize(gridView.size + 1); });
@@ -360,8 +415,12 @@ function init() {
     pauseButton.addEventListener('click', onPause);
     minifyButton.addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
     layoutButton.addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
-    updateUrlButton.addEventListener('click', () => updateUrl());
-    copyUrlButton.addEventListener('click', () => copyUrl());
+    generateLinkButton.addEventListener('click', generateLink);
+    copyLinkButton.addEventListener('click', copyLink);
+
+    inputArgumentsRadioButton.addEventListener('change', onInputModeChanged);
+    inputRawRadioButton.addEventListener('change', onInputModeChanged);
+    speedSlider.addEventListener('input', onSpeedSliderChanged);
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
@@ -397,6 +456,7 @@ function init() {
 
     // panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
     memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
+    onhashchange = loadDataFromURL;
     initFinished = true;
 }
 

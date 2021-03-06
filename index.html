@@ -87,7 +87,7 @@
                 <svg class="svg_style_fill" viewBox="-2 -2 20 20"><path d="M 0 0 v 16 h 16 v -16 z"/></svg>
             </div>
             <div id="slider_container" title="Adjust the execution speed">
-                <input type="range" min="1" max="100" value="50" class="slider">
+                <input type="range" min="1" max="100" value="50" class="slider" id="speed_slider">
             </div>
         </nav>
     </header>
@@ -151,10 +151,10 @@
                 <h1>Input</h1>
                 <div id="input_picker" class="radio">
                     <label title="Arguments input mode: each line of input is considered an argument and arguments are separate by null characters (ASCII 0). This is compatible with Code Golf.">
-                        <input type="radio" name="input_mode" value="arg" checked>Arguments
+                        <input type="radio" name="input_mode" value="arg" id="arguments" checked>Arguments
                     </label>
                     <label title="Raw input mode: the input is passed to the Hexagony program directly.">
-                        <input type="radio" name="input_mode" value="raw">Raw
+                        <input type="radio" name="input_mode" value="raw" id="raw">Raw
                     </label>
                 </div>
                 <textarea id="input" spellcheck="False"></textarea>
@@ -176,11 +176,11 @@
                     title="Format the Hexagony program as hexagon using whitespace. Intended for export.">
                 <textarea id="sourcecode" spellcheck="False"></textarea>
                 <h2>Generate Link</h2>
-                <input type="button" class="edit_button" value="Generate" id="update_url"
+                <input type="button" class="edit_button" value="Generate" id="generate_link"
                     title="Create a link to the current Hexagony program and its input">
-                <input type="button" class="edit_button" value="Copy to Clipboard" id="copy_url"
+                <input type="button" class="edit_button" value="Copy to Clipboard" id="copy_link"
                     title="Copy a link to the current Hexagony program and its input to the clipboard">
-                <textarea id="url_export" placeholder="Use the Update URL button to generate a URL to the current program and input." readonly></textarea>
+                <textarea id="url_export" placeholder="Generate a link that encodes to the current program and input." readonly></textarea>
             </div>
             <div>
                 <h1>Hotkeys</h1>

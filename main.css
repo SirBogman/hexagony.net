@@ -250,8 +250,12 @@ body {
     margin: 0.5rem 0.5rem 0.5rem 0;
 }
 
-.radio label * {
-    margin: 8px 3px 8px 5px;
+.radio label {
+    margin-right: 0.5rem;
+}
+
+.radio label input {
+    margin: 8px 4px 8px 0px;
 }
 
 td {

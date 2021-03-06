@@ -325,15 +325,12 @@ export class GridView {
         cell.select();
         cell.addEventListener('keydown', (e) => this.checkArrowKeys(cell, e));
 
-        const changeHandler = () => {
+        cell.addEventListener('input', () => {
             const newText = cell.value || '.';
             this.updateFromHexagons(i, j, newText, false);
             // Reselect the text so that backspace can work normally.
             cell.select();
-        };
-
-        cell.addEventListener('input', changeHandler);
-        cell.addEventListener('propertychange', changeHandler);
+        });
 
         cell.addEventListener('focusout', () => {
             const newText = cell.value || '.';
