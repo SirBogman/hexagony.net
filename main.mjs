@@ -469,7 +469,7 @@ function init() {
 
     const puzzleParent = document.querySelector('#puzzle_parent');
     puzzleParent.addEventListener('transitionend', (e) => {
-        if (e.target == puzzleParent) {
+        if (e.target == puzzleParent && isRunning()) {
             gridView.resetPuzzleParent();
             gridView.activeHexagon = 0;
             gridView.updateActiveCell(false);
