@@ -93,6 +93,7 @@ function updateButtons() {
     // TODO: use stop button to explicitly go back to edit mode.
     const running = isRunning();
     editButtons.forEach(x => x.disabled = running);
+    inputModeRadioButtons.forEach(x => x.disabled = running);
     editPseudoButtons.forEach(x => setDisabledClass(x, running));
 
     setDisabledClass(undoButton, running || gridView.undoStack.length == 0);
@@ -101,6 +102,8 @@ function updateButtons() {
     setDisabledClass(startButton, gridView.timeoutID != null);
     setDisabledClass(stopButton, !running);
     setDisabledClass(pauseButton, gridView.timeoutID == null);
+
+    inputBox.readOnly = running;
 
     const gridContainer = document.querySelector('#grid_container');
 

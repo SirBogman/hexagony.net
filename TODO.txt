@@ -45,8 +45,6 @@ Before publish:
     Memory:
         Autoscroll only when it gets near the edge.
 
-    Make input readonly when running.
-    
     Make hexagon readonly when running, but allow setting breakpoints.
 
     OG meta tags
