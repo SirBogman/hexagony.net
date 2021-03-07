@@ -48,9 +48,6 @@ Before publish:
     Memory:
         Autoscroll only when it gets near the edge.
 
-    Show IPs:
-        Right now it's showing the next IP state.
-
     Allow editing text in any of the hexagons.
 
     OG meta tags
@@ -62,4 +59,5 @@ Eventually:
         Share printable Hexagony stuff in SVG + PDF format.
         Animated SVG showing edge connection mode.
 
-    When changing view modes, preserve the cell_executed class.
+    Edge Transition Animation Mode:
+        The step function can allow it to go too fast.

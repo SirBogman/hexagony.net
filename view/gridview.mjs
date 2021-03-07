@@ -21,7 +21,6 @@ export class GridView {
         this.offsets = [];
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
-        this.nextEdgeConnectorAnimation = null;
         this.activeHexagon = 0;
         this.activeI = 0;
         this.activeJ = 0;
@@ -181,7 +180,6 @@ export class GridView {
     }
 
     clearCellExecutionColors() {
-        this.nextEdgeConnectorAnimation = null;
         this.activeHexagon = 0;
 
         if (this.activeCell != null) {

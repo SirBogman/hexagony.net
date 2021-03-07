@@ -48,7 +48,7 @@ const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 const urlExportText = document.querySelector('#url_export');
 
 const outputBox = document.querySelector('#output');
-const stepCountText = document.querySelector('#stepcount');
+const executedCountText = document.querySelector('#executed_count');
 const ipStateText = document.querySelector('#ip_state');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
@@ -56,9 +56,10 @@ const edgeTransitionAnimationButton = document.querySelector('#edge_transition_a
 
 let gridView;
 let hexagony;
-let userData;
-let memoryPanZoom;
 let initFinished = false;
+let isEdgeTransition;
+let memoryPanZoom;
+let userData;
 
 function updateCode(code, isProgrammatic=false) {
     userData.code = code;
@@ -239,10 +240,6 @@ function saveData() {
     localStorage['userData'] = JSON.stringify(userData);
 }
 
-function edgeEventHandler(edgeName) {
-    gridView.nextEdgeConnectorAnimation = edgeName;
-}
-
 function onStart() {
     const isEdgeTransition = stepHelper();
     if (isRunning()) {
@@ -264,36 +261,34 @@ function getInput() {
     return input;
 }
 
+function edgeEventHandler(edgeName) {
+    if (gridView.edgeTransitionAnimationMode && edgeName in gridView.edgeConnectors) {
+        isEdgeTransition = true;
+        const connector = gridView.edgeConnectors[edgeName];
+        connector.classList.add('connector_flash');
+        gridView.activeHexagon = connector.next;
+        const x = gridView.offsets[gridView.activeHexagon][0] * gridView.globalOffsetX;
+        const y = gridView.offsets[gridView.activeHexagon][1] * gridView.globalOffsetY;
+        puzzleParent.style.transform = `matrix(1,0,0,1,${-x - gridView.fullWidth/4},${-y - gridView.fullHeight/4})`;
+        puzzleParent.style['transition-property'] = 'transform';
+    }
+}
+
 function stepHelper() {
     if (hexagony == null) {
         hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
     }
 
-    let isEdgeTransition = false;
-    if (gridView.edgeTransitionAnimationMode &&
-            gridView.nextEdgeConnectorAnimation &&
-            gridView.nextEdgeConnectorAnimation in gridView.edgeConnectors) {
-        isEdgeTransition = true;
-        const connector = gridView.edgeConnectors[gridView.nextEdgeConnectorAnimation];
-        connector.classList.add('connector_flash');
-        gridView.activeHexagon = connector.next;
-        const x = gridView.offsets[gridView.activeHexagon][0] * gridView.globalOffsetX;
-        const y = gridView.offsets[gridView.activeHexagon][1] * gridView.globalOffsetY;
+    isEdgeTransition = false;
 
-        puzzleParent.style.transform = `matrix(1,0,0,1,${-x - gridView.fullWidth/4},${-y - gridView.fullHeight/4})`;
-        puzzleParent.style['transition-property'] = 'transform';
-
-        gridView.nextEdgeConnectorAnimation = null;
-    }
-
-    [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
     hexagony.step();
+    [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
     gridView.updateActiveCell(true);
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
 
-    stepCountText.textContent = `Steps Taken: ${hexagony.ticks}`;
+    executedCountText.textContent = `Instructions Executed: ${hexagony.ticks}`;
     updateIPStateText();
     updateButtons();
     updateMemorySVG(hexagony, memoryPanZoom);
@@ -392,7 +387,6 @@ function onStop() {
     hexagony = null;
     gridView.clearCellExecutionColors();
     gridView.resetPuzzleParent();
-    gridView.nextEdgeConnectorAnimation = null;
     gridView.activeHexagon = 0;
     updateButtons();
     onPause();
