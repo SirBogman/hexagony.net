@@ -39,6 +39,10 @@ export class Hexagony {
         return this.grid.getExecutedGrid();
     }
 
+    getIPState(ipIndex) {
+        return [this.ips[ipIndex], this.ipDirs[ipIndex]];
+    }
+
     get dir() {
         return this.ipDirs[this.activeIp];
     }

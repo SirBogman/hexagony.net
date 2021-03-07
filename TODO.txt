@@ -37,19 +37,21 @@ Before publish:
     Webpack?
 
     Play mode:
-        Speed slider
+        Implement infinite speed mode. Pause animations in this case.
         Breakpoint support
+            Save in localStorage
+            Show in all hexagons
+            Preserve when changing view modes.
         Show exception state
         Show termination state
 
     Memory:
         Autoscroll only when it gets near the edge.
 
-    Show IPs
+    Show IPs:
+        Right now it's showing the next IP state.
 
     Allow editing text in any of the hexagons.
-
-    When changing view modes, preserve the visual state of breakpoints.
 
     OG meta tags
 

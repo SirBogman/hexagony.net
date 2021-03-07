@@ -49,6 +49,7 @@ const urlExportText = document.querySelector('#url_export');
 
 const outputBox = document.querySelector('#output');
 const stepCountText = document.querySelector('#stepcount');
+const ipStateText = document.querySelector('#ip_state');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
 const edgeTransitionAnimationButton = document.querySelector('#edge_transition_animation');
@@ -292,10 +293,21 @@ function stepHelper() {
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
 
-    stepCountText.textContent = hexagony.ticks;
+    stepCountText.textContent = `Steps Taken: ${hexagony.ticks}`;
+    updateIPStateText();
     updateButtons();
     updateMemorySVG(hexagony, memoryPanZoom);
     return isEdgeTransition;
+}
+
+function updateIPStateText() {
+    let text = '';
+    for (let i = 0; i < 6; i++) {
+        const [coords, dir] = hexagony.getIPState(i);
+        const isActive = hexagony.activeIp == i ? ' (active)' : '';
+        text += `<p>IP #${i}: (${coords}) ${dir}${isActive}`;
+    }
+    ipStateText.innerHTML = text;
 }
 
 function resizeCode(size) {
