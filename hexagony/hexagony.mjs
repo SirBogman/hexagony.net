@@ -35,6 +35,10 @@ export class Hexagony {
         this.input = [...inputString];
     }
 
+    getExecutedGrid() {
+        return this.grid.getExecutedGrid();
+    }
+
     get dir() {
         return this.ipDirs[this.activeIp];
     }
@@ -50,7 +54,7 @@ export class Hexagony {
 
         // Execute the current instruction
         let newIp = this.activeIp;
-        const opcode = this.grid.getInstruction(this.coords);
+        const opcode = this.grid.getInstruction(this.coords, true);
 
         switch (opcode) {
             // NOP

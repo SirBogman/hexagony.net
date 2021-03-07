@@ -26,20 +26,37 @@ export class Grid {
         this.rowCount = this.size * 2 - 1;
         let k = 0;
         const grid = [];
+        const executed = [];
         for (let i = 0; i < this.rowCount; ++i) {
             let row = [];
+            let executedRow = [];
             for (let j = 0; j < this.rowSize(i); ++j) {
                 row.push(k < data.length ? data[k] : '.');
+                executedRow.push(false);
                 k++;
             }
             grid.push(row);
+            executed.push(executedRow);
         }
         this.grid = grid;
+        this.executed = executed;
     }
 
-    getInstruction(coords) {
+    getExecutedGrid() {
+        return this.executed;
+    }
+
+    getInstruction(coords, setExecuted = false) {
         const index = this.axialToIndex(coords);
-        return index ? this.grid[index[0]][index[1]] : '.';
+        if (!index) {
+            return '.';
+        }
+
+        if (setExecuted) {
+            this.executed[index[0]][index[1]] = true;
+        }
+
+        return this.grid[index[0]][index[1]];
     }
 
     axialToIndex(coords) {

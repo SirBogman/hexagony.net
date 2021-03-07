@@ -459,7 +459,7 @@ function init() {
         if (!gridView.edgeTransitionMode) {
             gridView.edgeTransitionAnimationMode = false;
         }
-        gridView.recreateGrid();
+        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null);
         updateViewButtons();
         saveViewState();
     });
@@ -469,7 +469,7 @@ function init() {
         if (gridView.edgeTransitionAnimationMode) {
             gridView.edgeTransitionMode = true;
         }
-        gridView.recreateGrid();
+        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null);
         updateViewButtons();
         saveViewState();
     });

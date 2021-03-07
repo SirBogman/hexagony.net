@@ -82,12 +82,36 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode or edgeTransitionAnimationMode.
-    recreateGrid() {
+    recreateGrid(executedState) {
+        let i = -1, j;
+        if (this.activeCell) {
+            [i, j] = getIndices(this.activeCell);
+        }
+
         this.createGrid(this.size);
 
         const filteredCode = removeWhitespaceAndDebug(this.sourceCode);
         for (let k = 0; k < this.cellPaths.length; k++) {
             this.updateHexagonWithCode(k, filteredCode);
+        }
+
+        if (i != -1) {
+            this.activeCell = this.cellPaths[0][i][j];
+            this.activeCell.classList.add('cell_active');
+        }
+
+        this.oldActiveCells = [];
+
+        if (executedState) {
+            for (i = 0; i < executedState.length; i++) {
+                for (j = 0; j < executedState[i].length; j++) {
+                    if (executedState[i][j]) {
+                        for (let k = 0; k < this.cellPaths.length; k++) {
+                            this.cellPaths[k][i][j].classList.add('cell_executed');
+                        }
+                    }
+                }
+            }
         }
     }
 
