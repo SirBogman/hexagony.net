@@ -6,6 +6,8 @@ import { setClass, setDisabledClass } from './view/viewutil.mjs';
 
 import { LZString } from './lz-string.min.js';
 
+const RECENTER_ANIMATION_DURATION = 1000;
+
 // import { panzoom } from 'panzoom';
 
 const sourceCodeInput = document.querySelector('#sourcecode');
@@ -97,6 +99,15 @@ function updateInputModeButtons() {
     }
 }
 
+function onSpeedSliderChanged() {
+    userData.delay = Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2);
+    saveData();
+}
+
+function updateSpeedSlider() {
+    speedSlider.value = 1000 - Math.sqrt(1000 * userData.delay);
+}
+
 function invalidateGeneratedURL() {
     generateLinkButton.disabled = false;
 }
@@ -146,6 +157,8 @@ function loadData() {
         userData = { code: '.'.repeat(getCodeLength(2) + 1) };
     }
 
+    userData.delay = userData.delay ?? 250;
+
     if (userData.edgeTransitionMode !== undefined) {
         gridView.edgeTransitionMode = userData.edgeTransitionMode;
     }
@@ -156,6 +169,7 @@ function loadData() {
 
     updateInputModeButtons();
     updateInputTextArea();
+    updateSpeedSlider();
 }
 
 function loadDataFromURL() {
@@ -225,7 +239,8 @@ function edgeEventHandler(edgeName) {
 function onStart() {
     const isEdgeTransition = stepHelper();
     if (isRunning()) {
-        gridView.timeoutID = window.setTimeout(onStart, isEdgeTransition ? 1000 : 300);
+        const delay = isEdgeTransition ? RECENTER_ANIMATION_DURATION : userData.delay;
+        gridView.timeoutID = window.setTimeout(onStart, delay);
     }
 }
 
@@ -364,10 +379,6 @@ function onStop() {
     gridView.activeHexagon = 0;
     updateButtons();
     onPause();
-}
-
-function onSpeedSliderChanged() {
-    console.log(`SPEED ${speedSlider.value}`);
 }
 
 function isPlaying() {
