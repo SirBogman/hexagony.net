@@ -12,9 +12,10 @@ function outlineHelper(x1, y1, x2, y2, size) {
 }
 
 export class GridView {
-    constructor(updateCodeCallback, updateUndoButtonsCallback) {
+    constructor(updateCodeCallback, updateUndoButtonsCallback, toggleBreakpointCallback) {
         this.updateCodeCallback = updateCodeCallback;
         this.updateUndoButtonsCallback = updateUndoButtonsCallback;
+        this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.cellPaths = [];
         this.cellInput = [];
         this.edgeConnectors = {};
@@ -62,7 +63,7 @@ export class GridView {
             const newSize = getHexagonSize(countCodepoints(filteredCode));
             const isSizeChange = newSize != this.size;
             if (isSizeChange) {
-                this.createGrid(newSize);
+                this._createGrid(newSize);
             }
 
             for (let k = 0; k < this.cellPaths.length; k++) {
@@ -80,14 +81,47 @@ export class GridView {
         }
     }
 
+    setBreakpointState(i, j, state) {
+        for (let k = 0; k < this.cellPaths.length; k++) {
+            if (i >= this.cellPaths[k].length || j >= this.cellPaths[k][i].length) {
+                return;
+            }
+
+            const cell = this.cellPaths[k][i][j];
+            if (state == cell.hasBreakpoint) {
+                continue;
+            }
+
+            if (state) {
+                // Append breakpoints so that they appear higher in the Z-order.
+                const svg = document.querySelector('#puzzle');
+                const parent = svg.querySelector('#cell_container');
+                const breakpointTemplate = svg.querySelector('defs [class~=cell_breakpoint]');
+                const breakpoint = breakpointTemplate.cloneNode();
+                breakpoint.setAttribute('transform', cell.getAttribute('transform'));
+                breakpoint.id = `breakpoint_${cell.id}`;
+                parent.appendChild(breakpoint);
+                cell.hasBreakpoint = true;
+            }
+            else {
+                const svg = document.querySelector('#puzzle');
+                const breakpoint = svg.querySelector(`#breakpoint_${cell.id}`);
+                if (breakpoint) {
+                    breakpoint.parentNode.removeChild(breakpoint);
+                }
+                cell.hasBreakpoint = false;
+            }
+        }
+    }
+
     // Public API to recreate the grid after changing edgeTransitionMode or edgeTransitionAnimationMode.
-    recreateGrid(executedState) {
+    recreateGrid(executedState, breakpoints) {
         let i = -1, j;
         if (this.activeCell) {
             [i, j] = getIndices(this.activeCell);
         }
 
-        this.createGrid(this.size);
+        this._createGrid(this.size);
 
         const filteredCode = removeWhitespaceAndDebug(this.sourceCode);
         for (let k = 0; k < this.cellPaths.length; k++) {
@@ -111,6 +145,10 @@ export class GridView {
                     }
                 }
             }
+        }
+
+        for (const [i, j] of breakpoints) {
+            this.setBreakpointState(i, j, true);
         }
     }
 
@@ -312,22 +350,19 @@ export class GridView {
     resetPuzzleParent() {
         const puzzleParent = document.querySelector('#puzzle_parent');
         puzzleParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
-        puzzleParent.style['transition-property'] = 'none';    
+        puzzleParent.style['transition-property'] = 'none';
     }
 
     checkArrowKeys(elem, event) {
         // TOOD: escape to deselect.
-        const [i, j, k] = getIndices(elem);
+        const [i, j] = getIndices(elem);
 
         if (event.key == 'b' && event.ctrlKey) {
-            const path = this.cellPaths[k][i][j];
-            if (path.classList.contains('cell_breakpoint')) {
-                path.classList.remove('cell_breakpoint');
-            }
-            else {
-                path.classList.add('cell_breakpoint');
+            if (this.toggleBreakpointCallback) {
+                this.toggleBreakpointCallback(i, j);
             }
             event.preventDefault();
+            return;
         }
         if (event.key == 'Backspace') {
             // TODO: do nothing if no text selected?
@@ -453,7 +488,7 @@ export class GridView {
     /**
      * Re-create the hexagon grid using the given hexagon edge length.
      */
-    createGrid(size) {
+    _createGrid(size) {
         this.size = size;
         this.rowCount = getRowCount(size);
         const radius = 20;

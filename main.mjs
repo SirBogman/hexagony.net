@@ -49,6 +49,7 @@ const urlExportText = document.querySelector('#url_export');
 
 const outputBox = document.querySelector('#output');
 const executedCountText = document.querySelector('#executed_count');
+const breakpointCountText = document.querySelector('#breakpoint_count');
 const ipStateText = document.querySelector('#ip_state');
 const terminationReasonText = document.querySelector('#termination_reason');
 
@@ -64,6 +65,22 @@ let userData;
 
 function updateCode(code, isProgrammatic=false) {
     userData.code = code;
+
+    // Clear breakpoints that non longer fit.
+    // The gridView will automatically discard UI elements associated with them when the size changes.
+    const filteredCode = removeWhitespaceAndDebug(code);
+    const newSize = getHexagonSize(countCodepoints(filteredCode));
+    const newRowCount = getRowCount(newSize);
+    userData.breakpoints = userData.breakpoints.filter(id => {
+        const [i, j] = id.split(',').map(Number);
+        return i < newRowCount && j < getRowSize(newSize, i);
+    });
+    updateBreakpointCountText();
+
+    for (const [i, j] of getBreakpoints()) {
+        gridView.setBreakpointState(i, j, true);
+    }
+
     sourceCodeInput.value = code;
     if (!isProgrammatic && initFinished) {
         saveData();
@@ -153,6 +170,32 @@ function updateViewButtons() {
     setClass(edgeTransitionAnimationButton, 'active', gridView.edgeTransitionAnimationMode);
 }
 
+function breakpointExistsAt(i, j) {
+    const id = `${i},${j}`;
+    return userData.breakpoints.indexOf(id) > -1;
+}
+
+function* getBreakpoints() {
+    for (const id of userData.breakpoints) {
+        yield id.split(',').map(Number);
+    }
+}
+
+function toggleBreakpointCallback(i, j) {
+    const id = `${i},${j}`;
+    const index = userData.breakpoints.indexOf(id);
+    if (index > -1) {
+        userData.breakpoints.splice(index, 1);
+        gridView.setBreakpointState(i, j, false);
+    }
+    else {
+        userData.breakpoints.push(id);
+        gridView.setBreakpointState(i, j, true);
+    }
+    saveData();
+    updateBreakpointCountText();
+}
+
 // This should only be called once when initially loading.
 function loadData() {
     userData = undefined;
@@ -167,6 +210,7 @@ function loadData() {
     }
 
     userData.delay = userData.delay ?? 250;
+    userData.breakpoints = userData.breakpoints ?? [];
 
     if (userData.edgeTransitionMode !== undefined) {
         gridView.edgeTransitionMode = userData.edgeTransitionMode;
@@ -242,13 +286,7 @@ function saveData() {
 }
 
 function onStart() {
-    const isEdgeTransition = stepHelper();
-    if (isRunning() && !isTerminated()) {
-        const delay = isEdgeTransition ? RECENTER_ANIMATION_DURATION : userData.delay;
-        gridView.timeoutID = window.setTimeout(onStart, delay);
-        // Update buttons after toggling isPlaying state.
-        updateButtons();
-    }
+    stepHelper(true);
 }
 
 function onStep() {
@@ -277,7 +315,7 @@ function edgeEventHandler(edgeName) {
     }
 }
 
-function stepHelper() {
+function stepHelper(play = false) {
     if (isTerminated()) {
         return;
     }
@@ -292,15 +330,31 @@ function stepHelper() {
     [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
     gridView.updateActiveCell(true, isTerminated());
 
+    if (breakpointExistsAt(gridView.activeI, gridView.activeJ)) {
+        play = false;
+    }
+
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
 
     executedCountText.textContent = `Instructions Executed: ${hexagony.ticks}`;
     terminationReasonText.textContent = hexagony.getTerminationReason();
     updateIPStateText();
+
+    if (play && isRunning() && !isTerminated()) {
+        const delay = isEdgeTransition ? RECENTER_ANIMATION_DURATION : userData.delay;
+        gridView.timeoutID = window.setTimeout(() => {
+            gridView.timeoutID = null;
+            onStart();
+        }, delay);
+    }
+
     updateButtons();
     updateMemorySVG(hexagony, memoryPanZoom);
-    return isEdgeTransition;
+}
+
+function updateBreakpointCountText() {
+    breakpointCountText.textContent = `Breakpoints: ${userData.breakpoints.length}`;
 }
 
 function updateIPStateText() {
@@ -449,7 +503,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 function init() {
-    gridView = new GridView(updateCode, updateButtons);
+    gridView = new GridView(updateCode, updateButtons, toggleBreakpointCallback);
     loadData();
     loadDataFromURL();
     sourceCodeInput.addEventListener('input', () => updateFromSourceCode(false));
@@ -480,7 +534,7 @@ function init() {
         if (!gridView.edgeTransitionMode) {
             gridView.edgeTransitionAnimationMode = false;
         }
-        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null);
+        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null, getBreakpoints());
         updateViewButtons();
         saveViewState();
     });
@@ -490,7 +544,7 @@ function init() {
         if (gridView.edgeTransitionAnimationMode) {
             gridView.edgeTransitionMode = true;
         }
-        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null);
+        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null, getBreakpoints());
         updateViewButtons();
         saveViewState();
     });

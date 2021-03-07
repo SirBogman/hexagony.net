@@ -38,10 +38,6 @@ Before publish:
 
     Play mode:
         Implement infinite speed mode. Pause animations in this case.
-        Breakpoint support
-            Save in localStorage
-            Show in all hexagons
-            Preserve when changing view modes.
 
     Memory:
         Autoscroll only when it gets near the edge.
@@ -49,6 +45,7 @@ Before publish:
     Allow editing text in any of the hexagons.
 
     OG meta tags
+    Apple touch icon
 
     Zooming in/out on the memory grid breaks its ability to center itself.
 
