@@ -2,7 +2,13 @@
     --background: #fdfdfd;
     --color:      #343a40;
     --disabled-color: #707070;
+    --red: #ed1c24;
+    --blue: #1c74bc;
+    --orange: #F7941D;
+    --hexagon-stroke: #808080;
+    --set-memory: black;
     --panel-background: hsl(0, 0%, 95%);
+    --output-background: hsl(0, 0%, 83%)
 }
 
 /* Things that affect animation duration. */
@@ -16,7 +22,7 @@
 
 .cell {
     fill: white;
-    stroke: #808080;
+    stroke: var(--hexagon-stroke);
     stroke-width: 0.5;
     stroke-miterlimit: 10;
     transition-duration: 0.25s;
@@ -56,7 +62,7 @@
 }
 
 #output {
-    background-color: lightgray;
+    background-color: var(--output-background);
     width: 100%;
     min-height: 1em;
     max-height: 300px;
@@ -112,7 +118,7 @@
 }
 
 .noop {
-    fill: #808080;
+    fill: var(--hexagon-stroke);
 }
 
 .puzzle {
@@ -181,7 +187,11 @@ body {
 }
 
 .cell_breakpoint {
-    fill: hsl(0, 79%, 72%);
+    fill: hsl(0, 79%, 80%);
+}
+
+.cell_terminated {
+    fill: var(--red);
 }
 
 .button_container {
@@ -190,28 +200,28 @@ body {
 
 .connector {
     fill: none;
-    stroke: #F7941D;
+    stroke: var(--orange);
     stroke-width: 1.0;
     stroke-miterlimit: 10;
 }
 
 .positive_connector {
-    stroke: #ed1c24;
+    stroke: var(--red);
 }
 
 .negative_connector {
-    stroke: #1c74bc;
+    stroke: var(--blue);
 }
 
 .positive_text {
-    fill: #ed1c24;
+    fill: var(--red);
     stroke: none;
     font-size: 20px;
     /* font-weight: bold; */
 }
 
 .negative_text {
-    fill: #1c74bc;
+    fill: var(--blue);
     stroke: none;
     font-size: 20px;
     /* font-weight: bold; */
@@ -219,18 +229,18 @@ body {
 
 .memory_cell {
     fill: none;
-    stroke: rgb(80, 80, 80);
+    stroke: var(--hexagon-stroke);
     stroke-width: 0.5;
     stroke-miterlimit: 10;
 }
 
 .memory_pointer {
-    fill: #ed1c24;
+    fill: var(--red);
     stroke: none;
 }
 
 .memory_value {
-    stroke: black;
+    stroke: var(--set-memory);
     stroke-width: 1.0;
 }
 
@@ -285,4 +295,9 @@ body {
 
 td {
     padding: 0 0.5rem;
+}
+
+#termination_reason {
+    font-weight: bold;
+    color: var(--red);
 }

@@ -21,7 +21,6 @@ export class Hexagony {
         ];
         this.ipDirs = [east, southEast, southWest, west, northWest, northEast];
         this.activeIp = 0;
-        this.isRunning = true;
         this.ticks = 0;
         this.output = '';
         this.nextByte = undefined;
@@ -29,8 +28,8 @@ export class Hexagony {
         this.generator = this.execute();
     }
 
-    getError() {
-        return this.error;
+    getTerminationReason() {
+        return this.terminationReason;
     }
 
     setSourceCode(sourceCode) {
@@ -62,7 +61,7 @@ export class Hexagony {
     }
 
     * execute() {
-        while (this.isRunning) {
+        while (!this.terminationReason) {
             yield;
 
             // Execute the current instruction
@@ -75,8 +74,9 @@ export class Hexagony {
 
                 // Terminate
                 case '@':
-                    this.isRunning = false;
-                    break;
+                    this.terminationReason = "Program terminated at @."
+                    this.ticks++;
+                    return;
 
                 // Arithmetic
                 case ')': this.memory.setValue(this.memory.getValue() + 1n); break;
@@ -90,8 +90,8 @@ export class Hexagony {
                     const leftVal = this.memory.getLeft();
                     const rightVal = this.memory.getRight();
                     if (rightVal == 0) {
-                        this.error = "Division by zero";
-                        this.isRunning = false;
+                        this.terminationReason = "Error: Program terminated due to division by zero.";
+                        this.ticks++;
                         return;
                     }
                     this.memory.setValue(rubyStyleDivide(leftVal, rightVal));
@@ -101,8 +101,8 @@ export class Hexagony {
                     const leftVal = this.memory.getLeft();
                     const rightVal = this.memory.getRight();
                     if (rightVal == 0) {
-                        this.error = "Division by zero";
-                        this.isRunning = false;
+                        this.terminationReason = "Error: Program terminated due to division by zero.";
+                        this.ticks++;
                         return;
                     }
                     this.memory.setValue(rubyStyleRemainder(leftVal, rightVal));

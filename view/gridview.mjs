@@ -184,6 +184,7 @@ export class GridView {
 
         if (this.activeCell != null) {
             this.activeCell.classList.remove('cell_active');
+            this.activeCell.classList.remove('cell_terminated');
             this.activeCell = null;
         }
 
@@ -213,9 +214,13 @@ export class GridView {
         }
     }
 
-    updateActiveCell(transition) {
+    updateActiveCell(transition, isTerminated = false) {
         const activeCell = this.cellPaths[this.activeHexagon][this.activeI][this.activeJ];
     
+        if (isTerminated) {
+            activeCell.classList.add('cell_terminated');
+        }
+
         if (this.activeCell != activeCell) {
             this._removeOldActiveCellColors();
 

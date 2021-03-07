@@ -13,8 +13,8 @@ export function setClass(element, className, shouldHaveClass) {
     }
 }
 
-export function setDisabledClass(element, disabled) {
-    setClass(element, 'disabled', disabled);
+export function setEnabledClass(element, enabled) {
+    setClass(element, 'disabled', !enabled);
 }
 
 export function unicodeStringToBase64(value) {

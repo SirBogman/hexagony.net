@@ -42,8 +42,6 @@ Before publish:
             Save in localStorage
             Show in all hexagons
             Preserve when changing view modes.
-        Show exception state
-        Show termination state
 
     Memory:
         Autoscroll only when it gets near the edge.

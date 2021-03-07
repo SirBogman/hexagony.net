@@ -2,7 +2,7 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
-import { setClass, setDisabledClass } from './view/viewutil.mjs';
+import { setClass, setEnabledClass } from './view/viewutil.mjs';
 
 import { LZString } from './lz-string.min.js';
 
@@ -50,6 +50,7 @@ const urlExportText = document.querySelector('#url_export');
 const outputBox = document.querySelector('#output');
 const executedCountText = document.querySelector('#executed_count');
 const ipStateText = document.querySelector('#ip_state');
+const terminationReasonText = document.querySelector('#termination_reason');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
 const edgeTransitionAnimationButton = document.querySelector('#edge_transition_animation');
@@ -123,17 +124,17 @@ function invalidateGeneratedURL() {
 }
 
 function updateButtons() {
-    // TODO: use stop button to explicitly go back to edit mode.
     const running = isRunning();
     editButtons.forEach(x => x.disabled = running);
-    editPseudoButtons.forEach(x => setDisabledClass(x, running));
+    editPseudoButtons.forEach(x => setEnabledClass(x, !running));
 
-    setDisabledClass(undoButton, !gridView.canUndo(running));
-    setDisabledClass(redoButton, !gridView.canRedo(running));
+    setEnabledClass(undoButton, gridView.canUndo(running));
+    setEnabledClass(redoButton, gridView.canRedo(running));
 
-    setDisabledClass(startButton, gridView.timeoutID != null);
-    setDisabledClass(stopButton, !running);
-    setDisabledClass(pauseButton, gridView.timeoutID == null);
+    setEnabledClass(startButton, !isTerminated() && !isPlaying());
+    setEnabledClass(stepButton, !isTerminated() && !isPlaying());
+    setEnabledClass(stopButton, running);
+    setEnabledClass(pauseButton, !isTerminated() && isPlaying());
 
     if (running) {
         playContent.forEach(x => x.classList.remove('hidden_section'));
@@ -242,9 +243,11 @@ function saveData() {
 
 function onStart() {
     const isEdgeTransition = stepHelper();
-    if (isRunning()) {
+    if (isRunning() && !isTerminated()) {
         const delay = isEdgeTransition ? RECENTER_ANIMATION_DURATION : userData.delay;
         gridView.timeoutID = window.setTimeout(onStart, delay);
+        // Update buttons after toggling isPlaying state.
+        updateButtons();
     }
 }
 
@@ -275,6 +278,10 @@ function edgeEventHandler(edgeName) {
 }
 
 function stepHelper() {
+    if (isTerminated()) {
+        return;
+    }
+
     if (hexagony == null) {
         hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
     }
@@ -283,12 +290,13 @@ function stepHelper() {
 
     hexagony.step();
     [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
-    gridView.updateActiveCell(true);
+    gridView.updateActiveCell(true, isTerminated());
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
 
     executedCountText.textContent = `Instructions Executed: ${hexagony.ticks}`;
+    terminationReasonText.textContent = hexagony.getTerminationReason();
     updateIPStateText();
     updateButtons();
     updateMemorySVG(hexagony, memoryPanZoom);
@@ -396,8 +404,14 @@ function isPlaying() {
     return gridView.timeoutID != null;
 }
 
+// Returns whether the view is in execution mode. This includes just after the program
+// terminates, so that the user can see its state.
 function isRunning() {
-    return hexagony != null && hexagony.isRunning;
+    return hexagony != null;
+}
+
+function isTerminated() {
+    return hexagony != null && hexagony.getTerminationReason() != null;
 }
 
 document.addEventListener('keydown', function(e) {
