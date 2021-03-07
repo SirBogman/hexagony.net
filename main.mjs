@@ -379,6 +379,7 @@ function onPause() {
 function onStop() {
     hexagony = null;
     gridView.clearCellExecutionColors();
+    gridView.resetPuzzleParent();
     gridView.nextEdgeConnectorAnimation = null;
     gridView.activeHexagon = 0;
     updateButtons();
@@ -479,6 +480,8 @@ function init() {
 
     puzzleParent.addEventListener('transitionend', (e) => {
         if (e.target == puzzleParent && isRunning()) {
+            // Recenter the hexagons after animating their transition.
+            // This allows the grid in edge transition animatino mode to appear inifinite.
             gridView.resetPuzzleParent();
             gridView.activeHexagon = 0;
             gridView.updateActiveCell(false);

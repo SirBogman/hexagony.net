@@ -51,9 +51,6 @@ Before publish:
 
     When changing view modes, preserve the visual state of breakpoints.
 
-    Edge transition animation mode:
-        recenter after stopping? Otherwise it can start at the wrong place.
-
     OG meta tags
 
     Zooming in/out on the memory grid breaks its ability to center itself.
