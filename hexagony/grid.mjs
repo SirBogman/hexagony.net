@@ -28,8 +28,8 @@ export class Grid {
         const grid = [];
         const executed = [];
         for (let i = 0; i < this.rowCount; ++i) {
-            let row = [];
-            let executedRow = [];
+            const row = [];
+            const executedRow = [];
             for (let j = 0; j < this.rowSize(i); ++j) {
                 row.push(k < data.length ? data[k] : '.');
                 executedRow.push(false);

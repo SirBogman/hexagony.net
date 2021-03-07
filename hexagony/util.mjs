@@ -7,7 +7,7 @@ export function countBytes(code) {
 export function countCodepoints(code) {
     let count = 0;
     // eslint-disable-next-line no-unused-vars
-    for (let _ of code) {
+    for (const _ of code) {
         count++;
     }
     return count;
@@ -15,7 +15,7 @@ export function countCodepoints(code) {
 
 export function countOperators(code) {
     let count = 0;
-    for (let char of code) {
+    for (const char of code) {
         if (char != '.') {
             count++;
         }
@@ -52,7 +52,7 @@ export function minifySource(code) {
 export function layoutSource(code) {
     code = removeWhitespace(code);
     const size = getHexagonSize(countCodepoints(removeDebug(code)));
-    let iterator = code[Symbol.iterator]();
+    const iterator = code[Symbol.iterator]();
     let newCode = '';
     const rowCount = getRowCount(size);
     for (let i = 0; i < rowCount; i++) {

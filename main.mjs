@@ -319,7 +319,7 @@ function resizeCode(size) {
     let newCode = '';
 
     if (size > oldSize) {
-        let iterator = oldCode[Symbol.iterator]();
+        const iterator = oldCode[Symbol.iterator]();
         for (let i = 0; i < getRowCount(oldSize); i++) {
             for (let j = 0; j < getRowSize(oldSize, i); j++) {
                 newCode += iterator.next().value || '.';
@@ -328,7 +328,7 @@ function resizeCode(size) {
             newCode += '.'.repeat(getRowSize(size, i) - getRowSize(oldSize, i));
         }
     } else {
-        let iterator = oldCode[Symbol.iterator]();
+        const iterator = oldCode[Symbol.iterator]();
         for (let i = 0; i < getRowCount(size); i++) {
             for (let j = 0; j < getRowSize(size, i); j++) {
                 newCode += iterator.next().value || '.';
@@ -353,7 +353,7 @@ function resize(size) {
 }
 
 function onShrink() {
-    let newCode = resizeCode(gridView.size - 1);
+    const newCode = resizeCode(gridView.size - 1);
     if (countOperators(gridView.sourceCode) == countOperators(newCode) ||
         confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
         resize(Math.max(1, gridView.size - 1));

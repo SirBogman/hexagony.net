@@ -58,7 +58,7 @@ export class GridView {
     setSourceCode(code, isProgrammatic) {
         const oldCode = this.sourceCode;
         if (oldCode != code) {
-            let filteredCode = removeWhitespaceAndDebug(code);
+            const filteredCode = removeWhitespaceAndDebug(code);
             const newSize = getHexagonSize(countCodepoints(filteredCode));
             const isSizeChange = newSize != this.size;
             if (isSizeChange) {
@@ -253,7 +253,7 @@ export class GridView {
     }
 
     updateHexagonWithCode(index, code) {
-        let iterator = code[Symbol.iterator]();
+        const iterator = code[Symbol.iterator]();
         for (let i = 0; i < this.cellPaths[index].length; i++) {
             for (let j = 0; j < this.cellPaths[index][i].length; j++) {
                 const cell = this.cellPaths[index][i][j];
@@ -281,7 +281,7 @@ export class GridView {
         let code = '';
         let oldValue = '.';
     
-        let iterator = removeWhitespaceAndDebug(this.sourceCode)[Symbol.iterator]();
+        const iterator = removeWhitespaceAndDebug(this.sourceCode)[Symbol.iterator]();
         for (let i = 0; i < this.rowCount; i++) {
             for (let j = 0; j < getRowSize(this.size, i); j++) {
                 let current = iterator.next().value;
@@ -320,7 +320,7 @@ export class GridView {
         const [i, j, k] = getIndices(elem);
 
         if (event.key == 'b' && event.ctrlKey) {
-            let path = this.cellPaths[k][i][j];
+            const path = this.cellPaths[k][i][j];
             if (path.classList.contains('cell_breakpoint')) {
                 path.classList.remove('cell_breakpoint');
             }
@@ -402,8 +402,8 @@ export class GridView {
                 }
             }
 
-            let newI = i + di;
-            let newJ = j + dj;
+            const newI = i + di;
+            const newJ = j + dj;
             if (newI >= 0 && newI < this.cellPaths[0].length &&
                 newJ >= 0 && newJ < this.cellPaths[0][newI].length) {
                 this.navigateTo(newI, newJ);
@@ -415,8 +415,8 @@ export class GridView {
 
     navigateTo(i, j) {
         // Hide the text in the SVG cell, create an input element, and select it.
-        let cell = this.cellInput[0][i][j]();
-        let svgCell = this.cellPaths[0][i][j];
+        const cell = this.cellInput[0][i][j]();
+        const svgCell = this.cellPaths[0][i][j];
         // Getting the html content would return "&amp;" for "&". Get the node value instead.
         const svgText = svgCell.querySelector('text');
         cell.value = svgText.textContent;
@@ -500,8 +500,8 @@ export class GridView {
         const svg = document.querySelector('#puzzle');
         svg.setAttribute('width', this.fullWidth);
         svg.setAttribute('height', this.fullHeight);
-        let template = svg.querySelector('defs [class~=cell]');
-        let parent = svg.querySelector('#cell_container');
+        const template = svg.querySelector('defs [class~=cell]');
+        const parent = svg.querySelector('#cell_container');
         const textParent = document.querySelector('#input_container');
         emptyElement(parent);
         emptyElement(textParent);
@@ -548,20 +548,20 @@ export class GridView {
             }
         }
 
-        let offsetsDict = {};
+        const offsetsDict = {};
         for (let i = 1; i < this.offsets.length; i++) {
             if (this.offsets[i][2]) {
                 offsetsDict[this.offsets[i][2]] = i;
             }
         }
 
-        let outlineTemplate = svg.querySelector('defs [class~=outline]');
-        let connectorTemplate = svg.querySelector('defs [class~=neutral_connector]');
-        let positiveConnector = svg.querySelector('defs [class~=positive_connector]');
-        let negativeConnector = svg.querySelector('defs [class~=negative_connector]');
-        let outlines = [];
-        let connectors = [];
-        let positiveConnectors = [];
+        const outlineTemplate = svg.querySelector('defs [class~=outline]');
+        const connectorTemplate = svg.querySelector('defs [class~=neutral_connector]');
+        const positiveConnector = svg.querySelector('defs [class~=positive_connector]');
+        const negativeConnector = svg.querySelector('defs [class~=negative_connector]');
+        const outlines = [];
+        const connectors = [];
+        const positiveConnectors = [];
 
         const outlinePath = `m ${-cellOffsetX} ${-radius/2}` +
             `l ${cellOffsetX} ${-radius / 2} l ${cellOffsetX} ${radius / 2}`.repeat(size) +
@@ -572,14 +572,14 @@ export class GridView {
             outlineHelper(cellOffsetX, -radius/2, 0, -radius, size);
 
         for (let k = 0; k < this.offsets.length; k++) {
-            let pathGrid = [];
-            let inputGrid = [];
+            const pathGrid = [];
+            const inputGrid = [];
             for (let i = 0; i < this.rowCount; i++) {
-                let pathRow = [];
-                let inputRow = [];
+                const pathRow = [];
+                const inputRow = [];
                 for (let j = 0; j < getRowSize(size, i); j++) {
                     const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
-                    let cell = template.cloneNode(true);
+                    const cell = template.cloneNode(true);
                     pathRow.push(cell);
                     const cellX = getX(size, i, j) + this.offsets[k][0] * cellWidth;
                     const cellY = getY(size, i, j) + this.offsets[k][1] * cellOffsetY;
@@ -589,7 +589,7 @@ export class GridView {
                     parent.appendChild(cell);
 
                     inputRow.push(() => {
-                        let text = document.createElement('input');
+                        const text = document.createElement('input');
                         text.type = 'text';
                         text.maxLength = 1;
                         text.id = `input_${i}_${j}_${k}`;
@@ -611,7 +611,7 @@ export class GridView {
             {
                 const cellX = getX(size, 0, 0) + this.offsets[k][0] * cellWidth;
                 const cellY = getY(size, 0, 0) + this.offsets[k][1] * cellOffsetY;
-                let outline = outlineTemplate.cloneNode();
+                const outline = outlineTemplate.cloneNode();
                 outline.setAttribute('d', outlinePath);
                 outline.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
                 outlines.push(outline);
@@ -726,7 +726,7 @@ export class GridView {
 
                     // South east edge
                     if (this.edgeTransitionAnimationMode || (this.offsets[k][0] <= 0 && this.offsets[k][1] <= size)) {
-                        let a = i + size - 1;
+                        const a = i + size - 1;
                         connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
                         cellX = getX(size, a, getRowSize(size, a) - 1) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, a, getRowSize(size, a) - 1) + this.offsets[k][1] * cellOffsetY + 0.75 * radius;

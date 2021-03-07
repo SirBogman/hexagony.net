@@ -71,7 +71,7 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
                     string += ` ‘${String.fromCharCode(Number(value % 256n))}’`;
                 }
 
-                let text = textTemplate.cloneNode(true);
+                const text = textTemplate.cloneNode(true);
                 text.querySelector('text').textContent = string;
                 text.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
                 parent.appendChild(text);
@@ -80,7 +80,7 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
             if (mp.q == hexagony.memory.mp.q && mp.r == hexagony.memory.mp.r && dir == hexagony.memory.dir) {
                 // Add the memory pointer (arrow) showing the position and direction.
                 angle = (dir == northEast ? -60 : dir == southEast ? 60 : 0) + (hexagony.memory.cw ? 180 : 0);
-                let pointer = mpTemplate.cloneNode();
+                const pointer = mpTemplate.cloneNode();
                 pointer.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
                 parent.appendChild(pointer);
                 // TODO: only autoscroll when pointer gets near edges.
