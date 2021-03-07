@@ -10,6 +10,11 @@ const RECENTER_ANIMATION_DURATION = 1000;
 
 // import { panzoom } from 'panzoom';
 
+const puzzleParent = document.querySelector('#puzzle_parent');
+const gridContainer = document.querySelector('#grid_container');
+const playContent = document.querySelectorAll('.play_content')
+const editContent = document.querySelectorAll('.edit_content')
+
 const sourceCodeInput = document.querySelector('#sourcecode');
 const inputBox = document.querySelector('#input');
 const hexagonSizeText = document.querySelector('#hexagon_size');
@@ -41,6 +46,9 @@ const inputRawRadioButton = document.querySelector('#raw');
 const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 
 const urlExportText = document.querySelector('#url_export');
+
+const outputBox = document.querySelector('#output');
+const stepCountText = document.querySelector('#stepcount');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
 const edgeTransitionAnimationButton = document.querySelector('#edge_transition_animation');
@@ -125,16 +133,14 @@ function updateButtons() {
     setDisabledClass(stopButton, !running);
     setDisabledClass(pauseButton, gridView.timeoutID == null);
 
-    const gridContainer = document.querySelector('#grid_container');
-
     if (running) {
-        document.querySelectorAll('.play_content').forEach(x => x.classList.remove('hidden_section'));
-        document.querySelectorAll('.edit_content').forEach(x => x.classList.add('hidden_section'));
+        playContent.forEach(x => x.classList.remove('hidden_section'));
+        editContent.forEach(x => x.classList.add('hidden_section'));
         gridContainer.classList.replace('edit_grid', 'play_grid');
     }
     else {
-        document.querySelectorAll('.play_content').forEach(x => x.classList.add('hidden_section'));
-        document.querySelectorAll('.edit_content').forEach(x => x.classList.remove('hidden_section'));
+        playContent.forEach(x => x.classList.add('hidden_section'));
+        editContent.forEach(x => x.classList.remove('hidden_section'));
         gridContainer.classList.replace('play_grid', 'edit_grid');
     }
 }
@@ -273,7 +279,6 @@ function stepHelper() {
         const x = gridView.offsets[gridView.activeHexagon][0] * gridView.globalOffsetX;
         const y = gridView.offsets[gridView.activeHexagon][1] * gridView.globalOffsetY;
 
-        const puzzleParent = document.querySelector('#puzzle_parent');
         puzzleParent.style.transform = `matrix(1,0,0,1,${-x - gridView.fullWidth/4},${-y - gridView.fullHeight/4})`;
         puzzleParent.style['transition-property'] = 'transform';
 
@@ -284,11 +289,10 @@ function stepHelper() {
     hexagony.step();
     gridView.updateActiveCell(true);
 
-    const output = document.querySelector('#output');
-    output.textContent = hexagony.output;
-    output.scrollTop = output.scrollHeight;
+    outputBox.textContent = hexagony.output;
+    outputBox.scrollTop = outputBox.scrollHeight;
 
-    document.querySelector('#stepcount').textContent = hexagony.ticks;
+    stepCountText.textContent = hexagony.ticks;
     updateButtons();
     updateMemorySVG(hexagony, memoryPanZoom);
     return isEdgeTransition;
@@ -473,7 +477,6 @@ function init() {
     updateButtons();
     updateViewButtons();
 
-    const puzzleParent = document.querySelector('#puzzle_parent');
     puzzleParent.addEventListener('transitionend', (e) => {
         if (e.target == puzzleParent && isRunning()) {
             gridView.resetPuzzleParent();
