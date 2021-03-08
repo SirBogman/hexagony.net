@@ -325,12 +325,14 @@ function stepHelper(play = false) {
     }
 
     isEdgeTransition = false;
+    let breakpoint = false;
 
     hexagony.step();
     [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
     gridView.updateActiveCell(true, isTerminated());
 
     if (breakpointExistsAt(gridView.activeI, gridView.activeJ)) {
+        breakpoint = true;
         play = false;
     }
 
@@ -338,7 +340,8 @@ function stepHelper(play = false) {
     outputBox.scrollTop = outputBox.scrollHeight;
 
     executedCountText.textContent = `Instructions Executed: ${hexagony.ticks}`;
-    terminationReasonText.textContent = hexagony.getTerminationReason();
+    terminationReasonText.textContent =
+        hexagony.getTerminationReason() ?? breakpoint ? 'Stopped at breakpoint' : null;
     updateIPStateText();
 
     if (play && isRunning() && !isTerminated()) {
