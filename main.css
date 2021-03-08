@@ -159,7 +159,7 @@ body {
 
 .cell_breakpoint {
     fill: none;
-    stroke: var(--red);
+    stroke: darkred;
     stroke-width: 1.5;
     stroke-miterlimit: 10;
 }
@@ -204,6 +204,7 @@ body {
 .connector {
     fill: none;
     stroke: var(--orange);
+    /* opacity: 0.75; */
     stroke-width: 1.0;
     stroke-miterlimit: 10;
 }
