@@ -371,26 +371,24 @@ export class GridView {
             event.preventDefault();
             return;
         }
+        if (event.key == 'Escape') {
+            document.querySelector('#speed_slider').focus();
+            event.preventDefault();
+            return;
+        }
         if (event.key == 'Backspace') {
-            elem.value = '.';
-            // focusout will apply update.
+            this.updateFromHexagons(i, j, '.');
             if (j) {
                 this.navigateTo(i, j - 1, k);
             }
             else if (i) {
                 this.navigateTo(i - 1, getRowSize(this.size, i - 1) - 1, k);
             }
-            else {
-                this.updateFromHexagons(0, 0, '.', false);
-                elem.select();
-            }
             event.preventDefault();
             return;
         }
         if (event.key == 'Delete') {
-            elem.value = '.';
-            elem.select();
-            this.updateFromHexagons(0, 0, '.', false);
+            this.updateFromHexagons(i, j, '.');
             event.preventDefault();
             return;
         }
