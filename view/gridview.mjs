@@ -49,8 +49,8 @@ export class GridView {
             // Select text when clicking on the background or text of the cell.
             const parent = event.target.parentNode;
             if (parent.classList.contains('cell')) {
-                const [i, j] = getIndices(parent);
-                this.navigateTo(i, j);
+                const [i, j, k] = getIndices(parent);
+                this.navigateTo(i, j, k);
             }
         });
     }
@@ -315,7 +315,7 @@ export class GridView {
         }
     }
 
-    updateFromHexagons(targetI, targetJ, value, updateActiveHexagon=true) {
+    updateFromHexagons(targetI, targetJ, value, skipActiveHexagon = null) {
         let code = '';
         let oldValue = '.';
     
@@ -339,9 +339,10 @@ export class GridView {
             () => this.updateFromHexagons(targetI, targetJ, value),
             false);
 
-        // Assume that currently editing hexagon 0.
-        for (let k = updateActiveHexagon ? 0 : 1; k < this.cellPaths.length; k++) {
-            this.updateHexagonWithCode(k, code);
+        for (let k = 0; k < this.cellPaths.length; k++) {
+            if (k != skipActiveHexagon) {
+                this.updateHexagonWithCode(k, code);
+            }
         }
     
         this.updateCode(minifySource(code));
@@ -355,7 +356,13 @@ export class GridView {
 
     checkArrowKeys(elem, event) {
         // TOOD: escape to deselect.
-        const [i, j] = getIndices(elem);
+        const [i, j, k] = getIndices(elem);
+
+        if (elem.selectionStart == elem.selectionEnd &&
+            (event.key == 'ArrowLeft' || event.key == 'ArrowRight' || event.key == 'Backspace')) {
+            // No text is selected. Let the text input element handle it.
+            return;
+        }
 
         if (event.key == 'b' && event.ctrlKey) {
             if (this.toggleBreakpointCallback) {
@@ -365,14 +372,13 @@ export class GridView {
             return;
         }
         if (event.key == 'Backspace') {
-            // TODO: do nothing if no text selected?
             elem.value = '.';
             // focusout will apply update.
             if (j) {
-                this.navigateTo(i, j - 1);
+                this.navigateTo(i, j - 1, k);
             }
             else if (i) {
-                this.navigateTo(i - 1, getRowSize(this.size, i - 1) - 1);
+                this.navigateTo(i - 1, getRowSize(this.size, i - 1) - 1, k);
             }
             else {
                 this.updateFromHexagons(0, 0, '.', false);
@@ -394,7 +400,7 @@ export class GridView {
             if (j > 0) {
                 dj = -1;
             } else if (i > 0) {
-                this.navigateTo(i - 1, this.cellPaths[0][i - 1].length - 1);
+                this.navigateTo(i - 1, this.cellPaths[0][i - 1].length - 1, k);
                 event.preventDefault();
                 return;
             } else {
@@ -405,7 +411,7 @@ export class GridView {
             if (j < this.cellPaths[0][i].length - 1) {
                 dj = 1;
             } else if (i < this.cellPaths[0].length - 1) {
-                this.navigateTo(i + 1, 0);
+                this.navigateTo(i + 1, 0, k);
                 event.preventDefault();
                 return;
             } else {
@@ -441,23 +447,23 @@ export class GridView {
             const newJ = j + dj;
             if (newI >= 0 && newI < this.cellPaths[0].length &&
                 newJ >= 0 && newJ < this.cellPaths[0][newI].length) {
-                this.navigateTo(newI, newJ);
+                this.navigateTo(newI, newJ, k);
             }
             // Prevent the selection from being cancelled on key up.
             event.preventDefault();
         }
     }
 
-    navigateTo(i, j) {
+    navigateTo(i, j, k) {
         // Hide the text in the SVG cell, create an input element, and select it.
-        const cell = this.cellInput[0][i][j]();
-        const svgCell = this.cellPaths[0][i][j];
+        const cell = this.cellInput[k][i][j]();
+        const svgCell = this.cellPaths[k][i][j];
         // Getting the html content would return "&amp;" for "&". Get the node value instead.
         const svgText = svgCell.querySelector('text');
         cell.value = svgText.textContent;
         // Temporarily clear the text.
         svgText.textContent = '';
-        const selector = `#input_${i}_${j}_${0}`;
+        const selector = `#input_${i}_${j}_${k}`;
         svgCell.input = selector;
         this.activeEditingCell = selector;
 
@@ -467,21 +473,18 @@ export class GridView {
 
         cell.addEventListener('input', () => {
             const newText = cell.value || '.';
-            this.updateFromHexagons(i, j, newText, false);
+            this.updateFromHexagons(i, j, newText, k);
             // Reselect the text so that backspace can work normally.
             cell.select();
         });
 
         cell.addEventListener('focusout', () => {
-            const newText = cell.value || '.';
             cell.parentNode.removeChild(cell);
             svgCell.input = null;
             if (this.activeEditingCell == selector) {
                 this.activeEditingCell = null;
             }
-            this.updateFromHexagons(i, j, newText);
-            // TODO: is this necessary?
-            this.updateHexagonWithCode(0, this.sourceCode);
+            this.updateHexagonWithCode(k, this.sourceCode);
         });
     }
 

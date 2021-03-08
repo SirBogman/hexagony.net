@@ -36,13 +36,13 @@ Compress data url?
 Before publish:
     Webpack?
 
+    Show a message when stopped at breakpoint.
+
     Play mode:
         Implement infinite speed mode. Pause animations in this case.
 
     Memory:
         Autoscroll only when it gets near the edge.
-
-    Allow editing text in any of the hexagons.
 
     OG meta tags
     Apple touch icon
