@@ -164,6 +164,7 @@ body {
     overflow: hidden;
     background: var(--panel-background);
     padding: 0.5rem;
+    min-height: 300px;
 }
 
 .outline {
