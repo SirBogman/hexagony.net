@@ -7,9 +7,6 @@ Before publish:
     Memory:
         Autoscroll only when it gets near the edge.
 
-    OG meta tags
-    Apple touch icon
-
     Zooming in/out on the memory grid breaks its ability to center itself.
 
     edge transition mode:
