@@ -15,7 +15,7 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
     const containerWidth = parseFloat(containerStyle.width);
     const containerHeight = parseFloat(containerStyle.height);
 
-    const padding = 20;
+    const padding = 40;
     const xFactor = 20;
     const yFactor = 34;
     const maxX = hexagony.memory.maxX + padding;

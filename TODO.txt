@@ -12,6 +12,9 @@ Before publish:
 
     Zooming in/out on the memory grid breaks its ability to center itself.
 
+    edge transition mode:
+        Show active instruction in all hexagons.
+
 Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.

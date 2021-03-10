@@ -11,7 +11,7 @@ const RECENTER_ANIMATION_DURATION = 1000;
 // import { panzoom } from 'panzoom';
 
 const puzzleParent = document.querySelector('#puzzle_parent');
-const gridContainer = document.querySelector('#grid_container');
+const appGrid = document.querySelector('#app_grid');
 const playContent = document.querySelectorAll('.play_content')
 const editContent = document.querySelectorAll('.edit_content')
 
@@ -156,12 +156,12 @@ function updateButtons() {
     if (running) {
         playContent.forEach(x => x.classList.remove('hidden_section'));
         editContent.forEach(x => x.classList.add('hidden_section'));
-        gridContainer.classList.replace('edit_grid', 'play_grid');
+        appGrid.classList.replace('edit_grid', 'play_grid');
     }
     else {
         playContent.forEach(x => x.classList.add('hidden_section'));
         editContent.forEach(x => x.classList.remove('hidden_section'));
-        gridContainer.classList.replace('play_grid', 'edit_grid');
+        appGrid.classList.replace('play_grid', 'edit_grid');
     }
 }
 
