@@ -1,0 +1,10 @@
+$executed_colors: 5;
+$executed_max_lightness: 0.9;
+$executed_min_lightness: 0.7;
+$executed_lightness_increment: ($executed_max_lightness - $executed_min_lightness) / ($executed_colors - 1);
+
+@for $i from $executed_colors through 1 { 
+    .cell_executed#{$i} {
+        fill: hsl(180, 100%, percentage($executed_min_lightness + ($i - 1) * $executed_lightness_increment));
+    }
+}
