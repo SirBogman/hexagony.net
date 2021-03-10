@@ -154,8 +154,8 @@ body {
 
 .play_grid {
     grid-template-areas:
-        "code output"
         "code input"
+        "code output"
         "memory state"
         "hotkeys info";
 }
