@@ -52,7 +52,6 @@ const ipStateText = document.querySelector('#ip_state');
 const terminationReasonText = document.querySelector('#termination_reason');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
-const edgeTransitionAnimationButton = document.querySelector('#edge_transition_animation');
 
 let gridView;
 let hexagony;
@@ -165,7 +164,6 @@ function updateButtons() {
 
 function updateViewButtons() {
     setClass(edgeTransitionButton, 'active', gridView.edgeTransitionMode);
-    setClass(edgeTransitionAnimationButton, 'active', gridView.edgeTransitionAnimationMode);
 }
 
 function breakpointExistsAt(i, j) {
@@ -213,10 +211,6 @@ function loadData() {
 
     if (userData.edgeTransitionMode !== undefined) {
         gridView.edgeTransitionMode = userData.edgeTransitionMode;
-    }
-
-    if (userData.edgeTransitionAnimationMode !== undefined) {
-        gridView.edgeTransitionAnimationMode = userData.edgeTransitionAnimationMode;
     }
 
     updateInputModeButtons();
@@ -276,7 +270,6 @@ function copyLink() {
 
 function saveViewState() {
     userData.edgeTransitionMode = gridView.edgeTransitionMode;
-    userData.edgeTransitionAnimationMode = gridView.edgeTransitionAnimationMode;
     saveData();
 }
 
@@ -528,19 +521,6 @@ function init() {
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
-        if (!gridView.edgeTransitionMode) {
-            gridView.edgeTransitionAnimationMode = false;
-        }
-        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null, getBreakpoints());
-        updateViewButtons();
-        saveViewState();
-    });
-
-    edgeTransitionAnimationButton.addEventListener('click', () => {
-        gridView.edgeTransitionAnimationMode = !gridView.edgeTransitionAnimationMode;
-        if (gridView.edgeTransitionAnimationMode) {
-            gridView.edgeTransitionMode = true;
-        }
         gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null, getBreakpoints());
         updateViewButtons();
         saveViewState();
