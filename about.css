@@ -1,15 +1,16 @@
 body {
     margin: auto;
-    max-width: 1280px;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    overflow-x: hidden;
+    align-items: center;
+}
+
+body main {
+    max-width: 1280px;
 }
 
 body header {
-    /* Make the header span the page, even though the body has a max-width. */
-    margin: 0 calc(50% - 50vw);
+    width: 100%;
 }
 
 main {
