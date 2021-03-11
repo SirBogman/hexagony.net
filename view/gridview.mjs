@@ -601,6 +601,16 @@ export class GridView {
             outlineHelper(0, -radius, -cellOffsetX, -radius / 2, size) +
             outlineHelper(cellOffsetX, -radius/2, 0, -radius, size);
 
+        let hexagonParents = [];
+        for (let k = 0; k < this.offsets.length; k++) {
+            const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            if (k != 0) {
+                node.style.fillOpacity = 0.25;
+            }
+            parent.appendChild(node);
+            hexagonParents.push(node);
+        }
+
         for (let k = 0; k < this.offsets.length; k++) {
             const pathGrid = [];
             const inputGrid = [];
@@ -616,7 +626,7 @@ export class GridView {
                     cell.id = `path_${i}_${j}_${k}`;
                     cell.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
                     cell.querySelector('title').textContent = tooltip;
-                    parent.appendChild(cell);
+                    hexagonParents[k].appendChild(cell);
 
                     inputRow.push(() => {
                         const text = document.createElement('input');

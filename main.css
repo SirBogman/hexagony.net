@@ -94,6 +94,7 @@
 }
 
 .cell_text {
+    fill-opacity: 1.0;
     fill: black;
     stroke: none;
     font-size: 20px;
