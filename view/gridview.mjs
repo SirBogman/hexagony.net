@@ -1,4 +1,4 @@
-import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
+import { arraysEqual, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { emptyElement } from "./viewutil.mjs";
 
 const EXECUTED_COLOR_COUNT = 5;
@@ -20,9 +20,9 @@ export class GridView {
         this.cellInput = [];
         this.edgeConnectors = {};
         this.offsets = [];
+        this.delay = 0;
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
-        this.activeHexagon = 0;
         this.activeI = 0;
         this.activeJ = 0;
         this.activeCell = null;
@@ -42,8 +42,11 @@ export class GridView {
 
         const svg = document.querySelector('#puzzle');
 
-        svg.addEventListener('animationend', event =>
-            event.target.classList.remove('connector_flash'));
+        svg.addEventListener('animationend', event => {
+            event.target.classList.remove('connector_flash');
+            event.target.classList.remove('connector_neutral_flash');
+
+        });
 
         svg.addEventListener('click', event => {
             // Select text when clicking on the background or text of the cell.
@@ -70,7 +73,7 @@ export class GridView {
                 this.updateHexagonWithCode(k, filteredCode);
             }
 
-            this.updateCode(code, isProgrammatic);
+            this._updateCode(code, isProgrammatic);
 
             if (!isProgrammatic) {
                 this.pushUndoItem(
@@ -116,11 +119,6 @@ export class GridView {
 
     // Public API to recreate the grid after changing edgeTransitionMode or edgeTransitionAnimationMode.
     recreateGrid(executedState, breakpoints) {
-        let i = -1, j;
-        if (this.activeCell) {
-            [i, j] = getIndices(this.activeCell);
-        }
-
         this._createGrid(this.size);
 
         const filteredCode = removeWhitespaceAndDebug(this.sourceCode);
@@ -128,20 +126,17 @@ export class GridView {
             this.updateHexagonWithCode(k, filteredCode);
         }
 
-        if (i != -1) {
-            this.activeCell = this.cellPaths[0][i][j];
-            this.activeCell.classList.add('cell_active');
+        if (this.activeCell) {
+            this._addCellClass(this.activeCell, 'cell_active');
         }
 
-        this.oldActiveCells = [];
+        this._updateOldActiveCellColors();
 
         if (executedState) {
-            for (i = 0; i < executedState.length; i++) {
-                for (j = 0; j < executedState[i].length; j++) {
+            for (let i = 0; i < executedState.length; i++) {
+                for (let j = 0; j < executedState[i].length; j++) {
                     if (executedState[i][j]) {
-                        for (let k = 0; k < this.cellPaths.length; k++) {
-                            this.cellPaths[k][i][j].classList.add('cell_executed');
-                        }
+                        this._addCellClass([i, j], 'cell_executed');
                     }
                 }
             }
@@ -152,7 +147,23 @@ export class GridView {
         }
     }
 
-    updateCode(code, isProgrammatic=false) {
+    _addCellClass(indices, className) {
+        const [i, j] = indices;
+        for (let k = 0; k < this.cellPaths.length; k++) {
+            const cell = this.cellPaths[k][i][j];
+            cell.classList.add(className);
+            cell.style.transitionDuration = `${this.delay}ms`;
+        }
+    }
+
+    _removeCellClass(indices, className) {
+        const [i, j] = indices;
+        for (let k = 0; k < this.cellPaths.length; k++) {
+            this.cellPaths[k][i][j].classList.remove(className);
+        }
+    }
+
+    _updateCode(code, isProgrammatic=false) {
         if (this.sourceCode != code) {
             this.sourceCode = code;
             this.updateCodeCallback(code, isProgrammatic);
@@ -218,48 +229,33 @@ export class GridView {
     }
 
     clearCellExecutionColors() {
-        this.activeHexagon = 0;
-
         if (this.activeCell != null) {
-            this.activeCell.classList.remove('cell_active');
-            this.activeCell.classList.remove('cell_terminated');
+            this._removeCellClass(this.activeCell, 'cell_active');
+            this._removeCellClass(this.activeCell, 'cell_terminated');
             this.activeCell = null;
         }
 
         this._removeOldActiveCellColors();
         this.oldActiveCells = [];
-
-        for (let i = 0; i < this.cellPaths.length; i++) {
-            const grid = this.cellPaths[i];
-            for (let j = 0; j < grid.length; j++) {
-                const row = grid[j];
-                for (let k = 0; k < row.length; k++) {
-                    row[k].classList.remove('cell_executed');
-                }
-            }
-        }
+        this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => z.classList.remove('cell_executed'))));
     }
 
     _removeOldActiveCellColors() {
-        for (let i = 0; i < this.oldActiveCells.length; i++) {
-            this.oldActiveCells[i].classList.remove(`cell_executed${i + 1}`);
-        }
+        this.oldActiveCells.forEach((indices, i) => this._removeCellClass(indices, `cell_executed${i + 1}`));
     }
 
     _updateOldActiveCellColors() {
-        for (let i = 0; i < this.oldActiveCells.length; i++) {
-            this.oldActiveCells[i].classList.add(`cell_executed${i + 1}`);
-        }
+        this.oldActiveCells.forEach((indices, i) => this._addCellClass(indices, `cell_executed${i + 1}`));
     }
 
     updateActiveCell(transition, isTerminated = false) {
-        const activeCell = this.cellPaths[this.activeHexagon][this.activeI][this.activeJ];
-    
+        const activeCell = [this.activeI, this.activeJ];
+
         if (isTerminated) {
-            activeCell.classList.add('cell_terminated');
+            this._addCellClass(activeCell, 'cell_terminated');
         }
 
-        if (this.activeCell != activeCell) {
+        if (!arraysEqual(this.activeCell, activeCell)) {
             this._removeOldActiveCellColors();
 
             if (this.oldActiveCells.length == EXECUTED_COLOR_COUNT) {
@@ -267,26 +263,14 @@ export class GridView {
             }
 
             if (this.activeCell != null) {
-                this.activeCell.style['transition-property'] = transition ? 'fill': 'none';
-                this.activeCell.classList.remove('cell_active');
+                this._removeCellClass(this.activeCell, 'cell_active');
                 this.oldActiveCells = [this.activeCell, ...this.oldActiveCells];
             }
 
-            if (!this.edgeTransitionAnimationMode) {
-                // Edge transition animation mode needs to be fixed for showing the most recent executed cells
-                // when recentering.
-                this._updateOldActiveCellColors();
-            }
-
-            activeCell.style['transition-property'] = transition ? 'fill': 'none';
-            activeCell.classList.add('cell_active');
+            this._updateOldActiveCellColors();
+            this._addCellClass(activeCell, 'cell_active');
+            this._addCellClass(activeCell, 'cell_executed');
             this.activeCell = activeCell;
-
-            // Show the previously executed cells in all hexagons.
-            const [i, j] = getIndices(this.activeCell);
-            for (let k = 0; k < this.cellPaths.length; k++) {
-                this.cellPaths[k][i][j].classList.add('cell_executed');
-            }
         }
     }
 
@@ -345,10 +329,10 @@ export class GridView {
             }
         }
     
-        this.updateCode(minifySource(code));
+        this._updateCode(minifySource(code));
     }
 
-    resetPuzzleParent() {
+    _resetPuzzleParent() {
         const puzzleParent = document.querySelector('#puzzle_parent');
         puzzleParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
         puzzleParent.style['transition-property'] = 'none';
@@ -486,6 +470,16 @@ export class GridView {
         });
     }
 
+    _addEdgeConnector(key, connector) {
+        const current = this.edgeConnectors[key];
+        if (current !== undefined) {
+            current.push(connector);
+        }
+        else {
+            this.edgeConnectors[key] = [connector];
+        }
+    }
+
     /**
      * Re-create the hexagon grid using the given hexagon edge length.
      */
@@ -528,7 +522,7 @@ export class GridView {
         }
 
         const puzzleContainer = document.querySelector('#puzzle_container');
-        this.resetPuzzleParent();
+        this._resetPuzzleParent();
 
         puzzleContainer.style['max-width'] = `${this.fullWidth / 2}px`;
         puzzleContainer.style['max-height'] = `${this.fullHeight /2}px`;
@@ -679,15 +673,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        if (k == 0) {
-                            connector.next = offsetsDict['N'];
-                            this.edgeConnectors[`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`] = connector;
-                        }
-                        // Connectors from south hexagon.
-                        if (k == offsetsDict['S']) {
-                            connector.next = offsetsDict['S'];
-                            this.edgeConnectors[`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`] = connector;
-                        }
+                        this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector);
+                        this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector);
 
                         connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
                         cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
@@ -701,15 +688,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
                         connectors.push(connector);
 
-                        if (k == 0) {
-                            connector.next = offsetsDict['N'];
-                            this.edgeConnectors[`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`] = connector;
-                        }
-                        // Connectors from south hexagon.
-                        if (k == offsetsDict['S']) {
-                            connector.next = offsetsDict['S'];
-                            this.edgeConnectors[`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`] = connector;
-                        }
+                        this._addEdgeConnector(`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`, connector);
+                        this._addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector);
                     }
 
                     // North east edge
@@ -728,15 +708,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        if (k == 0) {
-                            connector.next = offsetsDict['NE'];
-                            this.edgeConnectors[`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`] = connector;
-                        }
-                        // Connectors from south west hexagon.
-                        if (k == offsetsDict['SW']) {
-                            connector.next = offsetsDict['SW'];
-                            this.edgeConnectors[`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`] = connector;
-                        }
+                        this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector);
+                        this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector);
 
                         connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
                         cellX = getX(size, i, getRowSize(size, i) - 1) + (this.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
@@ -749,15 +722,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
                         connectors.push(connector);
 
-                        if (k == 0) {
-                            connector.next = offsetsDict['NE'];
-                            this.edgeConnectors[`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`] = connector;
-                        }
-                        // Connectors from south west hexagon.
-                        if (k == offsetsDict['SW']) {
-                            connector.next = offsetsDict['SW'];
-                            this.edgeConnectors[`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`] = connector;
-                        }
+                        this._addEdgeConnector(`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`, connector);
+                        this._addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector);
                     }
 
                     // South east edge
@@ -776,15 +742,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        if (k == 0) {
-                            connector.next = offsetsDict['SE'];
-                            this.edgeConnectors[`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`] = connector;
-                        }
-                        // Connectors from north west hexagon.
-                        if (k == offsetsDict['NW']) {
-                            connector.next = offsetsDict['NW'];
-                            this.edgeConnectors[`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`] = connector;
-                        }
+                        this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector);
+                        this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector);
 
                         connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
                         cellX = getX(size, a, getRowSize(size, a) - 1) + (this.offsets[k][0] + 1) * cellWidth;
@@ -798,15 +757,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
                         connectors.push(connector);
 
-                        if (k == 0) {
-                            connector.next = offsetsDict['SE'];
-                            this.edgeConnectors[`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`] = connector;
-                        }
-                        // Connectors from north west hexagon.
-                        if (k == offsetsDict['NW']) {
-                            connector.next = offsetsDict['NW'];
-                            this.edgeConnectors[`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`] = connector;
-                        }
+                        this._addEdgeConnector(`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`, connector);
+                        this._addEdgeConnector(`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`, connector);
                     }
                 }
             }

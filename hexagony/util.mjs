@@ -1,5 +1,22 @@
 import {PointAxial} from './pointaxial.mjs';
 
+export function arraysEqual(a, b) {
+    if (a === null || b === null)
+        return (a === null) === (b === null);
+
+    if (a.length !== b.length) {
+        return false;
+    }
+
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function countBytes(code) {
     return new TextEncoder().encode(code).length;
 }

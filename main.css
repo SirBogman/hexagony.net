@@ -11,21 +11,12 @@
     --output-background: hsl(0, 0%, 83%)
 }
 
-/* Things that affect animation duration. */
-@keyframes connector_flash {
-    to {stroke: cyan; stroke-width: 5;}
-}
-
-.connector_flash {
-    animation: connector_flash 0.425s ease-out 0s 2 alternate;
-}
-
 .cell {
     fill: white;
     stroke: var(--hexagon-stroke);
     stroke-width: 0.5;
     stroke-miterlimit: 10;
-    transition-duration: 0.25s;
+    transition-duration: 0.5s;
     transition-timing-function: ease-out;
 }
 
@@ -33,8 +24,6 @@
     transition-duration: 0.85s;
     transition-timing-function: ease-in-out;
 }
-
-/* Other things */
 
 .pre {
     white-space: pre;
@@ -200,23 +189,23 @@ $executed_lightness_increment: ($executed_max_lightness - $executed_min_lightnes
 */
 
 .cell_executed5 {
-    fill: hsl(180, 100%, 90%);
+    fill: hsl(180, 100%, 93%);
 }
 
 .cell_executed4 {
-    fill: hsl(180, 100%, 85%);
+    fill: hsl(180, 100%, 91%);
 }
 
 .cell_executed3 {
-    fill: hsl(180, 100%, 80%);
+    fill: hsl(180, 100%, 89%);
 }
 
 .cell_executed2 {
-    fill: hsl(180, 100%, 75%);
+    fill: hsl(180, 100%, 87%);
 }
 
 .cell_executed1 {
-    fill: hsl(180, 100%, 70%);
+    fill: hsl(180, 100%, 85%);
 }
 
 .cell_active {
@@ -259,6 +248,21 @@ $executed_lightness_increment: ($executed_max_lightness - $executed_min_lightnes
     stroke: none;
     font-size: 20px;
     /* font-weight: bold; */
+}
+
+@keyframes connector_flash {
+    to {
+        stroke-width: 6;
+    }
+}
+
+.connector_flash {
+    animation: connector_flash 0.5s ease-out 0s 2 alternate;
+}
+
+.connector_neutral_flash {
+    stroke: var(--orange);
+    animation: connector_flash 0.5s ease-out 0s 2 alternate;
 }
 
 .memory_cell {

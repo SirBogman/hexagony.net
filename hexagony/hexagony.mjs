@@ -181,9 +181,9 @@ export class Hexagony {
         this.output += string;
     }
 
-    followEdge(edgeType=0) {
+    followEdge(edgeType = 0, isBranch = false) {
         if (this.edgeEventHandler) {
-            this.edgeEventHandler(`${this.coords},${this.dir},${edgeType}`);
+            this.edgeEventHandler(`${this.coords},${this.dir},${edgeType}`, isBranch);
         }
     }
 
@@ -225,7 +225,7 @@ export class Hexagony {
             // If two values are out of range, we navigated into a corner.
             // We teleport to a location that depends on the current memory value.
             const isPositive = this.memory.getValue() > 0;
-            this.followEdge(isPositive ? '+' : '-');
+            this.followEdge(isPositive ? '+' : '-', true);
 
             if (!xBigger && !isPositive || !yBigger && isPositive)
                 this.ips[this.activeIp] = new PointAxial(coords.q + coords.r, -coords.r);

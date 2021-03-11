@@ -6,11 +6,9 @@ import { setClass, setEnabledClass } from './view/viewutil.mjs';
 
 import { LZString } from './lz-string.min.js';
 
-const RECENTER_ANIMATION_DURATION = 1000;
-
 // import { panzoom } from 'panzoom';
 
-const puzzleParent = document.querySelector('#puzzle_parent');
+//const puzzleParent = document.querySelector('#puzzle_parent');
 const appGrid = document.querySelector('#app_grid');
 const playContent = document.querySelectorAll('.play_content')
 const editContent = document.querySelectorAll('.edit_content')
@@ -59,7 +57,6 @@ const edgeTransitionAnimationButton = document.querySelector('#edge_transition_a
 let gridView;
 let hexagony;
 let initFinished = false;
-let isEdgeTransition;
 let memoryPanZoom;
 let userData;
 
@@ -129,6 +126,7 @@ function updateInputModeButtons() {
 
 function onSpeedSliderChanged() {
     userData.delay = Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2);
+    gridView.delay = userData.delay;
     saveData();
 }
 
@@ -210,6 +208,7 @@ function loadData() {
     }
 
     userData.delay = userData.delay ?? 250;
+    gridView.delay = userData.delay;
     userData.breakpoints = userData.breakpoints ?? [];
 
     if (userData.edgeTransitionMode !== undefined) {
@@ -302,16 +301,15 @@ function getInput() {
     return input;
 }
 
-function edgeEventHandler(edgeName) {
-    if (gridView.edgeTransitionAnimationMode && edgeName in gridView.edgeConnectors) {
-        isEdgeTransition = true;
-        const connector = gridView.edgeConnectors[edgeName];
-        connector.classList.add('connector_flash');
-        gridView.activeHexagon = connector.next;
-        const x = gridView.offsets[gridView.activeHexagon][0] * gridView.globalOffsetX;
-        const y = gridView.offsets[gridView.activeHexagon][1] * gridView.globalOffsetY;
-        puzzleParent.style.transform = `matrix(1,0,0,1,${-x - gridView.fullWidth/4},${-y - gridView.fullHeight/4})`;
-        puzzleParent.style['transition-property'] = 'transform';
+function edgeEventHandler(edgeName, isBranch) {
+    if (gridView.edgeTransitionMode) {
+        const connectors = gridView.edgeConnectors[edgeName];
+        if (connectors) {
+            connectors.forEach(x => {
+                x.classList.add(isBranch ? 'connector_flash' : 'connector_neutral_flash');
+                x.style.animationDuration = `${userData.delay}ms`
+            });
+        }
     }
 }
 
@@ -324,7 +322,6 @@ function stepHelper(play = false) {
         hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
     }
 
-    isEdgeTransition = false;
     let breakpoint = false;
 
     hexagony.step();
@@ -345,11 +342,10 @@ function stepHelper(play = false) {
     updateIPStateText();
 
     if (play && isRunning() && !isTerminated()) {
-        const delay = isEdgeTransition ? RECENTER_ANIMATION_DURATION : userData.delay;
         gridView.timeoutID = window.setTimeout(() => {
             gridView.timeoutID = null;
             onStart();
-        }, delay);
+        }, userData.delay);
     }
 
     updateButtons();
@@ -451,8 +447,6 @@ function onPause() {
 function onStop() {
     hexagony = null;
     gridView.clearCellExecutionColors();
-    gridView.resetPuzzleParent();
-    gridView.activeHexagon = 0;
     updateButtons();
     onPause();
 }
@@ -554,16 +548,6 @@ function init() {
 
     updateButtons();
     updateViewButtons();
-
-    puzzleParent.addEventListener('transitionend', (e) => {
-        if (e.target == puzzleParent && isRunning()) {
-            // Recenter the hexagons after animating their transition.
-            // This allows the grid in edge transition animatino mode to appear inifinite.
-            gridView.resetPuzzleParent();
-            gridView.activeHexagon = 0;
-            gridView.updateActiveCell(false);
-        }
-    });
 
     // panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
     memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
