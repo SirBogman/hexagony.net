@@ -585,7 +585,6 @@ export class GridView {
             }
         }
 
-        const outlineTemplate = svg.querySelector('defs [class~=outline]');
         const connectorTemplate = svg.querySelector('defs [class~=neutral_connector]');
         const positiveConnector = svg.querySelector('defs [class~=positive_connector]');
         const negativeConnector = svg.querySelector('defs [class~=negative_connector]');
@@ -651,7 +650,8 @@ export class GridView {
             {
                 const cellX = getX(size, 0, 0) + this.offsets[k][0] * cellWidth;
                 const cellY = getY(size, 0, 0) + this.offsets[k][1] * cellOffsetY;
-                const outline = outlineTemplate.cloneNode();
+                const outline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                outline.classList.add('outline');
                 outline.setAttribute('d', outlinePath);
                 outline.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
                 outlines.push(outline);
