@@ -28,20 +28,3 @@ dt {
 dd {
     margin: 1rem;
 }
-
-.svg_icon_about {
-    height: 2.75rem;
-    width: 2.75rem;
-    background: var(--color);
-    display: inline-block;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    margin: 1rem 0;
-}
-
-.svg_icon_about > svg {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: var(--background);
-}
