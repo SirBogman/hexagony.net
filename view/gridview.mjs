@@ -33,6 +33,7 @@ export class GridView {
         this.fullWidth = 0;
         this.fullHeight = 0;
         this.sourceCode = '';
+        this.filteredSourceCode = '';
         this.undoStack = [];
         this.redoStack = [];
         this.isUndoRedoInProgress = false;
@@ -120,9 +121,8 @@ export class GridView {
     recreateGrid(executedState, breakpoints) {
         this._createGrid(this.size);
 
-        const filteredCode = removeWhitespaceAndDebug(this.sourceCode);
         for (let k = 0; k < this.cellPaths.length; k++) {
-            this.updateHexagonWithCode(k, filteredCode);
+            this.updateHexagonWithCode(k, this.filteredSourceCode);
         }
 
         if (this.activeCell) {
@@ -163,6 +163,7 @@ export class GridView {
     }
 
     _updateCode(code, isProgrammatic=false) {
+        this.filteredSourceCode = removeWhitespaceAndDebug(code);
         if (this.sourceCode != code) {
             this.sourceCode = code;
             this.updateCodeCallback(code, isProgrammatic);
@@ -302,7 +303,7 @@ export class GridView {
         let code = '';
         let oldValue = '.';
     
-        const iterator = removeWhitespaceAndDebug(this.sourceCode)[Symbol.iterator]();
+        const iterator = this.filteredSourceCode[Symbol.iterator]();
         for (let i = 0; i < this.rowCount; i++) {
             for (let j = 0; j < getRowSize(this.size, i); j++) {
                 let current = iterator.next().value;
@@ -465,7 +466,7 @@ export class GridView {
             if (this.activeEditingCell == selector) {
                 this.activeEditingCell = null;
             }
-            this.updateHexagonWithCode(k, this.sourceCode);
+            this.updateHexagonWithCode(k, this.filteredSourceCode);
         });
     }
 
