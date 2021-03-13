@@ -10,7 +10,8 @@
     "eslint": "^7.20.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "npx http-server source -p 8082"
   },
   "author": "Brian Collins",
   "license": "MIT"
