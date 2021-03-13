@@ -71,7 +71,7 @@ body {
 
 #puzzle_container {
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 #memory_container {
