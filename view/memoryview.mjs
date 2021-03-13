@@ -67,8 +67,13 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
                 const value = hexagony.memory.getValueAt(mp, dir);
                 let string = value.toString();
 
-                if (value >= 0x20 && value <= 0xff && value != 0x7f) {
-                    string += ` ‘${String.fromCharCode(Number(value % 256n))}’`;
+                const charCode = Number(value % 256n);
+
+                if (charCode >= 0x20 && charCode <= 0xff && charCode != 0x7f) {
+                    string += ` '${String.fromCharCode(charCode)}'`;
+                }
+                else if (charCode == 10) {
+                    string += " '\\n'";
                 }
 
                 const text = textTemplate.cloneNode(true);
