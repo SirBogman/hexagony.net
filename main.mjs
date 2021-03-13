@@ -146,7 +146,7 @@ function updateButtons() {
     editButtons.forEach(x => x.disabled = running);
     editPseudoButtons.forEach(x => setEnabledClass(x, !running));
 
-    setEnabledClass(deleteBreakpointsButton, userData.breakpoints);
+    setEnabledClass(deleteBreakpointsButton, userData.breakpoints.length);
     setEnabledClass(undoButton, gridView.canUndo(running));
     setEnabledClass(redoButton, gridView.canRedo(running));
 
