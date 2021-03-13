@@ -225,7 +225,7 @@ function loadData() {
     userData.delay = userData.delay ?? 250;
     gridView.delay = userData.delay;
     userData.breakpoints = userData.breakpoints ?? [];
-    gridView.edgeTransitionMode = userData.edgeTransitionMode ?? false;
+    gridView.edgeTransitionMode = userData.edgeTransitionMode ?? true;
 
     updateInputModeButtons();
     updateInputTextArea();
