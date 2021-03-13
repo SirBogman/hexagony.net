@@ -89,7 +89,12 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
                 pointer.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
                 parent.appendChild(pointer);
                 // TODO: only autoscroll when pointer gets near edges.
-                memoryPanZoom.moveTo(0.5 * containerWidth - centerX, 0.5 * containerHeight - centerY);
+                if (memoryPanZoom) {
+                    memoryPanZoom.moveTo(0.5 * containerWidth - centerX, 0.5 * containerHeight - centerY);
+                }
+                else {
+                    svg.setAttribute('transform', `translate(${0.5 * containerWidth - centerX},${0.5 * containerHeight - centerY})`);
+                }
             }
         }
     }
