@@ -265,6 +265,7 @@ function loadDataFromURL() {
         // Indicate that the generated URL is up to date.
         generateLinkButton.disabled = true;
         onStop();
+        saveData();
     }
 }
 
