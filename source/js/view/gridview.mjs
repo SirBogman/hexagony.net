@@ -536,6 +536,8 @@ export class GridView {
 
         this.offsets = [ [0,0] ];
 
+        const topConnectors = largeGridOneRowOffset - 2 * largeGridTwoRowOffset;
+
         // Create extra hexagons to make it look infinite.
         if (this.edgeTransitionMode) {
             for (let i = -2; i < 2; i++) {
@@ -577,7 +579,7 @@ export class GridView {
             outlineHelper(0, -radius, -cellOffsetX, -radius / 2, size) +
             outlineHelper(cellOffsetX, -radius/2, 0, -radius, size);
 
-        let hexagonParents = [];
+        const hexagonParents = [];
         for (let k = 0; k < this.offsets.length; k++) {
             const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             if (k != 0) {
@@ -645,105 +647,109 @@ export class GridView {
                     let connector, cellX, cellY, scaleX, scaleY;
 
                     // Top edge.
-                    // When in edge transition animation mode, try to make it look infinite.
-                    // Otherwise, only show edges that are connected to another hexagon.
-                    connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, 0, i) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
-                    scaleX = radius / 20;
-                    scaleY = -radius / 20;
-                    if (i == 0) {
-                        // Move the symbol to the opposite end of the connector.
-                        cellX -= cellOffsetX;
-                        cellY -= cellOffsetY;
-                        scaleX *= -1;
-                        scaleY *= -1;
+                    if (this.offsets[k][1] > topConnectors) {
+                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, 0, i) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                        scaleX = radius / 20;
+                        scaleY = -radius / 20;
+                        if (i == 0) {
+                            // Move the symbol to the opposite end of the connector.
+                            cellX -= cellOffsetX;
+                            cellY -= cellOffsetY;
+                            scaleX *= -1;
+                            scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
+                        (isSpecial ? positiveConnectors : connectors).push(connector);
+
+                        this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector);
+                        this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector);
+
+                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, 0, i) + (this.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
+                        scaleX = scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX -= cellOffsetX;
+                            cellY += cellOffsetY;
+                            scaleX = scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
+                        connectors.push(connector);
+
+                        this._addEdgeConnector(`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`, connector);
+                        this._addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector);
                     }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
-                    (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                    this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector);
-                    this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector);
+                    if (this.offsets[k][0] < largeGridTwoColumnOffset && this.offsets[k][1] >= topConnectors) {
+                        // North east edge
+                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, i, getRowSize(size, i) - 1) + this.offsets[k][0] * cellWidth + cellOffsetX;
+                        cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY;
+                        scaleX = radius / 20;
+                        scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX += cellOffsetX;
+                            cellY -= cellOffsetY;
+                            scaleX *= -1;
+                            scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
+                        (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                    connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, 0, i) + (this.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
-                    scaleX = scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX -= cellOffsetX;
-                        cellY += cellOffsetY;
-                        scaleX = scaleY *= -1;
+                        this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector);
+                        this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector);
+
+                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, i, getRowSize(size, i) - 1) + (this.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                        scaleX = scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX -= cellWidth;
+                            scaleX = scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                        connectors.push(connector);
+
+                        this._addEdgeConnector(`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`, connector);
+                        this._addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector);
                     }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
-                    connectors.push(connector);
 
-                    this._addEdgeConnector(`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`, connector);
-                    this._addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector);
+                    if (this.offsets[k][0] < largeGridTwoColumnOffset && this.offsets[k][1] <= -topConnectors) {
+                        // South east edge
+                        const a = i + size - 1;
+                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, a, getRowSize(size, a) - 1) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, a, getRowSize(size, a) - 1) + this.offsets[k][1] * cellOffsetY + 0.75 * radius;
+                        scaleX = radius / 20;
+                        scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX += cellWidth;
+                            scaleX *= -1;
+                            scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                        (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                    // North east edge
-                    connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, i, getRowSize(size, i) - 1) + this.offsets[k][0] * cellWidth + cellOffsetX;
-                    cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY;
-                    scaleX = radius / 20;
-                    scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX += cellOffsetX;
-                        cellY -= cellOffsetY;
-                        scaleX *= -1;
-                        scaleY *= -1;
+                        this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector);
+                        this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector);
+
+                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        cellX = getX(size, a, getRowSize(size, a) - 1) + (this.offsets[k][0] + 1) * cellWidth;
+                        cellY = getY(size, a, getRowSize(size, a) - 1) + (this.offsets[k][1] + 1) * cellOffsetY;
+                        scaleX = scaleY = -radius / 20;
+                        if (i == 0) {
+                            cellX -= cellOffsetX;
+                            cellY -= cellOffsetY;
+                            scaleX = scaleY *= -1;
+                        }
+                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
+                        connectors.push(connector);
+
+                        this._addEdgeConnector(`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`, connector);
+                        this._addEdgeConnector(`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`, connector);
                     }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
-                    (isSpecial ? positiveConnectors : connectors).push(connector);
-
-                    this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector);
-                    this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector);
-
-                    connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, i, getRowSize(size, i) - 1) + (this.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
-                    scaleX = scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX -= cellWidth;
-                        scaleX = scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
-                    connectors.push(connector);
-
-                    this._addEdgeConnector(`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`, connector);
-                    this._addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector);
-
-                    // South east edge
-                    const a = i + size - 1;
-                    connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, a, getRowSize(size, a) - 1) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                    cellY = getY(size, a, getRowSize(size, a) - 1) + this.offsets[k][1] * cellOffsetY + 0.75 * radius;
-                    scaleX = radius / 20;
-                    scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX += cellWidth;
-                        scaleX *= -1;
-                        scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
-                    (isSpecial ? positiveConnectors : connectors).push(connector);
-
-                    this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector);
-                    this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector);
-
-                    connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
-                    cellX = getX(size, a, getRowSize(size, a) - 1) + (this.offsets[k][0] + 1) * cellWidth;
-                    cellY = getY(size, a, getRowSize(size, a) - 1) + (this.offsets[k][1] + 1) * cellOffsetY;
-                    scaleX = scaleY = -radius / 20;
-                    if (i == 0) {
-                        cellX -= cellOffsetX;
-                        cellY -= cellOffsetY;
-                        scaleX = scaleY *= -1;
-                    }
-                    connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
-                    connectors.push(connector);
-
-                    this._addEdgeConnector(`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`, connector);
-                    this._addEdgeConnector(`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`, connector);
                 }
             }
         }
