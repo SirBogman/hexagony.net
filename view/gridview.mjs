@@ -1,7 +1,7 @@
 import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { emptyElement } from "./viewutil.mjs";
 
-const EXECUTED_COLOR_COUNT = 5;
+const EXECUTED_COLOR_COUNT = 10;
 const CELL_EXECUTED = 'cell_executed';
 const CELL_ACTIVE = 'cell_active';
 const CELL_TERMINATED = 'cell_terminated';
