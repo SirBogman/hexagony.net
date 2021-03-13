@@ -11,6 +11,11 @@
     --output-background: hsl(0, 0%, 83%)
 }
 
+body {
+    background: var(--background);
+    font: 16px emoji,system-ui,-apple-system,sans-serif;
+}
+
 .cell {
     fill: white;
     stroke: var(--hexagon-stroke);
@@ -115,12 +120,6 @@
     position: absolute;
     left:0px;
     top:0px;
-}
-
-body {
-    background: #fff;
-    font: 16px emoji,system-ui,-apple-system,sans-serif;
-    /* font-family: Helvetica; */
 }
 
 #app_grid {
