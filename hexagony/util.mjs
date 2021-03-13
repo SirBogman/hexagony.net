@@ -32,7 +32,7 @@ export function countCodepoints(code) {
 
 export function countOperators(code) {
     let count = 0;
-    for (const char of code) {
+    for (const char of removeWhitespaceAndDebug(code)) {
         if (char != '.') {
             count++;
         }

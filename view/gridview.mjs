@@ -1,7 +1,10 @@
-import { arraysEqual, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
+import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { emptyElement } from "./viewutil.mjs";
 
 const EXECUTED_COLOR_COUNT = 5;
+const CELL_EXECUTED = 'cell_executed';
+const CELL_ACTIVE = 'cell_active';
+const CELL_TERMINATED = 'cell_terminated';
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
@@ -23,10 +26,7 @@ export class GridView {
         this.delay = 0;
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
-        this.activeI = 0;
-        this.activeJ = 0;
-        this.activeCell = null;
-        this.oldActiveCells = [];
+        this.executionHistory = [];
         this.size = -1;
         this.rowCount = -1;
         this.timeoutID = null;
@@ -84,6 +84,12 @@ export class GridView {
         }
     }
 
+    setBreakpoints(breakpoints) {
+        for (const [i, j] of breakpoints) {
+            this.setBreakpointState(i, j, true);
+        }
+    }
+
     setBreakpointState(i, j, state) {
         for (let k = 0; k < this.cellPaths.length; k++) {
             if (i >= this.cellPaths[k].length || j >= this.cellPaths[k][i].length) {
@@ -118,31 +124,25 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(executedState, breakpoints) {
+    recreateGrid() {
         this._createGrid(this.size);
 
         for (let k = 0; k < this.cellPaths.length; k++) {
             this.updateHexagonWithCode(k, this.filteredSourceCode);
         }
 
-        if (this.activeCell) {
-            this._addCellClass(this.activeCell, 'cell_active');
-        }
+        this._updateExecutionHistoryColors();
+    }
 
-        this._updateOldActiveCellColors();
-
-        if (executedState) {
-            for (let i = 0; i < executedState.length; i++) {
-                for (let j = 0; j < executedState[i].length; j++) {
-                    if (executedState[i][j]) {
-                        this._addCellClass([i, j], 'cell_executed');
+    setExecutedState(executedState) {
+        for (let i = 0; i < executedState.length; i++) {
+            for (let j = 0; j < executedState[i].length; j++) {
+                if (executedState[i][j] && !this.cellPaths[0][i][j].classList.contains(CELL_EXECUTED)) {
+                    for (let k = 0; k < this.cellPaths.length; k++) {
+                        this.cellPaths[k][i][j].classList.add(CELL_EXECUTED);
                     }
                 }
             }
-        }
-
-        for (const [i, j] of breakpoints) {
-            this.setBreakpointState(i, j, true);
         }
     }
 
@@ -229,49 +229,38 @@ export class GridView {
     }
 
     clearCellExecutionColors() {
-        if (this.activeCell != null) {
-            this._removeCellClass(this.activeCell, 'cell_active');
-            this._removeCellClass(this.activeCell, 'cell_terminated');
-            this.activeCell = null;
+        this._removeExecutionHistoryColors();
+        this.executionHistory = [];
+        this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => z.classList.remove(CELL_EXECUTED))));
+    }
+
+    _removeExecutionHistoryColors() {
+        this.executionHistory.forEach((indices, i) =>
+            this._removeCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE));
+
+        if (this.executionHistory[0]) {
+            this._removeCellClass(this.executionHistory[0], CELL_TERMINATED);
         }
-
-        this._removeOldActiveCellColors();
-        this.oldActiveCells = [];
-        this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => z.classList.remove('cell_executed'))));
     }
 
-    _removeOldActiveCellColors() {
-        this.oldActiveCells.forEach((indices, i) => this._removeCellClass(indices, `cell_executed${i + 1}`));
+    _updateExecutionHistoryColors() {
+        this.executionHistory.forEach((indices, i) =>
+            this._addCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE));
+
+        if (this.executionHistory[0]) {
+            this._addCellClass(this.executionHistory[0], CELL_EXECUTED);
+        }
     }
 
-    _updateOldActiveCellColors() {
-        this.oldActiveCells.forEach((indices, i) => this._addCellClass(indices, `cell_executed${i + 1}`));
-    }
-
-    updateActiveCell(transition, isTerminated = false) {
-        const activeCell = [this.activeI, this.activeJ];
-
+    updateActiveCell(isTerminated, executionHistory) {
         if (isTerminated) {
-            this._addCellClass(activeCell, 'cell_terminated');
+            this._addCellClass(executionHistory[0], CELL_TERMINATED);
         }
 
-        if (!arraysEqual(this.activeCell, activeCell)) {
-            this._removeOldActiveCellColors();
-
-            if (this.oldActiveCells.length == EXECUTED_COLOR_COUNT) {
-                this.oldActiveCells.pop();
-            }
-
-            if (this.activeCell != null) {
-                this._removeCellClass(this.activeCell, 'cell_active');
-                this.oldActiveCells = [this.activeCell, ...this.oldActiveCells];
-            }
-
-            this._updateOldActiveCellColors();
-            this._addCellClass(activeCell, 'cell_active');
-            this._addCellClass(activeCell, 'cell_executed');
-            this.activeCell = activeCell;
-        }
+        this._removeExecutionHistoryColors();
+        // Add one for the active cell.
+        this.executionHistory = executionHistory.slice(0, EXECUTED_COLOR_COUNT + 1);
+        this._updateExecutionHistoryColors();
     }
 
     updateHexagonWithCode(index, code) {

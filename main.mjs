@@ -6,6 +6,9 @@ import { setClass, setEnabledClass } from './view/viewutil.mjs';
 
 import { LZString } from './lz-string.min.js';
 
+const MAX_SPEED_ITERATIONS = 10000;
+const EXECUTION_HISTORY_COUNT = 20;
+
 // import { panzoom } from 'panzoom';
 
 //const puzzleParent = document.querySelector('#puzzle_parent');
@@ -55,6 +58,8 @@ const edgeTransitionButton = document.querySelector('#edge_transition');
 
 let gridView;
 let hexagony;
+let executionHistory = [];
+let totalTime;
 let initFinished = false;
 let memoryPanZoom;
 let userData;
@@ -73,9 +78,7 @@ function updateCode(code, isProgrammatic=false) {
     });
     updateBreakpointCountText();
 
-    for (const [i, j] of getBreakpoints()) {
-        gridView.setBreakpointState(i, j, true);
-    }
+    gridView.setBreakpoints(getBreakpoints());
 
     sourceCodeInput.value = code;
     if (!isProgrammatic && initFinished) {
@@ -313,25 +316,54 @@ function stepHelper(play = false) {
 
     if (hexagony == null) {
         hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
+        executionHistory = [];
+        totalTime = 0;
     }
 
     let breakpoint = false;
 
-    hexagony.step();
-    [gridView.activeI, gridView.activeJ] = hexagony.grid.axialToIndex(hexagony.coords);
-    gridView.updateActiveCell(true, isTerminated());
-
-    if (breakpointExistsAt(gridView.activeI, gridView.activeJ)) {
-        breakpoint = true;
-        play = false;
+    let maximumSteps = 1;
+    if (play && userData.delay === 0) {
+        // Move one extra step, if execution hasn't started yet.
+        maximumSteps = MAX_SPEED_ITERATIONS + !hexagony.ticks;
     }
+
+    let stepCount = 0;
+
+    const p1 = performance.now();
+
+    while (stepCount < maximumSteps && !breakpoint && !isTerminated()) {
+        stepCount++;
+        hexagony.step();
+        const [i, j] = hexagony.grid.axialToIndex(hexagony.coords);
+
+        // The active coordinates don't change when the program terminates.
+        if (!isTerminated()) {
+            executionHistory = [[i, j], ...executionHistory.slice(0, EXECUTION_HISTORY_COUNT)];
+        }
+
+        if (breakpointExistsAt(i, j)) {
+            breakpoint = true;
+            play = false;
+        }
+    }
+
+    const p2 = performance.now();
+    totalTime += p2 - p1;
+    //console.log(`execution took ${p2 - p1}`);
+
+    if (stepCount > 1) {
+        gridView.setExecutedState(hexagony.getExecutedGrid());
+    }
+
+    gridView.updateActiveCell(isTerminated(), executionHistory);
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
 
-    executedCountText.textContent = `Instructions Executed: ${hexagony.ticks}`;
+    executedCountText.textContent = `Instructions Executed: ${hexagony.ticks.toLocaleString('en')} ${totalTime.toLocaleString('en')}`;
     terminationReasonText.textContent =
-        hexagony.getTerminationReason() ?? breakpoint ? 'Stopped at breakpoint' : null;
+        hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
     updateIPStateText();
 
     if (play && isRunning() && !isTerminated()) {
@@ -439,6 +471,7 @@ function onPause() {
 
 function onStop() {
     hexagony = null;
+    executionHistory = [];
     gridView.clearCellExecutionColors();
     updateButtons();
     onPause();
@@ -521,7 +554,11 @@ function init() {
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
-        gridView.recreateGrid(hexagony != null ? hexagony.getExecutedGrid() : null, getBreakpoints());
+        gridView.recreateGrid();
+        if (hexagony != null) {
+            gridView.setExecutedState(hexagony.getExecutedGrid());
+        }
+        gridView.setBreakpoints(getBreakpoints());
         updateViewButtons();
         saveViewState();
     });
