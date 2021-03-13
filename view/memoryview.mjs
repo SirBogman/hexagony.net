@@ -8,8 +8,8 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
     const lineTemplate = svg.querySelector('defs [class~=memory_cell]');
     const mpTemplate = svg.querySelector('defs [class~=memory_pointer]');
     const textTemplate = svg.querySelector('defs [class~=memory_text]');
-    const parent = svg.querySelector('#cell_container');
-    emptyElement(parent);
+    const cellContainer = svg.querySelector('#cell_container');
+    const parent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
     const containerStyle = getComputedStyle(document.querySelector('#memory_container'));
     const containerWidth = parseFloat(containerStyle.width);
@@ -93,4 +93,7 @@ export function updateMemorySVG(hexagony, memoryPanZoom) {
             }
         }
     }
+
+    emptyElement(cellContainer);
+    cellContainer.appendChild(parent);
 }
