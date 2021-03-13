@@ -1,19 +1,16 @@
 Before publish:
     Webpack?
 
-    Play mode:
-        Implement infinite speed mode. Pause animations in this case.
-
     Memory:
         Autoscroll only when it gets near the edge.
+
+    Memory graph is drifting as it resizes.
 
     Zooming in/out on the memory grid breaks its ability to center itself.
 
     media query for small screen layout:
         split toolbar play controls into new row.
         arrange all panels in a column.
-
-    edge transition mode by default
 
     There's a point when the output window grows by one line at a time until the scrolling appears.
     this resizes the code area.

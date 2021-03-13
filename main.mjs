@@ -205,16 +205,13 @@ function loadData() {
     }
 
     if (!userData || !userData.code) {
-        userData = { code: '.'.repeat(getCodeLength(2) + 1) };
+        userData = { code: layoutSource("H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;") };
     }
 
     userData.delay = userData.delay ?? 250;
     gridView.delay = userData.delay;
     userData.breakpoints = userData.breakpoints ?? [];
-
-    if (userData.edgeTransitionMode !== undefined) {
-        gridView.edgeTransitionMode = userData.edgeTransitionMode;
-    }
+    gridView.edgeTransitionMode = userData.edgeTransitionMode ?? false;
 
     updateInputModeButtons();
     updateInputTextArea();
