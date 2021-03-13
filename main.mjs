@@ -25,6 +25,7 @@ const operatorCountText = document.querySelector('#operator_count');
 
 const smallerButton = document.querySelector('#smaller');
 const resetButton = document.querySelector('#reset');
+const deleteBreakpointsButton = document.querySelector('#delete_breakpoints');
 const biggerButton = document.querySelector('#bigger');
 const undoButton = document.querySelector('#undo');
 const redoButton = document.querySelector('#redo');
@@ -145,6 +146,7 @@ function updateButtons() {
     editButtons.forEach(x => x.disabled = running);
     editPseudoButtons.forEach(x => setEnabledClass(x, !running));
 
+    setEnabledClass(deleteBreakpointsButton, userData.breakpoints);
     setEnabledClass(undoButton, gridView.canUndo(running));
     setEnabledClass(redoButton, gridView.canRedo(running));
 
@@ -180,6 +182,17 @@ function* getBreakpoints() {
     }
 }
 
+function clearBreakpoints() {
+    for (const [i, j] of getBreakpoints()) {
+        gridView.setBreakpointState(i, j, false);
+    }
+
+    userData.breakpoints = [];
+    saveData();
+    updateBreakpointCountText();
+    updateButtons();
+}
+
 function toggleBreakpointCallback(i, j) {
     const id = `${i},${j}`;
     const index = userData.breakpoints.indexOf(id);
@@ -193,6 +206,7 @@ function toggleBreakpointCallback(i, j) {
     }
     saveData();
     updateBreakpointCountText();
+    updateButtons();
 }
 
 // This should only be called once when initially loading.
@@ -535,6 +549,7 @@ function init() {
     smallerButton.addEventListener('click', () => { if (!isRunning()) onShrink();});
     undoButton.addEventListener('click', () => { if (gridView.canUndo(isRunning())) gridView.undo(); });
     redoButton.addEventListener('click', () => { if (gridView.canRedo(isRunning())) gridView.redo(); });
+    deleteBreakpointsButton.addEventListener('click', clearBreakpoints);
 
     startButton.addEventListener('click', onStart);
     stepButton.addEventListener('click', onStep);
