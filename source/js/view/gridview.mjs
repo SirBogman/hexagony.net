@@ -370,28 +370,35 @@ export class GridView {
         if (event.key == 'ArrowLeft' || event.key == 'Tab' && event.shiftKey) {
             if (j > 0) {
                 dj = -1;
-            } else if (i > 0) {
+            }
+            else if (i > 0) {
                 this.navigateTo(i - 1, this.cellPaths[0][i - 1].length - 1, k);
                 event.preventDefault();
                 return;
-            } else {
+            }
+            else {
                 event.preventDefault();
                 return;
             }
-        } else if (event.key == 'ArrowRight' || event.key == 'Tab' && !event.shiftKey) {
+        }
+        else if (event.key == 'ArrowRight' || event.key == 'Tab' && !event.shiftKey) {
             if (j < this.cellPaths[0][i].length - 1) {
                 dj = 1;
-            } else if (i < this.cellPaths[0].length - 1) {
+            }
+            else if (i < this.cellPaths[0].length - 1) {
                 this.navigateTo(i + 1, 0, k);
                 event.preventDefault();
                 return;
-            } else {
+            }
+            else {
                 event.preventDefault();
                 return;
             }
-        } else if (event.key == 'ArrowUp') {
+        }
+        else if (event.key == 'ArrowUp') {
             di = -1;
-        } else if (event.key == 'ArrowDown') {
+        }
+        else if (event.key == 'ArrowDown') {
             di = 1;
         }
         if (di != 0 || dj != 0) {
@@ -404,7 +411,8 @@ export class GridView {
                     if (i < this.size - 1 && di > 0) {
                         dj++;
                     }
-                } else {
+                }
+                else {
                     if (i >= this.size && di < 0) {
                         dj++;
                     }

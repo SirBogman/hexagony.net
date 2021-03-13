@@ -417,7 +417,8 @@ function resizeCode(size) {
 
             newCode += '.'.repeat(getRowSize(size, i) - getRowSize(oldSize, i));
         }
-    } else {
+    }
+    else {
         const iterator = oldCode[Symbol.iterator]();
         for (let i = 0; i < getRowCount(size); i++) {
             for (let j = 0; j < getRowSize(size, i); j++) {
