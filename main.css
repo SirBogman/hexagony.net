@@ -349,10 +349,6 @@ $executed_lightness_increment: ($executed_max_lightness - $executed_min_lightnes
     grid-area: hotkeys;
 }
 
-#grid_container>* {
-    min-height: 100px;
-}
-
 .hidden_section {
     display: none;
 }
