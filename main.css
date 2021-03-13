@@ -150,6 +150,32 @@ body {
         "hotkeys info";
 }
 
+@media (max-width: 640px) {
+    #app_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .edit_grid {
+        grid-template-areas:
+            "code"
+            "input"
+            "info"
+            "import"
+            "hotkeys";
+    }
+    
+    .play_grid {
+        grid-template-areas:
+            "code"
+            "output"
+            "memory"
+            "state"
+            "input"
+            "info"
+            "hotkeys";
+    }
+}
+
 #app_grid > div {
     overflow: hidden;
     background: var(--panel-background);

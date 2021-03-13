@@ -8,10 +8,6 @@ Before publish:
 
     Zooming in/out on the memory grid breaks its ability to center itself.
 
-    media query for small screen layout:
-        split toolbar play controls into new row.
-        arrange all panels in a column.
-
     There's a point when the output window grows by one line at a time until the scrolling appears.
     this resizes the code area.
 
