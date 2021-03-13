@@ -164,9 +164,13 @@ body {
     stroke-miterlimit: 10;
 }
 
+.outline_secondary {
+    stroke-width: 0.75;
+}
+
 .cell_breakpoint {
     fill: none;
-    stroke: darkred;
+    stroke: var(--red);
     stroke-width: 1.5;
     stroke-miterlimit: 10;
 }

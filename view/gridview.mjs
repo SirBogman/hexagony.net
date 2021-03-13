@@ -628,6 +628,9 @@ export class GridView {
                 const cellY = getY(size, 0, 0) + this.offsets[k][1] * cellOffsetY;
                 const outline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 outline.classList.add('outline');
+                if (k && this.edgeTransitionMode) {
+                    outline.classList.add('outline_secondary');
+                }
                 outline.setAttribute('d', outlinePath);
                 outline.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
                 outlines.push(outline);
