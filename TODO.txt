@@ -11,6 +11,8 @@ Before publish:
     There's a point when the output window grows by one line at a time until the scrolling appears.
     this resizes the code area.
 
+    Don't show edge connectors to nowhere.
+
 Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.
