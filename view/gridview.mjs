@@ -520,7 +520,8 @@ export class GridView {
         svg.setAttribute('width', this.fullWidth);
         svg.setAttribute('height', this.fullHeight);
         const template = svg.querySelector('defs [class~=cell]');
-        const parent = svg.querySelector('#cell_container');
+        const cellContainer = svg.querySelector('#cell_container');
+        const parent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const textParent = document.querySelector('#input_container');
         emptyElement(parent);
         emptyElement(textParent);
@@ -750,5 +751,7 @@ export class GridView {
         connectors.forEach(x => parent.appendChild(x));
         positiveConnectors.forEach(x => parent.appendChild(x));
         outlines.forEach(x => parent.appendChild(x));
+        emptyElement(cellContainer);
+        cellContainer.appendChild(parent);
     }
 }
