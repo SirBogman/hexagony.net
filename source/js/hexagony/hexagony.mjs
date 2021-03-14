@@ -23,7 +23,6 @@ export class Hexagony {
         this.activeIp = 0;
         this.ticks = 0;
         this.output = '';
-        this.nextByte = undefined;
         this.error = null;
         this.generator = this.execute();
     }
@@ -242,34 +241,40 @@ export class Hexagony {
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
-            const byteValue = this.readByte();
+            const byteValue = this.peekByte();
             if (byteValue == '+' || byteValue === undefined) {
+                // Consume this character.
+                this.readByte();
                 break;
             }
             if (byteValue == '-') {
                 positive = false;
+                // Consume this character.
+                this.readByte();
                 break;
             }
             const codePoint = byteValue.codePointAt(0);
             if (codePoint >= 48 && codePoint <= 57) {
-                this.nextByte = byteValue;
                 break;
             }
+
+            // Consume this character.
+            this.readByte();
         }
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
-            const byteValue = this.readByte();
-            if (byteValue == undefined) {
+            const byteValue = this.peekByte();
+            if (byteValue === undefined) {
                 break;
             }
             const codePoint = byteValue.codePointAt(0);
             if (codePoint >= 48 && codePoint <= 57) {
                 value = value * 10n + BigInt(byteValue);
+                // Consume this character.
+                this.readByte();
             }
             else {
-                // Don't consume this character.
-                this.nextByte = byteValue;
                 break;
             }
         }
@@ -277,17 +282,11 @@ export class Hexagony {
         return positive ? value : -value;
     }
 
+    peekByte() {
+        return this.inputPosition < this.input.length ? this.input[this.inputPosition] : undefined;
+    }
+
     readByte() {
-        if (this.nextByte !== undefined) {
-            const result = this.nextByte;
-            this.nextByte = undefined;
-            return result;
-        }
-
-        if (this.inputPosition < this.input.length) {
-            return this.input[this.inputPosition++];
-        }
-
-        return undefined;
+        return this.inputPosition < this.input.length ? this.input[this.inputPosition++] : undefined;
     }
 }
