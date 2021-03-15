@@ -3,13 +3,11 @@ import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonS
 import { GridView } from './view/gridview.mjs';
 import { updateMemorySVG } from './view/memoryview.mjs';
 import { setClass, setEnabledClass } from './view/viewutil.mjs';
-
 import { LZString } from './lz-string.min.js';
+import panzoom from 'panzoom';
 
 const MAX_SPEED_ITERATIONS = 10000;
 const EXECUTION_HISTORY_COUNT = 20;
-
-// import { panzoom } from 'panzoom';
 
 //const puzzleParent = document.querySelector('#puzzle_parent');
 const appGrid = document.querySelector('#app_grid');

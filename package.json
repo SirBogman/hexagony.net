@@ -7,11 +7,20 @@
     "panzoom": "^9.4.1"
   },
   "devDependencies": {
-    "eslint": "^7.20.0"
+    "copy-webpack-plugin": "^8.0.0",
+    "css-loader": "^5.1.2",
+    "eslint": "^7.20.0",
+    "node-sass": "^5.0.0",
+    "sass-loader": "^11.0.1",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.25.1",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "npx http-server source -p 8082"
+    "server": "webpack serve --mode=development --host 0.0.0.0",
+    "build": "webpack --mode=production"
   },
   "author": "Brian Collins",
   "license": "MIT"
