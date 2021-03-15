@@ -39,16 +39,23 @@ export class GridView {
         this.isUndoRedoInProgress = false;
         this.activeEditingCell = null;
         this.edgeTransitionMode = false;
+        this.svgContainer = document.querySelector('#puzzle_container')
+        this.svg = document.querySelector('#puzzle');
+        this.cellContainer = this.svg.querySelector('#cell_container');
+        this.cellTemplate = this.svg.querySelector('defs [class~=cell]');
+        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=cell_executed_arrow]');
+        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cell_executed_arrow]');
+        this.connectorTemplate = this.svg.querySelector('defs [class~=neutral_connector]');
+        this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positive_connector]');
+        this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negative_connector]');
 
-        const svg = document.querySelector('#puzzle');
-
-        svg.addEventListener('animationend', event => {
+        this.svg.addEventListener('animationend', event => {
             event.target.classList.remove('connector_flash');
             event.target.classList.remove('connector_neutral_flash');
 
         });
 
-        svg.addEventListener('click', event => {
+        this.svg.addEventListener('click', event => {
             // Select text when clicking on the background or text of the cell.
             const parent = event.target.parentNode;
             if (parent.classList.contains('cell')) {
@@ -103,18 +110,14 @@ export class GridView {
 
             if (state) {
                 // Append breakpoints so that they appear higher in the Z-order.
-                const svg = document.querySelector('#puzzle');
-                const parent = svg.querySelector('#cell_container');
-                const breakpointTemplate = svg.querySelector('defs [class~=cell_breakpoint]');
-                const breakpoint = breakpointTemplate.cloneNode();
+                const breakpoint = this.cellBreakpointTemplate.cloneNode();
                 breakpoint.setAttribute('transform', cell.getAttribute('transform'));
                 breakpoint.id = `breakpoint_${cell.id}`;
-                parent.appendChild(breakpoint);
+                this.cellContainer.appendChild(breakpoint);
                 cell.hasBreakpoint = true;
             }
             else {
-                const svg = document.querySelector('#puzzle');
-                const breakpoint = svg.querySelector(`#breakpoint_${cell.id}`);
+                const breakpoint = this.svg.querySelector(`#breakpoint_${cell.id}`);
                 if (breakpoint) {
                     breakpoint.parentNode.removeChild(breakpoint);
                 }
@@ -137,13 +140,34 @@ export class GridView {
     setExecutedState(executedState) {
         for (let i = 0; i < executedState.length; i++) {
             for (let j = 0; j < executedState[i].length; j++) {
-                if (executedState[i][j] && !this.cellPaths[0][i][j].classList.contains(CELL_EXECUTED)) {
+                if (executedState[i][j].length && !this.cellPaths[0][i][j].classList.contains(CELL_EXECUTED)) {
                     for (let k = 0; k < this.cellPaths.length; k++) {
                         this.cellPaths[k][i][j].classList.add(CELL_EXECUTED);
                     }
                 }
+
+                for (const angle of executedState[i][j]) {
+                    this._setExecutionAngle([i, j], angle);
+                }
             }
         }
+    }
+
+    _setExecutionAngle(indices, angle) {
+        // const [i, j] = indices;
+        // for (let k = 0; k < this.cellPaths.length; k++) {
+        //     const cell = this.cellPaths[k][i][j];
+        //     if (!k) {
+        //         if (cell.angles.includes(angle)) {
+        //             break;
+        //         }
+        //         cell.angles.push(angle);
+        //     }
+
+        //     const arrow = this.cellExecutedArrowTemplate.cloneNode();
+        //     arrow.setAttribute('transform', `rotate(${angle})translate(-14.5 0)`);
+        //     cell.appendChild(arrow);
+        // }
     }
 
     _addCellClass(indices, className) {
@@ -231,7 +255,11 @@ export class GridView {
     clearCellExecutionColors() {
         this._removeExecutionHistoryColors();
         this.executionHistory = [];
-        this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => z.classList.remove(CELL_EXECUTED))));
+        this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => {
+            z.classList.remove(CELL_EXECUTED);
+            z.querySelectorAll('.cell_executed_arrow').forEach(a => z.removeChild(a));
+            z.angles = [];
+        })));
     }
 
     _removeExecutionHistoryColors() {
@@ -252,7 +280,7 @@ export class GridView {
         }
     }
 
-    updateActiveCell(isTerminated, executionHistory) {
+    updateActiveCell(isTerminated, executionHistory, angle) {
         if (isTerminated) {
             this._addCellClass(executionHistory[0], CELL_TERMINATED);
         }
@@ -261,6 +289,8 @@ export class GridView {
         // Add one for the active cell.
         this.executionHistory = executionHistory.slice(0, EXECUTED_COLOR_COUNT + 1);
         this._updateExecutionHistoryColors();
+
+        this._setExecutionAngle(executionHistory[0], angle);
     }
 
     updateHexagonWithCode(index, code) {
@@ -324,7 +354,7 @@ export class GridView {
     _resetPuzzleParent() {
         const puzzleParent = document.querySelector('#puzzle_parent');
         puzzleParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
-        puzzleParent.style['transition-property'] = 'none';
+        puzzleParent.style.transitionProperty = 'none';
     }
 
     checkArrowKeys(elem, event) {
@@ -518,17 +548,13 @@ export class GridView {
             return centerY + (i - size + 1) * cellOffsetY;
         }
 
-        const puzzleContainer = document.querySelector('#puzzle_container');
         this._resetPuzzleParent();
 
-        puzzleContainer.style['max-width'] = `${this.fullWidth / 2}px`;
-        puzzleContainer.style['max-height'] = `${this.fullHeight /2}px`;
+        this.svgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
+        this.svgContainer.style.maxHeight = `${this.fullHeight /2}px`;
 
-        const svg = document.querySelector('#puzzle');
-        svg.setAttribute('width', this.fullWidth);
-        svg.setAttribute('height', this.fullHeight);
-        const template = svg.querySelector('defs [class~=cell]');
-        const cellContainer = svg.querySelector('#cell_container');
+        this.svg.setAttribute('width', this.fullWidth);
+        this.svg.setAttribute('height', this.fullHeight);
         const parent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const textParent = document.querySelector('#input_container');
         emptyElement(parent);
@@ -572,9 +598,6 @@ export class GridView {
             }
         }
 
-        const connectorTemplate = svg.querySelector('defs [class~=neutral_connector]');
-        const positiveConnector = svg.querySelector('defs [class~=positive_connector]');
-        const negativeConnector = svg.querySelector('defs [class~=negative_connector]');
         const outlines = [];
         const connectors = [];
         const positiveConnectors = [];
@@ -605,7 +628,8 @@ export class GridView {
                 const inputRow = [];
                 for (let j = 0; j < getRowSize(size, i); j++) {
                     const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
-                    const cell = template.cloneNode(true);
+                    const cell = this.cellTemplate.cloneNode(true);
+                    cell.angles = [];
                     pathRow.push(cell);
                     const cellX = getX(size, i, j) + this.offsets[k][0] * cellWidth;
                     const cellY = getY(size, i, j) + this.offsets[k][1] * cellOffsetY;
@@ -656,7 +680,7 @@ export class GridView {
 
                     // Top edge.
                     if (this.offsets[k][1] > topConnectors) {
-                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, 0, i) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
                         scaleX = radius / 20;
@@ -674,7 +698,7 @@ export class GridView {
                         this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector);
                         this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector);
 
-                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, 0, i) + (this.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
                         scaleX = scaleY = -radius / 20;
@@ -692,7 +716,7 @@ export class GridView {
 
                     if (this.offsets[k][0] < largeGridTwoColumnOffset && this.offsets[k][1] >= topConnectors) {
                         // North east edge
-                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, i, getRowSize(size, i) - 1) + this.offsets[k][0] * cellWidth + cellOffsetX;
                         cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY;
                         scaleX = radius / 20;
@@ -709,7 +733,7 @@ export class GridView {
                         this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector);
                         this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector);
 
-                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, i, getRowSize(size, i) - 1) + (this.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
                         scaleX = scaleY = -radius / 20;
@@ -727,7 +751,7 @@ export class GridView {
                     if (this.offsets[k][0] < largeGridTwoColumnOffset && this.offsets[k][1] <= -topConnectors) {
                         // South east edge
                         const a = i + size - 1;
-                        connector = (isSpecial ? positiveConnector : connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, a, getRowSize(size, a) - 1) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, a, getRowSize(size, a) - 1) + this.offsets[k][1] * cellOffsetY + 0.75 * radius;
                         scaleX = radius / 20;
@@ -743,7 +767,7 @@ export class GridView {
                         this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector);
                         this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector);
 
-                        connector = (isSpecial ? negativeConnector : connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, a, getRowSize(size, a) - 1) + (this.offsets[k][0] + 1) * cellWidth;
                         cellY = getY(size, a, getRowSize(size, a) - 1) + (this.offsets[k][1] + 1) * cellOffsetY;
                         scaleX = scaleY = -radius / 20;
@@ -765,7 +789,7 @@ export class GridView {
         connectors.forEach(x => parent.appendChild(x));
         positiveConnectors.forEach(x => parent.appendChild(x));
         outlines.forEach(x => parent.appendChild(x));
-        emptyElement(cellContainer);
-        cellContainer.appendChild(parent);
+        emptyElement(this.cellContainer);
+        this.cellContainer.appendChild(parent);
     }
 }

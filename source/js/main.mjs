@@ -368,7 +368,7 @@ function stepHelper(play = false) {
         gridView.setExecutedState(hexagony.getExecutedGrid());
     }
 
-    gridView.updateActiveCell(isTerminated(), executionHistory);
+    gridView.updateActiveCell(isTerminated(), executionHistory, hexagony.dir.angle);
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;

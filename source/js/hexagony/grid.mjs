@@ -32,7 +32,7 @@ export class Grid {
             const executedRow = [];
             for (let j = 0; j < this.rowSize(i); ++j) {
                 row.push(k < data.length ? data[k] : '.');
-                executedRow.push(false);
+                executedRow.push([]);
                 k++;
             }
             grid.push(row);
@@ -46,14 +46,18 @@ export class Grid {
         return this.executed;
     }
 
-    getInstruction(coords, setExecuted = false) {
+    getInstruction(coords, setExecutedDirection = null) {
         const index = this.axialToIndex(coords);
         if (!index) {
             return '.';
         }
 
-        if (setExecuted) {
-            this.executed[index[0]][index[1]] = true;
+        if (setExecutedDirection) {
+            const array = this.executed[index[0]][index[1]];
+            const angle = setExecutedDirection.angle;
+            if (!array.includes(angle)) {
+                array.push(angle);
+            }
         }
 
         return this.grid[index[0]][index[1]];

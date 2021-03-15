@@ -208,6 +208,11 @@ body {
     fill: hsl(180, 100%, 95%);
 }
 
+.cell_executed_arrow {
+    fill: hsl(189, 59%, 75%);
+    stroke: none;
+}
+
 /* See EXECUTED_COLOR_COUNT */
 /* // sass test
 $executed_colors: 10;
