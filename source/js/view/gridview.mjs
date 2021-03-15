@@ -529,12 +529,16 @@ export class GridView {
         // and 1 represents the gap between them.
         if (this.edgeTransitionMode) {
             this.fullWidth = 2*(cellWidth * (this.rowCount * 2 + size + 1) + padding);
-            this.fullHeight = 2*(cellOffsetY * (this.rowCount * 3 + 3) + padding);
+
+            // This is just enough room to show a couple rows of the hexagons above and below the center one.
+            // More might be shown than this, but this is the minimum to show.
+            this.fullHeight = 2 * (cellOffsetY * (this.rowCount + 6));
         }
         else {
             this.fullWidth = 2 * (cellWidth * this.rowCount + padding);
             this.fullHeight = 2 * (cellOffsetY * this.rowCount + padding);
         }
+
         const centerX = this.fullWidth / 2;
         const centerY = this.fullHeight / 2;
 
@@ -570,7 +574,8 @@ export class GridView {
 
         this.offsets = [ [0,0] ];
 
-        const topConnectors = largeGridOneRowOffset - 2 * largeGridTwoRowOffset;
+        let horizontalConnectorsLimit = largeGridTwoColumnOffset;
+        let verticalConnectorsLimit = largeGridOneRowOffset - 2 * largeGridTwoRowOffset;
 
         // Create extra hexagons to make it look infinite.
         if (this.edgeTransitionMode) {
@@ -597,6 +602,22 @@ export class GridView {
                 }
             }
         }
+        // TODO: when size is large enough, limit the number of hexagons.
+        // if (this.edgeTransitionMode) {
+        //     // Layout with seven hexagons only.
+        //     horizontalConnectorsLimit = largeGridOneRowOffset;
+        //     verticalConnectorsLimit = -size;
+
+        //     this.offsets = [
+        //         [0,0], // Center
+        //         [0, -largeGridTwoRowOffset, 'N'],
+        //         [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
+        //         [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
+        //         [0, largeGridTwoRowOffset, 'S'],
+        //         [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
+        //         [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
+        //     ];
+        // }
 
         const outlines = [];
         const connectors = [];
@@ -679,7 +700,7 @@ export class GridView {
                     let connector, cellX, cellY, scaleX, scaleY;
 
                     // Top edge.
-                    if (this.offsets[k][1] > topConnectors) {
+                    if (this.offsets[k][1] > verticalConnectorsLimit) {
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, 0, i) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
@@ -714,7 +735,7 @@ export class GridView {
                         this._addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector);
                     }
 
-                    if (this.offsets[k][0] < largeGridTwoColumnOffset && this.offsets[k][1] >= topConnectors) {
+                    if (this.offsets[k][0] < horizontalConnectorsLimit && this.offsets[k][1] >= verticalConnectorsLimit) {
                         // North east edge
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, i, getRowSize(size, i) - 1) + this.offsets[k][0] * cellWidth + cellOffsetX;
@@ -748,7 +769,7 @@ export class GridView {
                         this._addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector);
                     }
 
-                    if (this.offsets[k][0] < largeGridTwoColumnOffset && this.offsets[k][1] <= -topConnectors) {
+                    if (this.offsets[k][0] < horizontalConnectorsLimit && this.offsets[k][1] <= -verticalConnectorsLimit) {
                         // South east edge
                         const a = i + size - 1;
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
