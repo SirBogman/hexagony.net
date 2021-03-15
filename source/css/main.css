@@ -55,6 +55,10 @@ body {
     min-height: 100px;
 }
 
+#output_container {
+    height: 300px;
+}
+
 #output {
     background-color: var(--output-background);
     width: 100%;

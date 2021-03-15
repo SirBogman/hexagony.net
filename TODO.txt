@@ -8,9 +8,6 @@ Before publish:
 
     Zooming in/out on the memory grid breaks its ability to center itself.
 
-    There's a point when the output window grows by one line at a time until the scrolling appears.
-    this resizes the code area.
-
 Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.
