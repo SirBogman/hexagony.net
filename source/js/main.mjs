@@ -6,6 +6,8 @@ import { setClass, setEnabledClass } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import panzoom from 'panzoom';
 
+import '../css/hexagon.scss';
+
 const MAX_SPEED_ITERATIONS = 10000;
 const EXECUTION_HISTORY_COUNT = 20;
 
@@ -346,10 +348,11 @@ function stepHelper(play = false) {
         stepCount++;
         hexagony.step();
         const [i, j] = hexagony.grid.axialToIndex(hexagony.coords);
+        const angle = hexagony.dir.angle;
 
         // The active coordinates don't change when the program terminates.
         if (!isTerminated()) {
-            executionHistory = [[i, j], ...executionHistory.slice(0, EXECUTION_HISTORY_COUNT)];
+            executionHistory = [[i, j, angle], ...executionHistory.slice(0, EXECUTION_HISTORY_COUNT)];
         }
 
         if (breakpointExistsAt(i, j)) {
@@ -366,7 +369,7 @@ function stepHelper(play = false) {
         gridView.setExecutedState(hexagony.getExecutedGrid());
     }
 
-    gridView.updateActiveCell(isTerminated(), executionHistory, hexagony.dir.angle);
+    gridView.updateActiveCell(isTerminated(), executionHistory);
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;

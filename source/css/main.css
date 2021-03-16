@@ -16,15 +16,6 @@ body {
     font: 16px emoji,system-ui,-apple-system,sans-serif;
 }
 
-.cell {
-    fill: white;
-    stroke: var(--hexagon-stroke);
-    stroke-width: 0.5;
-    stroke-miterlimit: 10;
-    transition-duration: 0.5s;
-    transition-timing-function: ease-out;
-}
-
 #puzzle_parent {
     transition-duration: 0.85s;
     transition-timing-function: ease-in-out;
@@ -86,32 +77,6 @@ body {
     width: 100%;
     height: 300px;
     overflow: hidden;
-}
-
-.cell_input {
-    position: absolute;
-    font-size: 20px;
-    margin-top: -13px;
-    text-align: center;
-    outline: none;
-    width: 28px;
-    margin-left: -14px;
-    padding: 0;
-    border-width: 0;
-    background: none;
-    font-family: monospace;
-}
-
-.cell_text {
-    fill-opacity: 1.0;
-    fill: black;
-    stroke: none;
-    font-size: 20px;
-    font-family: monospace;
-}
-
-.noop {
-    fill: var(--hexagon-stroke);
 }
 
 .puzzle {
@@ -186,142 +151,8 @@ body {
     min-height: 300px;
 }
 
-.outline {
-    fill: none;
-    stroke: black;
-    stroke-width: 1.5;
-    stroke-miterlimit: 10;
-}
-
-.outline_secondary {
-    stroke-width: 0.75;
-}
-
-.cell_breakpoint {
-    fill: none;
-    stroke: var(--red);
-    stroke-width: 1.5;
-    stroke-miterlimit: 10;
-}
-
-.cell_executed {
-    fill: hsl(180, 100%, 95%);
-}
-
-.cell_executed_arrow {
-    fill: hsl(189, 59%, 75%);
-    stroke: none;
-}
-
-/* See EXECUTED_COLOR_COUNT */
-/* // sass test
-$executed_colors: 10;
-$executed_max_lightness: 0.93;
-$executed_min_lightness: 0.83;
-$executed_lightness_increment: ($executed_max_lightness - $executed_min_lightness) / ($executed_colors - 1);
-
-@for $i from $executed_colors through 1 { 
-    .cell_executed#{$i} {
-        fill: hsl(200, 100%, percentage($executed_min_lightness + ($i - 1) * $executed_lightness_increment));
-    }
-}
-*/
-
-.cell_executed10 {
-    fill: hsl(200, 100%, 93%);
-}
-
-.cell_executed9 {
-    fill: hsl(200, 100%, 92%);
-}
-
-.cell_executed8 {
-    fill: hsl(200, 100%, 90%);
-}
-
-.cell_executed7 {
-    fill: hsl(200, 100%, 89%);
-}
-
-.cell_executed6 {
-    fill: hsl(200, 100%, 88%);
-}
-
-.cell_executed5 {
-    fill: hsl(200, 100%, 87%);
-}
-
-.cell_executed4 {
-    fill: hsl(200, 100%, 86%);
-}
-
-.cell_executed3 {
-    fill: hsl(200, 100%, 85%);
-}
-
-.cell_executed2 {
-    fill: hsl(200, 100%, 84%);
-}
-
-.cell_executed1 {
-    fill: hsl(200, 100%, 83%);
-}
-
-.cell_active {
-    fill: hsl(200, 100%, 50%);
-}
-
-.cell_terminated {
-    fill: var(--red);
-}
-
 .button_container {
     margin: 1em;
-}
-
-.connector {
-    fill: none;
-    stroke: var(--orange);
-    /* opacity: 0.75; */
-    stroke-width: 1.0;
-    stroke-miterlimit: 10;
-}
-
-.positive_connector {
-    stroke: var(--red);
-}
-
-.negative_connector {
-    stroke: var(--blue);
-}
-
-.positive_text {
-    fill: var(--red);
-    stroke: none;
-    font-size: 20px;
-    /* font-weight: bold; */
-}
-
-.negative_text {
-    fill: var(--blue);
-    stroke: none;
-    font-size: 20px;
-    /* font-weight: bold; */
-}
-
-@keyframes connector_flash {
-    to {
-        stroke-width: 6;
-    }
-}
-
-.connector_flash {
-    animation: connector_flash 0.5s ease-out 0s 2 alternate;
-}
-
-.connector_neutral_flash {
-    stroke: var(--orange);
-    animation: connector_flash 0.5s ease-out 0s 2 alternate;
 }
 
 .memory_cell {

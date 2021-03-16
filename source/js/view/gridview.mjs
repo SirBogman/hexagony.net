@@ -5,6 +5,8 @@ const EXECUTED_COLOR_COUNT = 10;
 const CELL_EXECUTED = 'cell_executed';
 const CELL_ACTIVE = 'cell_active';
 const CELL_TERMINATED = 'cell_terminated';
+const ARROW_EXECUTED = 'arrow_executed';
+const ARROW_ACTIVE = 'arrow_active';
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
@@ -43,8 +45,8 @@ export class GridView {
         this.svg = document.querySelector('#puzzle');
         this.cellContainer = this.svg.querySelector('#cell_container');
         this.cellTemplate = this.svg.querySelector('defs [class~=cell]');
-        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=cell_executed_arrow]');
         this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cell_executed_arrow]');
+        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=arrow_executed]');
         this.connectorTemplate = this.svg.querySelector('defs [class~=neutral_connector]');
         this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positive_connector]');
         this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negative_connector]');
@@ -147,27 +149,48 @@ export class GridView {
                 }
 
                 for (const angle of executedState[i][j]) {
-                    this._setExecutionAngle([i, j], angle);
+                    this._addExecutionAngleClass([i, j, angle], ARROW_EXECUTED);
                 }
             }
         }
     }
 
-    _setExecutionAngle(indices, angle) {
-        // const [i, j] = indices;
-        // for (let k = 0; k < this.cellPaths.length; k++) {
-        //     const cell = this.cellPaths[k][i][j];
-        //     if (!k) {
-        //         if (cell.angles.includes(angle)) {
-        //             break;
-        //         }
-        //         cell.angles.push(angle);
-        //     }
+    _foreachExecutionArrow(indices, callback) {
+        const [i, j, angle] = indices;
+        let create = false;
+        const cell = this.cellPaths[0][i][j];
+        if (!cell.angles.includes(angle)) {
+            create = true;
+            cell.angles.push(angle);
+        }
 
-        //     const arrow = this.cellExecutedArrowTemplate.cloneNode();
-        //     arrow.setAttribute('transform', `rotate(${angle})translate(-14.5 0)`);
-        //     cell.appendChild(arrow);
-        // }
+        let arrow;
+        if (create) {
+            arrow = this.cellExecutedArrowTemplate.cloneNode();
+            arrow.angle = angle;
+            arrow.setAttribute('transform', `rotate(${angle})translate(-14.5 0)scale(1.0 1.25)`);
+            cell.appendChild(arrow);
+        }
+        else {
+            for (arrow of cell.querySelectorAll('.arrow_executed')) {
+                if (arrow.angle === angle) {
+                    break;
+                }
+            }
+        }
+
+        callback(arrow);
+    }
+
+    _addExecutionAngleClass(indices, className) {
+        this._foreachExecutionArrow(indices, arrow => {
+            arrow.classList.add(className);
+            arrow.style.transitionDuration = `${this.delay}ms`;
+        });
+    }
+
+    _removeExecutionAngleClass(indices, className) {
+        this._foreachExecutionArrow(indices, arrow => arrow.classList.remove(className));
     }
 
     _addCellClass(indices, className) {
@@ -257,14 +280,18 @@ export class GridView {
         this.executionHistory = [];
         this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => {
             z.classList.remove(CELL_EXECUTED);
-            z.querySelectorAll('.cell_executed_arrow').forEach(a => z.removeChild(a));
-            z.angles = [];
+            if (z.angles.length) {
+                z.angles = [];
+                z.querySelectorAll('.arrow_executed').forEach(a => z.removeChild(a));
+            }
         })));
     }
 
     _removeExecutionHistoryColors() {
-        this.executionHistory.forEach((indices, i) =>
-            this._removeCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE));
+        this.executionHistory.forEach((indices, i) => {
+            this._removeCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE);
+            this._removeExecutionAngleClass(indices, i ? `${ARROW_EXECUTED}${i}` : ARROW_ACTIVE);
+        });
 
         if (this.executionHistory[0]) {
             this._removeCellClass(this.executionHistory[0], CELL_TERMINATED);
@@ -272,15 +299,18 @@ export class GridView {
     }
 
     _updateExecutionHistoryColors() {
-        this.executionHistory.forEach((indices, i) =>
-            this._addCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE));
+        this.executionHistory.forEach((indices, i) => {
+            this._addCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE);
+            this._addExecutionAngleClass(indices, i ? `${ARROW_EXECUTED}${i}` : ARROW_ACTIVE);
+        });
 
         if (this.executionHistory[0]) {
             this._addCellClass(this.executionHistory[0], CELL_EXECUTED);
+            this._addExecutionAngleClass(this.executionHistory[0], ARROW_EXECUTED);
         }
     }
 
-    updateActiveCell(isTerminated, executionHistory, angle) {
+    updateActiveCell(isTerminated, executionHistory) {
         if (isTerminated) {
             this._addCellClass(executionHistory[0], CELL_TERMINATED);
         }
@@ -289,8 +319,6 @@ export class GridView {
         // Add one for the active cell.
         this.executionHistory = executionHistory.slice(0, EXECUTED_COLOR_COUNT + 1);
         this._updateExecutionHistoryColors();
-
-        this._setExecutionAngle(executionHistory[0], angle);
     }
 
     updateHexagonWithCode(index, code) {

@@ -25,46 +25,6 @@
   min-height: 300px;
 }
 
-.cell_executed10 {
-  fill: #dbf3ff;
-}
-
-.cell_executed9 {
-  fill: #d6f1ff;
-}
-
-.cell_executed8 {
-  fill: #d0efff;
-}
-
-.cell_executed7 {
-  fill: #caedff;
-}
-
-.cell_executed6 {
-  fill: #c5ecff;
-}
-
-.cell_executed5 {
-  fill: #bfeaff;
-}
-
-.cell_executed4 {
-  fill: #b9e8ff;
-}
-
-.cell_executed3 {
-  fill: #b4e6ff;
-}
-
-.cell_executed2 {
-  fill: #aee4ff;
-}
-
-.cell_executed1 {
-  fill: #a8e2ff;
-}
-
 .radio label {
   margin-right: 0.5rem;
 }
