@@ -45,8 +45,8 @@ export class GridView {
         this.svg = document.querySelector('#puzzle');
         this.cellContainer = this.svg.querySelector('#cell_container');
         this.cellTemplate = this.svg.querySelector('defs [class~=cell]');
-        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cell_executed_arrow]');
         this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=arrow_executed]');
+        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cell_breakpoint]');
         this.connectorTemplate = this.svg.querySelector('defs [class~=neutral_connector]');
         this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positive_connector]');
         this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negative_connector]');
