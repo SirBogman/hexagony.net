@@ -115,6 +115,8 @@ body {
     background: var(--panel-background);
     padding: 0.5rem;
     min-height: 300px;
+    /* overflow must be hidden in all panels to prevent horizontal scroll bars in the narrow layout. */
+    overflow: hidden;
 }
 
 #app_grid > div.hidden_section {
@@ -151,7 +153,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
 }
 
 #input_panel {
@@ -162,8 +163,6 @@ body {
 
 #output_panel {
     grid-area: output;
-    /* Prevent the output box from growing horizontally. */
-    overflow: hidden;
 }
 
 #output_container {
