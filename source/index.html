@@ -37,7 +37,7 @@
                 </a>
             </div>
             <div id="view_controls" class="group">
-                <div id="edge_transition" class="svg_icon" title="Toggle edge transition visualization">
+                <div id="edge_transition" class="svg_icon" title="Toggle edge transition visualization.">
                     <svg viewBox="0 0 22.99022 29.5">
                         <path class="svg_style_stroke2" d="M23.54.5l1.82,3.15c1.18,2.05.71,5.06-1.34,6.24L6.32,20.11c-2.05,1.18-3,3.41-1.79,5.46L6.8,29.5M23.54,29.5l1.82-3.15c1.18-2.05.71-5.06-1.34-6.24L6.32,9.89c-2.05-1.18-3-3.41-1.79-5.46L6.8.5" transform="translate(-3.5 -0.25)"/>
                     </svg>
@@ -50,25 +50,25 @@
                 </div>
             </div>
             <div id="edit_controls" class="group">
-                <div id="smaller" class="svg_icon" title="Make grid smaller">
+                <div id="smaller" class="svg_icon" title="Make the hexagon smaller.">
                     <svg viewBox="0 0 42 50">
                         <polygon class="svg_style_stroke3" points="2 14.03 2 35.97 21 46.94 40 35.97 40 14.03 21 3.06 2 14.03"/>
                         <path class="svg_style_fill" d="M16.14,26.7V23.3h9.72v3.4Z"/>
                     </svg>
                 </div>
-                <div id="bigger" class="svg_icon" title="Make grid larger">
+                <div id="bigger" class="svg_icon" title="Make the hexagon larger.">
                     <svg viewBox="0 0 42 50">
                         <polygon class="svg_style_stroke3" points="2 14.03 2 35.97 21 46.94 40 35.97 40 14.03 21 3.06 2 14.03"/>
                         <path class="svg_style_fill" d="M22.77,26.55v6.08H19.25V26.55H13.42V23.41h5.83v-6h3.52v6h5.82v3.14Z"/>
                     </svg>
                 </div>
-                <div id="reset" class="svg_icon" title="Clear grid">
+                <div id="reset" class="svg_icon" title="Reset the hexagon by replacing instructions with no-ops.">
                     <svg viewBox="0 0 42 50">
                         <polygon class="svg_style_stroke3" points="2 14.03 2 35.97 21 46.94 40 35.97 40 14.03 21 3.06 2 14.03"/>
                         <circle class="svg_style_fill" cx="20.94" cy="30.34" r="3"/>
                     </svg>
                 </div>
-                <div id="delete_breakpoints" class="svg_icon disabled" title="Delete all breakpoints">
+                <div id="delete_breakpoints" class="svg_icon disabled" title="Delete all breakpoints. Select an instruction and press Ctrl + B to set a breakpoint.">
                     <svg viewBox="0 0 42 50">
                         <line class="svg_style_stroke3" x1="7" y1="49.25" x2="35" y2="0.75"/>
                         <polyline class="svg_style_stroke3" points="8.9 39.95 2 35.97 2 14.03 21 3.06 27.9 7.04"/>
@@ -89,24 +89,24 @@
                 </div>
             </div>
             <div id="play_controls" class="group">
-                <div id="start" class="svg_icon" title="Start (Ctrl + Enter)">
+                <div id="start" class="svg_icon" title="Start execution (Ctrl + Enter).">
                     <svg class="svg_style_fill" viewBox="0 0 16 16">
                         <path d="M 0 0 v 16 l 16 -8 z"/></svg>
                 </div>
-                <div id="step" class="svg_icon" title="Step (Ctrl + .)">
+                <div id="step" class="svg_icon" title="Execute next instruction (Ctrl + .).">
                     <svg class="svg_style_stroke2" viewBox="0 0 16 16">
                         <path stroke-width="1.5px" d="M 0.75 0.75 v 14.5 l 14.5 -7.25 z"/></svg>
                 </div>
-                <div id="pause" class="svg_icon disabled" title="Pause (Ctrl + Enter)">
+                <div id="pause" class="svg_icon disabled" title="Pause execution (Ctrl + Enter).">
                     <svg class="svg_style_fill" viewBox="0 -2 12 20">
                         <rect width="4" height="16"/>
                         <rect x="8" width="4" height="16"/>
                     </svg>
                 </div>
-                <div id="stop" class="svg_icon disabled" title="Stop (Ctrl + Shift + Enter)">
+                <div id="stop" class="svg_icon disabled" title="Stop execution (Ctrl + Shift + Enter).">
                     <svg class="svg_style_fill" viewBox="-2 -2 20 20"><path d="M 0 0 v 16 h 16 v -16 z"/></svg>
                 </div>
-                <div id="slider_container" title="Adjust the execution speed">
+                <div id="slider_container" title="Adjust the execution speed.">
                     <input type="range" min="0" max="1000" value="500" step="10" class="slider" id="speed_slider">
                 </div>
             </div>
@@ -216,6 +216,7 @@
                 <tr><td>Left/Right Arrow</td><td>Navigate on the W-E axis (with wrapping)</td></tr>
                 <tr><td>Up/Down Arrow</td><td>Navigate on the NE-SW axis</td></tr>
                 <tr><td>Shift + Up/Down Arrow</td><td>Navigate on the NW-SE axis</td></tr>
+                <tr><td>Enter</td><td>Move to next operator (with wrapping)<td></tr>
                 <tr><td>Backspace</td><td>Remove operator (with wrapping)<td></tr>
                 <tr><td>Ctrl + B</td><td>Set breakpoint</td></tr>
                 <tr><td>Ctrl + Enter</td><td>Start executing<td></tr>

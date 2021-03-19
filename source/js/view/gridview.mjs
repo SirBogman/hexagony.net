@@ -682,7 +682,7 @@ export class GridView {
                 const pathRow = [];
                 const inputRow = [];
                 for (let j = 0; j < getRowSize(size, i); j++) {
-                    const tooltip = `Coordinates: ${indexToAxial(size, i, j)}`;
+                    const tooltip = `Coordinates: (${indexToAxial(size, i, j)})`;
                     const cell = this.cellTemplate.cloneNode(true);
                     cell.angles = [];
                     pathRow.push(cell);
