@@ -180,6 +180,8 @@ body {
 
 #input_panel {
     grid-area: input;
+    display: inline-grid;
+    grid-template-rows: auto auto 1fr;
 }
 
 #output_panel {
@@ -188,6 +190,9 @@ body {
 
 #import_panel {
     grid-area: import;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+}
 
 textarea {
     resize: vertical;
