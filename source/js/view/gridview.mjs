@@ -41,6 +41,7 @@ export class GridView {
         this.isUndoRedoInProgress = false;
         this.activeEditingCell = null;
         this.edgeTransitionMode = false;
+        this.showArrows = false;
         this.svgContainer = document.querySelector('#puzzle_container')
         this.svg = document.querySelector('#puzzle');
         this.cellContainer = this.svg.querySelector('#cell_container');
@@ -155,11 +156,14 @@ export class GridView {
         }
     }
 
-    _foreachExecutionArrow(indices, callback) {
+    _foreachExecutionArrow(indices, allowCreate, callback) {
         const [i, j, angle] = indices;
         let create = false;
         const cell = this.cellPaths[0][i][j];
         if (!cell.angles.includes(angle)) {
+            if (!allowCreate) {
+                return;
+            }
             create = true;
             cell.angles.push(angle);
         }
@@ -183,14 +187,16 @@ export class GridView {
     }
 
     _addExecutionAngleClass(indices, className) {
-        this._foreachExecutionArrow(indices, arrow => {
-            arrow.classList.add(className);
-            arrow.style.transitionDuration = `${this.delay}ms`;
-        });
+        if (this.showArrows) {
+            this._foreachExecutionArrow(indices, true, arrow => {
+                arrow.classList.add(className);
+                arrow.style.transitionDuration = `${this.delay}ms`;
+            });
+        }
     }
 
     _removeExecutionAngleClass(indices, className) {
-        this._foreachExecutionArrow(indices, arrow => arrow.classList.remove(className));
+        this._foreachExecutionArrow(indices, false, arrow => arrow.classList.remove(className));
     }
 
     _addCellClass(indices, className) {

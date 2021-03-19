@@ -56,6 +56,7 @@ const ipStateText = document.querySelector('#ip_state');
 const terminationReasonText = document.querySelector('#termination_reason');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
+const toggleArrowsButton = document.querySelector('#toggle_arrows');
 
 let gridView;
 let hexagony;
@@ -169,6 +170,7 @@ function updateButtons() {
 
 function updateViewButtons() {
     setClass(edgeTransitionButton, 'active', gridView.edgeTransitionMode);
+    setClass(toggleArrowsButton, 'active', gridView.showArrows);
 }
 
 function breakpointExistsAt(i, j) {
@@ -226,6 +228,7 @@ function loadData() {
     gridView.delay = userData.delay;
     userData.breakpoints = userData.breakpoints ?? [];
     gridView.edgeTransitionMode = userData.edgeTransitionMode ?? true;
+    gridView.showArrows = userData.showArrows ?? true;
 
     updateInputModeButtons();
     updateInputTextArea();
@@ -285,6 +288,7 @@ function copyLink() {
 
 function saveViewState() {
     userData.edgeTransitionMode = gridView.edgeTransitionMode;
+    userData.showArrows = gridView.showArrows;
     saveData();
 }
 
@@ -574,6 +578,17 @@ function init() {
             gridView.setExecutedState(hexagony.getExecutedGrid());
         }
         gridView.setBreakpoints(getBreakpoints());
+        updateViewButtons();
+        saveViewState();
+    });
+
+    toggleArrowsButton.addEventListener('click', () => {
+        gridView.showArrows = !gridView.showArrows;
+        if (hexagony != null) {
+            gridView.clearCellExecutionColors();
+            gridView.updateActiveCell(isTerminated(), executionHistory);
+            gridView.setExecutedState(hexagony.getExecutedGrid());
+        }
         updateViewButtons();
         saveViewState();
     });
