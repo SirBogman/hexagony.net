@@ -114,8 +114,7 @@ body {
     grid-template-areas:
         "code input"
         "code output"
-        "memory state"
-        "hotkeys info";
+        "memory state";
 }
 
 @media (max-width: 640px) {
@@ -138,9 +137,7 @@ body {
             "output"
             "memory"
             "state"
-            "input"
-            "info"
-            "hotkeys";
+            "input";
     }
 }
 
