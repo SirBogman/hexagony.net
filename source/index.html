@@ -170,9 +170,7 @@
         <div id="state_panel" class="play_content hidden_section">
             <h1>State</h1>
             <div id='termination_reason'></div>
-            <div id='breakpoint_count'>Breakpoints: 0</div>
-            <div id='executed_count'>Instructions Executed: 0</div>
-            <div id='ip_state'></div>
+            <div id='state_info'></div>
         </div>
         <div id="input_panel">
             <h1>Input</h1>
@@ -186,14 +184,10 @@
             </div>
             <textarea id="input" spellcheck="False"></textarea>
         </div>
-        <div id="info_panel">
+        <div id="info_panel" class="edit_content">
             <h1>Info</h1>
-            <table>
-                <tr title="The length of an edge of the hexagon"><td>Hexagon Size</td><td id="hexagon_size"></td></tr>
-                <tr title="The number of Unicode codepoints"><td>Chars</td><td id="char_count"></td></tr>
-                <tr title="The number of bytes when encoded in UTF-8"><td>Bytes</td><td id="byte_count"></td></tr>
-                <tr title="The number of instructions that aren't no-ops"><td>Operators</td><td id="operator_count"></td></tr>
-            </table>
+            <div id="info_info">
+            </div>
         </div>
         <div id="import_panel" class="edit_content">
             <h1>Import/Export</h1>
@@ -209,19 +203,19 @@
                 title="Copy a link to the current Hexagony program and its input to the clipboard">
             <textarea id="url_export" placeholder="Generate a link that encodes to the current program and input." readonly></textarea>
         </div>
-        <div id="hotkeys_panel">
+        <div id="hotkeys_panel" class="edit_content">
             <h1>Hotkeys</h1>
-            <table>
-                <tr><td>(Shift) Tab</td><td>Navigate on the W-E axis (with wrapping)</td></tr>
-                <tr><td>Left/Right Arrow</td><td>Navigate on the W-E axis (with wrapping)</td></tr>
-                <tr><td>Up/Down Arrow</td><td>Navigate on the NE-SW axis</td></tr>
-                <tr><td>Shift + Up/Down Arrow</td><td>Navigate on the NW-SE axis</td></tr>
-                <tr><td>Enter</td><td>Move to next operator (with wrapping)<td></tr>
-                <tr><td>Backspace</td><td>Remove operator (with wrapping)<td></tr>
-                <tr><td>Ctrl + B</td><td>Set breakpoint</td></tr>
-                <tr><td>Ctrl + Enter</td><td>Start executing<td></tr>
-                <tr><td>Ctrl + .</td><td>Step into execution<td></tr>
-            </table>
+            <div id="hotkeys_grid">
+                <p class="col1">(Shift) Tab<p class="col2">Navigate on the W-E axis (with wrapping)
+                <p class="col1">Left/Right Arrow<p class="col2">Navigate on the W-E axis (with wrapping)
+                <p class="col1">Up/Down Arrow<p class="col2">Navigate on the NE-SW axis
+                <p class="col1">Shift + Up/Down Arrow<p class="col2">Navigate on the NW-SE axis
+                <p class="col1">Enter<p class="col2">Move to next operator (with wrapping)
+                <p class="col1">Backspace<p class="col2">Remove operator (with wrapping)
+                <p class="col1">Ctrl + B<p class="col2">Set breakpoint
+                <p class="col1">Ctrl + Enter<p class="col2">Start executing
+                <p class="col1">Ctrl + .<p class="col2">Step into execution
+            </div>
         </div>
     </div>
 </body>

@@ -234,11 +234,36 @@ body {
     margin: 8px 4px 8px 0px;
 }
 
-td {
-    padding: 0 0.5rem;
-}
-
 #termination_reason {
     font-weight: bold;
     color: var(--red);
+}
+
+#info_info, #state_info, #hotkeys_grid {
+    display: inline-grid;
+    column-gap: 1rem;
+}
+
+.col1 {
+    grid-column: 1;
+}
+
+.col2 {
+    grid-column: 2;
+}
+
+.col3 {
+    grid-column: 3;
+}
+
+.col4 {
+    grid-column: 4;
+}
+
+.col5 {
+    grid-column: 5;
+}
+
+.right {
+    justify-self: right;
 }

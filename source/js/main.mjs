@@ -18,10 +18,8 @@ const editContent = document.querySelectorAll('.edit_content')
 
 const sourceCodeInput = document.querySelector('#sourcecode');
 const inputBox = document.querySelector('#input');
-const hexagonSizeText = document.querySelector('#hexagon_size');
-const charCountText = document.querySelector('#char_count');
-const byteCountText = document.querySelector('#byte_count');
-const operatorCountText = document.querySelector('#operator_count');
+const infoInfo = document.querySelector('#info_info');
+const stateInfo = document.querySelector('#state_info');
 
 const smallerButton = document.querySelector('#smaller');
 const resetButton = document.querySelector('#reset');
@@ -50,9 +48,6 @@ const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 const urlExportText = document.querySelector('#url_export');
 
 const outputBox = document.querySelector('#output');
-const executedCountText = document.querySelector('#executed_count');
-const breakpointCountText = document.querySelector('#breakpoint_count');
-const ipStateText = document.querySelector('#ip_state');
 const terminationReasonText = document.querySelector('#termination_reason');
 
 const edgeTransitionButton = document.querySelector('#edge_transition');
@@ -378,10 +373,9 @@ function stepHelper(play = false) {
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
 
-    executedCountText.textContent = `Instructions Executed: ${hexagony.ticks.toLocaleString('en')} ${totalTime.toLocaleString('en')}`;
+    updateStateText();
     terminationReasonText.textContent =
         hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
-    updateIPStateText();
 
     if (play && isRunning() && !isTerminated()) {
         gridView.timeoutID = window.setTimeout(() => {
@@ -394,18 +388,37 @@ function stepHelper(play = false) {
     updateMemorySVG(hexagony, memoryPanZoom);
 }
 
-function updateBreakpointCountText() {
-    breakpointCountText.textContent = `Breakpoints: ${userData.breakpoints.length}`;
+function getExecutionInfoText() {
+    return `
+        <p class="col1">Breakpoints<p class="col2 right">${userData.breakpoints.length}
+        <p class="col1">Instructions Executed<p class="col2 right">${hexagony != null ? hexagony.ticks.toLocaleString('en') : 0}`;
 }
 
-function updateIPStateText() {
+function getIPStateText() {
     let text = '';
-    for (let i = 0; i < 6; i++) {
-        const [coords, dir] = hexagony.getIPState(i);
-        const isActive = hexagony.activeIp == i ? ' (active)' : '';
-        text += `<p>IP #${i}: (${coords}) ${dir}${isActive}`;
+    if (hexagony) {
+        for (let i = 0; i < 6; i++) {
+            const [coords, dir] = hexagony.getIPState(i);
+            text += `
+                <p class="col1">IP ${i}
+                <p class="col2 right" title="Coordinates of instruction pointer ${i}">${coords.q}
+                <p class="col3 right" title="Coordinates of instruction pointer ${i}">${coords.r}
+                <p class="col4" title="Direction of instruction pointer ${i}">${dir}`;
+
+            if (hexagony.activeIp == i) {
+                text += `<p class="col5" title="The active instruction pointer is ${i}">active`;
+            }
+        }
     }
-    ipStateText.innerHTML = text;
+    return text;
+}
+
+function updateBreakpointCountText() {
+    updateStateText();
+}
+
+function updateStateText() {
+    stateInfo.innerHTML = getExecutionInfoText() + getIPStateText() + getInfoText();
 }
 
 function resizeCode(size) {
@@ -465,14 +478,23 @@ function setSourceCode(newCode, isProgrammatic=false) {
     updateFromSourceCode(isProgrammatic);
 }
 
-function updateInfo() {
+function getInfoText() {
     const code = gridView.sourceCode;
     const filteredCode = removeWhitespaceAndDebug(code);
     const filteredCodepoints = countCodepoints(filteredCode);
-    hexagonSizeText.textContent = getHexagonSize(filteredCodepoints);
-    charCountText.textContent = countCodepoints(code);
-    byteCountText.textContent = countBytes(code);
-    operatorCountText.textContent = countOperators(filteredCode);
+    return `
+        <p title="The length of an edge of the hexagon" class="col1">Hexagon Size
+        <p title="The length of an edge of the hexagon" class="col2 right">${getHexagonSize(filteredCodepoints)}
+        <p title="The number of Unicode codepoints" class="col1">Chars
+        <p title="The number of Unicode codepoints" class="col2 right">${countCodepoints(code)}
+        <p title="The number of bytes when encoded in UTF-8" class="col1">Bytes
+        <p title="The number of bytes when encoded in UTF-8" class="col2 right">${countBytes(code)}
+        <p title="The number of instructions that aren't no-ops" class="col1">Operators
+        <p title="The number of instructions that aren't no-ops" class="col2 right">${countOperators(filteredCode)}`;
+}
+
+function updateInfo() {
+    infoInfo.innerHTML = getInfoText();
 }
 
 function updateFromSourceCode(isProgrammatic=false) {
