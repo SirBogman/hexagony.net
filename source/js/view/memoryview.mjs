@@ -3,8 +3,7 @@ import { east, northEast, southEast } from '../hexagony/direction.mjs';
 import { PointAxial } from '../hexagony/pointaxial.mjs';
 import { emptyElement } from "./viewutil.mjs";
 
-export function updateMemorySVG(hexagony, memoryPanZoom) {
-    const svg = document.querySelector('#memory_svg');
+export function updateMemorySVG(hexagony, svg, memoryPanZoom) {
     const lineTemplate = svg.querySelector('defs [class~=memory_cell]');
     const mpTemplate = svg.querySelector('defs [class~=memory_pointer]');
     const textTemplate = svg.querySelector('defs [class~=memory_text]');

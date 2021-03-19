@@ -53,6 +53,9 @@ const terminationReasonText = document.querySelector('#termination_reason');
 const edgeTransitionButton = document.querySelector('#edge_transition');
 const toggleArrowsButton = document.querySelector('#toggle_arrows');
 
+const memorySvg = document.querySelector('#memory_svg');
+const resetViewButton = document.querySelector('#reset_view');
+
 let gridView;
 let hexagony;
 let executionHistory = [];
@@ -383,7 +386,7 @@ function stepHelper(play = false) {
     }
 
     updateButtons();
-    updateMemorySVG(hexagony, memoryPanZoom);
+    updateMemorySVG(hexagony, memorySvg, memoryPanZoom);
 }
 
 function getExecutionInfoText() {
@@ -616,8 +619,7 @@ function init() {
     updateButtons();
     updateViewButtons();
 
-    // panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
-    memoryPanZoom = panzoom(document.querySelector('#memory_svg'), {
+    memoryPanZoom = panzoom(memorySvg, {
         // Don't pan when clicking on text elements. This allows text selection.
         beforeMouseDown: e => e.target.nodeName === 'text',
         beforeDoubleClick: e => e.target.nodeName === 'text',

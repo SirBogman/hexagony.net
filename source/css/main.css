@@ -189,6 +189,10 @@ textarea {
     margin: 0.5rem 0.5rem 0.5rem 0;
 }
 
+#reset_view {
+    margin: 0.5rem 0;
+}
+
 .radio label {
     margin-right: 0.5rem;
 }

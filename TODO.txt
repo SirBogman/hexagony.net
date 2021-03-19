@@ -6,7 +6,11 @@ Before publish:
 
     Zooming in/out on the memory grid breaks its ability to center itself.
 
+    Readme
+
 Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.
         Animated SVG showing edge connection mode.
+
+    Feature to multiselect instructions and move them in a direction.
