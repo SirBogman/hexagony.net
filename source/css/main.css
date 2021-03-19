@@ -136,7 +136,6 @@ body {
 }
 
 #app_grid > div {
-    overflow: hidden;
     background: var(--panel-background);
     padding: 0.5rem;
     min-height: 300px;
@@ -176,6 +175,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 #input_panel {
@@ -204,7 +204,6 @@ textarea {
 
 #memory_panel {
     grid-area: memory;
-    overflow: hidden;
 }
 
 #info_panel {
