@@ -5,11 +5,6 @@ $narrowButtonOuterWidth: 2.5;
 $buttonCount: 16;
 $narrowWidthPadding: 0.5;
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-}
-
 body header {
     background: var(--color);
     position: sticky;
@@ -27,20 +22,18 @@ body > header nav {
         "navigation spacer1 view_controls spacer2 edit_controls spacer3 play_controls";
 }
 
-/*
-Use two-row toolbar for small widths.
-window.innerWidth values:
-Portrait:
-iPhone 8: 375
-iPhone 12: 390
-iPhone 12 Pro: 390
-iPhone 12 Pro Max: 428
-Landscape:
-iPhone 8: 667
-iPhone 12: 750
-iPhone 12 Pro: 750
-iPhone 12 Pro Max: 832
-*/
+// Use two-row toolbar for small widths.
+// window.innerWidth values:
+// Portrait:
+// iPhone 8: 375
+// iPhone 12: 390
+// iPhone 12 Pro: 390
+// iPhone 12 Pro Max: 428
+// Landscape:
+// iPhone 8: 667
+// iPhone 12: 750
+// iPhone 12 Pro: 750
+// iPhone 12 Pro Max: 832
 @media (max-width: #{($buttonCount + $narrowWidthPadding) * $narrowButtonOuterWidth}rem) {
     body > header nav {
         grid-template-columns: auto 1fr auto;
@@ -134,7 +127,8 @@ body > header > nav .svg_icon.disabled {
     opacity: 0.8;
     transition: opacity .2s;
     height: 1px;
-    outline: none; /* don't put a weird outline on it when using it in Chrome. */
+    // don't put a weird outline on it when using it in Chrome.
+    outline: none;
 }
 
 .slider:hover {
@@ -167,12 +161,10 @@ body > header > nav .svg_icon.disabled {
     }
 
     #slider_container {
-        /* The width of two buttons */
         width: #{$buttonOuterWidth * 2}rem;
     }
 
     .slider {
-        /* The inner width of two buttons. */
         width: #{$buttonOuterWidth + $buttonInnerWidth}rem;
     }
 }
