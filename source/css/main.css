@@ -8,7 +8,7 @@
     --hexagon-stroke: #808080;
     --set-memory: black;
     --panel-background: hsl(0, 0%, 95%);
-    --output-background: hsl(0, 0%, 83%)
+    --output-background: hsl(0, 0%, 83%);
 }
 
 body {
@@ -184,6 +184,9 @@ body {
 
 #import_panel {
     grid-area: import;
+
+textarea {
+    resize: vertical;
 }
 
 #state_panel {
