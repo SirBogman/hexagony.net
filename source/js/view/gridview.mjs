@@ -512,7 +512,7 @@ export class GridView {
 
         cell.focus();
         cell.select();
-        cell.addEventListener('keydown', (e) => this.checkArrowKeys(cell, e));
+        cell.addEventListener('keydown', e => this.checkArrowKeys(cell, e));
 
         cell.addEventListener('input', () => {
             const newText = cell.value || '.';

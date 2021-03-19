@@ -531,7 +531,7 @@ function isTerminated() {
     return hexagony != null && hexagony.getTerminationReason() != null;
 }
 
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', e => {
     if (e.ctrlKey) {
         if (e.key == '.') {
             onStep();
