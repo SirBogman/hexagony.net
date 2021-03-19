@@ -10,6 +10,3 @@ Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.
         Animated SVG showing edge connection mode.
-
-
-Show a shortened list of hotkeys in the corner of the code editor?

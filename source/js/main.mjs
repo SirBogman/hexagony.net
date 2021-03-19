@@ -56,7 +56,6 @@ const toggleArrowsButton = document.querySelector('#toggle_arrows');
 let gridView;
 let hexagony;
 let executionHistory = [];
-let totalTime;
 let initFinished = false;
 let memoryPanZoom;
 let userData;
@@ -328,7 +327,7 @@ function stepHelper(play = false) {
     if (hexagony == null) {
         hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
         executionHistory = [];
-        totalTime = 0;
+        window.totalTime = 0;
     }
 
     let breakpoint = false;
@@ -361,8 +360,7 @@ function stepHelper(play = false) {
     }
 
     const p2 = performance.now();
-    totalTime += p2 - p1;
-    //console.log(`execution took ${p2 - p1}`);
+    window.totalTime += p2 - p1;
 
     if (stepCount > 1) {
         gridView.setExecutedState(hexagony.getExecutedGrid());
