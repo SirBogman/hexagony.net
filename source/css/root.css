@@ -1,0 +1,17 @@
+:root {
+    --background: #fdfdfd;
+    --color:      #343a40;
+    --disabled-color: #707070;
+    --red: #ed1c24;
+    --blue: #1c74bc;
+    --orange: #F7941D;
+    --hexagon-stroke: #808080;
+    --set-memory: black;
+    --panel-background: hsl(0, 0%, 95%);
+    --output-background: hsl(0, 0%, 83%);
+}
+
+body {
+    background: var(--background);
+    font: 16px emoji,system-ui,-apple-system,sans-serif;
+}

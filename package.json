@@ -20,7 +20,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "webpack serve --mode=development --host 0.0.0.0",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production",
+    "sass": "sass source/css/header.scss source/css/header-generated.css"
   },
   "author": "Brian Collins",
   "license": "MIT"

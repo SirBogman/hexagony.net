@@ -1,3 +1,10 @@
+$buttonInnerWidth: 1.5;
+$buttonOuterWidth: 2.75;
+$narrowButtonOuterWidth: 2.5;
+// The slider counts as two buttons.
+$buttonCount: 16;
+$narrowWidthPadding: 0.5;
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -34,7 +41,7 @@ iPhone 12: 750
 iPhone 12 Pro: 750
 iPhone 12 Pro Max: 832
 */
-@media (max-width: 640px) {
+@media (max-width: #{($buttonCount + $narrowWidthPadding) * $narrowButtonOuterWidth}rem) {
     body > header nav {
         grid-template-columns: auto 1fr auto;
         grid-template-rows: auto auto;
@@ -61,14 +68,14 @@ nav > #play_controls {
 }
 
 body > header svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    height: #{$buttonInnerWidth}rem;
+    width: #{$buttonInnerWidth}rem;
 }
 
 body > header a,
 body > header > nav div:not(.group) {
-    height: 2.75rem;
-    width: 2.75rem;
+    height: #{$buttonOuterWidth}rem;
+    width: #{$buttonOuterWidth}rem;
     display: inline-block;
     align-items: center;
     display: flex;
@@ -151,13 +158,21 @@ body > header > nav .svg_icon.disabled {
 }
 
 @media (max-width: 900px) {
+    // Reduce the outer width of buttons a bit, before changing to the one column layout.
+    $buttonOuterWidth: $narrowButtonOuterWidth;
+
+    body > header a,
+    body > header > nav div:not(.group) {
+        width: #{$buttonOuterWidth}rem;
+    }
+
     #slider_container {
         /* The width of two buttons */
-        width: 5.5rem;
+        width: #{$buttonOuterWidth * 2}rem;
     }
 
     .slider {
         /* The inner width of two buttons. */
-        width: 4.25rem;
+        width: #{$buttonOuterWidth + $buttonInnerWidth}rem;
     }
 }
