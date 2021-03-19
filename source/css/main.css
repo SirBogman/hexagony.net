@@ -142,6 +142,10 @@ body {
     min-height: 300px;
 }
 
+#app_grid > div.hidden_section {
+    display: none;
+}
+
 .button_container {
     margin: 1em;
 }
@@ -204,10 +208,6 @@ textarea {
 
 #hotkeys_panel {
     grid-area: hotkeys;
-}
-
-.hidden_section {
-    display: none;
 }
 
 .edit_button {
