@@ -619,7 +619,14 @@ function init() {
     updateViewButtons();
 
     // panzoom(document.querySelector('#puzzle_parent'), { filterKey: () => true });
-    memoryPanZoom = panzoom(document.querySelector('#memory_svg'), { filterKey: () => true });
+    memoryPanZoom = panzoom(document.querySelector('#memory_svg'), {
+        // Don't pan when clicking on text elements. This allows text selection.
+        beforeMouseDown: e => e.target.nodeName === 'text',
+        beforeDoubleClick: e => e.target.nodeName === 'text',
+        zoomDoubleClickSpeed: 1.5,
+        // Don't listen for keyboard events.
+        filterKey: () => true,
+    });
     onhashchange = loadDataFromURL;
     initFinished = true;
 }

@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "dependencies": {
-    "panzoom": "^9.4.1"
+    "panzoom": "github:SirBogman/panzoom#2269422"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^8.0.0",
