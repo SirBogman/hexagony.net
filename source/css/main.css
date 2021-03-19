@@ -31,19 +31,6 @@ body {
     content: '';
 }
 
-#output_container {
-    height: 300px;
-}
-
-#output {
-    background-color: var(--output-background);
-    width: 100%;
-    min-height: 1em;
-    max-height: 300px;
-    padding: 0.5em;
-    overflow: auto;
-}
-
 #memory {
     width: 500px;
     height: 100px;
@@ -175,6 +162,20 @@ body {
 
 #output_panel {
     grid-area: output;
+    /* Prevent the output box from growing horizontally. */
+    overflow: hidden;
+}
+
+#output_container {
+    height: 300px;
+}
+
+#output {
+    background-color: var(--output-background);
+    min-height: 1em;
+    max-height: 300px;
+    padding: 0.5em;
+    overflow: auto;
 }
 
 #import_panel {
