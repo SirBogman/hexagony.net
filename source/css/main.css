@@ -96,11 +96,9 @@ body {
     transition: all 0.2s;
     display: grid;
     justify-content: center;
-    width: calc(100% - 2rem);
     grid-gap: 1rem;
     margin: 1rem;
     grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto;
 }
 
 .edit_grid {
@@ -172,12 +170,6 @@ body {
 .memory_text {
     font-size: 12px;
 }
-
-/* #memory_svg {
-    position: absolute;
-    left:0px;
-    top:0px;
-} */
 
 #code_panel {
     grid-area: code;
