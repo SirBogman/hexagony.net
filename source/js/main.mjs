@@ -236,7 +236,7 @@ function loadDataFromURL() {
     let newData = undefined;
     try {
         if (location.hash) {
-            newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(1)));
+            newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(3)));
         }
     // eslint-disable-next-line no-empty
     } catch (e) {
@@ -274,7 +274,7 @@ function generateLink() {
     const json = JSON.stringify(urlData);
     // Disable button, until the code changes.
     generateLinkButton.disabled = true;
-    urlExportText.value = `${location.origin}/#${LZString.compressToBase64(json)}`;
+    urlExportText.value = `${location.origin}/#lz${LZString.compressToBase64(json)}`;
 }
 
 function copyLink() {
