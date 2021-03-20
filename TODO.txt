@@ -1,8 +1,6 @@
 Before publish:
     Readme
 
-    termination color is only shown in some cases.
-
 Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.

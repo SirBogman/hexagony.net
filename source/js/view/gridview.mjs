@@ -130,14 +130,14 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid() {
+    recreateGrid(isTerminated = false) {
         this._createGrid(this.size);
 
         for (let k = 0; k < this.cellPaths.length; k++) {
             this.updateHexagonWithCode(k, this.filteredSourceCode);
         }
 
-        this._updateExecutionHistoryColors();
+        this._updateExecutionHistoryColors(isTerminated);
     }
 
     setExecutedState(executedState) {
@@ -304,7 +304,7 @@ export class GridView {
         }
     }
 
-    _updateExecutionHistoryColors() {
+    _updateExecutionHistoryColors(isTerminated) {
         this.executionHistory.forEach((indices, i) => {
             this._addCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE);
             this._addExecutionAngleClass(indices, i ? `${ARROW_EXECUTED}${i}` : ARROW_ACTIVE);
@@ -313,18 +313,18 @@ export class GridView {
         if (this.executionHistory[0]) {
             this._addCellClass(this.executionHistory[0], CELL_EXECUTED);
             this._addExecutionAngleClass(this.executionHistory[0], ARROW_EXECUTED);
+
+            if (isTerminated) {
+                this._addCellClass(this.executionHistory[0], CELL_TERMINATED);
+            }
         }
     }
 
     updateActiveCell(isTerminated, executionHistory) {
-        if (isTerminated) {
-            this._addCellClass(executionHistory[0], CELL_TERMINATED);
-        }
-
         this._removeExecutionHistoryColors();
         // Add one for the active cell.
         this.executionHistory = executionHistory.slice(0, EXECUTED_COLOR_COUNT + 1);
-        this._updateExecutionHistoryColors();
+        this._updateExecutionHistoryColors(isTerminated);
     }
 
     updateHexagonWithCode(index, code) {

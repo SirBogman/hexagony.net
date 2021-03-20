@@ -607,7 +607,7 @@ function init() {
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
-        gridView.recreateGrid();
+        gridView.recreateGrid(isTerminated());
         if (hexagony != null) {
             gridView.setExecutedState(hexagony.getExecutedGrid());
         }
