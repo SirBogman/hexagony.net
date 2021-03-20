@@ -3,101 +3,161 @@ import { east, northEast, southEast } from '../hexagony/direction.mjs';
 import { PointAxial } from '../hexagony/pointaxial.mjs';
 import { emptyElement } from "./viewutil.mjs";
 
-export function updateMemorySVG(hexagony, svg, memoryPanZoom) {
-    const lineTemplate = svg.querySelector('defs [class~=memory_cell]');
-    const mpTemplate = svg.querySelector('defs [class~=memory_pointer]');
-    const textTemplate = svg.querySelector('defs [class~=memory_text]');
-    const cellContainer = svg.querySelector('#cell_container');
-    const parent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+// If the memory pointer is within this normalized distance of an the edge of the container,
+// then it will be recentered.
+const recenteringThreshold = 0.1;
+const recenteringMax = 1.0 - recenteringThreshold;
 
-    const containerStyle = getComputedStyle(document.querySelector('#memory_container'));
-    const containerWidth = parseFloat(containerStyle.width);
-    const containerHeight = parseFloat(containerStyle.height);
+const xFactor = 20;
+const yFactor = 34;
 
-    const padding = 40;
-    const xFactor = 20;
-    const yFactor = 34;
-    const maxX = hexagony.memory.maxX + padding;
-    const minX = hexagony.memory.minX - padding;
-    const maxY = hexagony.memory.maxY + padding;
-    const minY = hexagony.memory.minY - padding;
+export class MemoryView {
+    constructor(hexagony, svg, memoryPanZoom) {
+        this.hexagony = hexagony;
+        this.svg = svg;
+        this.memoryPanZoom = memoryPanZoom;
+        this.lineTemplate = svg.querySelector('defs [class~=memory_cell]');
+        this.mpTemplate = svg.querySelector('defs [class~=memory_pointer]');
+        this.textTemplate = svg.querySelector('defs [class~=memory_text]');
+        this.cellContainer = svg.querySelector('#cell_container');
+        this.firstUpdate = true;
+        this.lastDataVersion = 0;
+    }
 
-    svg.setAttribute('width', (maxX - minX) * xFactor);
-    svg.setAttribute('height', (maxY - minY) * yFactor);
+    getContainerSize() {
+        const containerStyle = getComputedStyle(this.svg.parentNode);
+        return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)]
+    }
 
-    const centerX = 0.5 * (maxX - minX) * xFactor;
-    const centerY = 0.5 * (maxY - minY) * yFactor;
+    update() {
+        // TODO: consider breaking this up into regions and only updating regions that changed.
+        // Sometimes in Chrome it's much faster to create an element tree and then attach it.
+        // Sometimes it doesn't make a difference. It doesn't seem to matter in Firefox.
+        const dataVersion = this.hexagony.memory.dataVersion;
+        if (!this.firstUpdate && this.lastDataVersion === dataVersion) {
+            return;
+        }
 
-    for (let y = minY; y <= maxY; y++) {
-        for (let x = minX; x <= maxX; x++) {
-            if (!((y % 2 == 0 && x % 2 == 0) ||
-                ((y % 4 + 4) % 4 == 1 && (x % 4 + 4) % 4 == 1) ||
-                ((y % 4 + 4) % 4 == 3 && (x % 4 + 4) % 4 == 3))) {
-                continue;
-            }
+        this.lastDataVersion = dataVersion;
+        const parent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const padding = 40;
+        const currentX = this.hexagony.memory.getX();
+        const currentY = this.hexagony.memory.getY();
+        const cw = this.hexagony.memory.cw;
+        const minX = Math.min(this.hexagony.memory.minX, currentX) - padding;
+        const minY = Math.min(this.hexagony.memory.minY, currentY) - padding;
+        const maxX = Math.max(this.hexagony.memory.maxX, currentX) + padding;
+        const maxY = Math.max(this.hexagony.memory.maxY, currentY) + padding;
 
-            let dir, mp;
-
-            if (y % 2 != 0) {
-                dir = east;
-                mp = new PointAxial((x - y) / 4, (y - 1) / 2);
-            }
-            else if ((x - y) % 4 == 0) {
-                dir = northEast;
-                mp = new PointAxial((x - y) / 4, y / 2);
-            }
-            else {
-                dir = southEast;
-                mp = new PointAxial((x - y + 2) / 4, (y - 2) / 2);
-            }
-
-            const xx = (x - minX) * xFactor;
-            const yy = (y - minY) * yFactor;
-            const hasValue = hexagony.memory.hasKey(mp, dir);
-            const line = lineTemplate.cloneNode();
-            let angle = dir == northEast ? 30 : dir == southEast ? -30 : -90;
-            line.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
-            if (hasValue) {
-                line.classList.add('memory_value');
-            }
-            parent.appendChild(line);
-
-            if (hasValue) {
-                const value = hexagony.memory.getValueAt(mp, dir);
-                let string = value.toString();
-
-                const charCode = Number(value % 256n);
-
-                if (charCode >= 0x20 && charCode <= 0xff && charCode != 0x7f) {
-                    string += ` '${String.fromCharCode(charCode)}'`;
-                }
-                else if (charCode == 10) {
-                    string += " '\\n'";
+        for (let y = minY; y <= maxY; y++) {
+            for (let x = minX; x <= maxX; x++) {
+                if (!((y % 2 === 0 && x % 2 === 0) ||
+                    ((y % 4 + 4) % 4 === 1 && (x % 4 + 4) % 4 === 1) ||
+                    ((y % 4 + 4) % 4 === 3 && (x % 4 + 4) % 4 === 3))) {
+                    continue;
                 }
 
-                const text = textTemplate.cloneNode(true);
-                text.querySelector('text').textContent = string;
-                text.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
-                parent.appendChild(text);
-            }
+                let dir, mp;
 
-            if (mp.q == hexagony.memory.mp.q && mp.r == hexagony.memory.mp.r && dir == hexagony.memory.dir) {
-                // Add the memory pointer (arrow) showing the position and direction.
-                angle = (dir == northEast ? -60 : dir == southEast ? 60 : 0) + (hexagony.memory.cw ? 180 : 0);
-                const pointer = mpTemplate.cloneNode();
-                pointer.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
-                parent.appendChild(pointer);
-                // TODO: only autoscroll when pointer gets near edges.
-                if (memoryPanZoom) {
-                    memoryPanZoom.moveTo(0.5 * containerWidth - centerX, 0.5 * containerHeight - centerY);
+                if (y % 2 !== 0) {
+                    dir = east;
+                    mp = new PointAxial((x - y) / 4, (y - 1) / 2);
+                }
+                else if ((x - y) % 4 === 0) {
+                    dir = northEast;
+                    mp = new PointAxial((x - y) / 4, y / 2);
                 }
                 else {
-                    svg.setAttribute('transform', `translate(${0.5 * containerWidth - centerX},${0.5 * containerHeight - centerY})`);
+                    dir = southEast;
+                    mp = new PointAxial((x - y + 2) / 4, (y - 2) / 2);
                 }
+
+                const xx = x * xFactor;
+                const yy = y * yFactor;
+                const hasValue = this.hexagony.memory.hasKey(mp, dir);
+                const line = this.lineTemplate.cloneNode();
+                let angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
+                line.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
+                if (hasValue) {
+                    line.classList.add('memory_value');
+                }
+                parent.appendChild(line);
+
+                if (hasValue) {
+                    const value = this.hexagony.memory.getValueAt(mp, dir);
+                    let string = value.toString();
+
+                    const charCode = Number(value % 256n);
+
+                    if (charCode >= 0x20 && charCode <= 0xff && charCode !== 0x7f) {
+                        string += ` '${String.fromCharCode(charCode)}'`;
+                    }
+                    else if (charCode === 10) {
+                        string += " '\\n'";
+                    }
+
+                    const text = this.textTemplate.cloneNode(true);
+                    text.querySelector('text').textContent = string;
+                    text.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
+                    parent.appendChild(text);
+                }
+
+                if (x === currentX && y === currentY) {
+                    // Add the memory pointer (arrow) showing the position and direction.
+                    angle = (dir === northEast ? -60 : dir === southEast ? 60 : 0) + (cw ? 180 : 0);
+                    const pointer = this.mpTemplate.cloneNode();
+                    pointer.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
+                    parent.appendChild(pointer);
+                }
+            }
+        }
+
+        emptyElement(this.cellContainer);
+        this.cellContainer.appendChild(parent);
+
+        if (this.firstUpdate) {
+            const [x, y] = this.getMPOffset();
+            this.memoryPanZoom.moveTo(x, y);
+            this.firstUpdate = false;
+        }
+        else {
+            const [a, b] = this.getNormalizedMPCoordinates();
+            // Recenter the memory pointer when it gets too close to the edges.
+            if (a < recenteringThreshold || a > recenteringMax || b < recenteringThreshold || b > recenteringMax) {
+                const [x, y] = this.getMPOffset(this.getScale());
+                this.memoryPanZoom.smoothMoveTo(x, y);
             }
         }
     }
 
-    emptyElement(cellContainer);
-    cellContainer.appendChild(parent);
+    getMPCoordinates() {
+        return [this.hexagony.memory.getX() * xFactor, this.hexagony.memory.getY() * yFactor];
+    }
+
+    getNormalizedMPCoordinates() {
+        const [x, y] = this.getMPCoordinates();
+        const t = this.memoryPanZoom.getTransform();
+        const [width, height] = this.getContainerSize();
+        return [(t.scale * x + t.x) / width, (t.scale * y + t.y) / height];
+    }
+
+    // Gets the required offset to center the memory pointer in the container at the given scale.
+    // This is essentially the inverse calculation of getNormalizedMPCoordinates.
+    getMPOffset(scale = 1.0) {
+        const [x, y] = this.getMPCoordinates();
+        const [width, height] = this.getContainerSize();
+        return [0.5 * width - scale * x, 0.5 * height - scale * y];
+    }
+
+    getScale() {
+        return this.memoryPanZoom.getTransform().scale;
+    }
+
+    resetView() {
+        const [x, y] = this.getMPOffset();
+        // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting (inertia)
+        // if that method were used.
+        this.memoryPanZoom.zoomTo(x, y, 1.0 / this.getScale());
+        this.memoryPanZoom.moveTo(x, y);
+    }
 }

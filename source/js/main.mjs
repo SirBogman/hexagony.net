@@ -1,7 +1,7 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
-import { updateMemorySVG } from './view/memoryview.mjs';
+import { MemoryView } from './view/memoryview.mjs';
 import { setClass, setEnabledClass } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import panzoom from 'panzoom';
@@ -58,6 +58,7 @@ const resetViewButton = document.querySelector('#reset_view');
 
 let gridView;
 let hexagony;
+let memoryView;
 let executionHistory = [];
 let initFinished = false;
 let memoryPanZoom;
@@ -329,6 +330,7 @@ function stepHelper(play = false) {
 
     if (hexagony == null) {
         hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
+        memoryView = new MemoryView(hexagony, memorySvg, memoryPanZoom);
         executionHistory = [];
         window.totalTime = 0;
     }
@@ -386,7 +388,7 @@ function stepHelper(play = false) {
     }
 
     updateButtons();
-    updateMemorySVG(hexagony, memorySvg, memoryPanZoom);
+    memoryView.update();
 }
 
 function getExecutionInfoText() {
@@ -410,7 +412,15 @@ function getIPStateText() {
                 text += `<p class="col5" title="The active instruction pointer is ${i}">active`;
             }
         }
+
+        text += `
+            <p class="col1">Memory Pointer
+            <p class="col2 right" title="Coordinates of the memory pointer">${hexagony.memory.mp.q}
+            <p class="col3 right" title="Coordinates of the memory pointer">${hexagony.memory.mp.r}
+            <p class="col4" title="Direction of memory pointer">${hexagony.memory.dir}
+            <p class="col5" title="Memory pointer direction (clockwise/counterclockwise)">${hexagony.memory.cw ? 'CW' : 'CCW'}`;
     }
+
     return text;
 }
 
@@ -512,6 +522,7 @@ function onPause() {
 
 function onStop() {
     hexagony = null;
+    memoryView = null;
     executionHistory = [];
     gridView.clearCellExecutionColors();
     updateButtons();
@@ -615,6 +626,8 @@ function init() {
         updateViewButtons();
         saveViewState();
     });
+
+    resetViewButton.addEventListener('click', () => { if (memoryView) { memoryView.resetView(); } });
 
     updateButtons();
     updateViewButtons();

@@ -7,20 +7,25 @@ export class Memory {
         this.mp = new PointAxial(0, 0);
         this.dir = east;
         this.cw = false;
-        this.maxX = this.minX = this.getX(this.mp, this.dir);
-        this.maxY = this.minY = this.getY(this.mp, this.dir);
+        this.maxX = this.minX = this.getX();
+        this.maxY = this.minY = this.getY();
+        // data version is incremented whenever anything in this class changes.
+        this.dataVersion = 0;
     }
 
     reverse() {
         this.cw = !this.cw;
+        this.dataVersion++;
     }
 
     moveLeft() {
         [this.mp, this.dir, this.cw] = this.leftIndex;
+        this.dataVersion++;
     }
 
     moveRight() {
         [this.mp, this.dir, this.cw] = this.rightIndex;
+        this.dataVersion++;
     }
 
     getValueAt(mp, dir) {
@@ -47,20 +52,23 @@ export class Memory {
 
     setValue(value) {
         this.data[`${this.mp},${this.dir}`] = BigInt(value);
-        const x = this.getX(this.mp, this.dir);
-        const y = this.getY(this.mp, this.dir);
+        const x = this.getX();
+        const y = this.getY();
         if (x > this.maxX) this.maxX = x;
         if (x < this.minX) this.minX = x;
         if (y > this.maxY) this.maxY = y;
         if (y < this.minY) this.minY = y;
+        this.dataVersion++;
     }
 
-    getX(mp, dir) {
-        return 4 * mp.q + 2 * mp.r + (dir == east ? 1 : 0);
+    // Get the x coordinate of the current position for the memory view.
+    getX() {
+        return 4 * this.mp.q + 2 * this.mp.r + (this.dir === east ? 1 : 0);
     }
 
-    getY(mp, dir) {
-        return 2 * mp.r + (dir == northEast ? 0 : dir == east ? 1 : 2);
+    // Get the y coordinate of the current position for the memory view.
+    getY() {
+        return 2 * this.mp.r + (this.dir === northEast ? 0 : this.dir === east ? 1 : 2);
     }
 
     get leftIndex() {

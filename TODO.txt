@@ -1,12 +1,7 @@
 Before publish:
-    Memory:
-        Autoscroll only when it gets near the edge.
-
-    Memory graph is drifting as it resizes.
-
-    Zooming in/out on the memory grid breaks its ability to center itself.
-
     Readme
+
+    termination color is only shown in some cases.
 
 Eventually:
     About page:
