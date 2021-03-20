@@ -445,7 +445,8 @@ export class GridView {
                 return;
             }
         }
-        else if (event.key == 'ArrowRight' || event.key == 'Tab' && !event.shiftKey || event.key == 'Enter') {
+        else if (event.key == 'ArrowRight' || event.key == 'Tab' && !event.shiftKey ||
+                 event.key == 'Enter' && !event.ctrlKey) {
             if (j < this.cellPaths[0][i].length - 1) {
                 dj = 1;
             }
