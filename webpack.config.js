@@ -39,6 +39,7 @@ module.exports = {
         // CSS files are for the non-JavaScript pages 403, 404, and about.
         { from: 'source/css/error.css', to: 'css/error.css' },
         { from: 'source/css/header-generated.css', to: 'css/header-generated.css' },
+        { from: 'source/css/hexagon-generated.css', to: 'css/hexagon-generated.css' },
         { from: 'source/css/limitedwidth.css', to: 'css/limitedwidth.css' },
         { from: 'source/css/main.css', to: 'css/main.css' },
         { from: 'source/css/root.css', to: 'css/root.css' },

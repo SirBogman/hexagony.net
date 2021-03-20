@@ -1,4 +1,4 @@
 package-lock.json
 node_modules/
 build/
-source/css/header-generated.css.map
+source/css/*-generated.css.map

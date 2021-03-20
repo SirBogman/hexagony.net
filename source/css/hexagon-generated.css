@@ -1,0 +1,247 @@
+.cell {
+  fill: white;
+  stroke: var(--hexagon-stroke);
+  stroke-width: 0.5;
+  stroke-miterlimit: 10;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-out;
+}
+
+.cell_input {
+  position: absolute;
+  font-size: 20px;
+  margin-top: -13px;
+  text-align: center;
+  outline: none;
+  width: 28px;
+  margin-left: -14px;
+  padding: 0;
+  border-width: 0;
+  background: none;
+  font-family: monospace;
+}
+
+.cell_text {
+  fill: black;
+  stroke: none;
+  font-size: 20px;
+  font-family: monospace;
+}
+
+.noop {
+  fill: var(--hexagon-stroke);
+}
+
+.outline {
+  fill: none;
+  stroke: black;
+  stroke-width: 1.5;
+  stroke-miterlimit: 10;
+}
+
+.outline_secondary {
+  stroke-width: 0.75;
+}
+
+.cell_breakpoint {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 1.5;
+  stroke-miterlimit: 10;
+}
+
+.arrow_executed {
+  fill: #80d5ff;
+  stroke: none;
+}
+
+.cell_executed {
+  fill: #e6ffff;
+}
+
+.cell_executed.secondary {
+  fill: #f9ffff;
+}
+
+.arrow_executed10 {
+  fill: #75d1ff;
+}
+
+.cell_executed10 {
+  fill: #dbf3ff;
+}
+
+.cell_executed10.secondary {
+  fill: #f6fcff;
+}
+
+.arrow_executed9 {
+  fill: #70cfff;
+}
+
+.cell_executed9 {
+  fill: #d6f1ff;
+}
+
+.cell_executed9.secondary {
+  fill: #f5fcff;
+}
+
+.arrow_executed8 {
+  fill: #6acdff;
+}
+
+.cell_executed8 {
+  fill: #d0efff;
+}
+
+.cell_executed8.secondary {
+  fill: #f3fbff;
+}
+
+.arrow_executed7 {
+  fill: #64cbff;
+}
+
+.cell_executed7 {
+  fill: #caedff;
+}
+
+.cell_executed7.secondary {
+  fill: #f2fbff;
+}
+
+.arrow_executed6 {
+  fill: #5fcaff;
+}
+
+.cell_executed6 {
+  fill: #c5ecff;
+}
+
+.cell_executed6.secondary {
+  fill: #f1faff;
+}
+
+.arrow_executed5 {
+  fill: #59c8ff;
+}
+
+.cell_executed5 {
+  fill: #bfeaff;
+}
+
+.cell_executed5.secondary {
+  fill: #effaff;
+}
+
+.arrow_executed4 {
+  fill: #53c6ff;
+}
+
+.cell_executed4 {
+  fill: #b9e8ff;
+}
+
+.cell_executed4.secondary {
+  fill: #eef9ff;
+}
+
+.arrow_executed3 {
+  fill: #4ec4ff;
+}
+
+.cell_executed3 {
+  fill: #b4e6ff;
+}
+
+.cell_executed3.secondary {
+  fill: #ecf9ff;
+}
+
+.arrow_executed2 {
+  fill: #48c2ff;
+}
+
+.cell_executed2 {
+  fill: #aee4ff;
+}
+
+.cell_executed2.secondary {
+  fill: #ebf8ff;
+}
+
+.arrow_executed1 {
+  fill: #42c0ff;
+}
+
+.cell_executed1 {
+  fill: #a8e2ff;
+}
+
+.cell_executed1.secondary {
+  fill: #e9f8ff;
+}
+
+.arrow_active {
+  fill: #006699;
+}
+
+.cell_active {
+  fill: #00aaff;
+}
+
+.cell_active.secondary {
+  fill: #bfeaff;
+}
+
+.cell_terminated {
+  fill: var(--red);
+}
+
+.cell_terminated.secondary {
+  fill: #fbc6c8;
+}
+
+.connector {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 1;
+  stroke-miterlimit: 10;
+}
+
+.positive_connector {
+  stroke: var(--red);
+}
+
+.negative_connector {
+  stroke: var(--blue);
+}
+
+.positive_text {
+  fill: var(--red);
+  stroke: none;
+  font-size: 20px;
+}
+
+.negative_text {
+  fill: var(--blue);
+  stroke: none;
+  font-size: 20px;
+}
+
+@keyframes connector_flash {
+  to {
+    stroke-width: 6;
+  }
+}
+.connector_flash {
+  animation: connector_flash 0.5s ease-out 0s 2 alternate;
+}
+
+.connector_neutral_flash {
+  stroke: var(--orange);
+  animation: connector_flash 0.5s ease-out 0s 2 alternate;
+}
+
+/*# sourceMappingURL=hexagon-generated.css.map */

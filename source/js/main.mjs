@@ -6,7 +6,7 @@ import { setClass, setEnabledClass } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import panzoom from 'panzoom';
 
-import '../css/hexagon.scss';
+// import '../css/hexagon.scss';
 
 const MAX_SPEED_ITERATIONS = 10000;
 const EXECUTION_HISTORY_COUNT = 20;

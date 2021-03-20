@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build": "npm run sass && webpack --mode=production",
-    "sass": "sass source/css/header.scss source/css/header-generated.css",
+    "sass": "sass source/css/header.scss source/css/header-generated.css && sass source/css/hexagon.scss source/css/hexagon-generated.css",
     "server": "npm run sass && webpack serve --mode=development --host 0.0.0.0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
