@@ -1,6 +1,3 @@
-Before publish:
-    Readme
-
 Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.

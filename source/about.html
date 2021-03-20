@@ -46,6 +46,11 @@
                 <p>This is an online IDE for the Hexagony esoteric programming language.
                 <p>See the <a href="//esolangs.org/wiki/Hexagony">esolang wiki page</a> for the language specification.
             </dd>
+            <dt>What happens when characters not listed in the specification are used as instructions?</dt>
+            <dd>
+                <p>When codepoints are used other than defined instructions, space, tab, and newline, the value at the memory pointer is set to the codepoint value.
+                    This is the same behavior as the instructions A-Z and a-z. All Unicode codepoints are allowed.
+            </dd>
             <dt>Is Hexagony.net open source?</dt>
             <dd>
                 <p>Yes! It's licensed under <a href="//opensource.org/licenses/MIT">MIT</a> and available on <a href="//github.com/SirBogman/hexagony.net">GitHub</a>. Patches are welcome.
@@ -73,13 +78,16 @@
                 <p>Yes, you can change the Hexagony program and the input, while the program is running.
                 But it doesn't affect previously executed instructions or previously consumed input.
             </dd>
+            <dt>Can my program keep running until a breakpoint is hit, or the program terminates, without showing the execution of each instruction?</dt>
+            <dd><p>Yes. Increase the speed slider to the maximum value.</dd>
             <dt>Where else can I use Hexagony?</dt>
             <dd>
                 <p>You can compete in Hexagony on <a href="//code.golf/fibonacci#hexagony">Code Golf</a>.
             </dd>
             <dt>Is there a fast command-line interpreter for Hexagony?</dt>
             <dd>
-                <p><a href="//github.com/SirBogman/Hexagony">This interpreter</a> is written in C# and is faster than the reference implementation. Additionally, it supports input arguments in a way that's compatible with Code Golf.
+                <p><a href="//github.com/SirBogman/Hexagony">This interpreter</a> is written in C# and is faster than the reference implementation.
+                    Additionally, it's the Hexagony interpreter for <a href="//code.golf/fibonacci#hexagony">Code Golf</a>.
             </dd>
         </dl>
     </main>
