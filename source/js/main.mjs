@@ -624,6 +624,8 @@ function init() {
         beforeMouseDown: e => e.target.nodeName === 'text',
         beforeDoubleClick: e => e.target.nodeName === 'text',
         zoomDoubleClickSpeed: 1.5,
+        // 6.5% zoom per mouse wheel event:
+        zoomSpeed: 0.065,
         // Don't listen for keyboard events.
         filterKey: () => true,
     });
