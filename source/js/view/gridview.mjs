@@ -1,6 +1,8 @@
 import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { emptyElement } from "./viewutil.mjs";
 
+const EXTRA_HEXAGONS_SIZE_LIMIT = 6;
+const EDGE_TRANSITION_SIZE_LIMIT = 25;
 const EXECUTED_COLOR_COUNT = 10;
 const CELL_EXECUTED = 'cell_executed';
 const CELL_ACTIVE = 'cell_active';
@@ -557,12 +559,13 @@ export class GridView {
 
         this.globalOffsetX = cellWidth;
         this.globalOffsetY = cellOffsetY;
+        const edgeTransitionMode = this.edgeTransitionMode && size <= EDGE_TRANSITION_SIZE_LIMIT;
 
         // When showing 6 hexagons around a center hexagon,
         // the "rowCount" below represents the number of rows in the center of one of the side hexagons.
         // the "size" represents the number of rows on the top and bottom edges of the center hexagons.
         // and 1 represents the gap between them.
-        if (this.edgeTransitionMode) {
+        if (edgeTransitionMode) {
             this.fullWidth = 2*(cellWidth * (this.rowCount * 2 + size + 1) + padding);
 
             // This is just enough room to show a couple rows of the hexagons above and below the center one.
@@ -610,27 +613,30 @@ export class GridView {
         this.offsets = [ [0,0] ];
 
         let horizontalConnectorsLimit = largeGridTwoColumnOffset;
-        let verticalConnectorsLimit = largeGridOneRowOffset - 2 * largeGridTwoRowOffset;
+        let verticalConnectorsLimit;
 
         // Create extra hexagons to make it look infinite.
-        if (this.edgeTransitionMode) {
-            for (let i = -2; i < 2; i++) {
+        if (edgeTransitionMode) {
+            let verticalLimit = 2;
+            if (size > EXTRA_HEXAGONS_SIZE_LIMIT) {
+                verticalLimit = 1;
+            }
+
+            verticalConnectorsLimit = largeGridOneRowOffset - verticalLimit * largeGridTwoRowOffset;
+
+            for (let i = -verticalLimit; i < verticalLimit; i++) {
                 // Columns to the immediate right and left with 4 hexagons (two fully visible)
                 this.offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
                 this.offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
             }
 
-            // For the column two to the left, show a couple more hexagons, because their connectors are visible.
-            for (let i = -2; i <= 2; i++) {
+            for (let i = -verticalLimit; i <= verticalLimit; i++) {
+                // For the column two to the left, show a couple more hexagons, because their connectors are visible.
                 this.offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
-            }
 
-            // Column two to the right.
-            for (let i = -2; i <= 2; i++) {
+                // Column two to the right.
                 this.offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
-            }
 
-            for (let i = -2; i <= 2; i++) {
                 if (i != 0) {
                     // Add hexagons to the center column. The connectors for the top and bottom ones are visible.
                     this.offsets.push([0, i * largeGridTwoRowOffset]);
@@ -719,7 +725,7 @@ export class GridView {
                 const cellY = getY(size, 0, 0) + this.offsets[k][1] * cellOffsetY;
                 const outline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 outline.classList.add('outline');
-                if (k && this.edgeTransitionMode) {
+                if (k && edgeTransitionMode) {
                     outline.classList.add('outline_secondary');
                 }
                 outline.setAttribute('d', outlinePath);
@@ -727,7 +733,7 @@ export class GridView {
                 outlines.push(outline);
             }
 
-            if (this.edgeTransitionMode) {
+            if (edgeTransitionMode) {
                 for (let i = 0; i < size; i++) {
                     const leftEnd = i == 0;
                     const rightEnd = i == size - 1;
