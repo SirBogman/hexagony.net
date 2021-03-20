@@ -675,9 +675,6 @@ export class GridView {
         const hexagonParents = [];
         for (let k = 0; k < this.offsets.length; k++) {
             const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            if (k != 0) {
-                node.style.fillOpacity = 0.25;
-            }
             parent.appendChild(node);
             hexagonParents.push(node);
         }
@@ -691,6 +688,9 @@ export class GridView {
                 for (let j = 0; j < getRowSize(size, i); j++) {
                     const tooltip = `Coordinates: (${indexToAxial(size, i, j)})`;
                     const cell = this.cellTemplate.cloneNode(true);
+                    if (k) {
+                        cell.classList.add('secondary');
+                    }
                     cell.angles = [];
                     pathRow.push(cell);
                     const cellX = getX(size, i, j) + this.offsets[k][0] * cellWidth;

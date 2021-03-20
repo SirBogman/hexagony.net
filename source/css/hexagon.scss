@@ -1,3 +1,7 @@
+@use "sass:color";
+
+$red: #ed1c24;
+
 .cell {
     fill: white;
     stroke: var(--hexagon-stroke);
@@ -22,7 +26,6 @@
 }
 
 .cell_text {
-    fill-opacity: 1.0;
     fill: black;
     stroke: none;
     font-size: 20px;
@@ -55,6 +58,10 @@ $arrow_lightness_shift: 0.2;
 $executed_lightness: 0.95;
 $active_ligtness: 0.50;
 
+@function lightenColor($c) {
+    @return mix($c, white, 25%);
+}
+
 .arrow_executed {
     fill: hsl(200, 100%, percentage($executed_lightness - $arrow_lightness_shift));
     stroke: none;
@@ -62,6 +69,10 @@ $active_ligtness: 0.50;
 
 .cell_executed {
     fill: hsl(180, 100%, percentage($executed_lightness));
+}
+
+.cell_executed.secondary {
+    fill: lightenColor(hsl(180, 100%, percentage($executed_lightness)));
 }
 
 $executed_colors: 10;
@@ -79,6 +90,10 @@ $executed_lightness_increment: ($executed_max_lightness - $executed_min_lightnes
     .cell_executed#{$i} {
         fill: hsl(200, 100%, percentage($value));
     }
+
+    .cell_executed#{$i}.secondary {
+        fill: lightenColor(hsl(200, 100%, percentage($value)));
+    }
 }
 
 .arrow_active {
@@ -89,8 +104,16 @@ $executed_lightness_increment: ($executed_max_lightness - $executed_min_lightnes
     fill: hsl(200, 100%, percentage($active_ligtness));
 }
 
+.cell_active.secondary {
+    fill: lightenColor(hsl(200, 100%, percentage($active_ligtness)));
+}
+
 .cell_terminated {
     fill: var(--red);
+}
+
+.cell_terminated.secondary {
+    fill: lightenColor($red);
 }
 
 .connector {
