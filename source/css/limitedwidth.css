@@ -14,7 +14,6 @@ body header {
 }
 
 main {
-    padding: 1rem;
     display: grid;
     gap: 1rem;
     padding: 1rem;
@@ -27,4 +26,8 @@ dt {
 
 dd {
     margin: 1rem;
+}
+
+main.center {
+    justify-items: center;
 }
