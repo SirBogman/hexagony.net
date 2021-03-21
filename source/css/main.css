@@ -46,7 +46,7 @@
 }
 
 #app_grid {
-    background: #fff;
+    background: var(--background);
     transition: all 0.2s;
     display: grid;
     justify-content: center;
