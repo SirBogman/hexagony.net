@@ -1,6 +1,5 @@
-@use "sass:color";
-
-$red: #ed1c24;
+@use 'sass:color';
+@use 'root.scss';
 
 .cell {
     fill: white;
@@ -22,14 +21,14 @@ $red: #ed1c24;
     padding: 0;
     border-width: 0;
     background: none;
-    font-family: monospace;
+    font-family: root.$monospace;
 }
 
 .cell_text {
     fill: black;
     stroke: none;
     font-size: 20px;
-    font-family: monospace;
+    font-family: root.$monospace;
 }
 
 .noop {
@@ -113,7 +112,7 @@ $executed_lightness_increment: ($executed_max_lightness - $executed_min_lightnes
 }
 
 .cell_terminated.secondary {
-    fill: lightenColor($red);
+    fill: lightenColor(root.$red);
 }
 
 .connector {
