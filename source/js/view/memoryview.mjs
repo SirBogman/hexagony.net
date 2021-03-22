@@ -1,7 +1,7 @@
 // Contains code related to creating the view of Hexagony's memory.
 import { east, northEast, southEast } from '../hexagony/direction.mjs';
 import { PointAxial } from '../hexagony/pointaxial.mjs';
-import { emptyElement } from "./viewutil.mjs";
+import { createSvgElement, emptyElement } from "./viewutil.mjs";
 
 // If the memory pointer is within this normalized distance of an the edge of the container,
 // then it will be recentered.
@@ -39,7 +39,7 @@ export class MemoryView {
         }
 
         this.lastDataVersion = dataVersion;
-        const parent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const parent = createSvgElement('g');
         const padding = 40;
         const currentX = this.hexagony.memory.getX();
         const currentY = this.hexagony.memory.getY();

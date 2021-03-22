@@ -1,5 +1,5 @@
 import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
-import { emptyElement } from "./viewutil.mjs";
+import { createSvgElement, emptyElement } from "./viewutil.mjs";
 
 const EXTRA_HEXAGONS_SIZE_LIMIT = 6;
 const EDGE_TRANSITION_SIZE_LIMIT = 25;
@@ -597,7 +597,7 @@ export class GridView {
 
         this.svg.setAttribute('width', this.fullWidth);
         this.svg.setAttribute('height', this.fullHeight);
-        const parent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const parent = createSvgElement('g');
         const textParent = document.querySelector('#input_container');
         emptyElement(parent);
         emptyElement(textParent);
@@ -674,7 +674,7 @@ export class GridView {
 
         const hexagonParents = [];
         for (let k = 0; k < this.offsets.length; k++) {
-            const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            const node = createSvgElement('g');
             parent.appendChild(node);
             hexagonParents.push(node);
         }
@@ -723,7 +723,7 @@ export class GridView {
             {
                 const cellX = getX(size, 0, 0) + this.offsets[k][0] * cellWidth;
                 const cellY = getY(size, 0, 0) + this.offsets[k][1] * cellOffsetY;
-                const outline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const outline = createSvgElement('path');
                 outline.classList.add('outline');
                 if (k && edgeTransitionMode) {
                     outline.classList.add('outline_secondary');

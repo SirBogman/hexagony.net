@@ -1,3 +1,7 @@
+export function createSvgElement(name) {
+    return document.createElementNS('http://www.w3.org/2000/svg', name);
+}
+
 export function emptyElement(element) {
     while (element.firstChild) {
         element.removeChild(element.firstChild);
