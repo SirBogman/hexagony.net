@@ -17,11 +17,12 @@ export class MemoryView {
         this.svg = svg;
         this.memoryPanZoom = memoryPanZoom;
         this.lineTemplate = svg.querySelector('defs [class~=memory_cell]');
-        this.mpTemplate = svg.querySelector('defs [class~=memory_pointer]');
         this.textTemplate = svg.querySelector('defs [class~=memory_text]');
         this.cellContainer = svg.querySelector('#cell_container');
+        this.memoryPointer = svg.querySelector('#memory_pointer');
         this.firstUpdate = true;
         this.lastDataVersion = 0;
+        this.latestMemoryPointerVersion = 0;
     }
 
     getContainerSize() {
@@ -29,7 +30,22 @@ export class MemoryView {
         return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)]
     }
 
+    // Add the memory pointer (arrow) showing the position and direction.
+    updateMemoryPointer() {
+        const version = this.hexagony.memory.memoryPointerVersion;
+        if (!this.firstUpdate && this.latestMemoryPointerVersion === version) {
+            return;
+        }
+
+        const [x, y] = this.getMPCoordinates();
+        const angle = this.hexagony.memory.dir.angle + (this.hexagony.memory.cw ? 180 : 0);
+        this.memoryPointer.style.transform = `translate(${x}px,${y}px)rotate(${angle}deg)`;
+        this.latestMemoryPointerVersion = version;
+    }
+
     update() {
+        this.updateMemoryPointer();
+
         // TODO: consider breaking this up into regions and only updating regions that changed.
         // Sometimes in Chrome it's much faster to create an element tree and then attach it.
         // Sometimes it doesn't make a difference. It doesn't seem to matter in Firefox.
@@ -43,7 +59,6 @@ export class MemoryView {
         const padding = 40;
         const currentX = this.hexagony.memory.getX();
         const currentY = this.hexagony.memory.getY();
-        const cw = this.hexagony.memory.cw;
         const minX = Math.min(this.hexagony.memory.minX, currentX) - padding;
         const minY = Math.min(this.hexagony.memory.minY, currentY) - padding;
         const maxX = Math.max(this.hexagony.memory.maxX, currentX) + padding;
@@ -76,7 +91,7 @@ export class MemoryView {
                 const yy = y * yFactor;
                 const hasValue = this.hexagony.memory.hasKey(mp, dir);
                 const line = this.lineTemplate.cloneNode();
-                let angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
+                const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
                 line.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
                 if (hasValue) {
                     line.classList.add('memory_value');
@@ -109,14 +124,6 @@ export class MemoryView {
                     text.querySelector('title').textContent = fullString;
                     text.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
                     parent.appendChild(text);
-                }
-
-                if (x === currentX && y === currentY) {
-                    // Add the memory pointer (arrow) showing the position and direction.
-                    angle = (dir === northEast ? -60 : dir === southEast ? 60 : 0) + (cw ? 180 : 0);
-                    const pointer = this.mpTemplate.cloneNode();
-                    pointer.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
-                    parent.appendChild(pointer);
                 }
             }
         }

@@ -11,21 +11,22 @@ export class Memory {
         this.maxY = this.minY = this.getY();
         // data version is incremented whenever anything in this class changes.
         this.dataVersion = 0;
+        this.memoryPointerVersion = 0;
     }
 
     reverse() {
         this.cw = !this.cw;
-        this.dataVersion++;
+        this.memoryPointerVersion++;
     }
 
     moveLeft() {
         [this.mp, this.dir, this.cw] = this.leftIndex;
-        this.dataVersion++;
+        this.memoryPointerVersion++;
     }
 
     moveRight() {
         [this.mp, this.dir, this.cw] = this.rightIndex;
-        this.dataVersion++;
+        this.memoryPointerVersion++;
     }
 
     getValueAt(mp, dir) {
