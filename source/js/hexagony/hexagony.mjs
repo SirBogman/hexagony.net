@@ -152,7 +152,7 @@ export class Hexagony {
                 case '>': this.ipDirs[this.activeIp] = this.dir.reflectAtGreaterThan(this.memory.getValue() > 0); break;
                 case ']': newIp = (this.activeIp + 1) % 6; break;
                 case '[': newIp = (this.activeIp + 5) % 6; break;
-                case '#': newIp = (Number(this.memory.getValue() % 6) + 6) % 6; break;
+                case '#': newIp = (Number(this.memory.getValue() % 6n) + 6) % 6; break;
                 case '$': this.ips[this.activeIp].add(this.dir.vector); this.handleEdges(); break;
 
                 // Digits, letters, and other characters.
