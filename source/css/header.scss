@@ -1,6 +1,6 @@
-$buttonInnerWidth: 1.5;
-$buttonOuterWidth: 2.75;
-$narrowButtonOuterWidth: 2.35;
+$buttonInnerWidth: 1.5rem;
+$buttonOuterWidth: 2.75rem;
+$narrowButtonOuterWidth: 2.35rem;
 // The slider counts as two buttons.
 $buttonCount: 17;
 $narrowWidthPadding: 0.5;
@@ -34,7 +34,7 @@ body > header nav {
 // iPhone 12: 750
 // iPhone 12 Pro: 750
 // iPhone 12 Pro Max: 832
-@media (max-width: #{($buttonCount + $narrowWidthPadding) * $narrowButtonOuterWidth}rem) {
+@media (max-width: ($buttonCount + $narrowWidthPadding) * $narrowButtonOuterWidth) {
     body > header nav {
         grid-template-columns: auto 1fr auto;
         grid-template-rows: auto auto;
@@ -61,14 +61,14 @@ nav > #play_controls {
 }
 
 body > header svg {
-    height: #{$buttonInnerWidth}rem;
-    width: #{$buttonInnerWidth}rem;
+    height: $buttonInnerWidth;
+    width: $buttonInnerWidth;
 }
 
 body > header a,
 body > header > nav div:not(.group) {
-    height: #{$buttonOuterWidth}rem;
-    width: #{$buttonOuterWidth}rem;
+    height: $buttonOuterWidth;
+    width: $buttonOuterWidth;
     display: inline-block;
     align-items: center;
     display: flex;
@@ -157,14 +157,14 @@ body > header > nav .svg_icon.disabled {
 
     body > header a,
     body > header > nav div:not(.group) {
-        width: #{$buttonOuterWidth}rem;
+        width: $buttonOuterWidth;
     }
 
     #slider_container {
-        width: #{$buttonOuterWidth * 2}rem;
+        width: $buttonOuterWidth * 2;
     }
 
     .slider {
-        width: #{$buttonOuterWidth + $buttonInnerWidth}rem;
+        width: $buttonOuterWidth + $buttonInnerWidth;
     }
 }
