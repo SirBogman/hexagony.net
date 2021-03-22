@@ -86,18 +86,27 @@ export class MemoryView {
                 if (hasValue) {
                     const value = this.hexagony.memory.getValueAt(mp, dir);
                     let string = value.toString();
+                    let extraString = '';
 
                     const charCode = Number(value % 256n);
 
                     if (charCode >= 0x20 && charCode <= 0xff && charCode !== 0x7f) {
-                        string += ` '${String.fromCharCode(charCode)}'`;
+                        extraString += ` '${String.fromCharCode(charCode)}'`;
                     }
                     else if (charCode === 10) {
-                        string += " '\\n'";
+                        extraString += " '\\n'";
                     }
 
                     const text = this.textTemplate.cloneNode(true);
-                    text.querySelector('text').textContent = string;
+                    const fullString = extraString ? `${string} ${extraString}` : string;
+
+                    text.querySelector('text').textContent = fullString.length > 8 ?
+                        string.length > 8 ?
+                            fullString.slice(0, 5) + '…' :
+                            string :
+                        fullString;
+
+                    text.querySelector('title').textContent = fullString;
                     text.setAttribute('transform', `translate(${xx},${yy})rotate(${angle})`);
                     parent.appendChild(text);
                 }
