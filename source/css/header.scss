@@ -1,8 +1,8 @@
 $buttonInnerWidth: 1.5;
 $buttonOuterWidth: 2.75;
-$narrowButtonOuterWidth: 2.5;
+$narrowButtonOuterWidth: 2.35;
 // The slider counts as two buttons.
-$buttonCount: 16;
+$buttonCount: 17;
 $narrowWidthPadding: 0.5;
 
 body header {
@@ -151,7 +151,7 @@ body > header > nav .svg_icon.disabled {
     border: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 850px) {
     // Reduce the outer width of buttons a bit, before changing to the one column layout.
     $buttonOuterWidth: $narrowButtonOuterWidth;
 

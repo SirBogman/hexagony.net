@@ -44,6 +44,7 @@ export class GridView {
         this.activeEditingCell = null;
         this.edgeTransitionMode = false;
         this.showArrows = false;
+        this.showIPs = false;
         this.svgContainer = document.querySelector('#puzzle_container')
         this.svg = document.querySelector('#puzzle');
         this.cellContainer = this.svg.querySelector('#cell_container');
