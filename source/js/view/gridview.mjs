@@ -518,7 +518,7 @@ export class GridView {
         cell.addEventListener('keydown', e => this.checkArrowKeys(cell, e));
 
         cell.addEventListener('input', () => {
-            const newText = cell.value || '.';
+            const newText = removeWhitespaceAndDebug(cell.value) || '.';
             this.updateFromHexagons(i, j, newText, k);
             // Reselect the text so that backspace can work normally.
             cell.select();
