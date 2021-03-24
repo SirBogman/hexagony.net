@@ -65,7 +65,7 @@ export class Hexagony {
 
             // Execute the current instruction
             let newIp = this.activeIp;
-            const opcode = this.grid.getInstruction(this.coords, this.dir);
+            const opcode = this.grid.getInstruction(this.coords, this.dir, newIp);
 
             switch (opcode) {
                 // NOP

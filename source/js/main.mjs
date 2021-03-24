@@ -170,9 +170,9 @@ function updateButtons() {
 }
 
 function updateViewButtons() {
-    setClass(edgeTransitionButton, 'active', gridView.edgeTransitionMode);
-    setClass(toggleArrowsButton, 'active', gridView.showArrows);
-    setClass(toggleIPsButton, 'active', gridView.showIPs);
+    setClass(edgeTransitionButton, 'active', userData.edgeTransitionMode);
+    setClass(toggleArrowsButton, 'active', userData.showArrows);
+    setClass(toggleIPsButton, 'active', userData.showIPs);
 }
 
 function breakpointExistsAt(i, j) {
@@ -229,9 +229,11 @@ function loadData() {
     userData.delay = userData.delay ?? 250;
     gridView.delay = userData.delay;
     userData.breakpoints = userData.breakpoints ?? [];
-    gridView.edgeTransitionMode = userData.edgeTransitionMode ?? true;
-    gridView.showArrows = userData.showArrows ?? false;
-    gridView.showIPs = userData.showIPs ?? false;
+    gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
+    userData.showArrows = userData.showArrows ?? false;
+    gridView.setShowArrows(userData.showArrows);
+    userData.showIPs = userData.showIPs ?? false;
+    gridView.setShowIPs(userData.showIPs);
 
     updateInputModeButtons();
     updateInputTextArea();
@@ -286,14 +288,7 @@ function generateLink() {
 function copyLink() {
     generateLink();
     urlExportText.select();
-    document.execCommand("copy");
-}
-
-function saveViewState() {
-    userData.edgeTransitionMode = gridView.edgeTransitionMode;
-    userData.showArrows = gridView.showArrows;
-    userData.showIPs = gridView.showIPs;
-    saveData();
+    document.execCommand('copy');
 }
 
 function saveData() {
@@ -318,7 +313,7 @@ function getInput() {
 }
 
 function edgeEventHandler(edgeName, isBranch) {
-    if (gridView.edgeTransitionMode) {
+    if (userData.edgeTransitionMode) {
         const connectors = gridView.edgeConnectors[edgeName];
         if (connectors) {
             connectors.forEach(x => {
@@ -381,12 +376,12 @@ function stepHelper(play = false) {
     const p2 = performance.now();
     window.totalTime += p2 - p1;
 
+    selectedIp = hexagony.activeIp;
+    gridView.updateActiveCell(executionHistory, selectedIp, hexagony.getExecutedGrid());
+
     if (stepCount > 1) {
         gridView.setExecutedState(hexagony.getExecutedGrid());
     }
-
-    selectedIp = hexagony.activeIp;
-    gridView.updateActiveCell(executionHistory);
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
@@ -550,9 +545,15 @@ function onStop() {
     onPause();
 }
 
+function resetCellColors() {
+    if (hexagony != null) {
+        gridView.updateActiveCell(executionHistory, selectedIp, hexagony.getExecutedGrid(), true);
+    }
+}
+
 function onSelectedIPChanged(event) {
-    const newSelectedIP = Number(event.target.value);
-    selectedIp = newSelectedIP;
+    selectedIp = Number(event.target.value);
+    resetCellColors();
 }
 
 function isPlaying() {
@@ -633,31 +634,29 @@ function init() {
     speedSlider.addEventListener('input', onSpeedSliderChanged);
 
     edgeTransitionButton.addEventListener('click', () => {
-        gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
+        gridView.edgeTransitionMode = userData.edgeTransitionMode = !userData.edgeTransitionMode;
         gridView.recreateGrid();
         if (hexagony != null) {
             gridView.setExecutedState(hexagony.getExecutedGrid());
         }
         gridView.setBreakpoints(getBreakpoints());
         updateViewButtons();
-        saveViewState();
+        saveData();
     });
 
     toggleArrowsButton.addEventListener('click', () => {
-        gridView.showArrows = !gridView.showArrows;
-        if (hexagony != null) {
-            gridView.clearCellExecutionColors();
-            gridView.updateActiveCell(executionHistory);
-            gridView.setExecutedState(hexagony.getExecutedGrid());
-        }
+        userData.showArrows = !userData.showArrows;
+        gridView.setShowArrows(userData.showArrows);
+        resetCellColors();
         updateViewButtons();
-        saveViewState();
+        saveData();
     });
 
     toggleIPsButton.addEventListener('click', () => {
-        gridView.showIPs = !gridView.showIPs;
+        userData.showIPs = !userData.showIPs;
+        gridView.setShowIPs(userData.showIPs);
         updateViewButtons();
-        saveViewState();
+        saveData();
     });
 
     resetViewButton.addEventListener('click', () => { if (memoryView) { memoryView.resetView(); } });
@@ -680,31 +679,3 @@ function init() {
 }
 
 init();
-
-function setupColorTest() {
-    // This function allows many of the cell colors to be seen at once.
-    setSourceCode('abcdabcd.abcd..abcd...abcd..abcd', true);
-    onStep();
-    gridView.clearCellExecutionColors();
-    hexagony.grid.executed = [
-        [[[0]]],
-        [[],[[0]]],
-        [[],[],[[0]]],
-        [[],[],[],[[0]]],
-        [[],[],[],[],[[0]]],
-        [[],[],[],[],[],[[0]]],
-    ];
-    gridView.updateActiveCell(executionHistory =
-    [
-        [[0, 3, 0], [0, 2, 0], [0, 1, 0]],
-        [[1, 3, 0], [1, 2, 0], [1, 1, 0]],
-        [[2, 3, 0], [2, 2, 0], [2, 1, 0]],
-        [[3, 3, 0], [3, 2, 0], [3, 1, 0]],
-        [[4, 3, 0], [4, 2, 0], [4, 1, 0]],
-        [[5, 3, 0], [5, 2, 0], [5, 1, 0]],
-    ]
-    );
-    gridView.setExecutedState(hexagony.getExecutedGrid());
-}
-
-setupColorTest();

@@ -6,8 +6,16 @@ const EDGE_TRANSITION_SIZE_LIMIT = 25;
 const EXECUTED_COLOR_COUNT = 10;
 const CELL_EXECUTED = arrayInitialize(6, index => `cell_executed_${index}`);
 const CELL_ACTIVE = arrayInitialize(6, index => `cell_active_${index}`);
+const CELL_INACTIVE = arrayInitialize(6, index => `cell_inactive_${index}`);
 const ARROW_EXECUTED = arrayInitialize(6, index => `arrow_executed_${index}`);
 const ARROW_ACTIVE = arrayInitialize(6, index => `arrow_active_${index}`);
+const ARROW_INACTIVE = arrayInitialize(6, index => `arrow_inactive_${index}`);
+
+const CELL_EXECUTED_ARRAY = arrayInitialize(6, i =>
+    arrayInitialize(EXECUTED_COLOR_COUNT, j => `cell_executed_${i}_${j}`));
+
+const ARROW_EXECUTED_ARRAY = arrayInitialize(6, i =>
+    arrayInitialize(EXECUTED_COLOR_COUNT, j => `arrow_executed_${i}_${j}`));
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
@@ -30,6 +38,7 @@ export class GridView {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.executionHistory = arrayInitialize(6, () => []);
+        this.selectedIp = 0;
         this.size = -1;
         this.rowCount = -1;
         this.timeoutID = null;
@@ -141,28 +150,6 @@ export class GridView {
         this._updateExecutionHistoryColors();
     }
 
-    setExecutedState(executedState) {
-        for (let ip = 0; ip < executedState.length; ip++) {
-            for (let i = 0; i < executedState[ip].length; i++) {
-                const rows = executedState[ip][i];
-                for (let j = 0; j < rows.length; j++) {
-                    const state = rows[j];
-                    if (state.length && !this.cellPaths[0][i][j].classList.contains(CELL_EXECUTED[ip])) {
-                        for (let k = 0; k < this.cellPaths.length; k++) {
-                            this.cellPaths[k][i][j].classList.add(CELL_EXECUTED[ip]);
-                        }
-                    }
-
-                    if (this.showArrows) {
-                        for (const angle of state) {
-                            this._addExecutionAngleClass([i, j, angle], ARROW_EXECUTED[ip]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     _foreachExecutionArrow(indices, allowCreate, callback) {
         const [i, j, angle] = indices;
         let create = false;
@@ -211,18 +198,20 @@ export class GridView {
             arrow.classList.remove(className));
     }
 
-    _addCellClass(indices, className) {
+    _addCellClass(indices, className, centerHexagonOnly = false) {
         const [i, j] = indices;
-        for (let k = 0; k < this.cellPaths.length; k++) {
+        const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
+        for (let k = 0; k < limit; k++) {
             const cell = this.cellPaths[k][i][j];
             cell.classList.add(className);
             cell.style.transitionDuration = `${this.delay}ms`;
         }
     }
 
-    _removeCellClass(indices, className) {
+    _removeCellClass(indices, className, centerHexagonOnly = false) {
         const [i, j] = indices;
-        for (let k = 0; k < this.cellPaths.length; k++) {
+        const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
+        for (let k = 0; k < limit; k++) {
             this.cellPaths[k][i][j].classList.remove(className);
         }
     }
@@ -293,55 +282,102 @@ export class GridView {
         }
     }
 
+    setExecutedState(executedState) {
+        this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
+            const angles = executedState[this.selectedIp][i][j];
+            if (angles.length) {
+                cell.classList.add(CELL_EXECUTED[this.selectedIp]);
+            }
+            if (this.showArrows) {
+                for (const angle of angles) {
+                    this._addExecutionAngleClass([i, j, angle], ARROW_EXECUTED[this.selectedIp]);
+                }
+            }
+        }));
+    }
+
     clearCellExecutionColors() {
         this._removeExecutionHistoryColors();
         this.executionHistory = arrayInitialize(6, () => []);
-        this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => {
-            for (let ip = 0; ip < 6; ip++) {
-                z.classList.remove(CELL_EXECUTED[ip]);
+
+        this.cellPaths[0].forEach(rows => rows.forEach(cell => {
+            cell.classList.remove(CELL_EXECUTED[this.selectedIp]);
+            if (cell.angles.length) {
+                cell.angles = [];
+                cell.querySelectorAll('.arrow_executed').forEach(a => cell.removeChild(a));
             }
-            if (z.angles.length) {
-                z.angles = [];
-                z.querySelectorAll('.arrow_executed').forEach(a => z.removeChild(a));
-            }
-        })));
+        }));
     }
 
     _removeExecutionHistoryColors() {
-        this.executionHistory.forEach((array, ip) => array.forEach((indices, i) => {
-            this._removeCellClass(indices, i ? `${CELL_EXECUTED[ip]}_${i}` : CELL_ACTIVE[ip]);
-            this._removeExecutionAngleClass(indices, i ? `${ARROW_EXECUTED[ip]}_${i}` : ARROW_ACTIVE[ip]);
-        }));
-    }
-
-    _updateExecutionHistoryColors() {
-        this.executionHistory.forEach((array, ip) => array.forEach((indices, i) => {
-            this._addCellClass(indices, i ? `${CELL_EXECUTED[ip]}_${i}` : CELL_ACTIVE[ip]);
-            if (!i) {
-                this._addExecutionAngleClass(indices, ARROW_ACTIVE[ip]);
-            }
-            else if (this.showArrows) {
-                this._addExecutionAngleClass(indices, `${ARROW_EXECUTED[ip]}_${i}`);
-            }
-
-        }));
-
         this.executionHistory.forEach((array, ip) => {
-            if (array.length) {
-                this._addCellClass(array[0], CELL_EXECUTED[ip]);
-                if (this.showArrows) {
-                    this._addExecutionAngleClass(array[0], ARROW_EXECUTED[ip]);
-                }
+            if (ip === this.selectedIp) {
+                array.forEach((indices, i) => {
+                    this._removeCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip]);
+                    this._removeExecutionAngleClass(indices, i ? ARROW_EXECUTED_ARRAY[ip][i - 1] : ARROW_ACTIVE[ip]);
+                });
+            }
+            else if (this.showIPs && array.length) {
+                this._removeCellClass(array[0], CELL_INACTIVE[ip], true);
+                this._removeExecutionAngleClass(array[0], ARROW_INACTIVE[ip]);
             }
         });
     }
 
-    updateActiveCell(executionHistory) {
+    _updateExecutionHistoryColors() {
+        this.executionHistory.forEach((array, ip) => {
+            if (ip === this.selectedIp) {
+                array.forEach((indices, i) => {
+                    this._addCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip]);
+                    if (!i) {
+                        this._addExecutionAngleClass(indices, ARROW_ACTIVE[ip]);
+                    }
+                    else if (this.showArrows) {
+                        this._addExecutionAngleClass(indices, ARROW_EXECUTED_ARRAY[ip][i - 1]);
+                    }
+                });
+            }
+            else if (this.showIPs && array.length) {
+                this._addCellClass(array[0], CELL_INACTIVE[ip], true);
+                this._addExecutionAngleClass(array[0], ARROW_INACTIVE[ip]);
+            }
+        });
+
+        // Show all executed cells for the selected IP.
+        const array = this.executionHistory[this.selectedIp];
+        if (array.length) {
+            this._addCellClass(array[0], CELL_EXECUTED[this.selectedIp], true);
+            if (this.showArrows) {
+                this._addExecutionAngleClass(array[0], ARROW_EXECUTED[this.selectedIp]);
+            }
+        }
+    }
+
+    setShowArrows(value) {
+        this.showArrows = value;
+    }
+
+    setShowIPs(value) {
+        this._removeExecutionHistoryColors();
+        this.showIPs = value;
+        this._updateExecutionHistoryColors();
+    }
+
+    updateActiveCell(executionHistory, selectedIp, executedState, forceReset) {
+        const reset = forceReset || selectedIp !== this.selectedIp;
+        if (reset) {
+            this.clearCellExecutionColors();
+        }
+
         this._removeExecutionHistoryColors();
         // Add one for the active cell.
-
         this.executionHistory = executionHistory.map(array => array.slice(0, EXECUTED_COLOR_COUNT + 1));
+        this.selectedIp = selectedIp;
         this._updateExecutionHistoryColors();
+
+        if (reset) {
+            this.setExecutedState(executedState);
+        }
     }
 
     updateHexagonWithCode(index, code) {

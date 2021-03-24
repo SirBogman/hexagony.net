@@ -115,8 +115,8 @@ $colors:
         fill: makeSecondaryColor($executedColor);
     }
 
-    @for $i from $executedColors through 1 {
-        $value: $executedMinLightness + ($i - 1) * $executedLightnessIncrement;
+    @for $i from $executedColors - 1 through 0 {
+        $value: $executedMinLightness + $i * $executedLightnessIncrement;
         $currentColor: scaleLightness($color, $value);
         @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
 
@@ -135,9 +135,19 @@ $colors:
     }
 }
 
-// The active colors are generated in a separate loop so they always have higher priority.
+// The active/inactive colors are generated in a separate loop so they always have higher priority.
 @for $j from 5 through 0 {
     $color: nth($colors, $j + 1);
+    $inactiveColor: scaleLightness($color, $executedMinLightness);
+
+    .arrow_inactive_#{$j} {
+        fill: makeArrowColor($inactiveColor);
+        stroke: none;
+    }
+
+    .cell_inactive_#{$j} {
+        fill: $inactiveColor;
+    }
 
     .arrow_active_#{$j} {
         fill: makeArrowColor($color);
