@@ -450,7 +450,6 @@ export class GridView {
     _resetPuzzleParent() {
         const puzzleParent = document.querySelector('#puzzle_parent');
         puzzleParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
-        puzzleParent.style.transitionProperty = 'none';
     }
 
     checkArrowKeys(elem, event) {

@@ -11,7 +11,6 @@ import '../css/index.scss';
 const MAX_SPEED_ITERATIONS = 10000;
 const EXECUTION_HISTORY_COUNT = 20;
 
-//const puzzleParent = document.querySelector('#puzzle_parent');
 const appGrid = document.querySelector('#app_grid');
 const playContent = document.querySelectorAll('.play_content')
 const editContent = document.querySelectorAll('.edit_content')

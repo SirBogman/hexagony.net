@@ -1,10 +1,5 @@
 @use 'root.scss';
 
-#puzzle_parent {
-    transition-duration: 0.85s;
-    transition-timing-function: ease-in-out;
-}
-
 .pre {
     white-space: pre;
     font-family: root.$monospace;
@@ -17,7 +12,6 @@
 
 #puzzle_container {
     position: relative;
-    /* overflow: hidden; */
 }
 
 .puzzle {
