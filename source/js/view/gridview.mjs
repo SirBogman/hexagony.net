@@ -35,8 +35,6 @@ export class GridView {
         this.edgeConnectors = {};
         this.offsets = [];
         this.delay = 0;
-        this.globalOffsetX = 0;
-        this.globalOffsetY = 0;
         this.executionHistory = arrayInitialize(6, () => []);
         this.selectedIp = 0;
         this.size = -1;
@@ -608,8 +606,6 @@ export class GridView {
         const cellWidth = cellOffsetX * 2;
         const padding = 35;
 
-        this.globalOffsetX = cellWidth;
-        this.globalOffsetY = cellOffsetY;
         const edgeTransitionMode = this.edgeTransitionMode && size <= EDGE_TRANSITION_SIZE_LIMIT;
 
         // When showing 6 hexagons around a center hexagon,
