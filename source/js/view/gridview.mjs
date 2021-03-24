@@ -34,7 +34,6 @@ export class GridView {
         this.cellPaths = [];
         this.cellInput = [];
         this.edgeConnectors = {};
-        this.offsets = [];
         this.delay = 0;
         this.executionHistory = arrayInitialize(6, () => []);
         this.selectedIp = 0;
@@ -658,10 +657,9 @@ export class GridView {
         const largeGridOneColumnOffset = largeGridTwoColumnOffset / 2;
         const largeGridOneRowOffset = size;
 
-        this.offsets = [ [0,0] ];
-
         let horizontalConnectorsLimit = largeGridTwoColumnOffset;
         let verticalConnectorsLimit;
+        let offsets = [];
 
         // Create extra hexagons to make it look infinite.
         if (edgeTransitionMode) {
@@ -674,26 +672,28 @@ export class GridView {
 
             for (let i = -verticalLimit; i < verticalLimit; i++) {
                 // Columns to the immediate right and left with 4 hexagons (two fully visible)
-                this.offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-                this.offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+                offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
+                offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
             }
 
             for (let i = -verticalLimit; i <= verticalLimit; i++) {
                 // For the column two to the left, show a couple more hexagons, because their connectors are visible.
-                this.offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
+                offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
 
                 // Column two to the right.
-                this.offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
+                offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
 
-                if (i != 0) {
-                    // Add hexagons to the center column. The connectors for the top and bottom ones are visible.
-                    this.offsets.push([0, i * largeGridTwoRowOffset]);
-                }
+                // Add hexagons to the center column. The connectors for the top and bottom ones are visible.
+                offsets.push([0, i * largeGridTwoRowOffset]);
             }
         }
+        else {
+            // Center hexagon only.
+            offsets.push([0,0]);
+        }
 
-        const measurements = this.offsets.map(x => { return { values: x, length: x[0]**2 + x[1]**2 }; });
-        this.offsets = measurements.sort((a, b) => a.length - b.length).map(a => a.values);
+        const measurements = offsets.map(x => { return { values: x, length: x[0]**2 + x[1]**2 }; });
+        offsets = measurements.sort((a, b) => a.length - b.length).map(a => a.values);
 
         // TODO: when size is large enough, limit the number of hexagons.
         // if (this.edgeTransitionMode) {
@@ -701,7 +701,7 @@ export class GridView {
         //     horizontalConnectorsLimit = largeGridOneRowOffset;
         //     verticalConnectorsLimit = -size;
 
-        //     this.offsets = [
+        //     offsets = [
         //         [0,0], // Center
         //         [0, -largeGridTwoRowOffset, 'N'],
         //         [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
@@ -725,13 +725,13 @@ export class GridView {
             outlineHelper(cellOffsetX, -radius/2, 0, -radius, size);
 
         const hexagonParents = [];
-        for (let k = 0; k < this.offsets.length; k++) {
+        for (let k = 0; k < offsets.length; k++) {
             const node = createSvgElement('g');
             parent.appendChild(node);
             hexagonParents.push(node);
         }
 
-        for (let k = 0; k < this.offsets.length; k++) {
+        for (let k = 0; k < offsets.length; k++) {
             const pathGrid = [];
             const inputGrid = [];
             for (let i = 0; i < this.rowCount; i++) {
@@ -745,8 +745,8 @@ export class GridView {
                     }
                     cell.angles = [];
                     pathRow.push(cell);
-                    const cellX = getX(size, i, j) + this.offsets[k][0] * cellWidth;
-                    const cellY = getY(size, i, j) + this.offsets[k][1] * cellOffsetY;
+                    const cellX = getX(size, i, j) + offsets[k][0] * cellWidth;
+                    const cellY = getY(size, i, j) + offsets[k][1] * cellOffsetY;
                     cell.id = `path_${i}_${j}_${k}`;
                     cell.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
                     cell.querySelector('title').textContent = tooltip;
@@ -773,8 +773,8 @@ export class GridView {
             this.cellInput.push(inputGrid);
 
             {
-                const cellX = getX(size, 0, 0) + this.offsets[k][0] * cellWidth;
-                const cellY = getY(size, 0, 0) + this.offsets[k][1] * cellOffsetY;
+                const cellX = getX(size, 0, 0) + offsets[k][0] * cellWidth;
+                const cellY = getY(size, 0, 0) + offsets[k][1] * cellOffsetY;
                 const outline = createSvgElement('path');
                 outline.classList.add('outline');
                 if (k && edgeTransitionMode) {
@@ -793,10 +793,10 @@ export class GridView {
                     let connector, cellX, cellY, scaleX, scaleY;
 
                     // Top edge.
-                    if (this.offsets[k][1] > verticalConnectorsLimit) {
+                    if (offsets[k][1] > verticalConnectorsLimit) {
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
-                        cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                        cellY = getY(size, 0, i) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                        cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, 0, i) + offsets[k][1] * cellOffsetY - 0.75 * radius;
                         scaleX = radius / 20;
                         scaleY = -radius / 20;
                         if (i == 0) {
@@ -813,8 +813,8 @@ export class GridView {
                         this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
-                        cellX = getX(size, 0, i) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                        cellY = getY(size, 0, i) + (this.offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
+                        cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, 0, i) + (offsets[k][1] - 1) * cellOffsetY - 0.75 * radius;
                         scaleX = scaleY = -radius / 20;
                         if (i == 0) {
                             cellX -= cellOffsetX;
@@ -828,11 +828,11 @@ export class GridView {
                         this._addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector);
                     }
 
-                    if (this.offsets[k][0] < horizontalConnectorsLimit && this.offsets[k][1] >= verticalConnectorsLimit) {
+                    if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] >= verticalConnectorsLimit) {
                         // North east edge
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
-                        cellX = getX(size, i, getRowSize(size, i) - 1) + this.offsets[k][0] * cellWidth + cellOffsetX;
-                        cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY;
+                        cellX = getX(size, i, getRowSize(size, i) - 1) + offsets[k][0] * cellWidth + cellOffsetX;
+                        cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY;
                         scaleX = radius / 20;
                         scaleY = -radius / 20;
                         if (i == 0) {
@@ -848,8 +848,8 @@ export class GridView {
                         this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
-                        cellX = getX(size, i, getRowSize(size, i) - 1) + (this.offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
-                        cellY = getY(size, i, getRowSize(size, i) - 1) + this.offsets[k][1] * cellOffsetY - 0.75 * radius;
+                        cellX = getX(size, i, getRowSize(size, i) - 1) + (offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY - 0.75 * radius;
                         scaleX = scaleY = -radius / 20;
                         if (i == 0) {
                             cellX -= cellWidth;
@@ -862,12 +862,12 @@ export class GridView {
                         this._addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector);
                     }
 
-                    if (this.offsets[k][0] < horizontalConnectorsLimit && this.offsets[k][1] <= -verticalConnectorsLimit) {
+                    if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] <= -verticalConnectorsLimit) {
                         // South east edge
                         const a = i + size - 1;
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
-                        cellX = getX(size, a, getRowSize(size, a) - 1) + this.offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
-                        cellY = getY(size, a, getRowSize(size, a) - 1) + this.offsets[k][1] * cellOffsetY + 0.75 * radius;
+                        cellX = getX(size, a, getRowSize(size, a) - 1) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(size, a, getRowSize(size, a) - 1) + offsets[k][1] * cellOffsetY + 0.75 * radius;
                         scaleX = radius / 20;
                         scaleY = -radius / 20;
                         if (i == 0) {
@@ -882,8 +882,8 @@ export class GridView {
                         this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
-                        cellX = getX(size, a, getRowSize(size, a) - 1) + (this.offsets[k][0] + 1) * cellWidth;
-                        cellY = getY(size, a, getRowSize(size, a) - 1) + (this.offsets[k][1] + 1) * cellOffsetY;
+                        cellX = getX(size, a, getRowSize(size, a) - 1) + (offsets[k][0] + 1) * cellWidth;
+                        cellY = getY(size, a, getRowSize(size, a) - 1) + (offsets[k][1] + 1) * cellOffsetY;
                         scaleX = scaleY = -radius / 20;
                         if (i == 0) {
                             cellX -= cellOffsetX;
