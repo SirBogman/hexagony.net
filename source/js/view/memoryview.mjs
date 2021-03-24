@@ -39,7 +39,7 @@ export class MemoryView {
 
         const [x, y] = this.getMPCoordinates();
         const angle = this.hexagony.memory.dir.angle + (this.hexagony.memory.cw ? 180 : 0);
-        this.memoryPointer.style.transform = `translate(${x}px,${y}px)rotate(${angle}deg)`;
+        this.memoryPointer.style.transform = `translate(${x}px,${y}px)rotate(${angle % 360}deg)`;
         this.latestMemoryPointerVersion = version;
     }
 
