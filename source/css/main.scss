@@ -109,8 +109,9 @@
     grid-template-rows: auto auto 1fr;
 }
 
-#output_panel {
+div #output_panel {
     grid-area: output;
+    min-height: 353px;
 }
 
 #output_container {
@@ -125,10 +126,11 @@
     overflow: auto;
 }
 
-#import_panel {
+div #import_panel {
     grid-area: import;
     display: grid;
     grid-template-rows: auto auto 1fr;
+    min-height: 353px;
 }
 
 textarea {
