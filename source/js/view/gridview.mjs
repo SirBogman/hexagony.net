@@ -187,7 +187,7 @@ export class GridView {
     _addExecutionAngleClass(indices, className) {
         this._foreachExecutionArrow(indices, true, arrow => {
             arrow.classList.add(className);
-            arrow.style.transitionDuration = `${this.delay}ms`;
+            arrow.style.transitionDuration = this.delay;
         });
     }
 
@@ -202,7 +202,7 @@ export class GridView {
         for (let k = 0; k < limit; k++) {
             const cell = this.cellPaths[k][i][j];
             cell.classList.add(className);
-            cell.style.transitionDuration = `${this.delay}ms`;
+            cell.style.transitionDuration = this.delay;
         }
     }
 
@@ -285,6 +285,7 @@ export class GridView {
             const angles = executedState[this.selectedIp][i][j];
             if (angles.length) {
                 cell.classList.add(CELL_EXECUTED[this.selectedIp]);
+                cell.style.transitionDuration = this.delay;
             }
             if (this.showArrows) {
                 for (const angle of angles) {
@@ -349,6 +350,11 @@ export class GridView {
                 this._addExecutionAngleClass(array[0], ARROW_EXECUTED[this.selectedIp]);
             }
         }
+    }
+
+    setDelay(value) {
+        // Use a default value for high-speed mode, where delay is set to zero.
+        this.delay = `${value ? value : 250}ms`;
     }
 
     setShowArrows(value) {

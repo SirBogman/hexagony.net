@@ -130,8 +130,7 @@ function updateInputModeButtons() {
 }
 
 function onSpeedSliderChanged() {
-    userData.delay = Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2);
-    gridView.delay = userData.delay;
+    gridView.setDelay(userData.delay = Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2));
     saveData();
 }
 
@@ -226,8 +225,7 @@ function loadData() {
         userData = { code: layoutSource("H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;") };
     }
 
-    userData.delay = userData.delay ?? 250;
-    gridView.delay = userData.delay;
+    gridView.setDelay(userData.delay = userData.delay ?? 250);
     userData.breakpoints = userData.breakpoints ?? [];
     gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
     userData.showArrows = userData.showArrows ?? false;
