@@ -53,66 +53,104 @@
     stroke-miterlimit: 10;
 }
 
-$arrow_lightness_shift: 0.2;
+$arrow_lightness_shift1: 0.2;
 $executed_lightness: 0.95;
-$active_ligtness: 0.50;
 
-@function lightenColor($c) {
-    @return mix($c, white, 25%);
+$arrowLightnessShift: -50%;
+$executeLightnessShift: 90%;
+$secondaryLightnessShift: 75%;
+
+@function scaleLightness($color, $amount) {
+    // Example:
+    // color.scale(hsl(0, 100%, 70%), $lightness: 50%) == hsl(0, 100%, 85%)
+    @return color.scale($color, $lightness: $amount);
 }
 
-.arrow_executed {
-    fill: hsl(200, 100%, percentage($executed_lightness - $arrow_lightness_shift));
-    stroke: none;
+@function makeSecondaryColor($color) {
+    @return scaleLightness($color, $secondaryLightnessShift);
 }
 
-.cell_executed {
-    fill: hsl(180, 100%, percentage($executed_lightness));
+@function makeArrowColor($color) {
+    @return scaleLightness($color, $arrowLightnessShift);
 }
 
-.cell_executed.secondary {
-    fill: lightenColor(hsl(180, 100%, percentage($executed_lightness)));
-}
+$executedColors: 10;
+$executedMinLightness: 66%;
+$executedMaxLightness: 88%;
+$executedLightnessIncrement: ($executedMaxLightness - $executedMinLightness) / ($executedColors - 1);
 
-$executed_colors: 10;
-$executed_max_lightness: 0.93;
-$executed_min_lightness: 0.83;
-$executed_lightness_increment: ($executed_max_lightness - $executed_min_lightness) / ($executed_colors - 1);
+$colors:
+    hsl(200, 100%, 50%)
+    hsl(270, 100%, 70%)
+    hsl(0, 100%, 70%)
+    hsl(30, 100%, 50%)
+    hsl(60, 100%, 50%)
+    hsl(140, 80%, 50%)
+;
 
-@for $i from $executed_colors through 1 {
-    $value: $executed_min_lightness + ($i - 1) * $executed_lightness_increment;
+@for $j from 5 through 0 {
+    $color: nth($colors, $j + 1);
+    $executedColor: scaleLightness($color, $executeLightnessShift);
 
-    .arrow_executed#{$i} {
-        fill: hsl(200, 100%, percentage($value - $arrow_lightness_shift));
+    .color_swatch_#{$j} {
+        display: inline-block;
+        // margin: 0px 0 -0.125rem 0.15rem;
+        margin: 0px 0 0 0.15rem;
+        border: 1px solid var(--color);
+        background: $color;
+        width: 0.8rem;
+        height: 0.8rem;
     }
 
-    .cell_executed#{$i} {
-        fill: hsl(200, 100%, percentage($value));
+    .arrow_executed_#{$j} {
+        fill: makeArrowColor($executedColor);
+        stroke: none;
     }
 
-    .cell_executed#{$i}.secondary {
-        fill: lightenColor(hsl(200, 100%, percentage($value)));
+    .cell_executed_#{$j} {
+        fill: $executedColor;
+    }
+
+    .cell_executed_#{$j}.secondary {
+        fill: makeSecondaryColor($executedColor);
+    }
+
+    @for $i from $executedColors through 1 {
+        $value: $executedMinLightness + ($i - 1) * $executedLightnessIncrement;
+        $currentColor: scaleLightness($color, $value);
+        @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
+
+        .arrow_executed_#{$j}_#{$i} {
+            fill: makeArrowColor($currentColor);
+            stroke: none;
+        }
+
+        .cell_executed_#{$j}_#{$i} {
+            fill: $currentColor;
+        }
+
+        .cell_executed_#{$j}_#{$i}.secondary {
+            fill: makeSecondaryColor($currentColor);
+        }
     }
 }
 
-.arrow_active {
-    fill: hsl(200, 100%, percentage($active_ligtness - $arrow_lightness_shift));
-}
+// The active colors are generated in a separate loop so they always have higher priority.
+@for $j from 5 through 0 {
+    $color: nth($colors, $j + 1);
 
-.cell_active {
-    fill: hsl(200, 100%, percentage($active_ligtness));
-}
+    .arrow_active_#{$j} {
+        fill: makeArrowColor($color);
+        stroke: none;
+    }
 
-.cell_active.secondary {
-    fill: lightenColor(hsl(200, 100%, percentage($active_ligtness)));
-}
+    .cell_active_#{$j} {
+        fill: $color;
+    }
 
-.cell_terminated {
-    fill: var(--red);
-}
-
-.cell_terminated.secondary {
-    fill: lightenColor(root.$red);
+    .cell_active_#{$j}.secondary {
+        fill: makeSecondaryColor($color);
+    }
 }
 
 .connector {
@@ -155,4 +193,8 @@ $executed_lightness_increment: ($executed_max_lightness - $executed_min_lightnes
 .connector_neutral_flash {
     stroke: var(--orange);
     animation: connector_flash 0.5s ease-out 0s 2 alternate;
+}
+
+.active_ip {
+    font-weight: bold;
 }

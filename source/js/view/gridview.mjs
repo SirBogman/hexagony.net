@@ -1,14 +1,13 @@
-import { countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
+import { arrayInitialize, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { createSvgElement, emptyElement } from "./viewutil.mjs";
 
 const EXTRA_HEXAGONS_SIZE_LIMIT = 6;
 const EDGE_TRANSITION_SIZE_LIMIT = 25;
 const EXECUTED_COLOR_COUNT = 10;
-const CELL_EXECUTED = 'cell_executed';
-const CELL_ACTIVE = 'cell_active';
-const CELL_TERMINATED = 'cell_terminated';
-const ARROW_EXECUTED = 'arrow_executed';
-const ARROW_ACTIVE = 'arrow_active';
+const CELL_EXECUTED = arrayInitialize(6, index => `cell_executed_${index}`);
+const CELL_ACTIVE = arrayInitialize(6, index => `cell_active_${index}`);
+const ARROW_EXECUTED = arrayInitialize(6, index => `arrow_executed_${index}`);
+const ARROW_ACTIVE = arrayInitialize(6, index => `arrow_active_${index}`);
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
@@ -30,7 +29,7 @@ export class GridView {
         this.delay = 0;
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
-        this.executionHistory = [];
+        this.executionHistory = arrayInitialize(6, () => []);
         this.size = -1;
         this.rowCount = -1;
         this.timeoutID = null;
@@ -58,7 +57,6 @@ export class GridView {
         this.svg.addEventListener('animationend', event => {
             event.target.classList.remove('connector_flash');
             event.target.classList.remove('connector_neutral_flash');
-
         });
 
         this.svg.addEventListener('click', event => {
@@ -133,27 +131,33 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(isTerminated = false) {
+    recreateGrid() {
         this._createGrid(this.size);
 
         for (let k = 0; k < this.cellPaths.length; k++) {
             this.updateHexagonWithCode(k, this.filteredSourceCode);
         }
 
-        this._updateExecutionHistoryColors(isTerminated);
+        this._updateExecutionHistoryColors();
     }
 
     setExecutedState(executedState) {
-        for (let i = 0; i < executedState.length; i++) {
-            for (let j = 0; j < executedState[i].length; j++) {
-                if (executedState[i][j].length && !this.cellPaths[0][i][j].classList.contains(CELL_EXECUTED)) {
-                    for (let k = 0; k < this.cellPaths.length; k++) {
-                        this.cellPaths[k][i][j].classList.add(CELL_EXECUTED);
+        for (let ip = 0; ip < executedState.length; ip++) {
+            for (let i = 0; i < executedState[ip].length; i++) {
+                const rows = executedState[ip][i];
+                for (let j = 0; j < rows.length; j++) {
+                    const state = rows[j];
+                    if (state.length && !this.cellPaths[0][i][j].classList.contains(CELL_EXECUTED[ip])) {
+                        for (let k = 0; k < this.cellPaths.length; k++) {
+                            this.cellPaths[k][i][j].classList.add(CELL_EXECUTED[ip]);
+                        }
                     }
-                }
 
-                for (const angle of executedState[i][j]) {
-                    this._addExecutionAngleClass([i, j, angle], ARROW_EXECUTED);
+                    if (this.showArrows) {
+                        for (const angle of state) {
+                            this._addExecutionAngleClass([i, j, angle], ARROW_EXECUTED[ip]);
+                        }
+                    }
                 }
             }
         }
@@ -187,19 +191,24 @@ export class GridView {
         }
 
         callback(arrow);
-    }
 
-    _addExecutionAngleClass(indices, className) {
-        if (this.showArrows) {
-            this._foreachExecutionArrow(indices, true, arrow => {
-                arrow.classList.add(className);
-                arrow.style.transitionDuration = `${this.delay}ms`;
-            });
+        // Remove unused arrows.
+        if (arrow.classList.length === 1) {
+            cell.removeChild(arrow);
+            cell.angles = cell.angles.filter(x => x !== angle);
         }
     }
 
+    _addExecutionAngleClass(indices, className) {
+        this._foreachExecutionArrow(indices, true, arrow => {
+            arrow.classList.add(className);
+            arrow.style.transitionDuration = `${this.delay}ms`;
+        });
+    }
+
     _removeExecutionAngleClass(indices, className) {
-        this._foreachExecutionArrow(indices, false, arrow => arrow.classList.remove(className));
+        this._foreachExecutionArrow(indices, false, arrow =>
+            arrow.classList.remove(className));
     }
 
     _addCellClass(indices, className) {
@@ -286,9 +295,11 @@ export class GridView {
 
     clearCellExecutionColors() {
         this._removeExecutionHistoryColors();
-        this.executionHistory = [];
+        this.executionHistory = arrayInitialize(6, () => []);
         this.cellPaths.forEach(x => x.forEach(y => y.forEach(z => {
-            z.classList.remove(CELL_EXECUTED);
+            for (let ip = 0; ip < 6; ip++) {
+                z.classList.remove(CELL_EXECUTED[ip]);
+            }
             if (z.angles.length) {
                 z.angles = [];
                 z.querySelectorAll('.arrow_executed').forEach(a => z.removeChild(a));
@@ -297,37 +308,40 @@ export class GridView {
     }
 
     _removeExecutionHistoryColors() {
-        this.executionHistory.forEach((indices, i) => {
-            this._removeCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE);
-            this._removeExecutionAngleClass(indices, i ? `${ARROW_EXECUTED}${i}` : ARROW_ACTIVE);
-        });
-
-        if (this.executionHistory[0]) {
-            this._removeCellClass(this.executionHistory[0], CELL_TERMINATED);
-        }
+        this.executionHistory.forEach((array, ip) => array.forEach((indices, i) => {
+            this._removeCellClass(indices, i ? `${CELL_EXECUTED[ip]}_${i}` : CELL_ACTIVE[ip]);
+            this._removeExecutionAngleClass(indices, i ? `${ARROW_EXECUTED[ip]}_${i}` : ARROW_ACTIVE[ip]);
+        }));
     }
 
-    _updateExecutionHistoryColors(isTerminated) {
-        this.executionHistory.forEach((indices, i) => {
-            this._addCellClass(indices, i ? `${CELL_EXECUTED}${i}` : CELL_ACTIVE);
-            this._addExecutionAngleClass(indices, i ? `${ARROW_EXECUTED}${i}` : ARROW_ACTIVE);
-        });
-
-        if (this.executionHistory[0]) {
-            this._addCellClass(this.executionHistory[0], CELL_EXECUTED);
-            this._addExecutionAngleClass(this.executionHistory[0], ARROW_EXECUTED);
-
-            if (isTerminated) {
-                this._addCellClass(this.executionHistory[0], CELL_TERMINATED);
+    _updateExecutionHistoryColors() {
+        this.executionHistory.forEach((array, ip) => array.forEach((indices, i) => {
+            this._addCellClass(indices, i ? `${CELL_EXECUTED[ip]}_${i}` : CELL_ACTIVE[ip]);
+            if (!i) {
+                this._addExecutionAngleClass(indices, ARROW_ACTIVE[ip]);
             }
-        }
+            else if (this.showArrows) {
+                this._addExecutionAngleClass(indices, `${ARROW_EXECUTED[ip]}_${i}`);
+            }
+
+        }));
+
+        this.executionHistory.forEach((array, ip) => {
+            if (array.length) {
+                this._addCellClass(array[0], CELL_EXECUTED[ip]);
+                if (this.showArrows) {
+                    this._addExecutionAngleClass(array[0], ARROW_EXECUTED[ip]);
+                }
+            }
+        });
     }
 
-    updateActiveCell(isTerminated, executionHistory) {
+    updateActiveCell(executionHistory) {
         this._removeExecutionHistoryColors();
         // Add one for the active cell.
-        this.executionHistory = executionHistory.slice(0, EXECUTED_COLOR_COUNT + 1);
-        this._updateExecutionHistoryColors(isTerminated);
+
+        this.executionHistory = executionHistory.map(array => array.slice(0, EXECUTED_COLOR_COUNT + 1));
+        this._updateExecutionHistoryColors();
     }
 
     updateHexagonWithCode(index, code) {
@@ -644,6 +658,10 @@ export class GridView {
                 }
             }
         }
+
+        const measurements = this.offsets.map(x => { return { values: x, length: x[0]**2 + x[1]**2 }; });
+        this.offsets = measurements.sort((a, b) => a.length - b.length).map(a => a.values);
+
         // TODO: when size is large enough, limit the number of hexagons.
         // if (this.edgeTransitionMode) {
         //     // Layout with seven hexagons only.

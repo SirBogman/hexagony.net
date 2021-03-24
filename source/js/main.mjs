@@ -1,5 +1,5 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
-import { countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
+import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
 import { MemoryView } from './view/memoryview.mjs';
 import { setClass, setEnabledClass } from './view/viewutil.mjs';
@@ -20,6 +20,7 @@ const sourceCodeInput = document.querySelector('#sourcecode');
 const inputBox = document.querySelector('#input');
 const infoInfo = document.querySelector('#info_info');
 const stateInfo = document.querySelector('#state_info');
+const statePanel = document.querySelector('#state_panel');
 
 const smallerButton = document.querySelector('#smaller');
 const resetButton = document.querySelector('#reset');
@@ -61,6 +62,7 @@ let gridView;
 let hexagony;
 let memoryView;
 let executionHistory = [];
+let selectedIp = 0;
 let initFinished = false;
 let memoryPanZoom;
 let userData;
@@ -335,7 +337,11 @@ function stepHelper(play = false) {
     if (hexagony == null) {
         hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
         memoryView = new MemoryView(hexagony, memorySvg, memoryPanZoom);
-        executionHistory = [];
+        executionHistory = arrayInitialize(6, index => {
+            const [coords, dir] = hexagony.getIPState(index);
+            const [i, j] = hexagony.grid.axialToIndex(coords);
+            return [[i, j, dir.angle]];
+        });
         window.totalTime = 0;
     }
 
@@ -359,7 +365,11 @@ function stepHelper(play = false) {
 
         // The active coordinates don't change when the program terminates.
         if (!isTerminated()) {
-            executionHistory = [[i, j, angle], ...executionHistory.slice(0, EXECUTION_HISTORY_COUNT)];
+            const ip = hexagony.activeIp;
+            const previous = executionHistory[ip];
+            if (i != previous[0][0] || j != previous[0][1] || angle != previous[0][2]) {
+                executionHistory[ip] = [[i, j, angle], ...previous.slice(0, EXECUTION_HISTORY_COUNT)];
+            }
         }
 
         if (breakpointExistsAt(i, j)) {
@@ -375,7 +385,8 @@ function stepHelper(play = false) {
         gridView.setExecutedState(hexagony.getExecutedGrid());
     }
 
-    gridView.updateActiveCell(isTerminated(), executionHistory);
+    selectedIp = hexagony.activeIp;
+    gridView.updateActiveCell(executionHistory);
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
@@ -397,8 +408,10 @@ function stepHelper(play = false) {
 
 function getExecutionInfoText() {
     return `
-        <p class="col1">Breakpoints<p class="col2 right">${userData.breakpoints.length}
-        <p class="col1">Instructions Executed<p class="col2 right">${hexagony != null ? hexagony.ticks.toLocaleString('en') : 0}`;
+        <p class="col1">Breakpoints
+        <p class="col2 right">${userData.breakpoints.length}
+        <p class="col1">Executed Count
+        <p class="col2 right">${hexagony != null ? hexagony.ticks.toLocaleString('en') : 0}`;
 }
 
 function getIPStateText() {
@@ -406,15 +419,19 @@ function getIPStateText() {
     if (hexagony) {
         for (let i = 0; i < 6; i++) {
             const [coords, dir] = hexagony.getIPState(i);
+            const active = hexagony.activeIp === i ? 'active_ip' : '';
+            const activeChecked = selectedIp === i ? 'checked' : '';
+            const titleExtra = hexagony.activeIp === i ? '. This is the currently active IP' : '';
             text += `
-                <p class="col1">IP ${i}
+                <label class="col1 ${active}" title="Show the execution path for instruction pointer ${i}${titleExtra}.">
+                    <input type="radio" name="select_ip" value="${i}" id="select_ip_${i}" ${activeChecked}>
+                    <span class="color_swatch_${i}"></span>
+                    IP ${i}
+                </label>
                 <p class="col2 right" title="Coordinates of instruction pointer ${i}">${coords.q}
                 <p class="col3 right" title="Coordinates of instruction pointer ${i}">${coords.r}
-                <p class="col4" title="Direction of instruction pointer ${i}">${dir}`;
-
-            if (hexagony.activeIp == i) {
-                text += `<p class="col5" title="The active instruction pointer is ${i}">active`;
-            }
+                <p class="col4" title="Direction of instruction pointer ${i}">${dir}
+                </p>`;
         }
 
         text += `
@@ -433,7 +450,7 @@ function updateBreakpointCountText() {
 }
 
 function updateStateText() {
-    stateInfo.innerHTML = getExecutionInfoText() + getIPStateText() + getInfoText();
+    stateInfo.innerHTML = getIPStateText() + getExecutionInfoText() + getInfoText(1);
 }
 
 function resizeCode(size) {
@@ -527,10 +544,15 @@ function onPause() {
 function onStop() {
     hexagony = null;
     memoryView = null;
-    executionHistory = [];
+    executionHistory = null;
     gridView.clearCellExecutionColors();
     updateButtons();
     onPause();
+}
+
+function onSelectedIPChanged(event) {
+    const newSelectedIP = Number(event.target.value);
+    selectedIp = newSelectedIP;
 }
 
 function isPlaying() {
@@ -607,11 +629,12 @@ function init() {
 
     inputArgumentsRadioButton.addEventListener('change', onInputModeChanged);
     inputRawRadioButton.addEventListener('change', onInputModeChanged);
+    statePanel.addEventListener('change', onSelectedIPChanged);
     speedSlider.addEventListener('input', onSpeedSliderChanged);
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = !gridView.edgeTransitionMode;
-        gridView.recreateGrid(isTerminated());
+        gridView.recreateGrid();
         if (hexagony != null) {
             gridView.setExecutedState(hexagony.getExecutedGrid());
         }
@@ -624,7 +647,7 @@ function init() {
         gridView.showArrows = !gridView.showArrows;
         if (hexagony != null) {
             gridView.clearCellExecutionColors();
-            gridView.updateActiveCell(isTerminated(), executionHistory);
+            gridView.updateActiveCell(executionHistory);
             gridView.setExecutedState(hexagony.getExecutedGrid());
         }
         updateViewButtons();
@@ -657,3 +680,31 @@ function init() {
 }
 
 init();
+
+function setupColorTest() {
+    // This function allows many of the cell colors to be seen at once.
+    setSourceCode('abcdabcd.abcd..abcd...abcd..abcd', true);
+    onStep();
+    gridView.clearCellExecutionColors();
+    hexagony.grid.executed = [
+        [[[0]]],
+        [[],[[0]]],
+        [[],[],[[0]]],
+        [[],[],[],[[0]]],
+        [[],[],[],[],[[0]]],
+        [[],[],[],[],[],[[0]]],
+    ];
+    gridView.updateActiveCell(executionHistory =
+    [
+        [[0, 3, 0], [0, 2, 0], [0, 1, 0]],
+        [[1, 3, 0], [1, 2, 0], [1, 1, 0]],
+        [[2, 3, 0], [2, 2, 0], [2, 1, 0]],
+        [[3, 3, 0], [3, 2, 0], [3, 1, 0]],
+        [[4, 3, 0], [4, 2, 0], [4, 1, 0]],
+        [[5, 3, 0], [5, 2, 0], [5, 1, 0]],
+    ]
+    );
+    gridView.setExecutedState(hexagony.getExecutedGrid());
+}
+
+setupColorTest();

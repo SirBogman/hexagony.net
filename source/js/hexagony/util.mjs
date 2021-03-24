@@ -1,5 +1,9 @@
 import {PointAxial} from './pointaxial.mjs';
 
+export function arrayInitialize(length, indexToValue) {
+    return Array.from(new Array(length), (_, index) => indexToValue(index));
+}
+
 export function arraysEqual(a, b) {
     if (a === null || b === null)
         return (a === null) === (b === null);

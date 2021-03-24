@@ -1,5 +1,4 @@
-import {getHexagonSize} from './util.mjs';
-import {getRowSize} from './util.mjs';
+import { arrayInitialize, getHexagonSize, getRowSize } from './util.mjs';
 
 export class Grid {
     constructor(sourceCode) {
@@ -26,34 +25,32 @@ export class Grid {
         this.rowCount = this.size * 2 - 1;
         let k = 0;
         const grid = [];
-        const executed = [];
         for (let i = 0; i < this.rowCount; ++i) {
             const row = [];
-            const executedRow = [];
             for (let j = 0; j < this.rowSize(i); ++j) {
                 row.push(k < data.length ? data[k] : '.');
-                executedRow.push([]);
                 k++;
             }
             grid.push(row);
-            executed.push(executedRow);
         }
         this.grid = grid;
-        this.executed = executed;
+        this.executed = arrayInitialize(6, () =>
+            arrayInitialize(this.rowCount, index =>
+                arrayInitialize(this.rowSize(index), () => [])));
     }
 
     getExecutedGrid() {
         return this.executed;
     }
 
-    getInstruction(coords, setExecutedDirection = null) {
+    getInstruction(coords, setExecutedDirection = null, activeIp = null) {
         const index = this.axialToIndex(coords);
         if (!index) {
             return '.';
         }
 
-        if (setExecutedDirection) {
-            const array = this.executed[index[0]][index[1]];
+        if (setExecutedDirection && activeIp !== null) {
+            const array = this.executed[activeIp][index[0]][index[1]];
             const angle = setExecutedDirection.angle;
             if (!array.includes(angle)) {
                 array.push(angle);
