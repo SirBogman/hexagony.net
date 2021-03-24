@@ -1,6 +1,7 @@
 import { arrayInitialize, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { createSvgElement, emptyElement } from "./viewutil.mjs";
 
+const CELL_COLOR_HEXAGON_LIMIT = 7;
 const EXTRA_HEXAGONS_SIZE_LIMIT = 6;
 const EDGE_TRANSITION_SIZE_LIMIT = 25;
 const EXECUTED_COLOR_COUNT = 10;
@@ -198,7 +199,7 @@ export class GridView {
 
     _addCellClass(indices, className, centerHexagonOnly = false) {
         const [i, j] = indices;
-        const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
+        const limit = centerHexagonOnly ? 1 : Math.min(this.cellPaths.length, CELL_COLOR_HEXAGON_LIMIT);
         for (let k = 0; k < limit; k++) {
             const cell = this.cellPaths[k][i][j];
             cell.classList.add(className);
@@ -208,7 +209,7 @@ export class GridView {
 
     _removeCellClass(indices, className, centerHexagonOnly = false) {
         const [i, j] = indices;
-        const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
+        const limit = centerHexagonOnly ? 1 : Math.min(this.cellPaths.length, CELL_COLOR_HEXAGON_LIMIT);
         for (let k = 0; k < limit; k++) {
             this.cellPaths[k][i][j].classList.remove(className);
         }
