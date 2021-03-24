@@ -9,12 +9,7 @@ export function emptyElement(element) {
 }
 
 export function setClass(element, className, shouldHaveClass) {
-    if (shouldHaveClass) {
-        element.classList.add(className);
-    }
-    else {
-        element.classList.remove(className);
-    }
+    element.classList.toggle(className, shouldHaveClass);
 }
 
 export function setEnabledClass(element, enabled) {
