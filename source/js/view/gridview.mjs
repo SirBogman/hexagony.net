@@ -192,8 +192,10 @@ export class GridView {
     }
 
     _removeExecutionAngleClass(indices, className) {
-        this._foreachExecutionArrow(indices, false, arrow =>
-            arrow.classList.remove(className));
+        this._foreachExecutionArrow(indices, false, arrow => {
+            arrow.classList.remove(className);
+            arrow.style.transitionDuration = this.delay;
+        });
     }
 
     _addCellClass(indices, className, centerHexagonOnly = false) {
@@ -210,7 +212,9 @@ export class GridView {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : Math.min(this.cellPaths.length, CELL_COLOR_HEXAGON_LIMIT);
         for (let k = 0; k < limit; k++) {
-            this.cellPaths[k][i][j].classList.remove(className);
+            const cell = this.cellPaths[k][i][j];
+            cell.classList.remove(className);
+            cell.style.transitionDuration = this.delay;
         }
     }
 
@@ -301,6 +305,7 @@ export class GridView {
 
         this.cellPaths[0].forEach(rows => rows.forEach(cell => {
             cell.classList.remove(CELL_EXECUTED[this.selectedIp]);
+            cell.style.transitionDuration = this.delay;
             if (cell.angles.length) {
                 cell.angles = [];
                 cell.querySelectorAll('.arrow_executed').forEach(a => cell.removeChild(a));
