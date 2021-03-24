@@ -36,6 +36,7 @@ export class GridView {
         this.edgeConnectors = {};
         this.delay = 0;
         this.executionHistory = arrayInitialize(6, () => []);
+        this.creatingGrid = false;
         this.selectedIp = 0;
         this.size = -1;
         this.rowCount = -1;
@@ -55,7 +56,7 @@ export class GridView {
         this.svg = document.querySelector('#puzzle');
         this.cellContainer = this.svg.querySelector('#cell_container');
         this.cellTemplate = this.svg.querySelector('defs [class~=cell]');
-        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=arrow_executed]');
+        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=arrow_template]');
         this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cell_breakpoint]');
         this.connectorTemplate = this.svg.querySelector('defs [class~=neutral_connector]');
         this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positive_connector]');
@@ -138,7 +139,8 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid() {
+    recreateGrid(executedState) {
+        this.creatingGrid = true;
         this._createGrid(this.size);
 
         for (let k = 0; k < this.cellPaths.length; k++) {
@@ -146,6 +148,12 @@ export class GridView {
         }
 
         this._updateExecutionHistoryColors();
+
+        if (executedState) {
+            this.setExecutedState(executedState);
+        }
+
+        this.creatingGrid = false;
     }
 
     _foreachExecutionArrow(indices, allowCreate, callback) {
@@ -163,12 +171,15 @@ export class GridView {
         let arrow;
         if (create) {
             arrow = this.cellExecutedArrowTemplate.cloneNode();
+            if (!this.creatingGrid) {
+                arrow.style.animationDuration = this.delay;
+            }
             arrow.angle = angle;
             arrow.setAttribute('transform', `rotate(${angle})translate(-14.5 0)scale(1.0 1.25)`);
             cell.appendChild(arrow);
         }
         else {
-            for (arrow of cell.querySelectorAll('.arrow_executed')) {
+            for (arrow of cell.querySelectorAll('.arrow_template')) {
                 if (arrow.angle === angle) {
                     break;
                 }
@@ -176,12 +187,6 @@ export class GridView {
         }
 
         callback(arrow);
-
-        // Remove unused arrows.
-        if (arrow.classList.length === 1) {
-            cell.removeChild(arrow);
-            cell.angles = cell.angles.filter(x => x !== angle);
-        }
     }
 
     _addExecutionAngleClass(indices, className) {
@@ -300,15 +305,21 @@ export class GridView {
     }
 
     clearCellExecutionColors() {
+        if (!this.cellPaths.length) {
+            return;
+        }
+
         this._removeExecutionHistoryColors();
         this.executionHistory = arrayInitialize(6, () => []);
 
         this.cellPaths[0].forEach(rows => rows.forEach(cell => {
             cell.classList.remove(CELL_EXECUTED[this.selectedIp]);
             cell.style.transitionDuration = this.delay;
-            if (cell.angles.length) {
-                cell.angles = [];
-                cell.querySelectorAll('.arrow_executed').forEach(a => cell.removeChild(a));
+            if (this.showArrows) {
+                cell.querySelectorAll('.arrow_template').forEach(arrow => {
+                    arrow.classList.remove(ARROW_EXECUTED[this.selectedIp]);
+                    arrow.style.transitionDuration = this.delay;
+                });
             }
         }));
     }
@@ -363,6 +374,7 @@ export class GridView {
     }
 
     setShowArrows(value) {
+        this.clearCellExecutionColors();
         this.showArrows = value;
     }
 
@@ -372,7 +384,7 @@ export class GridView {
         this._updateExecutionHistoryColors();
     }
 
-    updateActiveCell(executionHistory, selectedIp, executedState, forceReset) {
+    updateActiveCell(executionHistory, selectedIp, executedState, forceReset, forceUpdateExecutionState) {
         const reset = forceReset || selectedIp !== this.selectedIp;
         if (reset) {
             this.clearCellExecutionColors();
@@ -384,7 +396,7 @@ export class GridView {
         this.selectedIp = selectedIp;
         this._updateExecutionHistoryColors();
 
-        if (reset) {
+        if (reset || forceUpdateExecutionState) {
             this.setExecutedState(executedState);
         }
     }

@@ -374,11 +374,8 @@ function stepHelper(play = false) {
     window.totalTime += p2 - p1;
 
     selectedIp = hexagony.activeIp;
-    gridView.updateActiveCell(executionHistory, selectedIp, hexagony.getExecutedGrid());
-
-    if (stepCount > 1) {
-        gridView.setExecutedState(hexagony.getExecutedGrid());
-    }
+    const forceUpdateExecutionState = stepCount > 1;
+    gridView.updateActiveCell(executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
 
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
@@ -632,10 +629,7 @@ function init() {
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = userData.edgeTransitionMode = !userData.edgeTransitionMode;
-        gridView.recreateGrid();
-        if (hexagony != null) {
-            gridView.setExecutedState(hexagony.getExecutedGrid());
-        }
+        gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);
         gridView.setBreakpoints(getBreakpoints());
         updateViewButtons();
         saveData();
