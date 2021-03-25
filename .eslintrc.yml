@@ -45,6 +45,7 @@ rules:
     - warn
     - single
     - avoidEscape: true
+  semi: warn
   template-curly-spacing: warn
   unicode-bom: warn
   yoda: warn

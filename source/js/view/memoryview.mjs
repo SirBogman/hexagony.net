@@ -27,7 +27,7 @@ export class MemoryView {
 
     getContainerSize() {
         const containerStyle = getComputedStyle(this.svg.parentNode);
-        return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)]
+        return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)];
     }
 
     // Add the memory pointer (arrow) showing the position and direction.

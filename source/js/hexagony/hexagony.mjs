@@ -73,7 +73,7 @@ export class Hexagony {
 
                 // Terminate
                 case '@':
-                    this.terminationReason = 'Program terminated at @.'
+                    this.terminationReason = 'Program terminated at @.';
                     this.ticks++;
                     return;
 

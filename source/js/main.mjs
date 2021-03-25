@@ -14,8 +14,8 @@ const MAX_SPEED_ITERATIONS = 10000;
 const EXECUTION_HISTORY_COUNT = 20;
 
 const appGrid = document.querySelector('#app_grid');
-const playContent = document.querySelectorAll('.play_content')
-const editContent = document.querySelectorAll('.edit_content')
+const playContent = document.querySelectorAll('.play_content');
+const editContent = document.querySelectorAll('.edit_content');
 
 const sourceCodeInput = document.querySelector('#sourcecode');
 const inputBox = document.querySelector('#input');
@@ -243,7 +243,7 @@ function loadData() {
 
 function getAnimationDelay() {
     // Use a default value for high-speed mode, where delay is set to zero.
-    return `${userData.delay || 250}ms`
+    return `${userData.delay || 250}ms`;
 }
 
 function loadDataFromURL() {
@@ -323,7 +323,7 @@ function startEdgeAnimation(connectors, name) {
     if (connectors) {
         connectors.forEach(x => {
             x.classList.add(name);
-            x.style.animationDuration = `${userData.delay}ms`
+            x.style.animationDuration = `${userData.delay}ms`;
         });
     }
 }
