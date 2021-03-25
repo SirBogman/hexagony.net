@@ -328,7 +328,7 @@ export class GridView {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
-                    this._removeCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip]);
+                    this._removeCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip], i);
                     this._removeExecutionAngleClass(indices, i ? ARROW_EXECUTED_ARRAY[ip][i - 1] : ARROW_ACTIVE[ip]);
                 });
             }
@@ -343,7 +343,7 @@ export class GridView {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
-                    this._addCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip]);
+                    this._addCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip], i);
                     if (!i) {
                         this._addExecutionAngleClass(indices, ARROW_ACTIVE[ip]);
                     }
