@@ -335,7 +335,7 @@ function stepHelper(play = false) {
     }
 
     if (hexagony == null) {
-        hexagony = new Hexagony(gridView.sourceCode, getInput(), edgeEventHandler);
+        hexagony = new Hexagony(userData.code, getInput(), edgeEventHandler);
         memoryView = new MemoryView(hexagony, memorySvg, memoryPanZoom);
         executionHistory = arrayInitialize(6, index => {
             const [coords, dir] = hexagony.getIPState(index);
@@ -448,7 +448,7 @@ function updateStateText() {
 }
 
 function resizeCode(size) {
-    const oldCode = removeWhitespaceAndDebug(gridView.sourceCode);
+    const oldCode = removeWhitespaceAndDebug(userData.code);
     const oldSize = getHexagonSize(countCodepoints(oldCode));
     let newCode = '';
 
@@ -489,7 +489,7 @@ function resize(size) {
 
 function onShrink() {
     const newCode = resizeCode(gridView.size - 1);
-    if (countOperators(gridView.sourceCode) == countOperators(newCode) ||
+    if (countOperators(userData.code) == countOperators(newCode) ||
         confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
         resize(Math.max(1, gridView.size - 1));
     }
@@ -605,8 +605,8 @@ function init() {
     stepButton.addEventListener('click', onStep);
     stopButton.addEventListener('click', onStop);
     pauseButton.addEventListener('click', onPause);
-    minifyButton.addEventListener('click', () => setSourceCode(minifySource(gridView.sourceCode)));
-    layoutButton.addEventListener('click', () => setSourceCode(layoutSource(gridView.sourceCode)));
+    minifyButton.addEventListener('click', () => setSourceCode(minifySource(userData.code)));
+    layoutButton.addEventListener('click', () => setSourceCode(layoutSource(userData.code)));
     generateLinkButton.addEventListener('click', generateLink);
     copyLinkButton.addEventListener('click', copyLink);
 
