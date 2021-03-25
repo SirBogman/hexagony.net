@@ -129,7 +129,8 @@ function updateInputModeButtons() {
 }
 
 function onSpeedSliderChanged() {
-    gridView.setDelay(userData.delay = Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2));
+    userData.delay = Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2);
+    gridView.setDelay(getAnimationDelay());
     saveData();
 }
 
@@ -224,7 +225,8 @@ function loadData() {
         userData = { code: layoutSource("H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;") };
     }
 
-    gridView.setDelay(userData.delay = userData.delay ?? 250);
+    userData.delay = userData.delay ?? 250;
+    gridView.setDelay(getAnimationDelay());
     userData.breakpoints = userData.breakpoints ?? [];
     gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
     userData.showArrows = userData.showArrows ?? false;
@@ -235,6 +237,11 @@ function loadData() {
     updateInputModeButtons();
     updateInputTextArea();
     updateSpeedSlider();
+}
+
+function getAnimationDelay() {
+    // Use a default value for high-speed mode, where delay is set to zero.
+    return `${userData.delay || 250}ms`
 }
 
 function loadDataFromURL() {
@@ -392,7 +399,7 @@ function stepHelper(play = false) {
     }
 
     updateButtons();
-    memoryView.update();
+    memoryView.update(getAnimationDelay());
 }
 
 function getExecutionInfoText() {

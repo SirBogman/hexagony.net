@@ -31,7 +31,7 @@ export class MemoryView {
     }
 
     // Add the memory pointer (arrow) showing the position and direction.
-    updateMemoryPointer() {
+    updateMemoryPointer(delay) {
         const version = this.hexagony.memory.memoryPointerVersion;
         if (!this.firstUpdate && this.latestMemoryPointerVersion === version) {
             return;
@@ -40,11 +40,12 @@ export class MemoryView {
         const [x, y] = this.getMPCoordinates();
         const angle = this.hexagony.memory.dir.angle + (this.hexagony.memory.cw ? 180 : 0);
         this.memoryPointer.style.transform = `translate(${x}px,${y}px)rotate(${angle % 360}deg)`;
+        this.memoryPointer.style.transitionDuration = delay;
         this.latestMemoryPointerVersion = version;
     }
 
-    update() {
-        this.updateMemoryPointer();
+    update(delay) {
+        this.updateMemoryPointer(delay);
 
         // TODO: consider breaking this up into regions and only updating regions that changed.
         // Sometimes in Chrome it's much faster to create an element tree and then attach it.

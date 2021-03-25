@@ -369,8 +369,7 @@ export class GridView {
     }
 
     setDelay(value) {
-        // Use a default value for high-speed mode, where delay is set to zero.
-        this.delay = `${value ? value : 250}ms`;
+        this.delay = value;
     }
 
     setShowArrows(value) {
