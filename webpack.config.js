@@ -21,6 +21,10 @@ module.exports = {
         test: /\.(sa|sc|c)ss$/i,
         use: [ MiniCssExtractPlugin.loader, "css-loader", "sass-loader" ]
       },
+      {
+        test: /\.jsx$/i,
+        use: [{ loader: "babel-loader", options: { presets: ["@babel/preset-react"] }}]
+      },
     ],
   },
   plugins: [

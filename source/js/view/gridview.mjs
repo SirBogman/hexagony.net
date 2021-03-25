@@ -574,7 +574,6 @@ export class GridView {
         // Hide the text in the SVG cell, create an input element, and select it.
         const cell = this.cellInput[k][i][j]();
         const svgCell = this.cellPaths[k][i][j];
-        // Getting the html content would return "&amp;" for "&". Get the node value instead.
         const svgText = svgCell.querySelector('text');
         cell.value = svgText.textContent;
         // Temporarily clear the text.

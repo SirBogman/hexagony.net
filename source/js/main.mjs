@@ -4,6 +4,8 @@ import { GridView } from './view/gridview.mjs';
 import { MemoryView } from './view/memoryview.mjs';
 import { setClass, setEnabledClass } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
+import { updateStatePanel, setSelectedIPChangedCallback } from './StatePanel.jsx';
+import { updateInfoPanel } from './InfoPanel.jsx';
 import panzoom from 'panzoom';
 
 import '../css/index.scss';
@@ -19,7 +21,6 @@ const sourceCodeInput = document.querySelector('#sourcecode');
 const inputBox = document.querySelector('#input');
 const infoInfo = document.querySelector('#info_info');
 const stateInfo = document.querySelector('#state_info');
-const statePanel = document.querySelector('#state_panel');
 
 const smallerButton = document.querySelector('#smaller');
 const resetButton = document.querySelector('#reset');
@@ -402,51 +403,48 @@ function stepHelper(play = false) {
     memoryView.update(getAnimationDelay());
 }
 
-function getExecutionInfoText() {
-    return `
-        <p class="col1">Breakpoints
-        <p class="col2 right">${userData.breakpoints.length}
-        <p class="col1">Executed Count
-        <p class="col2 right">${hexagony != null ? hexagony.ticks.toLocaleString('en') : 0}`;
-}
-
-function getIPStateText() {
-    let text = '';
-    if (hexagony) {
-        for (let i = 0; i < 6; i++) {
-            const [coords, dir] = hexagony.getIPState(i);
-            const active = hexagony.activeIp === i ? 'active_ip' : '';
-            const activeChecked = selectedIp === i ? 'checked' : '';
-            const titleExtra = hexagony.activeIp === i ? '. This is the currently active IP' : '';
-            text += `
-                <label class="col1 ${active}" title="Show the execution path for instruction pointer ${i}${titleExtra}.">
-                    <input type="radio" name="select_ip" value="${i}" id="select_ip_${i}" ${activeChecked}>
-                    <span class="color_swatch_${i}"></span>
-                    IP ${i}
-                </label>
-                <p class="col2 right" title="Coordinates of instruction pointer ${i}">${coords.q}
-                <p class="col3 right" title="Coordinates of instruction pointer ${i}">${coords.r}
-                <p class="col4" title="Direction of instruction pointer ${i}">${dir}
-                </p>`;
-        }
-
-        text += `
-            <p class="col1">Memory Pointer
-            <p class="col2 right" title="Coordinates of the memory pointer">${hexagony.memory.mp.q}
-            <p class="col3 right" title="Coordinates of the memory pointer">${hexagony.memory.mp.r}
-            <p class="col4" title="Direction of memory pointer">${hexagony.memory.dir}
-            <p class="col5" title="Memory pointer direction (clockwise/counterclockwise)">${hexagony.memory.cw ? 'CW' : 'CCW'}`;
-    }
-
-    return text;
-}
-
 function updateBreakpointCountText() {
     updateStateText();
 }
 
+function getInfoPanelState() {
+    const filteredCode = removeWhitespaceAndDebug(userData.code);
+    const filteredCodepoints = countCodepoints(filteredCode);
+    return {
+        size: getHexagonSize(filteredCodepoints),
+        chars: countCodepoints(userData.code),
+        bytes: countBytes(userData.code),
+        operators: countOperators(filteredCode)
+    };
+}
+
+function updateInfo() {
+    updateInfoPanel(infoInfo, getInfoPanelState());
+}
+
 function updateStateText() {
-    stateInfo.innerHTML = getIPStateText() + getExecutionInfoText() + getInfoText(1);
+    if (!hexagony) {
+        return;
+    }
+
+    updateStatePanel(stateInfo, {
+        ipStates: arrayInitialize(6, i => {
+            const [coords, dir] = hexagony.getIPState(i);
+            return {
+                coords,
+                dir,
+                active: hexagony.activeIp === i,
+                selected: selectedIp === i,
+                number: i,
+            };
+        }),
+        breakpoints: userData.breakpoints.length,
+        ticks: hexagony.ticks.toLocaleString('en'),
+        memoryPointer: hexagony.memory.mp,
+        memoryDir: hexagony.memory.dir,
+        memoryCw: hexagony.memory.cw ? 'CW' : 'CCW',
+        info: getInfoPanelState(),
+    });
 }
 
 function resizeCode(size) {
@@ -506,25 +504,6 @@ function setSourceCode(newCode, isProgrammatic=false) {
     updateFromSourceCode(isProgrammatic);
 }
 
-function getInfoText() {
-    const code = gridView.sourceCode;
-    const filteredCode = removeWhitespaceAndDebug(code);
-    const filteredCodepoints = countCodepoints(filteredCode);
-    return `
-        <p title="The length of an edge of the hexagon" class="col1">Hexagon Size
-        <p title="The length of an edge of the hexagon" class="col2 right">${getHexagonSize(filteredCodepoints)}
-        <p title="The number of Unicode codepoints" class="col1">Chars
-        <p title="The number of Unicode codepoints" class="col2 right">${countCodepoints(code)}
-        <p title="The number of bytes when encoded in UTF-8" class="col1">Bytes
-        <p title="The number of bytes when encoded in UTF-8" class="col2 right">${countBytes(code)}
-        <p title="The number of instructions that aren't no-ops" class="col1">Operators
-        <p title="The number of instructions that aren't no-ops" class="col2 right">${countOperators(filteredCode)}`;
-}
-
-function updateInfo() {
-    infoInfo.innerHTML = getInfoText();
-}
-
 function updateFromSourceCode(isProgrammatic=false) {
     gridView.setSourceCode(sourceCodeInput.value, isProgrammatic);
 }
@@ -552,9 +531,10 @@ function resetCellColors() {
     }
 }
 
-function onSelectedIPChanged(event) {
-    selectedIp = Number(event.target.value);
+function onSelectedIPChanged(ip) {
+    selectedIp = ip;
     resetCellColors();
+    updateStateText();
 }
 
 function isPlaying() {
@@ -606,6 +586,7 @@ document.addEventListener('keydown', e => {
 });
 
 function init() {
+    setSelectedIPChangedCallback(onSelectedIPChanged);
     gridView = new GridView(updateCode, updateButtons, toggleBreakpointCallback);
     loadData();
     loadDataFromURL();
@@ -631,7 +612,6 @@ function init() {
 
     inputArgumentsRadioButton.addEventListener('change', onInputModeChanged);
     inputRawRadioButton.addEventListener('change', onInputModeChanged);
-    statePanel.addEventListener('change', onSelectedIPChanged);
     speedSlider.addEventListener('input', onSpeedSliderChanged);
 
     edgeTransitionButton.addEventListener('click', () => {
