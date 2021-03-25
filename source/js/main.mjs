@@ -66,6 +66,7 @@ let selectedIp = 0;
 let initFinished = false;
 let memoryPanZoom;
 let userData;
+let animationDelay;
 
 function updateCode(code, isProgrammatic=false) {
     userData.code = code;
@@ -129,9 +130,15 @@ function updateInputModeButtons() {
     }
 }
 
+function updateAnimationDelay(value) {
+    userData.delay = value;
+    // Use a default value for high-speed mode, where delay is set to zero.
+    animationDelay = `${userData.delay || 250}ms`;
+    gridView.setDelay(animationDelay);
+}
+
 function onSpeedSliderChanged() {
-    userData.delay = Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2);
-    gridView.setDelay(getAnimationDelay());
+    updateAnimationDelay(Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2));
     saveData();
 }
 
@@ -227,8 +234,7 @@ function loadData() {
         userData = { code: layoutSource('H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;') };
     }
 
-    userData.delay = userData.delay ?? 250;
-    gridView.setDelay(getAnimationDelay());
+    updateAnimationDelay(userData.delay ?? 250);
     userData.breakpoints = userData.breakpoints ?? [];
     gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
     userData.showArrows = userData.showArrows ?? false;
@@ -239,11 +245,6 @@ function loadData() {
     updateInputModeButtons();
     updateInputTextArea();
     updateSpeedSlider();
-}
-
-function getAnimationDelay() {
-    // Use a default value for high-speed mode, where delay is set to zero.
-    return `${userData.delay || 250}ms`;
 }
 
 function loadDataFromURL() {
@@ -323,7 +324,7 @@ function startEdgeAnimation(connectors, name) {
     if (connectors) {
         connectors.forEach(x => {
             x.classList.add(name);
-            x.style.animationDuration = `${userData.delay}ms`;
+            x.style.animationDuration = animationDelay;
         });
     }
 }
@@ -407,7 +408,7 @@ function stepHelper(play = false) {
     }
 
     updateButtons();
-    memoryView.update(getAnimationDelay());
+    memoryView.update(animationDelay);
 }
 
 function updateBreakpointCountText() {
