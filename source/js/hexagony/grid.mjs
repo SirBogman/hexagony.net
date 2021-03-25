@@ -64,8 +64,9 @@ export class Grid {
         const x = coords.q;
         const z = coords.r;
         const y = -x - z;
-        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) >= this.size)
+        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) >= this.size) {
             return null;
+        }
 
         const i = z + this.size - 1;
         const j = x + Math.min(i, this.size - 1);

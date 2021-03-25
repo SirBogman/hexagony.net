@@ -73,7 +73,7 @@ export class Hexagony {
 
                 // Terminate
                 case '@':
-                    this.terminationReason = "Program terminated at @."
+                    this.terminationReason = 'Program terminated at @.'
                     this.ticks++;
                     return;
 
@@ -89,7 +89,7 @@ export class Hexagony {
                     const leftVal = this.memory.getLeft();
                     const rightVal = this.memory.getRight();
                     if (rightVal == 0) {
-                        this.terminationReason = "Error: Program terminated due to division by zero.";
+                        this.terminationReason = 'Error: Program terminated due to division by zero.';
                         this.ticks++;
                         return;
                     }
@@ -100,7 +100,7 @@ export class Hexagony {
                     const leftVal = this.memory.getLeft();
                     const rightVal = this.memory.getRight();
                     if (rightVal == 0) {
-                        this.terminationReason = "Error: Program terminated due to division by zero.";
+                        this.terminationReason = 'Error: Program terminated due to division by zero.';
                         this.ticks++;
                         return;
                     }
@@ -114,16 +114,20 @@ export class Hexagony {
                 case '"': this.memory.reverse(); this.memory.moveRight(); this.memory.reverse(); break;
                 case '\'': this.memory.reverse(); this.memory.moveLeft(); this.memory.reverse(); break;
                 case '^':
-                    if (this.memory.getValue() > 0)
+                    if (this.memory.getValue() > 0) {
                         this.memory.moveRight();
-                    else
+                    }
+                    else {
                         this.memory.moveLeft();
+                    }
                     break;
                 case '&':
-                    if (this.memory.getValue() > 0)
+                    if (this.memory.getValue() > 0) {
                         this.memory.setValue(this.memory.getRight());
-                    else
+                    }
+                    else {
                         this.memory.setValue(this.memory.getLeft());
+                    }
                     break;
 
                 case ',': {
@@ -196,8 +200,9 @@ export class Hexagony {
         const z = this.coords.r;
         const y = -x - z;
 
-        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < this.grid.size)
+        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < this.grid.size) {
             return;
+        }
 
         const xBigger = Math.abs(x) >= this.grid.size;
         const yBigger = Math.abs(y) >= this.grid.size;
@@ -226,12 +231,15 @@ export class Hexagony {
             const isPositive = this.memory.getValue() > 0;
             this.followEdge(isPositive ? '+' : '-', true);
 
-            if (!xBigger && !isPositive || !yBigger && isPositive)
+            if (!xBigger && !isPositive || !yBigger && isPositive) {
                 this.ips[this.activeIp] = new PointAxial(coords.q + coords.r, -coords.r);
-            else if (!yBigger || !zBigger && isPositive)
+            }
+            else if (!yBigger || !zBigger && isPositive) {
                 this.ips[this.activeIp] = new PointAxial(-coords.q, coords.q + coords.r);
-            else if (!zBigger || !xBigger)
+            }
+            else if (!zBigger || !xBigger) {
                 this.ips[this.activeIp] = new PointAxial(-coords.r, -coords.q);
+            }
         }
     }
 

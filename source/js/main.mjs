@@ -217,13 +217,14 @@ function toggleBreakpointCallback(i, j) {
 function loadData() {
     userData = undefined;
     try {
-        userData = JSON.parse(localStorage['userData']);
+        userData = JSON.parse(localStorage.userData);
+    }
     // eslint-disable-next-line no-empty
-    } catch (e) {
+    catch (e) {
     }
 
     if (!userData || !userData.code) {
-        userData = { code: layoutSource("H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;") };
+        userData = { code: layoutSource('H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;') };
     }
 
     userData.delay = userData.delay ?? 250;
@@ -251,8 +252,9 @@ function loadDataFromURL() {
         if (location.hash) {
             newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(3)));
         }
+    }
     // eslint-disable-next-line no-empty
-    } catch (e) {
+    catch (e) {
     }
 
     if (location.hash) {
@@ -297,7 +299,7 @@ function copyLink() {
 }
 
 function saveData() {
-    localStorage['userData'] = JSON.stringify(userData);
+    localStorage.userData = JSON.stringify(userData);
 }
 
 function onStart() {
@@ -594,13 +596,15 @@ function init() {
     inputBox.addEventListener('input', onInputChanged);
     setSourceCode(userData.code, true);
 
+    /* eslint-disable curly */
     resetButton.addEventListener('click', () => { if (!isRunning()) reset(gridView.size); });
     biggerButton.addEventListener('click', () => { if (!isRunning()) resize(gridView.size + 1); });
     smallerButton.addEventListener('click', () => { if (!isRunning()) onShrink();});
     undoButton.addEventListener('click', () => { if (gridView.canUndo(isRunning())) gridView.undo(); });
     redoButton.addEventListener('click', () => { if (gridView.canRedo(isRunning())) gridView.redo(); });
-    deleteBreakpointsButton.addEventListener('click', clearBreakpoints);
+    /* eslint-enable curly */
 
+    deleteBreakpointsButton.addEventListener('click', clearBreakpoints);
     startButton.addEventListener('click', onStart);
     stepButton.addEventListener('click', onStep);
     stopButton.addEventListener('click', onStop);

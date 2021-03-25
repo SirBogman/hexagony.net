@@ -55,10 +55,10 @@ export class Memory {
         this.data[`${this.mp},${this.dir}`] = BigInt(value);
         const x = this.getX();
         const y = this.getY();
-        if (x > this.maxX) this.maxX = x;
-        if (x < this.minX) this.minX = x;
-        if (y > this.maxY) this.maxY = y;
-        if (y < this.minY) this.minY = y;
+        if (x > this.maxX) { this.maxX = x; }
+        if (x < this.minX) { this.minX = x; }
+        if (y > this.maxY) { this.maxY = y; }
+        if (y < this.minY) { this.minY = y; }
         this.dataVersion++;
     }
 

@@ -10,4 +10,42 @@ parserOptions:
   sourceType: module
   ecmaFeatures:
     jsx: true
-rules: {}
+rules:
+  # https://eslint.org/docs/rules/
+  # eqeqeq: warn
+  arrow-body-style:
+    - warn
+    - as-needed
+  arrow-parens:
+    - warn
+    - as-needed
+  arrow-spacing: warn
+  brace-style:
+    - warn
+    - stroustrup
+    - allowSingleLine: true
+  curly: warn
+  dot-notation: warn
+  no-array-constructor: warn
+  no-duplicate-imports: warn
+  no-extra-parens: warn
+  no-multi-spaces: warn
+  no-new-wrappers: warn
+  no-trailing-spaces: warn
+  no-unneeded-ternary: warn
+  no-var: warn
+  object-shorthand: warn
+  prefer-arrow-callback: warn
+  prefer-const: warn
+  prefer-destructuring:
+    - warn
+    - object: false
+      array: true
+  quotes:
+    - warn
+    - single
+    - avoidEscape: true
+  template-curly-spacing: warn
+  unicode-bom: warn
+  yoda: warn
+reportUnusedDisableDirectives: true

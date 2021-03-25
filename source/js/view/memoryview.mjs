@@ -1,7 +1,7 @@
 // Contains code related to creating the view of Hexagony's memory.
 import { east, northEast, southEast } from '../hexagony/direction.mjs';
 import { PointAxial } from '../hexagony/pointaxial.mjs';
-import { createSvgElement, emptyElement } from "./viewutil.mjs";
+import { createSvgElement, emptyElement } from './viewutil.mjs';
 
 // If the memory pointer is within this normalized distance of an the edge of the container,
 // then it will be recentered.
@@ -67,9 +67,9 @@ export class MemoryView {
 
         for (let y = minY; y <= maxY; y++) {
             for (let x = minX; x <= maxX; x++) {
-                if (!((y % 2 === 0 && x % 2 === 0) ||
-                    ((y % 4 + 4) % 4 === 1 && (x % 4 + 4) % 4 === 1) ||
-                    ((y % 4 + 4) % 4 === 3 && (x % 4 + 4) % 4 === 3))) {
+                if (!(y % 2 === 0 && x % 2 === 0 ||
+                    (y % 4 + 4) % 4 === 1 && (x % 4 + 4) % 4 === 1 ||
+                    (y % 4 + 4) % 4 === 3 && (x % 4 + 4) % 4 === 3)) {
                     continue;
                 }
 
@@ -101,7 +101,7 @@ export class MemoryView {
 
                 if (hasValue) {
                     const value = this.hexagony.memory.getValueAt(mp, dir);
-                    let string = value.toString();
+                    const string = value.toString();
                     let extraString = '';
 
                     const charCode = Number(value % 256n);

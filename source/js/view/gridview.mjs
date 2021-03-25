@@ -1,5 +1,5 @@
 import { arrayInitialize, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
-import { createSvgElement, emptyElement } from "./viewutil.mjs";
+import { createSvgElement, emptyElement } from './viewutil.mjs';
 
 const CELL_COLOR_HEXAGON_LIMIT = 7;
 const EXTRA_HEXAGONS_SIZE_LIMIT = 6;
@@ -282,7 +282,7 @@ export class GridView {
             this.undoStack.push({
                 undo: undoFunction,
                 redo: redoFunction,
-                isSizeChange: isSizeChange,
+                isSizeChange,
             });
             this.redoStack = [];
             this.updateUndoButtonsCallback();
@@ -428,7 +428,7 @@ export class GridView {
     updateFromHexagons(targetI, targetJ, value, skipActiveHexagon = null) {
         let code = '';
         let oldValue = '.';
-    
+
         const iterator = this.filteredSourceCode[Symbol.iterator]();
         for (let i = 0; i < this.rowCount; i++) {
             for (let j = 0; j < getRowSize(this.size, i); j++) {
@@ -454,7 +454,7 @@ export class GridView {
                 this.updateHexagonWithCode(k, code);
             }
         }
-    
+
         this._updateCode(minifySource(code));
     }
 
@@ -677,7 +677,7 @@ export class GridView {
         const largeGridOneColumnOffset = largeGridTwoColumnOffset / 2;
         const largeGridOneRowOffset = size;
 
-        let horizontalConnectorsLimit = largeGridTwoColumnOffset;
+        const horizontalConnectorsLimit = largeGridTwoColumnOffset;
         let verticalConnectorsLimit;
         let offsets = [];
 
@@ -712,7 +712,7 @@ export class GridView {
             offsets.push([0,0]);
         }
 
-        const measurements = offsets.map(x => { return { values: x, length: x[0]**2 + x[1]**2 }; });
+        const measurements = offsets.map(x => ({ values: x, length: x[0]**2 + x[1]**2 }));
         offsets = measurements.sort((a, b) => a.length - b.length).map(a => a.values);
 
         // TODO: when size is large enough, limit the number of hexagons.

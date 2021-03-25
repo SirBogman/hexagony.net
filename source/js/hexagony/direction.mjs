@@ -7,7 +7,7 @@ class NorthEast {
     reflectAtGreaterThan() { return east; }
     get angle() { return 300; }
     get vector() { return [1, -1]; }
-    toString() { return "NE"; }
+    toString() { return 'NE'; }
 }
 
 class NorthWest {
@@ -19,7 +19,7 @@ class NorthWest {
     reflectAtGreaterThan() { return southEast; }
     get angle() { return 240; }
     get vector() { return [0, -1]; }
-    toString() { return "NW"; }
+    toString() { return 'NW'; }
 }
 
 class West {
@@ -31,7 +31,7 @@ class West {
     reflectAtGreaterThan(positive) { return positive ? northWest : southWest; }
     get angle() { return 180; }
     get vector() { return [-1, 0]; }
-    toString() { return "W"; }
+    toString() { return 'W'; }
 }
 
 class SouthWest {
@@ -43,7 +43,7 @@ class SouthWest {
     reflectAtGreaterThan() { return northEast; }
     get angle() { return 120; }
     get vector() { return [-1, 1]; }
-    toString() { return "SW"; }
+    toString() { return 'SW'; }
 }
 
 class SouthEast {
@@ -55,7 +55,7 @@ class SouthEast {
     reflectAtGreaterThan() { return east; }
     get angle() { return 60; }
     get vector() { return [0, 1]; }
-    toString() { return "SE"; }
+    toString() { return 'SE'; }
 }
 
 class East {
@@ -67,7 +67,7 @@ class East {
     reflectAtGreaterThan() { return west; }
     get angle() { return 0; }
     get vector() { return [1, 0]; }
-    toString() { return "E"; }
+    toString() { return 'E'; }
 }
 
 export const east = new East();
