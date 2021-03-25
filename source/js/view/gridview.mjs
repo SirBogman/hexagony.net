@@ -1,8 +1,6 @@
 import { arrayInitialize, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { createSvgElement, emptyElement } from './viewutil.mjs';
 
-const CELL_COLOR_HEXAGON_LIMIT = 7;
-const EXTRA_HEXAGONS_SIZE_LIMIT = 6;
 const EDGE_TRANSITION_SIZE_LIMIT = 25;
 const EXECUTED_COLOR_COUNT = 10;
 const CELL_EXECUTED = arrayInitialize(6, index => `cell_executed_${index}`);
@@ -34,6 +32,7 @@ export class GridView {
         this.cellPaths = [];
         this.cellInput = [];
         this.edgeConnectors = {};
+        this.edgeConnectors2 = {};
         this.delay = 0;
         this.executionHistory = arrayInitialize(6, () => []);
         this.creatingGrid = false;
@@ -63,8 +62,12 @@ export class GridView {
         this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negative_connector]');
 
         this.svg.addEventListener('animationend', event => {
-            event.target.classList.remove('connector_flash');
-            event.target.classList.remove('connector_neutral_flash');
+            if (event.animationName.startsWith('connector')) {
+                event.target.classList.remove('connector_flash');
+                event.target.classList.remove('connector_neutral_flash');
+                event.target.classList.remove('connector_flash_secondary');
+                event.target.classList.remove('connector_neutral_flash_secondary');
+            }
         });
 
         this.svg.addEventListener('click', event => {
@@ -205,7 +208,7 @@ export class GridView {
 
     _addCellClass(indices, className, centerHexagonOnly = false) {
         const [i, j] = indices;
-        const limit = centerHexagonOnly ? 1 : Math.min(this.cellPaths.length, CELL_COLOR_HEXAGON_LIMIT);
+        const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
             const cell = this.cellPaths[k][i][j];
             cell.classList.add(className);
@@ -215,7 +218,7 @@ export class GridView {
 
     _removeCellClass(indices, className, centerHexagonOnly = false) {
         const [i, j] = indices;
-        const limit = centerHexagonOnly ? 1 : Math.min(this.cellPaths.length, CELL_COLOR_HEXAGON_LIMIT);
+        const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
             const cell = this.cellPaths[k][i][j];
             cell.classList.remove(className);
@@ -603,13 +606,14 @@ export class GridView {
         });
     }
 
-    _addEdgeConnector(key, connector) {
-        const current = this.edgeConnectors[key];
+    _addEdgeConnector(key, connector, isSecondary) {
+        const collection = isSecondary ? this.edgeConnectors2 : this.edgeConnectors;
+        const current = collection[key];
         if (current !== undefined) {
             current.push(connector);
         }
         else {
-            this.edgeConnectors[key] = [connector];
+            collection[key] = [connector];
         }
     }
 
@@ -677,60 +681,26 @@ export class GridView {
         const largeGridOneColumnOffset = largeGridTwoColumnOffset / 2;
         const largeGridOneRowOffset = size;
 
-        const horizontalConnectorsLimit = largeGridTwoColumnOffset;
-        let verticalConnectorsLimit;
-        let offsets = [];
+        const horizontalConnectorsLimit = largeGridOneRowOffset;
+        const verticalConnectorsLimit = -largeGridOneRowOffset;
+        let offsets;
 
-        // Create extra hexagons to make it look infinite.
-        if (edgeTransitionMode) {
-            let verticalLimit = 2;
-            if (size > EXTRA_HEXAGONS_SIZE_LIMIT) {
-                verticalLimit = 1;
-            }
-
-            verticalConnectorsLimit = largeGridOneRowOffset - verticalLimit * largeGridTwoRowOffset;
-
-            for (let i = -verticalLimit; i < verticalLimit; i++) {
-                // Columns to the immediate right and left with 4 hexagons (two fully visible)
-                offsets.push([largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-                offsets.push([-largeGridOneColumnOffset, largeGridOneRowOffset + i * largeGridTwoRowOffset]);
-            }
-
-            for (let i = -verticalLimit; i <= verticalLimit; i++) {
-                // For the column two to the left, show a couple more hexagons, because their connectors are visible.
-                offsets.push([-largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
-
-                // Column two to the right.
-                offsets.push([largeGridTwoColumnOffset, i * largeGridTwoRowOffset]);
-
-                // Add hexagons to the center column. The connectors for the top and bottom ones are visible.
-                offsets.push([0, i * largeGridTwoRowOffset]);
-            }
+        if (this.edgeTransitionMode) {
+            // Layout with seven hexagons.
+            offsets = [
+                [0, 0, 'Center'],
+                [0, -largeGridTwoRowOffset, 'N'],
+                [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
+                [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
+                [0, largeGridTwoRowOffset, 'S'],
+                [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
+                [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
+            ];
         }
         else {
             // Center hexagon only.
-            offsets.push([0,0]);
+            offsets = [[0, 0]];
         }
-
-        const measurements = offsets.map(x => ({ values: x, length: x[0]**2 + x[1]**2 }));
-        offsets = measurements.sort((a, b) => a.length - b.length).map(a => a.values);
-
-        // TODO: when size is large enough, limit the number of hexagons.
-        // if (this.edgeTransitionMode) {
-        //     // Layout with seven hexagons only.
-        //     horizontalConnectorsLimit = largeGridOneRowOffset;
-        //     verticalConnectorsLimit = -size;
-
-        //     offsets = [
-        //         [0,0], // Center
-        //         [0, -largeGridTwoRowOffset, 'N'],
-        //         [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
-        //         [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
-        //         [0, largeGridTwoRowOffset, 'S'],
-        //         [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
-        //         [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
-        //     ];
-        // }
 
         const outlines = [];
         const connectors = [];
@@ -806,11 +776,6 @@ export class GridView {
             }
 
             if (edgeTransitionMode) {
-                const isCenter = k === 0;
-                const isSouth = offsets[k][0] === 0 && offsets[k][1] === largeGridTwoRowOffset;
-                const isSouthWest = offsets[k][0] === -largeGridOneColumnOffset && offsets[k][1] === largeGridOneRowOffset;
-                const isNorthWest = offsets[k][0] === -largeGridOneColumnOffset && offsets[k][1] === -largeGridOneRowOffset;
-
                 for (let i = 0; i < size; i++) {
                     const leftEnd = i == 0;
                     const rightEnd = i == size - 1;
@@ -834,10 +799,9 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        if (isCenter || isSouth) {
-                            this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector);
-                            this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector);
-                        }
+                        const isSecondary = k !== 0 && offsets[k][2] != 'S';
+                        this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
+                        this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
@@ -851,10 +815,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
                         connectors.push(connector);
 
-                        if (isCenter || isSouth) {
-                           this._addEdgeConnector(`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`, connector);
-                           this._addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector);
-                        }
+                        this._addEdgeConnector(`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`, connector, isSecondary);
+                        this._addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector, isSecondary);
                     }
 
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] >= verticalConnectorsLimit) {
@@ -873,10 +835,9 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        if (isCenter || isSouthWest) {
-                            this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector);
-                            this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector);
-                        }
+                        const isSecondary = k !== 0 && offsets[k][2] != 'SW';
+                        this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector, isSecondary);
+                        this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, i, getRowSize(size, i) - 1) + (offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
@@ -889,10 +850,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
                         connectors.push(connector);
 
-                        if (isCenter || isSouthWest) {
-                            this._addEdgeConnector(`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`, connector);
-                            this._addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector);
-                        }
+                        this._addEdgeConnector(`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`, connector, isSecondary);
+                        this._addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector, isSecondary);
                     }
 
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] <= -verticalConnectorsLimit) {
@@ -911,10 +870,9 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        if (isCenter || isNorthWest) {
-                            this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector);
-                            this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector);
-                        }
+                        const isSecondary = k !== 0 && offsets[k][2] != 'NW';
+                        this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
+                        this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
                         cellX = getX(size, a, getRowSize(size, a) - 1) + (offsets[k][0] + 1) * cellWidth;
@@ -928,10 +886,8 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
                         connectors.push(connector);
 
-                        if (isCenter || isNorthWest) {
-                            this._addEdgeConnector(`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`, connector);
-                            this._addEdgeConnector(`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`, connector);
-                        }
+                        this._addEdgeConnector(`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`, connector, isSecondary);
+                        this._addEdgeConnector(`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`, connector, isSecondary);
                     }
                 }
             }

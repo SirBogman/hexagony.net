@@ -197,6 +197,12 @@ $colors:
     }
 }
 
+@keyframes connector_flash_secondary {
+    to {
+        stroke-width: 4;
+    }
+}
+
 .connector_flash {
     animation: connector_flash 0.5s ease-out 0s 2 alternate;
 }
@@ -204,6 +210,15 @@ $colors:
 .connector_neutral_flash {
     stroke: var(--orange);
     animation: connector_flash 0.5s ease-out 0s 2 alternate;
+}
+
+.connector_flash_secondary {
+    animation: connector_flash_secondary 0.5s ease-out 0s 2 alternate;
+}
+
+.connector_neutral_flash_secondary {
+    stroke: var(--orange);
+    animation: connector_flash_secondary 0.5s ease-out 0s 2 alternate;
 }
 
 .active_ip {

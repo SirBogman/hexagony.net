@@ -319,15 +319,20 @@ function getInput() {
     return input;
 }
 
+function startEdgeAnimation(connectors, name) {
+    if (connectors) {
+        connectors.forEach(x => {
+            x.classList.add(name);
+            x.style.animationDuration = `${userData.delay}ms`
+        });
+    }
+}
+
 function edgeEventHandler(edgeName, isBranch) {
     if (userData.edgeTransitionMode) {
-        const connectors = gridView.edgeConnectors[edgeName];
-        if (connectors) {
-            connectors.forEach(x => {
-                x.classList.add(isBranch ? 'connector_flash' : 'connector_neutral_flash');
-                x.style.animationDuration = `${userData.delay}ms`
-            });
-        }
+        const name = isBranch ? 'connector_flash' : 'connector_neutral_flash';
+        startEdgeAnimation(gridView.edgeConnectors[edgeName], name);
+        startEdgeAnimation(gridView.edgeConnectors2[edgeName], `${name}_secondary`);
     }
 }
 
