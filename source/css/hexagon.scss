@@ -112,10 +112,6 @@ $colors:
         fill: $executedColor;
     }
 
-    .cell_executed_#{$j}.secondary {
-        fill: makeSecondaryColor($executedColor);
-    }
-
     @for $i from $executedColors - 1 through 0 {
         $value: $executedMinLightness + $i * $executedLightnessIncrement;
         $currentColor: scaleLightness($color, $value);
@@ -127,10 +123,6 @@ $colors:
 
         .cell_executed_#{$j}_#{$i} {
             fill: $currentColor;
-        }
-
-        .cell_executed_#{$j}_#{$i}.secondary {
-            fill: makeSecondaryColor($currentColor);
         }
     }
 }
@@ -156,7 +148,7 @@ $colors:
         fill: $color;
     }
 
-    .cell_active_#{$j}.secondary {
+    .cell_active_#{$j}_secondary {
         fill: makeSecondaryColor($color);
     }
 }

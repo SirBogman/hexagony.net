@@ -210,8 +210,11 @@ export class GridView {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
+            if (k === 1) {
+                className += '_secondary';
+            }
             const cell = this.cellPaths[k][i][j];
-            cell.classList.add(className);
+            cell.firstElementChild.classList.add(className);
             cell.style.transitionDuration = this.delay;
         }
     }
@@ -220,8 +223,11 @@ export class GridView {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
+            if (k === 1) {
+                className += '_secondary';
+            }
             const cell = this.cellPaths[k][i][j];
-            cell.classList.remove(className);
+            cell.firstElementChild.classList.remove(className);
             cell.style.transitionDuration = this.delay;
         }
     }
@@ -296,7 +302,7 @@ export class GridView {
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
             const angles = executedState[this.selectedIp][i][j];
             if (angles.length) {
-                cell.classList.add(CELL_EXECUTED[this.selectedIp]);
+                cell.firstElementChild.classList.add(CELL_EXECUTED[this.selectedIp]);
                 cell.style.transitionDuration = this.delay;
             }
             if (this.showArrows) {
@@ -316,7 +322,7 @@ export class GridView {
         this.executionHistory = arrayInitialize(6, () => []);
 
         this.cellPaths[0].forEach(rows => rows.forEach(cell => {
-            cell.classList.remove(CELL_EXECUTED[this.selectedIp]);
+            cell.firstElementChild.classList.remove(CELL_EXECUTED[this.selectedIp]);
             cell.style.transitionDuration = this.delay;
             if (this.showArrows) {
                 cell.querySelectorAll('.arrow_template').forEach(arrow => {
@@ -729,9 +735,6 @@ export class GridView {
                 for (let j = 0; j < getRowSize(size, i); j++) {
                     const tooltip = `Coordinates: (${indexToAxial(size, i, j)})`;
                     const cell = this.cellTemplate.cloneNode(true);
-                    if (k) {
-                        cell.classList.add('secondary');
-                    }
                     cell.angles = [];
                     pathRow.push(cell);
                     const cellX = getX(size, i, j) + offsets[k][0] * cellWidth;
