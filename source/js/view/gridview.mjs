@@ -670,7 +670,6 @@ export class GridView {
         this.svg.setAttribute('height', this.fullHeight);
         const parent = createSvgElement('g');
         const textParent = document.querySelector('#input_container');
-        emptyElement(parent);
         emptyElement(textParent);
         this.cellPaths = [];
         this.cellInput = [];
