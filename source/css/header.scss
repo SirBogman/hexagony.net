@@ -95,28 +95,6 @@ body > header > nav .svg_icon.disabled {
     color: var(--disabled-color);
 }
 
-.svg_icon_stroke {
-    fill: none;
-}
-
-.svg_style_stroke2 {
-    fill: none;
-    stroke: currentColor;
-    stroke-miterlimit: 10;
-    stroke-width: 2px;
-}
-
-.svg_style_stroke3 {
-    fill: none;
-    stroke: currentColor;
-    stroke-miterlimit: 10;
-    stroke-width: 3px;
-}
-
-.svg_style_fill {
-    fill: currentColor;
-}
-
 #slider_container {
     width: 130px;
 }

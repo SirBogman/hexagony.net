@@ -5,7 +5,6 @@
     fill: white;
     stroke: var(--hexagon-stroke);
     stroke-width: 0.5;
-    stroke-miterlimit: 10;
     transition-timing-function: ease-out;
 }
 
@@ -38,7 +37,6 @@
     fill: none;
     stroke: black;
     stroke-width: 1.5;
-    stroke-miterlimit: 10;
 }
 
 .outline_secondary {
@@ -49,7 +47,6 @@
     fill: none;
     stroke: var(--red);
     stroke-width: 1.5;
-    stroke-miterlimit: 10;
 }
 
 .arrow_template {
@@ -168,7 +165,6 @@ $colors:
     fill: none;
     stroke: var(--orange);
     stroke-width: 1.0;
-    stroke-miterlimit: 10;
 }
 
 .positive_connector > path {
