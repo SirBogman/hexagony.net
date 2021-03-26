@@ -171,23 +171,21 @@ $colors:
     stroke-miterlimit: 10;
 }
 
-.positive_connector {
+.positive_connector > path {
     stroke: var(--red);
 }
 
-.negative_connector {
+.negative_connector > path {
     stroke: var(--blue);
 }
 
 .positive_text {
     fill: var(--red);
-    stroke: none;
     font-size: 20px;
 }
 
 .negative_text {
     fill: var(--blue);
-    stroke: none;
     font-size: 20px;
 }
 

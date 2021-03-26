@@ -178,7 +178,7 @@ export class GridView {
                 arrow.style.animationDuration = this.delay;
             }
             arrow.angle = angle;
-            arrow.setAttribute('transform', `rotate(${angle})translate(-14.5 0)scale(1.0 1.25)`);
+            arrow.setAttribute('transform', `rotate(${angle})`);
             cell.appendChild(arrow);
         }
         else {
