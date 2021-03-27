@@ -458,10 +458,10 @@ function updateStateText() {
             };
         }),
         breakpoints: userData.breakpoints.length,
-        ticks: hexagony.ticks.toLocaleString('en'),
+        ticks: hexagony.ticks,
         memoryPointer: hexagony.memory.mp,
         memoryDir: hexagony.memory.dir,
-        memoryCw: hexagony.memory.cw ? 'CW' : 'CCW',
+        memoryCw: hexagony.memory.cw,
         info: getInfoPanelState(),
     });
 }
