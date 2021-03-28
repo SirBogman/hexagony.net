@@ -66,7 +66,8 @@ body > header svg {
 }
 
 body > header a,
-body > header > nav div:not(.group) {
+body > header > nav button,
+#slider_container {
     height: $buttonOuterWidth;
     width: $buttonOuterWidth;
     display: inline-block;
@@ -81,17 +82,21 @@ body > header > nav .group {
     display: flex;
 }
 
-body > header a:hover,
-body > header a:not([href]),
-body > header > nav .svg_icon.active,
-body > header > nav .svg_icon:not(.disabled):hover {
-    background: var(--background);
-    color: var(--color);
-    /* For elements that don't use currentColor: */
-    fill: var(--color);
+body > header > nav button {
+    background: var(--color);
+    color: var(--background);
+    border: none;
 }
 
-body > header > nav .svg_icon.disabled {
+body > header a:hover,
+body > header a:not([href]),
+body > header > nav button[aria-checked="true"],
+body > header > nav button:enabled:hover {
+    background: var(--background);
+    color: var(--color);
+}
+
+body > header > nav button:disabled {
     color: var(--disabled-color);
 }
 
@@ -109,7 +114,8 @@ body > header > nav .svg_icon.disabled {
     outline: none;
 }
 
-.slider:hover {
+.slider:hover,
+.slider:focus {
     opacity: 1.0;
 }
 
@@ -134,7 +140,7 @@ body > header > nav .svg_icon.disabled {
     $buttonOuterWidth: $narrowButtonOuterWidth;
 
     body > header a,
-    body > header > nav div:not(.group) {
+    body > header > nav button {
         width: $buttonOuterWidth;
     }
 

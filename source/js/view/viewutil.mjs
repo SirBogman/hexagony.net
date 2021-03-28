@@ -8,12 +8,8 @@ export function emptyElement(element) {
     }
 }
 
-export function setClass(element, className, shouldHaveClass) {
-    element.classList.toggle(className, shouldHaveClass);
-}
-
-export function setEnabledClass(element, enabled) {
-    setClass(element, 'disabled', !enabled);
+export function setChecked(element, active) {
+    element.setAttribute('aria-checked', active ? 'true' : 'false');
 }
 
 export function unicodeStringToBase64(value) {
