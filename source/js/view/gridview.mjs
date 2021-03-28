@@ -613,6 +613,10 @@ export class GridView {
     }
 
     _addEdgeConnector(key, connector, isSecondary) {
+        if (connector.nodeName !== 'path') {
+            connector = connector.firstElementChild;
+        }
+
         const collection = isSecondary ? this.edgeConnectors2 : this.edgeConnectors;
         const current = collection[key];
         if (current !== undefined) {

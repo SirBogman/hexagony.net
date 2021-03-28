@@ -189,20 +189,20 @@ $colors:
     }
 }
 
-.connector_flash {
+path.connector_flash {
     animation: connector_flash 0.5s ease-out 0s 2 alternate;
 }
 
-.connector_neutral_flash {
+path.connector_neutral_flash {
     stroke: var(--orange);
     animation: connector_flash 0.5s ease-out 0s 2 alternate;
 }
 
-.connector_flash_secondary {
+path.connector_flash_secondary {
     animation: connector_flash_secondary 0.5s ease-out 0s 2 alternate;
 }
 
-.connector_neutral_flash_secondary {
+path.connector_neutral_flash_secondary {
     stroke: var(--orange);
     animation: connector_flash_secondary 0.5s ease-out 0s 2 alternate;
 }
