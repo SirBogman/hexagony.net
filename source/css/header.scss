@@ -67,7 +67,7 @@ body > header svg {
 
 body > header a,
 body > header > nav button,
-#slider_container {
+#speed_slider_container {
     height: $buttonOuterWidth;
     width: $buttonOuterWidth;
     display: inline-block;
@@ -100,7 +100,16 @@ body > header > nav button:disabled {
     color: var(--disabled-color);
 }
 
-#slider_container {
+body > header > nav button:focus,
+#speed_slider_container.focused {
+    border: 2px dotted var(--background);
+}
+
+body > header > nav button[aria-checked="true"]:focus {
+    border: 2px dotted var(--color);
+}
+
+#speed_slider_container {
     width: 130px;
 }
 
@@ -144,7 +153,7 @@ body > header > nav button:disabled {
         width: $buttonOuterWidth;
     }
 
-    #slider_container {
+    #speed_slider_container {
         width: $buttonOuterWidth * 2;
     }
 

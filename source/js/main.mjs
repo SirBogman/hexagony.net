@@ -36,6 +36,7 @@ const stepButton = document.querySelector('#step');
 const pauseButton = document.querySelector('#pause');
 const stopButton = document.querySelector('#stop');
 const speedSlider = document.querySelector('#speed_slider');
+const speedSliderContainer = document.querySelector('#speed_slider_container');
 
 const minifyButton = document.querySelector('#minify');
 const layoutButton = document.querySelector('#layout');
@@ -637,6 +638,8 @@ function init() {
     inputArgumentsRadioButton.addEventListener('change', onInputModeChanged);
     inputRawRadioButton.addEventListener('change', onInputModeChanged);
     speedSlider.addEventListener('input', onSpeedSliderChanged);
+    speedSlider.addEventListener('focus', () => speedSliderContainer.classList.add('focused'));
+    speedSlider.addEventListener('focusout', () => speedSliderContainer.classList.remove('focused'));
 
     edgeTransitionButton.addEventListener('click', () => {
         gridView.edgeTransitionMode = userData.edgeTransitionMode = !userData.edgeTransitionMode;
