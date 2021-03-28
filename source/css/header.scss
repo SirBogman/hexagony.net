@@ -100,13 +100,8 @@ body > header > nav button:disabled {
     color: var(--disabled-color);
 }
 
-body > header > nav button:focus,
 #speed_slider_container.focused {
-    border: 2px dotted var(--background);
-}
-
-body > header > nav button[aria-checked="true"]:focus {
-    border: 2px dotted var(--color);
+    border: 1px dotted var(--background);
 }
 
 #speed_slider_container {
