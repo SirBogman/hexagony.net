@@ -10,6 +10,8 @@ import panzoom from 'panzoom';
 
 import '../css/index.scss';
 
+const HELLO_WORLD_EXAMPLE = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
+
 const MAX_SPEED_ITERATIONS = 10000;
 const EXECUTION_HISTORY_COUNT = 20;
 
@@ -231,7 +233,7 @@ function loadData() {
     }
 
     if (!userData || !userData.code) {
-        userData = { code: layoutSource('H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;') };
+        userData = { code: layoutSource(HELLO_WORLD_EXAMPLE) };
     }
 
     updateAnimationDelay(userData.delay ?? 250);
@@ -249,13 +251,24 @@ function loadData() {
 
 function loadDataFromURL() {
     let newData = undefined;
-    try {
-        if (location.hash) {
-            newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(3)));
+
+    console.log(location.hash);
+
+    if (location.hash.startsWith('#lz')) {
+        try {
+            if (location.hash) {
+                newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(3)));
+            }
+        }
+        // eslint-disable-next-line no-empty
+        catch (e) {
         }
     }
-    // eslint-disable-next-line no-empty
-    catch (e) {
+    else if (location.hash === '#fibonacci') {
+        newData = { code: ')="/}.!+/M8;' };
+    }
+    else if (location.hash === '#helloworld') {
+        newData = { code: layoutSource('H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;') };
     }
 
     if (location.hash) {
