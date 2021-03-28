@@ -591,13 +591,17 @@ document.addEventListener('keydown', e => {
         }
         else if (e.key == 'z') {
             if (e.target != inputBox) {
-                gridView.undo();
+                if (gridView.canUndo(isRunning())) {
+                    gridView.undo();
+                }
                 e.preventDefault();
             }
         }
         else if (e.key == 'y') {
             if (e.target != inputBox) {
-                gridView.redo();
+                if (gridView.canRedo(isRunning())) {
+                    gridView.redo();
+                }
                 e.preventDefault();
             }
         }
