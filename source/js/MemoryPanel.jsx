@@ -202,6 +202,10 @@ export class MemoryGrid extends React.Component {
     }
 
     shouldComponentUpdate(nextProps) {
+        // TODO: the background grid will also need to be updated when the memory pointer moves too far away.
+        // This component will probably be converted to directly enumerate memory values that are set and make
+        // components for them on top of the background grid.
+        // The background grid component will probably be separate.
         return nextProps.memory.dataVersion !== this.lastDataVersion;
     }
 }
