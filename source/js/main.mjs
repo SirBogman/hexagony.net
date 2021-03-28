@@ -331,7 +331,7 @@ function startEdgeAnimation(connectors, name) {
 
 function edgeEventHandler(edgeName, isBranch) {
     // Don't show edge transition animations when running at high speed.
-    if (userData.edgeTransitionMode && userData.delay) {
+    if (userData.edgeTransitionMode && (userData.delay || !isPlaying())) {
         const name = isBranch ? 'connector_flash' : 'connector_neutral_flash';
         startEdgeAnimation(gridView.edgeConnectors[edgeName], name);
         startEdgeAnimation(gridView.edgeConnectors2[edgeName], `${name}_secondary`);
