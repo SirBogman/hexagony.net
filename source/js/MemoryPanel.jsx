@@ -131,7 +131,7 @@ export class MemoryHexagonGrid extends React.PureComponent {
             if (i !== 0 && i % 2 === 0) {
                 path += nwEdge;
             }
-    
+
             // Vertical lines
             if (i < rows) {
                 for (let j = 0; j < columns + 1; j++) {
@@ -332,8 +332,9 @@ export class MemoryPanel extends React.Component {
             <>
                 <h1>Memory</h1>
                 <div>
-                    <input type="button" value="Reset View" id="reset_view" onClick={() => this.resetView()}
-                        title="Reset the position and zoom level of the view."/>
+                    <button id="reset_view" onClick={() => this.resetView()} title="Reset the position and zoom level of the view.">
+                        Reset View
+                    </button>
                     Click and drag to pan. Zooming is also supported.
                 </div>
                 <div id="memory_container">
