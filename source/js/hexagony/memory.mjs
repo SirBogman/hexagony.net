@@ -30,7 +30,11 @@ export class Memory {
     }
 
     getValueAt(mp, dir) {
-        return this.data[`${mp},${dir}`] || 0n;
+        return this.data[`${mp},${dir}`] ?? 0n;
+    }
+
+    tryGetValueAt(mp, dir) {
+        return this.data[`${mp},${dir}`];
     }
 
     getValue() {

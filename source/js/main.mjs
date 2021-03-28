@@ -1,12 +1,11 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView } from './view/gridview.mjs';
-import { MemoryView } from './view/memoryview.mjs';
 import { setChecked } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
+import { updateMemoryPanel } from './MemoryPanel.jsx';
 import { updateStatePanel, setSelectedIPChangedCallback } from './StatePanel.jsx';
 import { updateInfoPanel } from './InfoPanel.jsx';
-import panzoom from 'panzoom';
 
 import '../css/index.scss';
 
@@ -57,16 +56,15 @@ const edgeTransitionButton = document.querySelector('#edge_transition');
 const toggleArrowsButton = document.querySelector('#toggle_arrows');
 const toggleIPsButton = document.querySelector('#toggle_ips');
 
-const memorySvg = document.querySelector('#memory_svg');
-const resetViewButton = document.querySelector('#reset_view');
+const memoryPanel = document.querySelector('#memory_panel');
 
 let gridView;
 let hexagony;
-let memoryView;
+let memoryTime;
+let memoryTimeCount;
 let executionHistory = [];
 let selectedIp = 0;
 let initFinished = false;
-let memoryPanZoom;
 let userData;
 let animationDelay;
 
@@ -355,7 +353,8 @@ function stepHelper(play = false) {
 
     if (hexagony == null) {
         hexagony = new Hexagony(userData.code, getInput(), edgeEventHandler);
-        memoryView = new MemoryView(hexagony, memorySvg, memoryPanZoom);
+        memoryTime = 0;
+        memoryTimeCount = 0;
         executionHistory = arrayInitialize(6, index => {
             const [coords, dir] = hexagony.getIPState(index);
             const [i, j] = hexagony.grid.axialToIndex(coords);
@@ -419,7 +418,14 @@ function stepHelper(play = false) {
     }
 
     updateButtons();
-    memoryView.update(animationDelay);
+    const p3 = performance.now();
+    updateMemoryPanel(memoryPanel, hexagony.memory, animationDelay);
+    const p4 = performance.now();
+    if (p4 - p3 > 5) {
+        memoryTime += p4 - p3;
+        memoryTimeCount++;
+    }
+    console.log(`Update memory: ${p4 - p3} | Avg ${(memoryTime / memoryTimeCount).toFixed(1)} | Count: ${memoryTimeCount}`);
 }
 
 function updateBreakpointCountText() {
@@ -537,9 +543,9 @@ function onPause() {
 
 function onStop() {
     hexagony = null;
-    memoryView = null;
     executionHistory = null;
     gridView.clearCellExecutionColors();
+    updateMemoryPanel(memoryPanel, null, animationDelay);
     updateButtons();
     onPause();
 }
@@ -662,21 +668,9 @@ function init() {
         saveData();
     });
 
-    resetViewButton.addEventListener('click', () => { if (memoryView) { memoryView.resetView(); } });
-
     updateButtons();
     updateViewButtons();
 
-    memoryPanZoom = panzoom(memorySvg, {
-        // Don't pan when clicking on text elements. This allows text selection.
-        beforeMouseDown: e => e.target.nodeName === 'text',
-        beforeDoubleClick: e => e.target.nodeName === 'text',
-        zoomDoubleClickSpeed: 1.5,
-        // 6.5% zoom per mouse wheel event:
-        zoomSpeed: 0.065,
-        // Don't listen for keyboard events.
-        filterKey: () => true,
-    });
     onhashchange = loadDataFromURL;
     initFinished = true;
 }
