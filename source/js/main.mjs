@@ -251,8 +251,6 @@ function loadData() {
 function loadDataFromURL() {
     let newData = undefined;
 
-    console.log(location.hash);
-
     if (location.hash.startsWith('#lz')) {
         try {
             if (location.hash) {
