@@ -30,7 +30,6 @@ export class GridView {
         this.updateUndoButtonsCallback = updateUndoButtonsCallback;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.cellPaths = [];
-        this.cellInput = [];
         this.edgeConnectors = {};
         this.edgeConnectors2 = {};
         this.delay = 0;
@@ -47,7 +46,6 @@ export class GridView {
         this.undoStack = [];
         this.redoStack = [];
         this.isUndoRedoInProgress = false;
-        this.activeEditingCell = null;
         this.edgeTransitionMode = false;
         this.showArrows = false;
         this.showIPs = false;
@@ -415,8 +413,8 @@ export class GridView {
             for (let j = 0; j < this.cellPaths[index][i].length; j++) {
                 const cell = this.cellPaths[index][i][j];
                 const char = iterator.next().value || '.';
-                if (cell.input) {
-                    const input = document.querySelector(cell.input);
+                const input = cell.querySelector('input');
+                if (input) {
                     input.value = char;
                     input.select();
                 }
@@ -472,10 +470,7 @@ export class GridView {
         puzzleParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
     }
 
-    checkArrowKeys(elem, event) {
-        // TOOD: escape to deselect.
-        const [i, j, k] = getIndices(elem);
-
+    checkArrowKeys(i, j, k, elem, event) {
         if (elem.selectionStart == elem.selectionEnd &&
             (event.key == 'ArrowLeft' || event.key == 'ArrowRight' || event.key == 'Backspace')) {
             // No text is selected. Let the text input element handle it.
@@ -581,33 +576,41 @@ export class GridView {
 
     navigateTo(i, j, k) {
         // Hide the text in the SVG cell, create an input element, and select it.
-        const cell = this.cellInput[k][i][j]();
         const svgCell = this.cellPaths[k][i][j];
         const svgText = svgCell.querySelector('text');
-        cell.value = svgText.textContent;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = 1;
+        input.id = `input_${i}_${j}_${k}`;
+        input.classList.add('cell_input');
+        input.value = svgText.textContent;
         // Temporarily clear the text.
         svgText.textContent = '';
-        const selector = `#input_${i}_${j}_${k}`;
-        svgCell.input = selector;
-        this.activeEditingCell = selector;
 
-        cell.focus();
-        cell.select();
-        cell.addEventListener('keydown', e => this.checkArrowKeys(cell, e));
+        const container = createSvgElement('foreignObject');
+        const width = 28;
+        const height = 28;
+        container.setAttribute('x', -width / 2);
+        container.setAttribute('y', -height / 2);
+        container.setAttribute('width', width);
+        container.setAttribute('height', height);
+        container.appendChild(input);
+        svgCell.appendChild(container);
 
-        cell.addEventListener('input', () => {
-            const newText = removeWhitespaceAndDebug(cell.value) || '.';
+        input.focus();
+        input.select();
+        input.addEventListener('keydown', e => this.checkArrowKeys(i, j, k, input, e));
+
+        input.addEventListener('input', () => {
+            const newText = removeWhitespaceAndDebug(input.value) || '.';
             this.updateFromHexagons(i, j, newText, k);
             // Reselect the text so that backspace can work normally.
-            cell.select();
+            input.select();
         });
 
-        cell.addEventListener('focusout', () => {
-            cell.parentNode.removeChild(cell);
-            svgCell.input = null;
-            if (this.activeEditingCell == selector) {
-                this.activeEditingCell = null;
-            }
+        input.addEventListener('focusout', () => {
+            svgCell.removeChild(container);
             this.updateHexagonWithCode(k, this.filteredSourceCode);
         });
     }
@@ -679,10 +682,7 @@ export class GridView {
         this.svg.setAttribute('width', this.fullWidth);
         this.svg.setAttribute('height', this.fullHeight);
         const parent = createSvgElement('g');
-        const textParent = document.querySelector('#input_container');
-        emptyElement(textParent);
         this.cellPaths = [];
-        this.cellInput = [];
         this.edgeConnectors = {};
 
         const largeGridTwoColumnOffset = size * 3;
@@ -732,10 +732,8 @@ export class GridView {
 
         for (let k = 0; k < offsets.length; k++) {
             const pathGrid = [];
-            const inputGrid = [];
             for (let i = 0; i < this.rowCount; i++) {
                 const pathRow = [];
-                const inputRow = [];
                 for (let j = 0; j < getRowSize(size, i); j++) {
                     const tooltip = `Coordinates: (${indexToAxial(size, i, j)})`;
                     const cell = this.cellTemplate.cloneNode(true);
@@ -747,26 +745,10 @@ export class GridView {
                     cell.setAttribute('transform', `translate(${cellX},${cellY})scale(${radius / 20})`);
                     cell.querySelector('title').textContent = tooltip;
                     hexagonParents[k].appendChild(cell);
-
-                    inputRow.push(() => {
-                        const text = document.createElement('input');
-                        text.type = 'text';
-                        text.maxLength = 1;
-                        text.id = `input_${i}_${j}_${k}`;
-                        text.title = tooltip;
-                        text.classList.add('cell_input');
-                        text.style.left = `${cellX}px`;
-                        text.style.top = `${cellY}px`;
-                        text.value = '.';
-                        textParent.appendChild(text);
-                        return text;
-                    });
                 }
                 pathGrid.push(pathRow);
-                inputGrid.push(inputRow);
             }
             this.cellPaths.push(pathGrid);
-            this.cellInput.push(inputGrid);
 
             {
                 const cellX = getX(size, 0, 0) + offsets[k][0] * cellWidth;
