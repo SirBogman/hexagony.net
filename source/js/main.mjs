@@ -421,7 +421,7 @@ function stepHelper(play = false) {
     const p3 = performance.now();
     updateMemoryPanel(memoryPanel, hexagony.memory, animationDelay);
     const p4 = performance.now();
-    if (p4 - p3 > 5) {
+    if (p4 - p3 > 2) {
         memoryTime += p4 - p3;
         memoryTimeCount++;
     }

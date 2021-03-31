@@ -14,18 +14,12 @@ const edgeLength = 46.24;
 const cellHeight = 2 * edgeLength;
 const cellOffsetY = 3 / 4 * cellHeight;
 const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
-const cellWidth = 2 * cellOffsetX;
 
 const xFactor = 0.5 * cellOffsetX;
 const yFactor = 0.5 * cellOffsetY;
 
-//const xFactor = 20;
-//const yFactor = 34;
-
 const xPadding = 40;
 const yPadding = 40;
-// const xPadding = 46;
-// const yPadding = 7;
 
 function getMPCoordinates(memory) {
     return [memory.getX() * xFactor, memory.getY() * yFactor];
@@ -33,11 +27,13 @@ function getMPCoordinates(memory) {
 
 export class MemoryPointer extends React.PureComponent {
     render() {
+        const {x, y, angle, delay} = this.props;
+        // The transform must be set through the style for it to animate automatically.
         return <path id="memory_pointer"
             d="M0-23.12l-3 46.24h6z"
             style={{
-                transform: `translate(${this.props.x.toFixed(2)}px,${this.props.y.toFixed(2)}px)rotate(${this.props.angle % 360}deg)`,
-                transitionDuration: this.props.delay,
+                transform: `translate(${x.toFixed(2)}px,${y.toFixed(2)}px)rotate(${angle % 360}deg)`,
+                transitionDuration: delay,
             }}
         />;
     }
@@ -101,7 +97,7 @@ export class MemoryHexagonGrid extends React.PureComponent {
     render() {
         const {x, y, rows, columns} = this.props;
         let path = '';
-        const startX = (2 * x - 1.5) * cellOffsetX;
+        const startX = (2 * x - 1.5 + y % 2) * cellOffsetX;
         const startY = (y + 0.5) * cellOffsetY - 0.5 * edgeLength;
         const nwEdge = `l${cellOffsetX.toFixed(2)} ${(-0.5 * edgeLength).toFixed(2)}`;
         const neEdge = `l${cellOffsetX.toFixed(2)} ${(0.5 * edgeLength).toFixed(2)}`;
@@ -151,6 +147,7 @@ MemoryHexagonGrid.propTypes = {
     columns: PropTypes.number.isRequired,
 };
 
+// This is the older version that builds the full background and all of the cell values.
 export class MemoryGrid extends React.Component {
     constructor(props) {
         super(props);
@@ -202,15 +199,40 @@ export class MemoryGrid extends React.Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        // TODO: the background grid will also need to be updated when the memory pointer moves too far away.
-        // This component will probably be converted to directly enumerate memory values that are set and make
-        // components for them on top of the background grid.
-        // The background grid component will probably be separate.
         return nextProps.memory.dataVersion !== this.lastDataVersion;
     }
 }
 
 MemoryGrid.propTypes = {
+    memory: PropTypes.object.isRequired,
+};
+
+// Displays the values that are set in memory.
+export class MemoryCells extends React.Component {
+    constructor(props) {
+        super(props);
+        this.lastDataVersion = -1;
+    }
+
+    render() {
+        const { memory } = this.props;
+        this.lastDataVersion = memory.dataVersion;
+        const cells = memory.getDataArray().map(entry => {
+            const {x, y, dir, value} = entry;
+            const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
+            return <MemoryCell key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>;
+        });
+
+        console.log(`CELLS2 LENGTH: ${cells.length}`);
+        return <g>{cells}</g>;
+    }
+
+    shouldComponentUpdate(nextProps) {
+        return nextProps.memory.dataVersion !== this.lastDataVersion;
+    }
+}
+
+MemoryCells.propTypes = {
     memory: PropTypes.object.isRequired,
 };
 
@@ -229,17 +251,58 @@ export class MemoryView extends React.Component {
             return <svg ref={this.viewRef}/>;
         }
 
-        const {delay, memory} = this.props;
         const [x, y] = getMPCoordinates(memory);
         const angle = memory.dir.angle + (memory.cw ? 180 : 0);
+        const {delay, memory} = this.props;
+
         return (
             <svg overflow="visible" ref={this.viewRef}>
-                <MemoryGrid memory={memory}/>
+                {/* <MemoryGrid memory={memory}/> */}
+                <MemoryCells memory={memory}/>
                 <MemoryPointer x={x} y={y} angle={angle} delay={delay}/>
-                {/* <MemoryHexagonGrid x={-16} y={-16} rows={32} columns={32}/> */}
+                {this.renderHexagonGrid()}
             </svg>
         );
     }
+
+    renderHexagonGrid() {
+        const memory = this.props.memory;
+        const currentX = memory.getX();
+        const currentY = memory.getY();
+        const haveBounds = memory.minX !== undefined;
+        const minX = haveBounds ? Math.min(memory.minX, currentX) : currentX;
+        const minY = haveBounds ? Math.min(memory.minY, currentY) : currentY;
+        const maxX = haveBounds ? Math.max(memory.maxX, currentX) : currentX;
+        const maxY = haveBounds ? Math.max(memory.maxY, currentY) : currentY;
+
+        // Coordinates for the center hexagon:
+        // E edge: 1, 1
+        // NE edge: 0, 0
+        // NW edge: -2, 0
+        // W edge: -3, 1
+        // SW edge: -2, -2
+        // SE edge: 0, 2
+        // Figure out how many hexagons are needed based on these coordinates.
+        const x1 = roundGridValueLowerBound(Math.floor((minX + 3) / 4));
+        const x2 = roundGridValueUpperBound(Math.floor((maxX + 3) / 4));
+        const y1 = roundGridValueLowerBound(Math.floor((minY - 1) / 2));
+        const y2 = roundGridValueUpperBound(Math.floor((maxY - 1) / 2));
+
+        // Render the background as a single path. If rendered as more than one path, you can sometimes see seams between the parts.
+        return <MemoryHexagonGrid x={x1} y={y1} columns={x2 - x1 + 1} rows={y2 - y1 + 1}/>;
+    }
+}
+
+function roundGridValueLowerBound(value) {
+    // Testing: [...Array(30)].fill(null).map((x,i) => i).map(x => roundGridValueUpperBound(x) - x);
+    // The difference between x and (Math.ceil(value / 5) - 3) * 5 and x is between 11 and 15.
+    return (Math.ceil(value / 5) - 3) * 5;
+}
+
+function roundGridValueUpperBound(value) {
+    // Testing: [...Array(30)].fill(null).map((x,i) => i).map(x => (Math.floor(x / 5) + 3) * 5 - x);
+    // The difference between (Math.floor(value / 5) + 3) * 5 and x is between 11 and 15.
+    return (Math.floor(value / 5) + 3) * 5;
 }
 
 MemoryView.propTypes = {
@@ -325,8 +388,6 @@ export class MemoryPanel extends React.Component {
     }
 
     render() {
-        // TODO: the component could hide its panel when it is not running.
-        // That would be easier if all of the panels were components.
         const {delay, memory} = this.props;
         return (
             <>

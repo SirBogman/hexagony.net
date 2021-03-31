@@ -7,8 +7,8 @@ export class Memory {
         this.mp = new PointAxial(0, 0);
         this.dir = east;
         this.cw = false;
-        this.maxX = this.minX = this.getX();
-        this.maxY = this.minY = this.getY();
+        this.maxX = this.minX = undefined;
+        this.maxY = this.minY = undefined;
         // data version is incremented whenever anything in this class changes.
         this.dataVersion = 0;
         this.memoryPointerVersion = 0;
@@ -30,11 +30,11 @@ export class Memory {
     }
 
     getValueAt(mp, dir) {
-        return this.data[`${mp},${dir}`] ?? 0n;
+        return this.data[`${mp},${dir}`]?.value ?? 0n;
     }
 
     tryGetValueAt(mp, dir) {
-        return this.data[`${mp},${dir}`];
+        return this.data[`${mp},${dir}`]?.value;
     }
 
     getValue() {
@@ -51,18 +51,19 @@ export class Memory {
         return this.getValueAt(mp, dir);
     }
 
-    hasKey(mp, dir) {
-        return `${mp},${dir}` in this.data;
-    }
-
     setValue(value) {
-        this.data[`${this.mp},${this.dir}`] = BigInt(value);
         const x = this.getX();
         const y = this.getY();
-        if (x > this.maxX) { this.maxX = x; }
-        if (x < this.minX) { this.minX = x; }
-        if (y > this.maxY) { this.maxY = y; }
-        if (y < this.minY) { this.minY = y; }
+        this.data[`${this.mp},${this.dir}`] = {
+            x,
+            y,
+            dir: this.dir,
+            value: BigInt(value),
+        };
+        if (this.dataVersion === 0 || x > this.maxX) { this.maxX = x; }
+        if (this.dataVersion === 0 || x < this.minX) { this.minX = x; }
+        if (this.dataVersion === 0 || y > this.maxY) { this.maxY = y; }
+        if (this.dataVersion === 0 || y < this.minY) { this.minY = y; }
         this.dataVersion++;
     }
 
@@ -120,8 +121,12 @@ export class Memory {
     get debugString() {
         let text = `${this.mp},${this.dir},${this.cw}`;
         for (const key in this.data) {
-            text += `\n${key},${this.data[key]}`;
+            text += `\n${key},${this.data[key].value}`;
         }
         return text;
+    }
+
+    getDataArray() {
+        return Object.values(this.data);
     }
 }
