@@ -6,14 +6,12 @@ export class PointAxial {
 
     add(vector) {
         const [q, r] = vector;
-        this.q += q;
-        this.r += r;
+        return new PointAxial(this.q + q, this.r + r);
     }
 
     subtract(vector) {
         const [q, r] = vector;
-        this.q -= q;
-        this.r -= r;
+        return new PointAxial(this.q - q, this.r - r);
     }
 
     toString() { return `${this.q},${this.r}`; }

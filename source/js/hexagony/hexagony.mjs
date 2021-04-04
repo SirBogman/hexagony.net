@@ -63,121 +63,128 @@ export class Hexagony {
         while (!this.terminationReason) {
             yield;
 
-            // Execute the current instruction
-            let newIp = this.activeIp;
-            const opcode = this.grid.getInstruction(this.coords, this.dir, newIp);
+            const opcode = this.grid.getInstruction(this.coords, this.dir, this.activeIp);
+            this.executeOpcode(opcode);
+        }
+    }
 
-            switch (opcode) {
-                // NOP
-                case '.': break;
+    executeOpcode(opcode) {
+        // Execute the current instruction
+        let newIp = this.activeIp;
 
-                // Terminate
-                case '@':
-                    this.terminationReason = 'Program terminated at @.';
+        switch (opcode) {
+            // NOP
+            case '.': break;
+
+            // Terminate
+            case '@':
+                this.terminationReason = 'Program terminated at @.';
+                this.ticks++;
+                return;
+
+            // Arithmetic
+            case ')': this.memory.setValue(this.memory.getValue() + 1n); break;
+            case '(': this.memory.setValue(this.memory.getValue() - 1n); break;
+            case '+': this.memory.setValue(this.memory.getLeft() + this.memory.getRight()); break;
+            case '-': this.memory.setValue(this.memory.getLeft() - this.memory.getRight()); break;
+            case '*': this.memory.setValue(this.memory.getLeft() * this.memory.getRight()); break;
+            case '~': this.memory.setValue(-this.memory.getValue()); break;
+
+            case ':': {
+                const leftVal = this.memory.getLeft();
+                const rightVal = this.memory.getRight();
+                if (rightVal == 0) {
+                    this.terminationReason = 'Error: Program terminated due to division by zero.';
                     this.ticks++;
                     return;
-
-                // Arithmetic
-                case ')': this.memory.setValue(this.memory.getValue() + 1n); break;
-                case '(': this.memory.setValue(this.memory.getValue() - 1n); break;
-                case '+': this.memory.setValue(this.memory.getLeft() + this.memory.getRight()); break;
-                case '-': this.memory.setValue(this.memory.getLeft() - this.memory.getRight()); break;
-                case '*': this.memory.setValue(this.memory.getLeft() * this.memory.getRight()); break;
-                case '~': this.memory.setValue(-this.memory.getValue()); break;
-
-                case ':': {
-                    const leftVal = this.memory.getLeft();
-                    const rightVal = this.memory.getRight();
-                    if (rightVal == 0) {
-                        this.terminationReason = 'Error: Program terminated due to division by zero.';
-                        this.ticks++;
-                        return;
-                    }
-                    this.memory.setValue(rubyStyleDivide(leftVal, rightVal));
-                    break;
                 }
-                case '%': {
-                    const leftVal = this.memory.getLeft();
-                    const rightVal = this.memory.getRight();
-                    if (rightVal == 0) {
-                        this.terminationReason = 'Error: Program terminated due to division by zero.';
-                        this.ticks++;
-                        return;
-                    }
-                    this.memory.setValue(rubyStyleRemainder(leftVal, rightVal));
-                    break;
-                }
-                // Memory manipulation
-                case '{': this.memory.moveLeft(); break;
-                case '}': this.memory.moveRight(); break;
-                case '=': this.memory.reverse(); break;
-                case '"': this.memory.reverse(); this.memory.moveRight(); this.memory.reverse(); break;
-                case '\'': this.memory.reverse(); this.memory.moveLeft(); this.memory.reverse(); break;
-                case '^':
-                    if (this.memory.getValue() > 0) {
-                        this.memory.moveRight();
-                    }
-                    else {
-                        this.memory.moveLeft();
-                    }
-                    break;
-                case '&':
-                    if (this.memory.getValue() > 0) {
-                        this.memory.setValue(this.memory.getRight());
-                    }
-                    else {
-                        this.memory.setValue(this.memory.getLeft());
-                    }
-                    break;
-
-                case ',': {
-                    const byteValue = this.readByte();
-                    this.memory.setValue(byteValue !== undefined ? byteValue.codePointAt(0) : -1);
-                    break;
-                }
-                case ';':
-                    this.appendOutput(String.fromCharCode(Number(this.memory.getValue() % 256n)));
-                    break;
-
-                case '?':
-                    this.memory.setValue(this.findInteger());
-                    break;
-
-                case '!':
-                    this.appendOutput(this.memory.getValue().toString());
-                    break;
-
-                // Control flow
-                case '_': this.ipDirs[this.activeIp] = this.dir.reflectAtUnderscore; break;
-                case '|': this.ipDirs[this.activeIp] = this.dir.reflectAtPipe; break;
-                case '/': this.ipDirs[this.activeIp] = this.dir.reflectAtSlash; break;
-                case '\\': this.ipDirs[this.activeIp] = this.dir.reflectAtBackslash; break;
-                case '<': this.ipDirs[this.activeIp] = this.dir.reflectAtLessThan(this.memory.getValue() > 0); break;
-                case '>': this.ipDirs[this.activeIp] = this.dir.reflectAtGreaterThan(this.memory.getValue() > 0); break;
-                case ']': newIp = (this.activeIp + 1) % 6; break;
-                case '[': newIp = (this.activeIp + 5) % 6; break;
-                case '#': newIp = (Number(this.memory.getValue() % 6n) + 6) % 6; break;
-                case '$': this.ips[this.activeIp].add(this.dir.vector); this.handleEdges(); break;
-
-                // Digits, letters, and other characters.
-                default: {
-                    const value = opcode.codePointAt(0);
-                    if (value >= 48 && value <= 57) {
-                        const memVal = this.memory.getValue();
-                        this.memory.setValue(memVal * 10n + (memVal < 0 ? -BigInt(opcode) : BigInt(opcode)));
-                    }
-                    else {
-                        this.memory.setValue(value);
-                    }
-                    break;
-                }
+                this.memory.setValue(rubyStyleDivide(leftVal, rightVal));
+                break;
             }
+            case '%': {
+                const leftVal = this.memory.getLeft();
+                const rightVal = this.memory.getRight();
+                if (rightVal == 0) {
+                    this.terminationReason = 'Error: Program terminated due to division by zero.';
+                    this.ticks++;
+                    return;
+                }
+                this.memory.setValue(rubyStyleRemainder(leftVal, rightVal));
+                break;
+            }
+            // Memory manipulation
+            case '{': this.memory.moveLeft(); break;
+            case '}': this.memory.moveRight(); break;
+            case '=': this.memory.reverse(); break;
+            case '"': this.memory.reverse(); this.memory.moveRight(); this.memory.reverse(); break;
+            case '\'': this.memory.reverse(); this.memory.moveLeft(); this.memory.reverse(); break;
+            case '^':
+                if (this.memory.getValue() > 0) {
+                    this.memory.moveRight();
+                }
+                else {
+                    this.memory.moveLeft();
+                }
+                break;
+            case '&':
+                if (this.memory.getValue() > 0) {
+                    this.memory.setValue(this.memory.getRight());
+                }
+                else {
+                    this.memory.setValue(this.memory.getLeft());
+                }
+                break;
 
-            this.ips[this.activeIp].add(this.dir.vector);
-            this.handleEdges();
-            this.activeIp = newIp;
-            this.ticks++;
+            case ',': {
+                const byteValue = this.readByte();
+                this.memory.setValue(byteValue !== undefined ? byteValue.codePointAt(0) : -1);
+                break;
+            }
+            case ';':
+                this.appendOutput(String.fromCharCode(Number(this.memory.getValue() % 256n)));
+                break;
+
+            case '?':
+                this.memory.setValue(this.findInteger());
+                break;
+
+            case '!':
+                this.appendOutput(this.memory.getValue().toString());
+                break;
+
+            // Control flow
+            case '_': this.ipDirs[this.activeIp] = this.dir.reflectAtUnderscore; break;
+            case '|': this.ipDirs[this.activeIp] = this.dir.reflectAtPipe; break;
+            case '/': this.ipDirs[this.activeIp] = this.dir.reflectAtSlash; break;
+            case '\\': this.ipDirs[this.activeIp] = this.dir.reflectAtBackslash; break;
+            case '<': this.ipDirs[this.activeIp] = this.dir.reflectAtLessThan(this.memory.getValue() > 0); break;
+            case '>': this.ipDirs[this.activeIp] = this.dir.reflectAtGreaterThan(this.memory.getValue() > 0); break;
+            case ']': newIp = (this.activeIp + 1) % 6; break;
+            case '[': newIp = (this.activeIp + 5) % 6; break;
+            case '#': newIp = (Number(this.memory.getValue() % 6n) + 6) % 6; break;
+            case '$':
+                this.ips[this.activeIp] = this.ips[this.activeIp].add(this.dir.vector);
+                this.handleEdges();
+                break;
+
+            // Digits, letters, and other characters.
+            default: {
+                const value = opcode.codePointAt(0);
+                if (value >= 48 && value <= 57) {
+                    const memVal = this.memory.getValue();
+                    this.memory.setValue(memVal * 10n + (memVal < 0 ? -BigInt(opcode) : BigInt(opcode)));
+                }
+                else {
+                    this.memory.setValue(value);
+                }
+                break;
+            }
         }
+
+        this.ips[this.activeIp] = this.ips[this.activeIp].add(this.dir.vector);
+        this.handleEdges();
+        this.activeIp = newIp;
+        this.ticks++;
     }
 
     appendOutput(string) {
@@ -209,7 +216,7 @@ export class Hexagony {
         const zBigger = Math.abs(z) >= this.grid.size;
 
         // Move the pointer back to the hex near the edge
-        this.ips[this.activeIp].subtract(this.dir.vector);
+        this.ips[this.activeIp] = this.ips[this.activeIp].subtract(this.dir.vector);
         const coords = this.coords;
 
         // If two values are still in range, we are wrapping around an edge (not a corner).
