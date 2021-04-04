@@ -25,6 +25,9 @@ export class MemoryPointer extends React.PureComponent {
     render() {
         const {x, y, angle, delay} = this.props;
         // The transform must be set through the style for it to animate automatically.
+        // Sometimes the pointer spins around extra times when animating.
+        // In some cases, this can be avoided by chosing different angles with the same remainder mod 360.
+        // I tried to avoid the issue by setting the transform as a matrix, but it didn't seem to make a difference.
         return <path id="memory_pointer"
             d="M0-23.12l-3 46.24h6z"
             style={{
