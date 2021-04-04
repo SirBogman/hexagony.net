@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { east, northEast, southEast } from './hexagony/direction.mjs';
-import { PointAxial } from './hexagony/pointaxial.mjs';
+import { northEast, southEast } from './hexagony/direction.mjs';
 import panzoom from 'panzoom';
 
 // If the memory pointer is within this normalized distance of an the edge of the container,
@@ -17,9 +16,6 @@ const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
 
 const xFactor = 0.5 * cellOffsetX;
 const yFactor = 0.5 * cellOffsetY;
-
-const xPadding = 40;
-const yPadding = 40;
 
 function getMPCoordinates(memory) {
     return [memory.getX() * xFactor, memory.getY() * yFactor];
@@ -147,66 +143,6 @@ MemoryHexagonGrid.propTypes = {
     columns: PropTypes.number.isRequired,
 };
 
-// This is the older version that builds the full background and all of the cell values.
-export class MemoryGrid extends React.Component {
-    constructor(props) {
-        super(props);
-        this.lastDataVersion = -1;
-    }
-
-    render() {
-        const cells = [];
-        const memory = this.props.memory;
-        const currentX = memory.getX();
-        const currentY = memory.getY();
-        const minX = Math.min(memory.minX, currentX) - xPadding;
-        const minY = Math.min(memory.minY, currentY) - yPadding;
-        const maxX = Math.max(memory.maxX, currentX) + xPadding;
-        const maxY = Math.max(memory.maxY, currentY) + yPadding;
-        this.lastDataVersion = memory.dataVersion;
-
-        for (let y = minY; y <= maxY; y++) {
-            for (let x = minX; x <= maxX; x++) {
-                if (!(y % 2 === 0 && x % 2 === 0 ||
-                    (y % 4 + 4) % 4 === 1 && (x % 4 + 4) % 4 === 1 ||
-                    (y % 4 + 4) % 4 === 3 && (x % 4 + 4) % 4 === 3)) {
-                    continue;
-                }
-
-                let dir, mp;
-
-                if (y % 2 !== 0) {
-                    dir = east;
-                    mp = new PointAxial((x - y) / 4, (y - 1) / 2);
-                }
-                else if ((x - y) % 4 === 0) {
-                    dir = northEast;
-                    mp = new PointAxial((x - y) / 4, y / 2);
-                }
-                else {
-                    dir = southEast;
-                    mp = new PointAxial((x - y + 2) / 4, (y - 2) / 2);
-                }
-
-                const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
-                const value = memory.tryGetValueAt(mp, dir);
-                cells.push(<MemoryCell key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>);
-            }
-        }
-
-        console.log(`CELLS LENGTH: ${cells.length}`);
-        return <g>{cells}</g>;
-    }
-
-    shouldComponentUpdate(nextProps) {
-        return nextProps.memory.dataVersion !== this.lastDataVersion;
-    }
-}
-
-MemoryGrid.propTypes = {
-    memory: PropTypes.object.isRequired,
-};
-
 // Displays the values that are set in memory.
 export class MemoryCells extends React.Component {
     constructor(props) {
@@ -223,7 +159,6 @@ export class MemoryCells extends React.Component {
             return <MemoryCell key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>;
         });
 
-        console.log(`CELLS2 LENGTH: ${cells.length}`);
         return <g>{cells}</g>;
     }
 
@@ -247,17 +182,16 @@ export class MemoryView extends React.Component {
     }
 
     render() {
-        if (!this.props.memory) {
+        const {delay, memory} = this.props;
+        if (!memory) {
             return <svg ref={this.viewRef}/>;
         }
 
         const [x, y] = getMPCoordinates(memory);
         const angle = memory.dir.angle + (memory.cw ? 180 : 0);
-        const {delay, memory} = this.props;
 
         return (
             <svg overflow="visible" ref={this.viewRef}>
-                {/* <MemoryGrid memory={memory}/> */}
                 <MemoryCells memory={memory}/>
                 <MemoryPointer x={x} y={y} angle={angle} delay={delay}/>
                 {this.renderHexagonGrid()}

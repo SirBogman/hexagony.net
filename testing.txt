@@ -1,0 +1,32 @@
+Example of setting 71 values in memory for performance testing of the memory panel:
+
+function memoryValueTest() {
+    // Set a bunch of values in memory for performance testing.
+    onStep();
+    const oldIP = hexagony.coords;
+    hexagony.executeOpcode(')');
+    for (let q =0; q < 10; q++) {
+    hexagony.executeOpcode('}');
+    hexagony.executeOpcode(')');
+    hexagony.executeOpcode('{');
+    hexagony.executeOpcode(')');
+
+    hexagony.executeOpcode('}');
+    hexagony.executeOpcode(')');
+    hexagony.executeOpcode('{');
+    hexagony.executeOpcode(')');
+    hexagony.executeOpcode('\'');
+    hexagony.executeOpcode(')');
+    hexagony.executeOpcode('{');
+    hexagony.executeOpcode('{');
+    hexagony.executeOpcode('=');
+
+    hexagony.executeOpcode('\'');
+    hexagony.executeOpcode(')');
+    hexagony.executeOpcode('"');
+    hexagony.executeOpcode(')');
+    }
+    updateMemory();
+    hexagony.ips[0] = oldIP;
+}
+memoryValueTest();

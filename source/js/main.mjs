@@ -60,8 +60,6 @@ const memoryPanel = document.querySelector('#memory_panel');
 
 let gridView;
 let hexagony;
-let memoryTime;
-let memoryTimeCount;
 let executionHistory = [];
 let selectedIp = 0;
 let initFinished = false;
@@ -353,8 +351,6 @@ function stepHelper(play = false) {
 
     if (hexagony == null) {
         hexagony = new Hexagony(userData.code, getInput(), edgeEventHandler);
-        memoryTime = 0;
-        memoryTimeCount = 0;
         executionHistory = arrayInitialize(6, index => {
             const [coords, dir] = hexagony.getIPState(index);
             const [i, j] = hexagony.grid.axialToIndex(coords);
@@ -418,14 +414,7 @@ function stepHelper(play = false) {
     }
 
     updateButtons();
-    const p3 = performance.now();
     updateMemoryPanel(memoryPanel, hexagony.memory, animationDelay);
-    const p4 = performance.now();
-    if (p4 - p3 > 2) {
-        memoryTime += p4 - p3;
-        memoryTimeCount++;
-    }
-    console.log(`Update memory: ${p4 - p3} | Avg ${(memoryTime / memoryTimeCount).toFixed(1)} | Count: ${memoryTimeCount}`);
 }
 
 function updateBreakpointCountText() {
