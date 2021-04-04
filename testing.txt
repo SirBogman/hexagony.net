@@ -30,3 +30,6 @@ function memoryValueTest() {
     hexagony.ips[0] = oldIP;
 }
 memoryValueTest();
+
+
+Memory pointer rotation test program: '"'"...........'"'"'"'
