@@ -214,8 +214,9 @@ export class GridView {
                 className += '_secondary';
             }
             const cell = this.cellPaths[k][i][j];
-            cell.firstElementChild.classList.add(className);
-            cell.style.transitionDuration = this.delay;
+            const path = cell.firstElementChild;
+            path.classList.add(className);
+            path.transitionDuration = this.delay;
         }
     }
 
@@ -227,8 +228,9 @@ export class GridView {
                 className += '_secondary';
             }
             const cell = this.cellPaths[k][i][j];
-            cell.firstElementChild.classList.remove(className);
-            cell.style.transitionDuration = this.delay;
+            const path = cell.firstElementChild;
+            path.classList.remove(className);
+            path.style.transitionDuration = this.delay;
         }
     }
 
@@ -302,8 +304,9 @@ export class GridView {
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
             const angles = executedState[this.selectedIp][i][j];
             if (angles.length) {
-                cell.firstElementChild.classList.add(CELL_EXECUTED[this.selectedIp]);
-                cell.style.transitionDuration = this.delay;
+                const path = cell.firstElementChild;
+                path.classList.add(CELL_EXECUTED[this.selectedIp]);
+                path.style.transitionDuration = this.delay;
             }
             if (this.showArrows) {
                 for (const angle of angles) {
@@ -322,8 +325,9 @@ export class GridView {
         this.executionHistory = arrayInitialize(6, () => []);
 
         this.cellPaths[0].forEach(rows => rows.forEach(cell => {
-            cell.firstElementChild.classList.remove(CELL_EXECUTED[this.selectedIp]);
-            cell.style.transitionDuration = this.delay;
+            const path = cell.firstElementChild;
+            path.classList.remove(CELL_EXECUTED[this.selectedIp]);
+            path.style.transitionDuration = this.delay;
             if (this.showArrows) {
                 cell.querySelectorAll('.arrow_template').forEach(arrow => {
                     arrow.classList.remove(ARROW_EXECUTED[this.selectedIp]);
