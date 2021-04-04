@@ -1,6 +1,8 @@
 import { arrayInitialize, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { createSvgElement, emptyElement } from './viewutil.mjs';
 
+const radius = 20;
+const cellHeight = radius * 2;
 const EDGE_TRANSITION_SIZE_LIMIT = 25;
 const EXECUTED_COLOR_COUNT = 10;
 const CELL_EXECUTED = arrayInitialize(6, index => `cell_executed_${index}`);
@@ -589,11 +591,12 @@ export class GridView {
 
         const container = createSvgElement('foreignObject');
         const width = 28;
-        const height = 28;
         container.setAttribute('x', -width / 2);
-        container.setAttribute('y', -height / 2);
+        container.setAttribute('y', -cellHeight / 2);
         container.setAttribute('width', width);
-        container.setAttribute('height', height);
+        container.setAttribute('height', cellHeight);
+        input.style.width = `${width}px`;
+        input.style.height = `${cellHeight}px`;
         container.appendChild(input);
         svgCell.appendChild(container);
 
@@ -635,8 +638,6 @@ export class GridView {
     _createGrid(size) {
         this.size = size;
         this.rowCount = getRowCount(size);
-        const radius = 20;
-        const cellHeight = radius * 2;
         const cellOffsetY = 3 / 4 * cellHeight;
         const cellOffsetX = Math.sqrt(3) / 2 * radius;
         const cellWidth = cellOffsetX * 2;
