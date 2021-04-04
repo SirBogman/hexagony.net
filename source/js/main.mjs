@@ -3,9 +3,9 @@ import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLe
 import { GridView } from './view/gridview.mjs';
 import { setChecked } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
-import { updateMemoryPanel } from './MemoryPanel.jsx';
-import { updateStatePanel, setSelectedIPChangedCallback } from './StatePanel.jsx';
-import { updateInfoPanel } from './InfoPanel.jsx';
+import { updateMemoryPanel } from './components/MemoryPanel.jsx';
+import { updateStatePanel, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
+import { updateInfoPanel } from './components/InfoPanel.jsx';
 
 import '../css/index.scss';
 

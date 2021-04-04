@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { northEast, southEast } from './hexagony/direction.mjs';
+import { northEast, southEast } from '../hexagony/direction.mjs';
 import panzoom from 'panzoom';
 
 // If the memory pointer is within this normalized distance of an the edge of the container,
