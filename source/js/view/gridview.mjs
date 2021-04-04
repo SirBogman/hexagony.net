@@ -582,7 +582,6 @@ export class GridView {
         const input = document.createElement('input');
         input.type = 'text';
         input.maxLength = 1;
-        input.id = `input_${i}_${j}_${k}`;
         input.classList.add('cell_input');
         input.value = svgText.textContent;
         // Temporarily clear the text.
