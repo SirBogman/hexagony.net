@@ -30,9 +30,10 @@ const biggerButton = document.querySelector('#bigger');
 const undoButton = document.querySelector('#undo');
 const redoButton = document.querySelector('#redo');
 
-const startButton = document.querySelector('#start');
+const playPauseButton = document.querySelector('#playPauseButton');
+const playIcon = playPauseButton.querySelector('#play');
+const pauseIcon = playPauseButton.querySelector('#pause');
 const stepButton = document.querySelector('#step');
-const pauseButton = document.querySelector('#pause');
 const stopButton = document.querySelector('#stop');
 const speedSlider = document.querySelector('#speed_slider');
 const speedSliderContainer = document.querySelector('#speed_slider_container');
@@ -156,10 +157,12 @@ function updateButtons() {
     undoButton.disabled = !gridView.canUndo(running);
     redoButton.disabled = !gridView.canRedo(running);
 
-    startButton.disabled = isTerminated() || isPlaying();
+    playIcon.classList.toggle('hidden', isPlaying());
+    pauseIcon.classList.toggle('hidden', !isPlaying());
+
+    playPauseButton.disabled = isTerminated();
     stepButton.disabled = isTerminated() || isPlaying();
     stopButton.disabled = !running;
-    pauseButton.disabled = isTerminated() || !isPlaying();
 
     if (running) {
         playContent.forEach(x => x.classList.remove('hidden_section'));
@@ -307,6 +310,15 @@ function copyLink() {
 
 function saveData() {
     localStorage.userData = JSON.stringify(userData);
+}
+
+function onPlayPause() {
+    if (isPlaying()) {
+        onPause();
+    }
+    else {
+        onStart();
+    }
 }
 
 function onStart() {
@@ -575,11 +587,8 @@ document.addEventListener('keydown', e => {
             if (e.shiftKey) {
                 onStop();
             }
-            else if (isPlaying()) {
-                onPause();
-            }
             else {
-                onStart();
+                onPlayPause();
             }
             e.preventDefault();
         }
@@ -619,10 +628,9 @@ function init() {
     redoButton.addEventListener('click', () => gridView.redo());
 
     deleteBreakpointsButton.addEventListener('click', clearBreakpoints);
-    startButton.addEventListener('click', onStart);
+    playPauseButton.addEventListener('click', onPlayPause);
     stepButton.addEventListener('click', onStep);
     stopButton.addEventListener('click', onStop);
-    pauseButton.addEventListener('click', onPause);
     minifyButton.addEventListener('click', () => setSourceCode(minifySource(userData.code)));
     layoutButton.addEventListener('click', () => setSourceCode(layoutSource(userData.code)));
     generateLinkButton.addEventListener('click', generateLink);

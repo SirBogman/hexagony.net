@@ -67,6 +67,10 @@
     }
 }
 
+.hidden {
+    display: none;
+}
+
 #app_grid > div {
     background: var(--panel-background);
     padding: 0.5rem;

@@ -95,19 +95,17 @@
                 </button>
             </div>
             <div id="play_controls" class="group">
-                <button id="start" aria-label="Start" title="Start execution (Ctrl + Enter).">
-                    <svg viewBox="0 0 16 16">
+                <button id="playPauseButton" aria-label="Start/Pause" title="Start/pause execution (Ctrl + Enter).">
+                    <svg id="play" viewBox="0 0 16 16">
                         <path fill="currentColor" d="M0 0v16l16-8z"/>
+                    </svg>
+                    <svg id="pause" class="hidden" viewBox="0 -2 12 20">
+                        <path fill="currentColor" d="M0 0h4v16H0zM8 0h4v16H8z"/>
                     </svg>
                 </button>
                 <button id="step" aria-label="Step" title="Execute next instruction (Ctrl + .).">
                     <svg viewBox="0 0 16 16">
                         <path fill="none" stroke="currentColor" stroke-width="1.5px" d="M.75.75v14.5L15.25 8z"/>
-                    </svg>
-                </button>
-                <button id="pause" aria-label="Pause" disabled="true" title="Pause execution (Ctrl + Enter).">
-                    <svg viewBox="0 -2 12 20">
-                        <path fill="currentColor" d="M0 0h4v16H0zM8 0h4v16H8z"/>
                     </svg>
                 </button>
                 <button id="stop" aria-label="Stop" disabled="true" title="Stop execution (Ctrl + Shift + Enter).">
