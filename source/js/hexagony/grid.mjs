@@ -13,8 +13,10 @@ export class Grid {
                 case '`':
                 case ' ':
                 case '\t':
-                case '\r':
                 case '\n':
+                case '\v':
+                case '\f':
+                case '\r':
                     break;
                 default:
                     data.push(char);

@@ -99,11 +99,11 @@ export function removeDebug(code) {
 }
 
 export function removeWhitespace(code) {
-    return code.replaceAll(/ |\t|\r|\n/g, '');
+    return code.replaceAll(/ |\t|\n|\v|\f|\r/g, '');
 }
 
 export function removeWhitespaceAndDebug(code) {
-    return code.replaceAll(/ |\t|\r|\n|`/g, '');
+    return code.replaceAll(/ |\t|\n|\v|\f|\r|`/g, '');
 }
 
 export function getRowCount(size) {
