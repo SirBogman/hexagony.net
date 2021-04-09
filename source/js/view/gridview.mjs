@@ -587,6 +587,9 @@ export class GridView {
 
         const input = document.createElement('input');
         input.type = 'text';
+        input.autocomplete = 'off';
+        input.autocapitalize = 'off';
+        input.spellcheck = 'false';
         input.maxLength = 1;
         input.classList.add('cell_input');
         input.value = svgText.textContent;
