@@ -31,16 +31,16 @@
 
 .edit_grid {
     grid-template-areas:
-        "code input"
-        "code import"
-        "hotkeys info";
+        "codePanel inputPanel"
+        "codePanel importPanel"
+        "hotkeysPanel infoPanel";
 }
 
 .play_grid {
     grid-template-areas:
-        "code input"
-        "code output"
-        "memory state";
+        "codePanel inputPanel"
+        "codePanel outputPanel"
+        "memoryPanel statePanel";
 }
 
 @media (max-width: 640px) {
@@ -50,20 +50,20 @@
 
     .edit_grid {
         grid-template-areas:
-            "code"
-            "input"
-            "info"
-            "import"
-            "hotkeys";
+            "codePanel"
+            "inputPanel"
+            "infoPanel"
+            "importPanel"
+            "hotkeysPanel";
     }
-    
+
     .play_grid {
         grid-template-areas:
-            "code"
-            "output"
-            "memory"
-            "state"
-            "input";
+            "codePanel"
+            "outputPanel"
+            "memoryPanel"
+            "statePanel"
+            "inputPanel";
     }
 }
 
@@ -87,21 +87,21 @@
     margin: 1em;
 }
 
-#code_panel {
-    grid-area: code;
+#codePanel {
+    grid-area: codePanel;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#input_panel {
-    grid-area: input;
+#inputPanel {
+    grid-area: inputPanel;
     display: inline-grid;
     grid-template-rows: auto auto 1fr;
 }
 
-div #output_panel {
-    grid-area: output;
+div #outputPanel {
+    grid-area: outputPanel;
     min-height: 353px;
 }
 
@@ -117,8 +117,8 @@ div #output_panel {
     overflow: auto;
 }
 
-div #import_panel {
-    grid-area: import;
+div #importPanel {
+    grid-area: importPanel;
     display: grid;
     grid-template-rows: auto auto 1fr;
     min-height: 353px;
@@ -128,27 +128,27 @@ textarea {
     resize: vertical;
 }
 
-#state_panel {
-    grid-area: state;
+#statePanel {
+    grid-area: statePanel;
 }
 
 #memoryPanel {
-    grid-area: memory;
+    grid-area: memoryPanel;
 }
 
-#info_panel {
-    grid-area: info;
+#infoPanel {
+    grid-area: infoPanel;
 }
 
-#hotkeys_panel {
-    grid-area: hotkeys;
+#hotkeysPanel {
+    grid-area: hotkeysPanel;
 }
 
-.edit_button {
+.editButton {
     margin: 0.5rem 0.5rem 0.5rem 0;
 }
 
-#reset_view {
+#resetViewButton {
     margin: 0.5rem 0.3rem 0.5rem 0;
 }
 

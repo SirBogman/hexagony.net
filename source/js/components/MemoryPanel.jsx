@@ -330,7 +330,7 @@ export class MemoryPanel extends React.Component {
             <>
                 <h1>Memory</h1>
                 <div>
-                    <button id="reset_view" onClick={() => this.resetView()} title="Reset the position and zoom level of the view.">
+                    <button id="resetViewButton" onClick={() => this.resetView()} title="Reset the position and zoom level of the view.">
                         Reset View
                     </button>
                     Click and drag to pan. Zooming is also supported.
