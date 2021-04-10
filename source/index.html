@@ -40,54 +40,54 @@
                 </a>
             </div>
             <div id="view_controls" class="group">
-                <button id="edge_transition" role="switch" aria-label="Edge Transition Mode" aria-checked="false" title="Toggle edge transition visualization.">
+                <button id="edgeTransitionButton" role="switch" aria-label="Edge Transition Mode" aria-checked="false" title="Toggle edge transition visualization.">
                     <svg viewBox="0 0 22.99 29.5">
                         <path fill="none" stroke="currentColor" stroke-width="2px" d="M20.04.25l1.82 3.15c1.18 2.05.71 5.06-1.34 6.24L2.82 19.86c-2.05 1.18-3 3.41-1.79 5.46l2.27 3.93m16.74 0l1.82-3.15c1.18-2.05.71-5.06-1.34-6.24L2.82 9.64c-2.05-1.18-3-3.41-1.79-5.46L3.3.25"/>
                     </svg>
                 </button>
-                <button id="toggle_arrows" role="switch" aria-label="Show Arrows" aria-checked="false" title="Toggle whether execution direction arrows are shown when running.">
+                <button id="toggleArrowsButton" role="switch" aria-label="Show Arrows" aria-checked="false" title="Toggle whether execution direction arrows are shown when running.">
                     <svg viewBox="0 0 42 50">
                         <path fill="none" stroke="currentColor" stroke-width="3px" d="M2 14.03v21.94l19 10.97 19-10.97V14.03L21 3.06 2 14.03z"/>
                         <path fill="currentColor" d="M11 25L3 14.9v20.2L11 25z"/>
                     </svg>
                 </button>
-                <button id="toggle_ips" role="switch" aria-label="Show Instruction Pointers" aria-checked="false" title="Toggle whether all 6 instruction pointers are shown.">
+                <button id="toggleIPsButton" role="switch" aria-label="Show Instruction Pointers" aria-checked="false" title="Toggle whether all 6 instruction pointers are shown.">
                     <svg viewBox="0 0 42 50">
                         <path fill="currentColor" d="M8.58 7.92v4.46l3.85 2.22 3.86-2.22V7.92L12.43 5.7 8.58 7.92zM25.71 7.92v4.46l3.86 2.22 3.85-2.22V7.92L29.57 5.7l-3.86 2.22zM34.28 22.77v4.46l3.86 2.22L42 27.23v-4.46l-3.86-2.22-3.86 2.22zM0 22.77v4.46l3.86 2.22 3.85-2.22v-4.46l-3.85-2.22L0 22.77zM8.58 37.62v4.46l3.85 2.22 3.86-2.22v-4.46l-3.86-2.22-3.85 2.22zM25.71 37.62v4.46l3.86 2.22 3.85-2.22v-4.46l-3.85-2.22-3.86 2.22z"/>
                     </svg>
                 </button>
             </div>
             <div id="edit_controls" class="group">
-                <button id="smaller" aria-label="Decrease Size" title="Make the hexagon smaller.">
+                <button id="smallerButton" aria-label="Decrease Size" title="Make the hexagon smaller.">
                     <svg viewBox="0 0 42 50">
                         <path fill="none" stroke="currentColor" stroke-width="3px" d="M2 14.03v21.94l19 10.97 19-10.97V14.03L21 3.06 2 14.03z"/>
                         <path fill="currentColor" d="M16.14,26.7V23.3h9.72v3.4Z"/>
                     </svg>
                 </button>
-                <button id="bigger" aria-label="Increase Size" title="Make the hexagon larger.">
+                <button id="biggerButton" aria-label="Increase Size" title="Make the hexagon larger.">
                     <svg viewBox="0 0 42 50">
                         <path fill="none" stroke="currentColor" stroke-width="3px" d="M2 14.03v21.94l19 10.97 19-10.97V14.03L21 3.06 2 14.03z"/>
                         <path fill="currentColor" d="M22.77 26.55v6.08h-3.52v-6.08h-5.83v-3.14h5.83v-6h3.52v6h5.82v3.14z"/>
                     </svg>
                 </button>
-                <button id="reset" aria-label="Reset Instructions" title="Reset the hexagon by replacing instructions with no-ops.">
+                <button id="resetButton" aria-label="Reset Instructions" title="Reset the hexagon by replacing instructions with no-ops.">
                     <svg viewBox="0 0 42 50">
                         <path fill="none" stroke="currentColor" stroke-width="3px" d="M2 14.03v21.94l19 10.97 19-10.97V14.03L21 3.06 2 14.03z"/>
                         <circle fill="currentColor" cx="20.94" cy="30.34" r="3"/>
                     </svg>
                 </button>
-                <button id="delete_breakpoints" aria-label="Delete Breakpoints" disabled="true" title="Delete all breakpoints. Select an instruction and press Ctrl + B to set a breakpoint.">
+                <button id="deleteBreakpointsButton" aria-label="Delete Breakpoints" disabled="true" title="Delete all breakpoints. Select an instruction and press Ctrl + B to set a breakpoint.">
                     <svg viewBox="0 0 42 50">
                         <path fill="none" stroke="currentColor" stroke-width="3px" d="M7 49.25L35 .75M8.9 39.95L2 35.97V14.03L21 3.06l6.9 3.98M33.1 10.05l6.9 3.98v21.94L21 46.94l-6.9-3.98"/>
                     </svg>
                 </button>
-                <button id="undo" disabled="true" aria-label="Undo" title="Undo (Ctrl + Z)">
+                <button id="undoButton" disabled="true" aria-label="Undo" title="Undo (Ctrl + Z)">
                     <svg viewBox="0 0 42 50">
                         <path fill="none" stroke="currentColor" stroke-width="3px" d="M13.37 13c4.06-2.69 8.56-4.1 14.19-2.06 7 2.56 9.14 9.36 9.56 11.22a15.33 15.33 0 01-5.27 14.62c-4.37 3.32-9 4.09-14.51 2.3-5-1.64-8.83-6.52-8.83-9"/>
                         <path fill="currentColor" d="M20.33 17.9L4.57 20.36l5.75-14.89L20.33 17.9z"/>
                     </svg>
                 </button>
-                <button id="redo" disabled="true" aria-label="Redo" title="Redo (Ctrl + Y)">
+                <button id="redoButton" disabled="true" aria-label="Redo" title="Redo (Ctrl + Y)">
                     <svg viewBox="0 0 42 50">
                         <path fill="none" stroke="currentColor" stroke-width="3px" d="M28.63 13c-4.06-2.68-8.56-4.1-14.19-2-7 2.56-9.14 9.35-9.56 11.21a15.34 15.34 0 005.27 14.63c4.37 3.32 9 4.08 14.51 2.3 5-1.64 8.83-6.52 8.83-9"/>
                         <path fill="currentColor" d="M31.68 5.5l5.75 14.88-15.76-2.45L31.68 5.5z"/>
@@ -96,30 +96,30 @@
             </div>
             <div id="play_controls" class="group">
                 <button id="playPauseButton" aria-label="Start/Pause" title="Start/pause execution (Ctrl + Enter).">
-                    <svg id="play" viewBox="0 0 16 16">
+                    <svg id="playIcon" viewBox="0 0 16 16">
                         <path fill="currentColor" d="M0 0v16l16-8z"/>
                     </svg>
-                    <svg id="pause" class="hidden" viewBox="0 -2 12 20">
+                    <svg id="pauseIcon" class="hidden" viewBox="0 -2 12 20">
                         <path fill="currentColor" d="M0 0h4v16H0zM8 0h4v16H8z"/>
                     </svg>
                 </button>
-                <button id="step" aria-label="Step" title="Execute next instruction (Ctrl + .).">
+                <button id="stepButton" aria-label="Step" title="Execute next instruction (Ctrl + .).">
                     <svg viewBox="0 0 16 16">
                         <path fill="none" stroke="currentColor" stroke-width="1.5px" d="M.75.75v14.5L15.25 8z"/>
                     </svg>
                 </button>
-                <button id="stop" aria-label="Stop" disabled="true" title="Stop execution (Ctrl + Shift + Enter).">
+                <button id="stopButton" aria-label="Stop" disabled="true" title="Stop execution (Ctrl + Shift + Enter).">
                     <svg viewBox="-2 -2 20 20">
                         <path fill="currentColor" d="M0 0v16h16V0z"/>
                     </svg>
                 </button>
-                <div id="speed_slider_container" title="Adjust the execution speed.">
-                    <input type="range" aria-label="Execution Speed"  min="0" max="1000" value="500" step="10" class="slider" id="speed_slider">
+                <div id="speedSliderContainer" title="Adjust the execution speed.">
+                    <input type="range" aria-label="Execution Speed"  min="0" max="1000" value="500" step="10" class="slider" id="speedSlider">
                 </div>
             </div>
         </nav>
     </header>
-    <div id="app_grid" class="edit_grid">
+    <div id="appGrid" class="edit_grid">
         <div id="code_panel">
             <div id="puzzle_container">
                 <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -149,65 +149,65 @@
                 </div>
             </div>
         </div>
-        <div id="output_panel" class="play_content hidden_section">
+        <div id="output_panel" class="playContent hidden_section">
             <h1>Output</h1>
             <div id="output_container">
-                <div id="output" class="pre"></div>
+                <div id="outputBox" class="pre"></div>
             </div>
         </div>
-        <div id="memory_panel" class="play_content hidden_section">
+        <div id="memoryPanel" class="playContent hidden_section">
         </div>
-        <div id="state_panel" class="play_content hidden_section">
+        <div id="state_panel" class="playContent hidden_section">
             <h1>State</h1>
-            <div id='termination_reason'></div>
-            <div id='state_info'></div>
+            <div id='terminationReasonText'></div>
+            <div id='stateInfo'></div>
         </div>
         <div id="input_panel">
             <h1>Input</h1>
             <div id="input_picker" class="radio">
                 <label title="Arguments input mode: each line of input is considered an argument and arguments are separate by null characters (ASCII 0). This is compatible with Code Golf.">
-                    <input type="radio" name="input_mode" value="arg" id="arguments" checked>Arguments
+                    <input type="radio" name="input_mode" value="arg" id="inputArgumentsRadioButton" checked>Arguments
                 </label>
                 <label title="Raw input mode: the input is passed to the Hexagony program directly.">
-                    <input type="radio" name="input_mode" value="raw" id="raw">Raw
+                    <input type="radio" name="input_mode" value="raw" id="inputRawRadioButton">Raw
                 </label>
             </div>
-            <textarea id="input" spellcheck="False" autocapitalize="off" autocomplete="off"></textarea>
+            <textarea id="inputBox" spellcheck="False" autocapitalize="off" autocomplete="off"></textarea>
         </div>
-        <div id="info_panel" class="edit_content">
+        <div id="info_panel" class="editContent">
             <h1>Info</h1>
-            <div id="info_info">
+            <div id="infoInfo">
             </div>
         </div>
-        <div id="import_panel" class="edit_content">
+        <div id="import_panel" class="editContent">
             <h1>Import/Export</h1>
             <div>
-                <button class="edit_button" value="Minify Source" id="minify"
+                <button class="edit_button" value="Minify Source" id="minifyButton"
                     title="Remove unnecessary whitespace and trailing no-ops from the Hexagony program.">
                     Minify Source
                 </button>
-                <button class="edit_button" id="layout"
+                <button class="edit_button" id="layoutButton"
                     title="Format the Hexagony program as hexagon using whitespace. Intended for export.">
                     Layout Source
                 </button>
             </div>
-            <textarea id="sourcecode" spellcheck="False" autocapitalize="off" autocomplete="off"></textarea>
+            <textarea id="sourceCodeInput" spellcheck="False" autocapitalize="off" autocomplete="off"></textarea>
             <h2>Generate Link</h2>
             <div>
-                <button class="edit_button" id="generate_link"
+                <button class="edit_button" id="generateLinkButton"
                     title="Create a link to the current Hexagony program and its input">
                     Generate
                 </button>
-                <button class="edit_button" id="copy_link"
+                <button class="edit_button" id="copyLinkButton"
                     title="Copy a link to the current Hexagony program and its input to the clipboard">
                     Generate and Copy
                 </button>
             </div>
-            <input id="url_export" type="text" placeholder="Generate a link that encodes to the current program and input." readonly>
+            <input id="urlExportText" type="text" placeholder="Generate a link that encodes to the current program and input." readonly>
         </div>
-        <div id="hotkeys_panel" class="edit_content">
+        <div id="hotkeys_panel" class="editContent">
             <h1>Hotkeys</h1>
-            <div id="hotkeys_grid">
+            <div id="hotkeysGrid">
                 <p class="col1">(Shift) Tab<p class="col2">Navigate on the W-E axis (with wrapping)
                 <p class="col1">Left/Right Arrow<p class="col2">Navigate on the W-E axis (with wrapping)
                 <p class="col1">Up/Down Arrow<p class="col2">Navigate on the NE-SW axis

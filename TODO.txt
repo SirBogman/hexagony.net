@@ -5,4 +5,4 @@ Eventually:
 
     Feature to multiselect instructions and move them in a direction.
 
-    Change play button to play/pause for easier toggling with keyboard activation.
+    Change step icon to have a vertical line at the right side.

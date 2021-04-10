@@ -67,7 +67,7 @@ body > header svg {
 
 body > header a,
 body > header > nav button,
-#speed_slider_container {
+#speedSliderContainer {
     height: $buttonOuterWidth;
     width: $buttonOuterWidth;
     display: inline-block;
@@ -101,11 +101,11 @@ body > header > nav button:disabled {
     color: var(--disabled-color);
 }
 
-#speed_slider_container.focused {
+#speedSliderContainer.focused {
     border: 1px dotted var(--background);
 }
 
-#speed_slider_container {
+#speedSliderContainer {
     width: 130px;
 }
 
@@ -149,7 +149,7 @@ body > header > nav button:disabled {
         width: $buttonOuterWidth;
     }
 
-    #speed_slider_container {
+    #speedSliderContainer {
         width: $buttonOuterWidth * 2;
     }
 

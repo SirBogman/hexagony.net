@@ -491,7 +491,7 @@ export class GridView {
             return;
         }
         if (event.key == 'Escape') {
-            document.querySelector('#speed_slider').focus();
+            document.querySelector('#speedSlider').focus();
             event.preventDefault();
             return;
         }

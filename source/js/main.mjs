@@ -14,50 +14,50 @@ const HELLO_WORLD_EXAMPLE = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 const MAX_SPEED_ITERATIONS = 10000;
 const EXECUTION_HISTORY_COUNT = 20;
 
-const appGrid = document.querySelector('#app_grid');
-const playContent = document.querySelectorAll('.play_content');
-const editContent = document.querySelectorAll('.edit_content');
+const appGrid = document.querySelector('#appGrid');
+const playContent = document.querySelectorAll('.playContent');
+const editContent = document.querySelectorAll('.editContent');
 
-const sourceCodeInput = document.querySelector('#sourcecode');
-const inputBox = document.querySelector('#input');
-const infoInfo = document.querySelector('#info_info');
-const stateInfo = document.querySelector('#state_info');
+const sourceCodeInput = document.querySelector('#sourceCodeInput');
+const inputBox = document.querySelector('#inputBox');
+const infoInfo = document.querySelector('#infoInfo');
+const stateInfo = document.querySelector('#stateInfo');
 
-const smallerButton = document.querySelector('#smaller');
-const resetButton = document.querySelector('#reset');
-const deleteBreakpointsButton = document.querySelector('#delete_breakpoints');
-const biggerButton = document.querySelector('#bigger');
-const undoButton = document.querySelector('#undo');
-const redoButton = document.querySelector('#redo');
+const smallerButton = document.querySelector('#smallerButton');
+const resetButton = document.querySelector('#resetButton');
+const deleteBreakpointsButton = document.querySelector('#deleteBreakpointsButton');
+const biggerButton = document.querySelector('#biggerButton');
+const undoButton = document.querySelector('#undoButton');
+const redoButton = document.querySelector('#redoButton');
 
 const playPauseButton = document.querySelector('#playPauseButton');
-const playIcon = playPauseButton.querySelector('#play');
-const pauseIcon = playPauseButton.querySelector('#pause');
-const stepButton = document.querySelector('#step');
-const stopButton = document.querySelector('#stop');
-const speedSlider = document.querySelector('#speed_slider');
-const speedSliderContainer = document.querySelector('#speed_slider_container');
+const playIcon = playPauseButton.querySelector('#playIcon');
+const pauseIcon = playPauseButton.querySelector('#pauseIcon');
+const stepButton = document.querySelector('#stepButton');
+const stopButton = document.querySelector('#stopButton');
+const speedSlider = document.querySelector('#speedSlider');
+const speedSliderContainer = document.querySelector('#speedSliderContainer');
 
-const minifyButton = document.querySelector('#minify');
-const layoutButton = document.querySelector('#layout');
-const generateLinkButton = document.querySelector('#generate_link');
-const copyLinkButton = document.querySelector('#copy_link');
+const minifyButton = document.querySelector('#minifyButton');
+const layoutButton = document.querySelector('#layoutButton');
+const generateLinkButton = document.querySelector('#generateLinkButton');
+const copyLinkButton = document.querySelector('#copyLinkButton');
 const editButtons = [smallerButton, resetButton, biggerButton, minifyButton, layoutButton];
 
-const inputArgumentsRadioButton = document.querySelector('#arguments');
-const inputRawRadioButton = document.querySelector('#raw');
+const inputArgumentsRadioButton = document.querySelector('#inputArgumentsRadioButton');
+const inputRawRadioButton = document.querySelector('#inputRawRadioButton');
 const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 
-const urlExportText = document.querySelector('#url_export');
+const urlExportText = document.querySelector('#urlExportText');
 
-const outputBox = document.querySelector('#output');
-const terminationReasonText = document.querySelector('#termination_reason');
+const outputBox = document.querySelector('#outputBox');
+const terminationReasonText = document.querySelector('#terminationReasonText');
 
-const edgeTransitionButton = document.querySelector('#edge_transition');
-const toggleArrowsButton = document.querySelector('#toggle_arrows');
-const toggleIPsButton = document.querySelector('#toggle_ips');
+const edgeTransitionButton = document.querySelector('#edgeTransitionButton');
+const toggleArrowsButton = document.querySelector('#toggleArrowsButton');
+const toggleIPsButton = document.querySelector('#toggleIPsButton');
 
-const memoryPanel = document.querySelector('#memory_panel');
+const memoryPanel = document.querySelector('#memoryPanel');
 
 let gridView;
 let hexagony;
