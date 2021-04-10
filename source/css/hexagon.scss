@@ -70,10 +70,11 @@ $secondaryLightnessShift: 75%;
     @return scaleLightness($color, $arrowLightnessShift);
 }
 
-$executedColors: 10;
+// This should match executedColorCount in gridview.mjs.
+$executedColorCount: 10;
 $executedMinLightness: 66%;
 $executedMaxLightness: 88%;
-$executedLightnessIncrement: ($executedMaxLightness - $executedMinLightness) / ($executedColors - 1);
+$executedLightnessIncrement: ($executedMaxLightness - $executedMinLightness) / ($executedColorCount - 1);
 
 $colors:
     hsl(200, 100%, 50%)
@@ -105,7 +106,7 @@ $colors:
         fill: $executedColor;
     }
 
-    @for $i from $executedColors - 1 through 0 {
+    @for $i from $executedColorCount - 1 through 0 {
         $value: $executedMinLightness + $i * $executedLightnessIncrement;
         $currentColor: scaleLightness($color, $value);
         @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);

@@ -3,20 +3,20 @@ import { createSvgElement, emptyElement } from './viewutil.mjs';
 
 const edgeLength = 20;
 const cellHeight = edgeLength * 2;
-const EDGE_TRANSITION_SIZE_LIMIT = 25;
-const EXECUTED_COLOR_COUNT = 10;
-const CELL_EXECUTED = arrayInitialize(6, index => `cellExecuted${index}`);
-const CELL_ACTIVE = arrayInitialize(6, index => `cellActive${index}`);
-const CELL_INACTIVE = arrayInitialize(6, index => `cellInactive${index}`);
-const ARROW_EXECUTED = arrayInitialize(6, index => `arrowExecuted${index}`);
-const ARROW_ACTIVE = arrayInitialize(6, index => `arrowActive${index}`);
-const ARROW_INACTIVE = arrayInitialize(6, index => `arrowInactive${index}`);
+const edgeTransitionSizeLimit = 25;
+const executedColorCount = 10;
+const cellExecuted = arrayInitialize(6, index => `cellExecuted${index}`);
+const cellActive = arrayInitialize(6, index => `cellActive${index}`);
+const cellInactive = arrayInitialize(6, index => `cellInactive${index}`);
+const arrowExecuted = arrayInitialize(6, index => `arrowExecuted${index}`);
+const arrowActive = arrayInitialize(6, index => `arrowActive${index}`);
+const arrowInactive = arrayInitialize(6, index => `arrowInactive${index}`);
 
-const CELL_EXECUTED_ARRAY = arrayInitialize(6, i =>
-    arrayInitialize(EXECUTED_COLOR_COUNT, j => `cellExecuted${i}_${j}`));
+const cellExecutedArray = arrayInitialize(6, i =>
+    arrayInitialize(executedColorCount, j => `cellExecuted${i}_${j}`));
 
-const ARROW_EXECUTED_ARRAY = arrayInitialize(6, i =>
-    arrayInitialize(EXECUTED_COLOR_COUNT, j => `arrowExecuted${i}_${j}`));
+const arrowExecutedArray = arrayInitialize(6, i =>
+    arrayInitialize(executedColorCount, j => `arrowExecuted${i}_${j}`));
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
@@ -128,12 +128,12 @@ export class GridView {
                 // Append breakpoints so that they appear higher in the Z-order.
                 const breakpoint = this.cellBreakpointTemplate.cloneNode();
                 breakpoint.setAttribute('transform', cell.getAttribute('transform'));
-                breakpoint.id = `breakpoint_${cell.id}`;
+                breakpoint.id = `breakpoint${cell.id}`;
                 this.cellContainer.appendChild(breakpoint);
                 cell.hasBreakpoint = true;
             }
             else {
-                const breakpoint = this.svg.querySelector(`#breakpoint_${cell.id}`);
+                const breakpoint = this.svg.querySelector(`#breakpoint${cell.id}`);
                 if (breakpoint) {
                     breakpoint.parentNode.removeChild(breakpoint);
                 }
@@ -306,12 +306,12 @@ export class GridView {
             const angles = executedState[this.selectedIp][i][j];
             if (angles.length) {
                 const path = cell.firstElementChild;
-                path.classList.add(CELL_EXECUTED[this.selectedIp]);
+                path.classList.add(cellExecuted[this.selectedIp]);
                 path.style.transitionDuration = this.delay;
             }
             if (this.showArrows) {
                 for (const angle of angles) {
-                    this._addExecutionAngleClass([i, j, angle], ARROW_EXECUTED[this.selectedIp]);
+                    this._addExecutionAngleClass([i, j, angle], arrowExecuted[this.selectedIp]);
                 }
             }
         }));
@@ -327,11 +327,11 @@ export class GridView {
 
         this.cellPaths[0].forEach(rows => rows.forEach(cell => {
             const path = cell.firstElementChild;
-            path.classList.remove(CELL_EXECUTED[this.selectedIp]);
+            path.classList.remove(cellExecuted[this.selectedIp]);
             path.style.transitionDuration = this.delay;
             if (this.showArrows) {
                 cell.querySelectorAll('.cellExecutedArrow').forEach(arrow => {
-                    arrow.classList.remove(ARROW_EXECUTED[this.selectedIp]);
+                    arrow.classList.remove(arrowExecuted[this.selectedIp]);
                     arrow.style.transitionDuration = this.delay;
                 });
             }
@@ -342,13 +342,13 @@ export class GridView {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
-                    this._removeCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip], i);
-                    this._removeExecutionAngleClass(indices, i ? ARROW_EXECUTED_ARRAY[ip][i - 1] : ARROW_ACTIVE[ip]);
+                    this._removeCellClass(indices, i ? cellExecutedArray[ip][i - 1] : cellActive[ip], i);
+                    this._removeExecutionAngleClass(indices, i ? arrowExecutedArray[ip][i - 1] : arrowActive[ip]);
                 });
             }
             else if (this.showIPs && array.length) {
-                this._removeCellClass(array[0], CELL_INACTIVE[ip], true);
-                this._removeExecutionAngleClass(array[0], ARROW_INACTIVE[ip]);
+                this._removeCellClass(array[0], cellInactive[ip], true);
+                this._removeExecutionAngleClass(array[0], arrowInactive[ip]);
             }
         });
     }
@@ -357,27 +357,27 @@ export class GridView {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
-                    this._addCellClass(indices, i ? CELL_EXECUTED_ARRAY[ip][i - 1] : CELL_ACTIVE[ip], i);
+                    this._addCellClass(indices, i ? cellExecutedArray[ip][i - 1] : cellActive[ip], i);
                     if (!i) {
-                        this._addExecutionAngleClass(indices, ARROW_ACTIVE[ip]);
+                        this._addExecutionAngleClass(indices, arrowActive[ip]);
                     }
                     else if (this.showArrows) {
-                        this._addExecutionAngleClass(indices, ARROW_EXECUTED_ARRAY[ip][i - 1]);
+                        this._addExecutionAngleClass(indices, arrowExecutedArray[ip][i - 1]);
                     }
                 });
             }
             else if (this.showIPs && array.length) {
-                this._addCellClass(array[0], CELL_INACTIVE[ip], true);
-                this._addExecutionAngleClass(array[0], ARROW_INACTIVE[ip]);
+                this._addCellClass(array[0], cellInactive[ip], true);
+                this._addExecutionAngleClass(array[0], arrowInactive[ip]);
             }
         });
 
         // Show all executed cells for the selected IP.
         const array = this.executionHistory[this.selectedIp];
         if (array.length) {
-            this._addCellClass(array[0], CELL_EXECUTED[this.selectedIp], true);
+            this._addCellClass(array[0], cellExecuted[this.selectedIp], true);
             if (this.showArrows) {
-                this._addExecutionAngleClass(array[0], ARROW_EXECUTED[this.selectedIp]);
+                this._addExecutionAngleClass(array[0], arrowExecuted[this.selectedIp]);
             }
         }
     }
@@ -405,7 +405,7 @@ export class GridView {
 
         this._removeExecutionHistoryColors();
         // Add one for the active cell.
-        this.executionHistory = executionHistory.map(array => array.slice(0, EXECUTED_COLOR_COUNT + 1));
+        this.executionHistory = executionHistory.map(array => array.slice(0, executedColorCount + 1));
         this.selectedIp = selectedIp;
         this._updateExecutionHistoryColors();
 
@@ -646,7 +646,7 @@ export class GridView {
         const cellWidth = cellOffsetX * 2;
         const padding = 35;
 
-        const edgeTransitionMode = this.edgeTransitionMode && size <= EDGE_TRANSITION_SIZE_LIMIT;
+        const edgeTransitionMode = this.edgeTransitionMode && size <= edgeTransitionSizeLimit;
 
         // When showing 6 hexagons around a center hexagon,
         // the "rowCount" below represents the number of rows in the center of one of the side hexagons.

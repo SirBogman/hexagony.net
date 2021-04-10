@@ -9,10 +9,10 @@ import { updateInfoPanel } from './components/InfoPanel.jsx';
 
 import '../css/index.scss';
 
-const HELLO_WORLD_EXAMPLE = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
+const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 
-const MAX_SPEED_ITERATIONS = 10000;
-const EXECUTION_HISTORY_COUNT = 20;
+const maxSpeedIterations = 10000;
+const executionHistoryCount = 20;
 
 const appGrid = document.querySelector('#appGrid');
 const playContent = document.querySelectorAll('.playContent');
@@ -231,7 +231,7 @@ function loadData() {
     }
 
     if (!userData || !userData.code) {
-        userData = { code: layoutSource(HELLO_WORLD_EXAMPLE) };
+        userData = { code: layoutSource(helloWorldExample) };
     }
 
     updateAnimationDelay(userData.delay ?? 250);
@@ -376,7 +376,7 @@ function stepHelper(play = false) {
     let maximumSteps = 1;
     if (play && userData.delay === 0) {
         // Move one extra step, if execution hasn't started yet.
-        maximumSteps = MAX_SPEED_ITERATIONS + !hexagony.ticks;
+        maximumSteps = maxSpeedIterations + !hexagony.ticks;
     }
 
     let stepCount = 0;
@@ -394,7 +394,7 @@ function stepHelper(play = false) {
             const ip = hexagony.activeIp;
             const previous = executionHistory[ip];
             if (i != previous[0][0] || j != previous[0][1] || angle != previous[0][2]) {
-                executionHistory[ip] = [[i, j, angle], ...previous.slice(0, EXECUTION_HISTORY_COUNT)];
+                executionHistory[ip] = [[i, j, angle], ...previous.slice(0, executionHistoryCount)];
             }
         }
 
