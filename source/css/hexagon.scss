@@ -8,7 +8,7 @@
     transition-timing-function: ease-out;
 }
 
-.cell_input {
+.cellInput {
     font-size: 20px;
     text-align: center;
     outline: none;
@@ -97,11 +97,11 @@ $colors:
         height: 0.8rem;
     }
 
-    .arrow_executed_#{$j} {
+    .arrowExecuted#{$j} {
         fill: makeArrowColor($executedColor);
     }
 
-    .cell_executed_#{$j} {
+    .cellExecuted#{$j} {
         fill: $executedColor;
     }
 
@@ -110,11 +110,11 @@ $colors:
         $currentColor: scaleLightness($color, $value);
         @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
 
-        .arrow_executed_#{$j}_#{$i} {
+        .arrowExecuted#{$j}_#{$i} {
             fill: makeArrowColor($currentColor);
         }
 
-        .cell_executed_#{$j}_#{$i} {
+        .cellExecuted#{$j}_#{$i} {
             fill: $currentColor;
         }
     }
@@ -125,23 +125,23 @@ $colors:
     $color: nth($colors, $j + 1);
     $inactiveColor: scaleLightness($color, $executedMinLightness);
 
-    .arrow_inactive_#{$j} {
+    .arrowInactive#{$j} {
         fill: makeArrowColor($inactiveColor);
     }
 
-    .cell_inactive_#{$j} {
+    .cellInactive#{$j} {
         fill: $inactiveColor;
     }
 
-    .arrow_active_#{$j} {
+    .arrowActive#{$j} {
         fill: makeArrowColor($color);
     }
 
-    .cell_active_#{$j} {
+    .cellActive#{$j} {
         fill: $color;
     }
 
-    .cell_active_#{$j}_secondary {
+    .cellActive#{$j}Secondary {
         fill: makeSecondaryColor($color);
     }
 }
@@ -170,34 +170,34 @@ $colors:
     font-size: 20px;
 }
 
-@keyframes connector_flash {
+@keyframes connectorFlash {
     to {
         stroke-width: 6;
     }
 }
 
-@keyframes connector_flash_secondary {
+@keyframes connectorFlashSecondary {
     to {
         stroke-width: 4;
     }
 }
 
-path.connector_flash {
-    animation: connector_flash 0.5s ease-out 0s 2 alternate;
+path.connectorFlash {
+    animation: connectorFlash 0.5s ease-out 0s 2 alternate;
 }
 
-path.connector_neutral_flash {
+path.connectorNeutralFlash {
     stroke: var(--orange);
-    animation: connector_flash 0.5s ease-out 0s 2 alternate;
+    animation: connectorFlash 0.5s ease-out 0s 2 alternate;
 }
 
-path.connector_flash_secondary {
-    animation: connector_flash_secondary 0.5s ease-out 0s 2 alternate;
+path.connectorFlashSecondary {
+    animation: connectorFlashSecondary 0.5s ease-out 0s 2 alternate;
 }
 
-path.connector_neutral_flash_secondary {
+path.connectorNeutralFlashSecondary {
     stroke: var(--orange);
-    animation: connector_flash_secondary 0.5s ease-out 0s 2 alternate;
+    animation: connectorFlashSecondary 0.5s ease-out 0s 2 alternate;
 }
 
 .activeIp {

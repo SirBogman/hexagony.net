@@ -5,18 +5,18 @@ const edgeLength = 20;
 const cellHeight = edgeLength * 2;
 const EDGE_TRANSITION_SIZE_LIMIT = 25;
 const EXECUTED_COLOR_COUNT = 10;
-const CELL_EXECUTED = arrayInitialize(6, index => `cell_executed_${index}`);
-const CELL_ACTIVE = arrayInitialize(6, index => `cell_active_${index}`);
-const CELL_INACTIVE = arrayInitialize(6, index => `cell_inactive_${index}`);
-const ARROW_EXECUTED = arrayInitialize(6, index => `arrow_executed_${index}`);
-const ARROW_ACTIVE = arrayInitialize(6, index => `arrow_active_${index}`);
-const ARROW_INACTIVE = arrayInitialize(6, index => `arrow_inactive_${index}`);
+const CELL_EXECUTED = arrayInitialize(6, index => `cellExecuted${index}`);
+const CELL_ACTIVE = arrayInitialize(6, index => `cellActive${index}`);
+const CELL_INACTIVE = arrayInitialize(6, index => `cellInactive${index}`);
+const ARROW_EXECUTED = arrayInitialize(6, index => `arrowExecuted${index}`);
+const ARROW_ACTIVE = arrayInitialize(6, index => `arrowActive${index}`);
+const ARROW_INACTIVE = arrayInitialize(6, index => `arrowInactive${index}`);
 
 const CELL_EXECUTED_ARRAY = arrayInitialize(6, i =>
-    arrayInitialize(EXECUTED_COLOR_COUNT, j => `cell_executed_${i}_${j}`));
+    arrayInitialize(EXECUTED_COLOR_COUNT, j => `cellExecuted${i}_${j}`));
 
 const ARROW_EXECUTED_ARRAY = arrayInitialize(6, i =>
-    arrayInitialize(EXECUTED_COLOR_COUNT, j => `arrow_executed_${i}_${j}`));
+    arrayInitialize(EXECUTED_COLOR_COUNT, j => `arrowExecuted${i}_${j}`));
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));
@@ -64,10 +64,10 @@ export class GridView {
 
         this.svg.addEventListener('animationend', event => {
             if (event.animationName.startsWith('connector')) {
-                event.target.classList.remove('connector_flash');
-                event.target.classList.remove('connector_neutral_flash');
-                event.target.classList.remove('connector_flash_secondary');
-                event.target.classList.remove('connector_neutral_flash_secondary');
+                event.target.classList.remove('connectorFlash');
+                event.target.classList.remove('connectorNeutralFlash');
+                event.target.classList.remove('connectorFlashSecondary');
+                event.target.classList.remove('connectorNeutralFlashSecondary');
             }
         });
 
@@ -212,7 +212,7 @@ export class GridView {
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
             if (k === 1) {
-                className += '_secondary';
+                className += 'Secondary';
             }
             const cell = this.cellPaths[k][i][j];
             const path = cell.firstElementChild;
@@ -226,7 +226,7 @@ export class GridView {
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
             if (k === 1) {
-                className += '_secondary';
+                className += 'Secondary';
             }
             const cell = this.cellPaths[k][i][j];
             const path = cell.firstElementChild;
@@ -587,7 +587,7 @@ export class GridView {
         input.autocapitalize = 'off';
         input.spellcheck = 'false';
         input.maxLength = 1;
-        input.classList.add('cell_input');
+        input.classList.add('cellInput');
         input.value = svgText.textContent;
         // Temporarily clear the text.
         svgText.textContent = '';
