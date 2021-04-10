@@ -217,7 +217,7 @@ export class GridView {
             const cell = this.cellPaths[k][i][j];
             const path = cell.firstElementChild;
             path.classList.add(className);
-            path.transitionDuration = this.delay;
+            path.style.transitionDuration = this.delay;
         }
     }
 
