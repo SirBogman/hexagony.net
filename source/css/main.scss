@@ -29,14 +29,14 @@
     grid-template-columns: 2fr 1fr;
 }
 
-.edit_grid {
+.editGrid {
     grid-template-areas:
         "codePanel inputPanel"
         "codePanel importPanel"
         "hotkeysPanel infoPanel";
 }
 
-.play_grid {
+.playGrid {
     grid-template-areas:
         "codePanel inputPanel"
         "codePanel outputPanel"
@@ -48,7 +48,7 @@
         grid-template-columns: 1fr;
     }
 
-    .edit_grid {
+    .editGrid {
         grid-template-areas:
             "codePanel"
             "inputPanel"
@@ -57,7 +57,7 @@
             "hotkeysPanel";
     }
 
-    .play_grid {
+    .playGrid {
         grid-template-areas:
             "codePanel"
             "outputPanel"
@@ -79,7 +79,7 @@
     overflow: hidden;
 }
 
-#appGrid > div.hidden_section {
+#appGrid > div.hiddenSection {
     display: none;
 }
 
@@ -105,7 +105,7 @@ div #outputPanel {
     min-height: 353px;
 }
 
-#output_container {
+#outputContainer {
     height: 300px;
 }
 

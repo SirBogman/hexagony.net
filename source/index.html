@@ -119,7 +119,7 @@
             </div>
         </nav>
     </header>
-    <div id="appGrid" class="edit_grid">
+    <div id="appGrid" class="editGrid">
         <div id="codePanel">
             <div id="puzzle_container">
                 <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -149,27 +149,27 @@
                 </div>
             </div>
         </div>
-        <div id="outputPanel" class="playContent hidden_section">
+        <div id="outputPanel" class="playContent hiddenSection">
             <h1>Output</h1>
-            <div id="output_container">
+            <div id="outputContainer">
                 <div id="outputBox" class="pre"></div>
             </div>
         </div>
-        <div id="memoryPanel" class="playContent hidden_section">
+        <div id="memoryPanel" class="playContent hiddenSection">
         </div>
-        <div id="statePanel" class="playContent hidden_section">
+        <div id="statePanel" class="playContent hiddenSection">
             <h1>State</h1>
             <div id='terminationReasonText'></div>
             <div id='stateInfo'></div>
         </div>
         <div id="inputPanel">
             <h1>Input</h1>
-            <div id="input_picker" class="radio">
+            <div class="radio">
                 <label title="Arguments input mode: each line of input is considered an argument and arguments are separate by null characters (ASCII 0). This is compatible with Code Golf.">
-                    <input type="radio" name="input_mode" value="arg" id="inputArgumentsRadioButton" checked>Arguments
+                    <input type="radio" name="inputMode" value="arg" id="inputArgumentsRadioButton" checked>Arguments
                 </label>
                 <label title="Raw input mode: the input is passed to the Hexagony program directly.">
-                    <input type="radio" name="input_mode" value="raw" id="inputRawRadioButton">Raw
+                    <input type="radio" name="inputMode" value="raw" id="inputRawRadioButton">Raw
                 </label>
             </div>
             <textarea id="inputBox" spellcheck="False" autocapitalize="off" autocomplete="off"></textarea>

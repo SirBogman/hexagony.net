@@ -165,14 +165,14 @@ function updateButtons() {
     stopButton.disabled = !running;
 
     if (running) {
-        playContent.forEach(x => x.classList.remove('hidden_section'));
-        editContent.forEach(x => x.classList.add('hidden_section'));
-        appGrid.classList.replace('edit_grid', 'play_grid');
+        playContent.forEach(x => x.classList.remove('hiddenSection'));
+        editContent.forEach(x => x.classList.add('hiddenSection'));
+        appGrid.classList.replace('editGrid', 'playGrid');
     }
     else {
-        playContent.forEach(x => x.classList.add('hidden_section'));
-        editContent.forEach(x => x.classList.remove('hidden_section'));
-        appGrid.classList.replace('play_grid', 'edit_grid');
+        playContent.forEach(x => x.classList.add('hiddenSection'));
+        editContent.forEach(x => x.classList.remove('hiddenSection'));
+        appGrid.classList.replace('playGrid', 'editGrid');
     }
 }
 
