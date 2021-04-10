@@ -52,9 +52,6 @@
     transition-property: fill;
 }
 
-$arrow_lightness_shift1: 0.2;
-$executed_lightness: 0.95;
-
 $arrowLightnessShift: -50%;
 $executeLightnessShift: 90%;
 $secondaryLightnessShift: 75%;
@@ -91,7 +88,7 @@ $colors:
     $color: nth($colors, $j + 1);
     $executedColor: scaleLightness($color, $executeLightnessShift);
 
-    .color_swatch_#{$j} {
+    .colorSwatch#{$j} {
         display: inline-block;
         margin: 0 0.5rem;
         border: 1px solid var(--color);
@@ -203,6 +200,6 @@ path.connector_neutral_flash_secondary {
     animation: connector_flash_secondary 0.5s ease-out 0s 2 alternate;
 }
 
-.active_ip {
+.activeIp {
     font-weight: bold;
 }

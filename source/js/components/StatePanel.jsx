@@ -20,14 +20,14 @@ function onSelectedIPChanged(event) {
 }
 
 function getIPState(state) {
-    const active = state.active ? 'active_ip' : '';
+    const active = state.active ? 'activeIp' : '';
     const titleExtra = state.active ? '. This is the currently active IP' : '';
     const i = state.number;
     return (
         <React.Fragment key={`IP${i}`}>
             <label className={`col1 ${active}`} title={`Show the execution path for instruction pointer ${i}${titleExtra}.`}>
-                <input type="radio" name="select_ip" value={i} checked={state.selected} onChange={onSelectedIPChanged}/>
-                <span className={`color_swatch_${i}`}></span>
+                <input type="radio" name="selectIp" value={i} checked={state.selected} onChange={onSelectedIPChanged}/>
+                <span className={`colorSwatch${i}`}></span>
                 IP {i}
             </label>
             <p className="col2 right" title="Coordinates of instruction pointer ${i}">{state.coords.q}</p>
