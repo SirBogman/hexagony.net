@@ -18,7 +18,7 @@
     font-family: root.$monospace;
 }
 
-.cell_text {
+.cellText {
     fill: black;
     stroke: none;
     font-size: 20px;
@@ -35,18 +35,18 @@
     stroke-width: 1.5;
 }
 
-.outline_secondary {
+.outlineSecondary {
     stroke-width: 0.75;
 }
 
-.cell_breakpoint {
+.cellBreakpoint {
     fill: none;
     stroke: var(--red);
     stroke-width: 1.5;
 }
 
-.arrow_template {
-    animation: fade_in ease-out;
+.cellExecutedArrow {
+    animation: fadeIn ease-out;
     stroke: none;
     fill: rgba(0, 0, 0, 0);
     transition-property: fill;
@@ -155,20 +155,20 @@ $colors:
     stroke-width: 1.0;
 }
 
-.positive_connector > path {
+.positiveConnector > path {
     stroke: var(--red);
 }
 
-.negative_connector > path {
+.negativeConnector > path {
     stroke: var(--blue);
 }
 
-.positive_text {
+.positiveText {
     fill: var(--red);
     font-size: 20px;
 }
 
-.negative_text {
+.negativeText {
     fill: var(--blue);
     font-size: 20px;
 }

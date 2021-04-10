@@ -10,16 +10,6 @@
     content: '';
 }
 
-#puzzle_container {
-    position: relative;
-}
-
-.puzzle {
-    position: absolute;
-    left:0px;
-    top:0px;
-}
-
 #appGrid {
     background: var(--background);
     display: grid;
@@ -81,10 +71,6 @@
 
 #appGrid > div.hiddenSection {
     display: none;
-}
-
-.button_container {
-    margin: 1em;
 }
 
 #codePanel {
@@ -160,7 +146,7 @@ textarea {
     margin: 8px 4px 8px 0px;
 }
 
-@keyframes fade_in {
+@keyframes fadeIn {
     from {
         opacity: 0;
     }
@@ -170,7 +156,7 @@ textarea {
 }
 
 #terminationReasonText {
-    animation: fade_in 0.25s ease-out;
+    animation: fadeIn 0.25s ease-out;
     font-size: 1.25rem;
     font-weight: bold;
     margin: 0.25rem 0;

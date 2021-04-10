@@ -51,15 +51,16 @@ export class GridView {
         this.edgeTransitionMode = false;
         this.showArrows = false;
         this.showIPs = false;
-        this.svgContainer = document.querySelector('#puzzle_container');
-        this.svg = document.querySelector('#puzzle');
-        this.cellContainer = this.svg.querySelector('#cell_container');
+        this.codeSvgContainer = document.querySelector('#codeSvgContainer');
+        this.codeSvgParent = document.querySelector('#codeSvgParent');
+        this.svg = document.querySelector('#codeSvg');
+        this.cellContainer = this.svg.appendChild(createSvgElement('g'));
         this.cellTemplate = this.svg.querySelector('defs [class~=cell]');
-        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=arrow_template]');
-        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cell_breakpoint]');
-        this.connectorTemplate = this.svg.querySelector('defs [class~=neutral_connector]');
-        this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positive_connector]');
-        this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negative_connector]');
+        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=cellExecutedArrow]');
+        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cellBreakpoint]');
+        this.neutralConnectorTemplate = this.svg.querySelector('defs [class~=neutralConnector]');
+        this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positiveConnector]');
+        this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negativeConnector]');
 
         this.svg.addEventListener('animationend', event => {
             if (event.animationName.startsWith('connector')) {
@@ -182,7 +183,7 @@ export class GridView {
             cell.appendChild(arrow);
         }
         else {
-            for (arrow of cell.querySelectorAll('.arrow_template')) {
+            for (arrow of cell.querySelectorAll('.cellExecutedArrow')) {
                 if (arrow.angle === angle) {
                     break;
                 }
@@ -329,7 +330,7 @@ export class GridView {
             path.classList.remove(CELL_EXECUTED[this.selectedIp]);
             path.style.transitionDuration = this.delay;
             if (this.showArrows) {
-                cell.querySelectorAll('.arrow_template').forEach(arrow => {
+                cell.querySelectorAll('.cellExecutedArrow').forEach(arrow => {
                     arrow.classList.remove(ARROW_EXECUTED[this.selectedIp]);
                     arrow.style.transitionDuration = this.delay;
                 });
@@ -469,11 +470,6 @@ export class GridView {
         }
 
         this._updateCode(minifySource(code));
-    }
-
-    _resetPuzzleParent() {
-        const puzzleParent = document.querySelector('#puzzle_parent');
-        puzzleParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
     }
 
     checkArrowKeys(i, j, k, elem, event) {
@@ -681,10 +677,9 @@ export class GridView {
             return centerY + (i - size + 1) * cellOffsetY;
         }
 
-        this._resetPuzzleParent();
-
-        this.svgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
-        this.svgContainer.style.maxHeight = `${this.fullHeight /2}px`;
+        this.codeSvgParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
+        this.codeSvgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
+        this.codeSvgContainer.style.maxHeight = `${this.fullHeight /2}px`;
 
         this.svg.setAttribute('width', this.fullWidth);
         this.svg.setAttribute('height', this.fullHeight);
@@ -763,7 +758,7 @@ export class GridView {
                 const outline = createSvgElement('path');
                 outline.classList.add('outline');
                 if (k && edgeTransitionMode) {
-                    outline.classList.add('outline_secondary');
+                    outline.classList.add('outlineSecondary');
                 }
                 outline.setAttribute('d', outlinePath);
                 outline.setAttribute('transform', `translate(${cellX},${cellY})scale(${edgeLength / 20})`);
@@ -779,7 +774,7 @@ export class GridView {
 
                     // Top edge.
                     if (offsets[k][1] > verticalConnectorsLimit) {
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
                         cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, 0, i) + offsets[k][1] * cellOffsetY - 0.75 * edgeLength;
                         scaleX = edgeLength / 20;
@@ -798,7 +793,7 @@ export class GridView {
                         this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
                         cellX = getX(size, 0, i) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, 0, i) + (offsets[k][1] - 1) * cellOffsetY - 0.75 * edgeLength;
                         scaleX = scaleY = -edgeLength / 20;
@@ -816,7 +811,7 @@ export class GridView {
 
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] >= verticalConnectorsLimit) {
                         // North east edge
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
                         cellX = getX(size, i, getRowSize(size, i) - 1) + offsets[k][0] * cellWidth + cellOffsetX;
                         cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY;
                         scaleX = edgeLength / 20;
@@ -834,7 +829,7 @@ export class GridView {
                         this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
                         cellX = getX(size, i, getRowSize(size, i) - 1) + (offsets[k][0] + 1) * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, i, getRowSize(size, i) - 1) + offsets[k][1] * cellOffsetY - 0.75 * edgeLength;
                         scaleX = scaleY = -edgeLength / 20;
@@ -852,7 +847,7 @@ export class GridView {
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] <= -verticalConnectorsLimit) {
                         // South east edge
                         const a = i + size - 1;
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
                         cellX = getX(size, a, getRowSize(size, a) - 1) + offsets[k][0] * cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(size, a, getRowSize(size, a) - 1) + offsets[k][1] * cellOffsetY + 0.75 * edgeLength;
                         scaleX = edgeLength / 20;
@@ -869,7 +864,7 @@ export class GridView {
                         this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.connectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
                         cellX = getX(size, a, getRowSize(size, a) - 1) + (offsets[k][0] + 1) * cellWidth;
                         cellY = getY(size, a, getRowSize(size, a) - 1) + (offsets[k][1] + 1) * cellOffsetY;
                         scaleX = scaleY = -edgeLength / 20;
