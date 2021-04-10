@@ -1,4 +1,4 @@
-#memory_container {
+#memoryContainer {
     border: black;
     resize: vertical;
     border-style: solid;
@@ -8,19 +8,19 @@
     overflow: hidden;
 }
 
-.memory_cell {
+.memoryCell {
     fill: none;
     stroke: var(--hexagon-stroke);
     stroke-width: 0.5;
 }
 
-#memory_pointer {
+#memoryPointer {
     fill: var(--red);
     stroke: none;
     transition: transform .25s ease-out;
 }
 
-.memory_value {
+.memoryValue {
     stroke: var(--set-memory);
     stroke-width: 1.0;
 }

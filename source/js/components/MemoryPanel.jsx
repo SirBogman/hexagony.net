@@ -28,7 +28,7 @@ export class MemoryPointer extends React.PureComponent {
         // Sometimes the pointer spins around extra times when animating.
         // In some cases, this can be avoided by chosing different angles with the same remainder mod 360.
         // I tried to avoid the issue by setting the transform as a matrix, but it didn't seem to make a difference.
-        return <path id="memory_pointer"
+        return <path id="memoryPointer"
             d="M0-23.12l-3 46.24h6z"
             style={{
                 transform: `translate(${x.toFixed(2)}px,${y.toFixed(2)}px)rotate(${angle % 360}deg)`,
@@ -51,7 +51,7 @@ export class MemoryCell extends React.PureComponent {
         const transform = `translate(${(this.props.x * xFactor).toFixed(2)},${(this.props.y * yFactor).toFixed(2)})rotate(${this.props.angle})`;
 
         if (this.props.value === undefined) {
-            return <path key={key} className="memory_cell" d="M-23.12 0h46.24" transform={transform}/>;
+            return <path key={key} className="memoryCell" d="M-23.12 0h46.24" transform={transform}/>;
         }
         else {
             const string = this.props.value.toString();
@@ -75,7 +75,7 @@ export class MemoryCell extends React.PureComponent {
 
             return (
                 <g key={key} transform={transform}>
-                    <path className="memory_cell memory_value" d="M-23.12 0h46.24"/>
+                    <path className="memoryCell memoryValue" d="M-23.12 0h46.24"/>
                     <text fontSize="12px" transform="translate(0 14)" textAnchor="middle">{text}</text>
                     <title>{fullString}</title>
                 </g>
@@ -135,7 +135,7 @@ export class MemoryHexagonGrid extends React.PureComponent {
             }
         }
 
-        return <path className="memory_cell" d={path}/>;
+        return <path className="memoryCell" d={path}/>;
     }
 }
 
@@ -335,7 +335,7 @@ export class MemoryPanel extends React.Component {
                     </button>
                     Click and drag to pan. Zooming is also supported.
                 </div>
-                <div id="memory_container">
+                <div id="memoryContainer">
                     <MemoryView memory={memory} delay={delay} ref={this.viewRef}/>
                 </div>
             </>
