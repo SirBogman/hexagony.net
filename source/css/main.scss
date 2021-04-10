@@ -42,18 +42,18 @@
         grid-template-areas:
             "codePanel"
             "inputPanel"
-            "infoPanel"
             "importPanel"
+            "infoPanel"
             "hotkeysPanel";
     }
 
     .playGrid {
         grid-template-areas:
             "codePanel"
-            "outputPanel"
             "memoryPanel"
-            "statePanel"
-            "inputPanel";
+            "outputPanel"
+            "inputPanel"
+            "statePanel";
     }
 }
 
