@@ -491,18 +491,7 @@ export class GridView {
             event.preventDefault();
             return;
         }
-        if (event.key == 'Backspace') {
-            this.updateFromHexagons(i, j, '.');
-            if (j) {
-                this.navigateTo(i, j - 1, k);
-            }
-            else if (i) {
-                this.navigateTo(i - 1, getRowSize(this.size, i - 1) - 1, k);
-            }
-            event.preventDefault();
-            return;
-        }
-        if (event.key == 'Delete') {
+        if (event.key == 'Backspace' || event.key == 'Delete') {
             this.updateFromHexagons(i, j, '.');
             event.preventDefault();
             return;
