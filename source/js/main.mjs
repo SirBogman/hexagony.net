@@ -21,7 +21,6 @@ const editContent = document.querySelectorAll('.editContent');
 const sourceCodeInput = document.querySelector('#sourceCodeInput');
 const inputBox = document.querySelector('#inputBox');
 const infoInfo = document.querySelector('#infoInfo');
-const stateInfo = document.querySelector('#stateInfo');
 
 const smallerButton = document.querySelector('#smallerButton');
 const resetButton = document.querySelector('#resetButton');
@@ -51,12 +50,12 @@ const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 const urlExportText = document.querySelector('#urlExportText');
 
 const outputBox = document.querySelector('#outputBox');
-const terminationReasonText = document.querySelector('#terminationReasonText');
 
 const edgeTransitionButton = document.querySelector('#edgeTransitionButton');
 const toggleArrowsButton = document.querySelector('#toggleArrowsButton');
 const toggleIPsButton = document.querySelector('#toggleIPsButton');
 
+const statePanel = document.querySelector('#statePanel');
 const memoryPanel = document.querySelector('#memoryPanel');
 
 let gridView;
@@ -66,6 +65,7 @@ let selectedIp = 0;
 let initFinished = false;
 let userData;
 let animationDelay;
+let terminationReason;
 
 function updateCode(code, isProgrammatic=false) {
     userData.code = code;
@@ -167,7 +167,12 @@ function updateButtons() {
     if (running) {
         playContent.forEach(x => x.classList.remove('hiddenSection'));
         editContent.forEach(x => x.classList.add('hiddenSection'));
-        appGrid.classList.replace('editGrid', 'playGrid');
+        if (appGrid.classList.contains('editGrid')) {
+            appGrid.classList.replace('editGrid', 'playGrid');
+            // This prevents the output panel from growing in height when there is more output.
+            // It would be nicer to find a way to do something equivalent in CSS.
+           outputBox.parentNode.style.height = getComputedStyle(inputBox).height;
+        }
     }
     else {
         playContent.forEach(x => x.classList.add('hiddenSection'));
@@ -414,9 +419,8 @@ function stepHelper(play = false) {
     outputBox.textContent = hexagony.output;
     outputBox.scrollTop = outputBox.scrollHeight;
 
+    terminationReason = hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
     updateStateText();
-    terminationReasonText.textContent =
-        hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
 
     if (play && isRunning() && !isTerminated()) {
         gridView.timeoutID = window.setTimeout(() => {
@@ -430,6 +434,7 @@ function stepHelper(play = false) {
 }
 
 function updateBreakpointCountText() {
+    updateInfo();
     updateStateText();
 }
 
@@ -437,6 +442,7 @@ function getInfoPanelState() {
     const filteredCode = removeWhitespaceAndDebug(userData.code);
     const filteredCodepoints = countCodepoints(filteredCode);
     return {
+        breakpoints: userData.breakpoints.length,
         size: getHexagonSize(filteredCodepoints),
         chars: countCodepoints(userData.code),
         bytes: countBytes(userData.code),
@@ -453,7 +459,8 @@ function updateStateText() {
         return;
     }
 
-    updateStatePanel(stateInfo, {
+    updateStatePanel(statePanel, {
+        terminationReason,
         ipStates: arrayInitialize(6, i => {
             const [coords, dir] = hexagony.getIPState(i);
             return {
@@ -464,7 +471,6 @@ function updateStateText() {
                 number: i,
             };
         }),
-        breakpoints: userData.breakpoints.length,
         ticks: hexagony.ticks,
         memoryPointer: hexagony.memory.mp,
         memoryDir: hexagony.memory.dir,

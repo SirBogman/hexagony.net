@@ -6,3 +6,4 @@ Eventually:
     Feature to multiselect instructions and move them in a direction.
 
     Change step icon to have a vertical line at the right side.
+    Dark Mode requested by @EliteDaMyth

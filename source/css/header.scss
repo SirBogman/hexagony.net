@@ -12,7 +12,7 @@ body header {
     z-index: 1;
 }
 
-body > header nav {
+header nav {
     margin: auto;
     max-width: 1280px;
     display: grid;
@@ -35,7 +35,7 @@ body > header nav {
 // iPhone 12 Pro: 750
 // iPhone 12 Pro Max: 832
 @media (max-width: ($buttonCount + $narrowWidthPadding) * $narrowButtonOuterWidth) {
-    body > header nav {
+    header nav {
         grid-template-columns: auto 1fr auto;
         grid-template-rows: auto auto;
         grid-template-areas:
@@ -60,13 +60,13 @@ nav > #playControls {
     grid-area: playControls;
 }
 
-body > header svg {
+header svg {
     height: $buttonInnerWidth;
     width: $buttonInnerWidth;
 }
 
-body > header a,
-body > header > nav button,
+header a,
+header > nav button,
 #speedSliderContainer {
     height: $buttonOuterWidth;
     width: $buttonOuterWidth;
@@ -78,26 +78,26 @@ body > header > nav button,
     fill: var(--background);
 }
 
-body > header > nav .group {
+header > nav .group {
     display: flex;
 }
 
-body > header > nav button {
+header > nav button {
     background: var(--color);
     color: var(--background);
     border: none;
     padding: 0;
 }
 
-body > header a:hover,
-body > header a:not([href]),
-body > header > nav button[aria-checked="true"],
-body > header > nav button:enabled:hover {
+header a:hover,
+header a:not([href]),
+header > nav button[aria-checked="true"],
+header > nav button:enabled:hover {
     background: var(--background);
     color: var(--color);
 }
 
-body > header > nav button:disabled {
+header > nav button:disabled {
     color: var(--disabled-color);
 }
 
@@ -144,8 +144,8 @@ body > header > nav button:disabled {
     // Reduce the outer width of buttons a bit, before changing to the one column layout.
     $buttonOuterWidth: $narrowButtonOuterWidth;
 
-    body > header a,
-    body > header > nav button {
+    header a,
+    header > nav button {
         width: $buttonOuterWidth;
     }
 
