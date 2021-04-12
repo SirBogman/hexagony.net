@@ -2,7 +2,7 @@
 @use 'root.scss';
 
 .cellPath {
-    fill: white;
+    fill: var(--hexagon-fill);
     stroke: var(--hexagon-stroke);
     stroke-width: 0.5;
     transition-timing-function: ease-out;
@@ -19,7 +19,7 @@
 }
 
 .cellText {
-    fill: black;
+    fill: var(--text-color);
     stroke: none;
     font-size: 20px;
     font-family: root.$monospace;
@@ -31,7 +31,7 @@
 
 .outline {
     fill: none;
-    stroke: black;
+    stroke: var(--outline-color);
     stroke-width: 1.5;
 }
 

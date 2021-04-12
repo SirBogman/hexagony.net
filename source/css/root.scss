@@ -7,10 +7,14 @@ $monospace: Consolas, Menlo, monospace;
     --red: #ed1c24;
     --blue: #1c74bc;
     --orange: #F7941D;
-    --hexagon-stroke: #808080;
-    --set-memory: black;
     --panel-background: hsl(0, 0%, 95%);
     --output-background: hsl(0, 0%, 83%);
+    --hexagon-stroke: hsl(0, 0%, 50%);
+    --foreground-color: black;
+    --set-memory: var(--foreground-color);
+    --outline-color:var(--foreground-color);
+    --text-color: var(--foreground-color);
+    --hexagon-fill: white;
 }
 
 body {

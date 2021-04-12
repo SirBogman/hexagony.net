@@ -51,6 +51,7 @@ header {
     padding: 0.5rem;
     // Overflow must be hidden in all panels to prevent horizontal scroll bars in the narrow layout.
     overflow: hidden;
+    color: var(--foreground-color);
 }
 
 #appGrid > div.hiddenSection {
@@ -230,6 +231,11 @@ textarea {
     background: var(--background);
     border: none;
     font-family: root.$monospace;
+}
+
+#urlExportText {
+    background: var(--background);
+    border: none;
 }
 
 .col1 {

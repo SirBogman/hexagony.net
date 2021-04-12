@@ -76,7 +76,7 @@ export class MemoryCell extends React.PureComponent {
             return (
                 <g key={key} transform={transform}>
                     <path className="memoryCell memoryValue" d="M-23.12 0h46.24"/>
-                    <text fontSize="12px" transform="translate(0 14)" textAnchor="middle">{text}</text>
+                    <text fill="currentColor" fontSize="12px" transform="translate(0 14)" textAnchor="middle">{text}</text>
                     <title>{fullString}</title>
                 </g>
             );
