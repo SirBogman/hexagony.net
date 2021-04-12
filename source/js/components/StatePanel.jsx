@@ -19,7 +19,7 @@ function onSelectedIPChanged(event) {
     }
 }
 
-function getIPState(state) {
+function getIPState(state, colorMode) {
     const active = state.active ? 'activeIp' : '';
     const titleExtra = state.active ? '. This is the currently active IP' : '';
     const i = state.number;
@@ -27,7 +27,7 @@ function getIPState(state) {
         <React.Fragment key={`IP${i}`}>
             <label className={`col1 ${active}`} title={`Select to show the execution path for instruction pointer ${i}${titleExtra}.`}>
                 <input type="radio" name="selectIp" value={i} checked={state.selected} onChange={onSelectedIPChanged}/>
-                <span className={`colorSwatch${i}`}></span>
+                <span className={`colorSwatch${i}${colorMode}`}></span>
                 IP {i}
             </label>
             <p className="col2 right" title={`Coordinates of instruction pointer ${i}`}>{state.coords.q}</p>
@@ -48,26 +48,27 @@ function getExecutionInfo(ticks) {
 
 export class StatePanel extends React.Component {
     render() {
+        const { colorMode, terminationReason, memoryPointer, memoryDir, memoryCw, ticks, info } = this.props;
         return (
             <>
                 <div id='statePanelTop'>
                     <h1>State</h1>
-                    <div id='terminationReasonText'>{this.props.terminationReason}</div>
+                    <div id='terminationReasonText'>{terminationReason}</div>
                 </div>
                 <div id="stateGrid1">
-                    {this.props.ipStates.map(getIPState)}
+                    {this.props.ipStates.map(x => getIPState(x, colorMode))}
                     <p key="mp" className="col1" title="Information about the memory pointer">MP</p>
-                    <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{this.props.memoryPointer.q}</p>
-                    <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{this.props.memoryPointer.r}</p>
-                    <p key="dir" className="col4" title="Direction of memory pointer">{this.props.memoryDir.toString()}</p>
+                    <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{memoryPointer.q}</p>
+                    <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{memoryPointer.r}</p>
+                    <p key="dir" className="col4" title="Direction of memory pointer">{memoryDir.toString()}</p>
                     <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
-                        {this.props.memoryCw ? 'CW' : 'CCW'}</p>
-                    {getExecutionInfo(this.props.ticks)}
-                    <InfoPanel {...this.props.info}/>
+                        {memoryCw ? 'CW' : 'CCW'}</p>
+                    {getExecutionInfo(ticks)}
+                    <InfoPanel {...info}/>
                 </div>
                 <div id="stateGrid2">
-                    {getExecutionInfo(this.props.ticks)}
-                    <InfoPanel {...this.props.info}/>
+                    {getExecutionInfo(ticks)}
+                    <InfoPanel {...info}/>
                 </div>
             </>
         );
@@ -75,6 +76,7 @@ export class StatePanel extends React.Component {
 }
 
 StatePanel.propTypes = {
+    colorMode: PropTypes.string.isRequired,
     ipStates: PropTypes.arrayOf(PropTypes.shape({
         number: PropTypes.number.isRequired,
         active: PropTypes.bool.isRequired,

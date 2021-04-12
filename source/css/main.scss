@@ -230,12 +230,14 @@ div #memoryPanel > h1 {
 textarea {
     background: var(--background);
     border: none;
+    color: var(--text-color);
     font-family: root.$monospace;
 }
 
 #urlExportText {
     background: var(--background);
     border: none;
+    color: var(--text-color);
 }
 
 .col1 {

@@ -5,18 +5,28 @@ const edgeLength = 20;
 const cellHeight = edgeLength * 2;
 const edgeTransitionSizeLimit = 25;
 const executedColorCount = 10;
-const cellExecuted = arrayInitialize(6, index => `cellExecuted${index}`);
-const cellActive = arrayInitialize(6, index => `cellActive${index}`);
-const cellInactive = arrayInitialize(6, index => `cellInactive${index}`);
-const arrowExecuted = arrayInitialize(6, index => `arrowExecuted${index}`);
-const arrowActive = arrayInitialize(6, index => `arrowActive${index}`);
-const arrowInactive = arrayInitialize(6, index => `arrowInactive${index}`);
 
-const cellExecutedArray = arrayInitialize(6, i =>
-    arrayInitialize(executedColorCount, j => `cellExecuted${i}_${j}`));
+let cellExecuted;
+let cellActive;
+let cellInactive;
+let arrowExecuted;
+let arrowActive;
+let arrowInactive;
+let cellExecutedArray;
+let arrowExecutedArray;
 
-const arrowExecutedArray = arrayInitialize(6, i =>
-    arrayInitialize(executedColorCount, j => `arrowExecuted${i}_${j}`));
+export function initializeGridColors(colorMode) {
+    cellExecuted = arrayInitialize(6, index => `cellExecuted${index}${colorMode}`);
+    cellActive = arrayInitialize(6, index => `cellActive${index}${colorMode}`);
+    cellInactive = arrayInitialize(6, index => `cellInactive${index}${colorMode}`);
+    arrowExecuted = arrayInitialize(6, index => `arrowExecuted${index}${colorMode}`);
+    arrowActive = arrayInitialize(6, index => `arrowActive${index}${colorMode}`);
+    arrowInactive = arrayInitialize(6, index => `arrowInactive${index}${colorMode}`);
+    cellExecutedArray = arrayInitialize(6, i =>
+        arrayInitialize(executedColorCount, j => `cellExecuted${i}_${j}${colorMode}`));
+    arrowExecutedArray = arrayInitialize(6, i =>
+        arrayInitialize(executedColorCount, j => `arrowExecuted${i}_${j}${colorMode}`));
+}
 
 function getIndices(elem) {
     return elem.id.match(/\d+/g).map(x => parseInt(x));

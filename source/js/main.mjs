@@ -1,6 +1,6 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
-import { GridView } from './view/gridview.mjs';
+import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { setChecked } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
@@ -54,9 +54,13 @@ const outputBox = document.querySelector('#outputBox');
 const edgeTransitionButton = document.querySelector('#edgeTransitionButton');
 const toggleArrowsButton = document.querySelector('#toggleArrowsButton');
 const toggleIPsButton = document.querySelector('#toggleIPsButton');
+const toggleDarkModeButton = document.querySelector('#toggleDarkModeButton');
 
 const statePanel = document.querySelector('#statePanel');
 const memoryPanel = document.querySelector('#memoryPanel');
+
+const darkColorMode = 'Dark';
+const colorModes = ['Light', darkColorMode];
 
 let gridView;
 let hexagony;
@@ -185,6 +189,7 @@ function updateViewButtons() {
     setChecked(edgeTransitionButton, userData.edgeTransitionMode);
     setChecked(toggleArrowsButton, userData.showArrows);
     setChecked(toggleIPsButton, userData.showIPs);
+    setChecked(toggleDarkModeButton, userData.colorMode === darkColorMode);
 }
 
 function breakpointExistsAt(i, j) {
@@ -225,6 +230,10 @@ function toggleBreakpointCallback(i, j) {
     updateButtons();
 }
 
+function prefersDarkColorScheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
 // This should only be called once when initially loading.
 function loadData() {
     userData = undefined;
@@ -239,8 +248,11 @@ function loadData() {
         userData = { code: layoutSource(helloWorldExample) };
     }
 
+    const defaultColorMode = colorModes[Number(prefersDarkColorScheme())];
+
     updateAnimationDelay(userData.delay ?? 250);
     userData.breakpoints = userData.breakpoints ?? [];
+    userData.colorMode = colorModes.includes(userData.colorMode) ? userData.colorMode : defaultColorMode;
     gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
     userData.showArrows = userData.showArrows ?? false;
     gridView.setShowArrows(userData.showArrows);
@@ -460,6 +472,7 @@ function updateStateText() {
     }
 
     updateStatePanel(statePanel, {
+        colorMode: userData.colorMode,
         terminationReason,
         ipStates: arrayInitialize(6, i => {
             const [coords, dir] = hexagony.getIPState(i);
@@ -618,10 +631,16 @@ document.addEventListener('keydown', e => {
     // console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
 });
 
+function updateColorMode() {
+    document.documentElement.classList.toggle('darkMode', userData.colorMode == darkColorMode);
+    initializeGridColors(userData.colorMode);
+}
+
 function init() {
     setSelectedIPChangedCallback(onSelectedIPChanged);
     gridView = new GridView(updateCode, updateButtons, toggleBreakpointCallback);
     loadData();
+    updateColorMode();
     loadDataFromURL();
     sourceCodeInput.addEventListener('input', () => updateFromSourceCode(false));
     inputBox.addEventListener('input', onInputChanged);
@@ -667,6 +686,17 @@ function init() {
     toggleIPsButton.addEventListener('click', () => {
         userData.showIPs = !userData.showIPs;
         gridView.setShowIPs(userData.showIPs);
+        updateViewButtons();
+        saveData();
+    });
+
+    toggleDarkModeButton.addEventListener('click', () => {
+        userData.colorMode = colorModes[1 - colorModes.indexOf(userData.colorMode)];
+        updateStateText();
+        updateColorMode();
+        // It's easier to recreate the grid than to update all color-related class names.
+        gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);
+        gridView.setBreakpoints(getBreakpoints());
         updateViewButtons();
         saveData();
     });

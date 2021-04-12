@@ -52,31 +52,38 @@
     transition-property: fill;
 }
 
-$arrowLightnessShift: -50%;
-$executeLightnessShift: 90%;
-$secondaryLightnessShift: 75%;
-
 @function scaleLightness($color, $amount) {
     // Example:
     // color.scale(hsl(0, 100%, 70%), $lightness: 50%) == hsl(0, 100%, 85%)
     @return color.scale($color, $lightness: $amount);
 }
 
-@function makeSecondaryColor($color) {
-    @return scaleLightness($color, $secondaryLightnessShift);
-}
+$lightArrowLightnessShift: -50%;
+$lightExecutedLightnessShift: 90%;
+$lightSecondaryLightnessShift: 75%;
 
-@function makeArrowColor($color) {
-    @return scaleLightness($color, $arrowLightnessShift);
-}
+$darkArrowLightnessShift: 50%;
+$darkExecutedLightnessShift: -90%;
+$darkSecondaryLightnessShift: -65%;
+
+$arrowLightnessShifts: $lightArrowLightnessShift $darkArrowLightnessShift;
+$executedLightnessShifts: $lightExecutedLightnessShift $darkExecutedLightnessShift;
+$secondaryLightnessShifts: $lightSecondaryLightnessShift $darkSecondaryLightnessShift;
 
 // This should match executedColorCount in gridview.mjs.
 $executedColorCount: 10;
-$executedMinLightness: 66%;
-$executedMaxLightness: 88%;
-$executedLightnessIncrement: ($executedMaxLightness - $executedMinLightness) / ($executedColorCount - 1);
+$lightExecutedMinLightness: 66%;
+$lightExecutedMaxLightness: 88%;
+$lightExecutedLightnessIncrement: ($lightExecutedMaxLightness - $lightExecutedMinLightness) / ($executedColorCount - 1);
 
-$colors:
+$darkExecutedMinLightness: -66%;
+$darkExecutedMaxLightness: -88%;
+$darkExecutedLightnessIncrement: ($darkExecutedMaxLightness - $darkExecutedMinLightness) / ($executedColorCount - 1);
+
+$executedMinLightnessValues: $lightExecutedMinLightness $darkExecutedMinLightness;
+$executedLightnessIncrements: $lightExecutedLightnessIncrement $darkExecutedLightnessIncrement;
+
+$lightColors:
     hsl(200, 100%, 50%)
     hsl(270, 100%, 70%)
     hsl(0, 100%, 70%)
@@ -85,65 +92,84 @@ $colors:
     hsl(140, 80%, 50%)
 ;
 
-@for $j from 5 through 0 {
-    $color: nth($colors, $j + 1);
-    $executedColor: scaleLightness($color, $executeLightnessShift);
+$darkColors:
+    hsl(200, 100%, 50%)
+    hsl(270, 100%, 60%)
+    hsl(0, 100%, 60%)
+    hsl(30, 100%, 40%)
+    hsl(60, 90%, 40%)
+    hsl(140, 80%, 40%)
+;
 
-    .colorSwatch#{$j} {
-        display: inline-block;
-        margin: 0 0.5rem;
-        border: 1px solid var(--color);
-        background: $color;
-        width: 0.8rem;
-        height: 0.8rem;
-    }
+$colorLists: $lightColors $darkColors;
+$colorModes: Light Dark;
 
-    .arrowExecuted#{$j} {
-        fill: makeArrowColor($executedColor);
-    }
+@for $colorModeIndex from 1 through 2 {
+    $colorMode: nth($colorModes, $colorModeIndex); 
+    $colors: nth($colorLists, $colorModeIndex);
+    $executedMinLightness: nth($executedMinLightnessValues, $colorModeIndex);
+    $arrowLightnessShift: nth($arrowLightnessShifts, $colorModeIndex);
 
-    .cellExecuted#{$j} {
-        fill: $executedColor;
-    }
+    @for $j from 5 through 0 {
+        $color: nth($colors, $j + 1);
+        $executedColor: scaleLightness($color, nth($executedLightnessShifts, $colorModeIndex));
 
-    @for $i from $executedColorCount - 1 through 0 {
-        $value: $executedMinLightness + $i * $executedLightnessIncrement;
-        $currentColor: scaleLightness($color, $value);
-        @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
-
-        .arrowExecuted#{$j}_#{$i} {
-            fill: makeArrowColor($currentColor);
+        .colorSwatch#{$j}#{$colorMode} {
+            display: inline-block;
+            margin: 0 0.5rem;
+            border: 1px solid var(--color);
+            background: $color;
+            width: 0.8rem;
+            height: 0.8rem;
         }
 
-        .cellExecuted#{$j}_#{$i} {
-            fill: $currentColor;
+        .arrowExecuted#{$j}#{$colorMode} {
+            fill: scaleLightness($executedColor, $arrowLightnessShift);
+        }
+
+        .cellExecuted#{$j}#{$colorMode} {
+            fill: $executedColor;
+        }
+
+        @for $i from $executedColorCount - 1 through 0 {
+            $value: $executedMinLightness + $i * nth($executedLightnessIncrements, $colorModeIndex);
+            $currentColor: scaleLightness($color, $value);
+            @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
+
+            .arrowExecuted#{$j}_#{$i}#{$colorMode} {
+                fill: scaleLightness($currentColor, $arrowLightnessShift);
+            }
+
+            .cellExecuted#{$j}_#{$i}#{$colorMode} {
+                fill: $currentColor;
+            }
         }
     }
-}
 
-// The active/inactive colors are generated in a separate loop so they always have higher priority.
-@for $j from 5 through 0 {
-    $color: nth($colors, $j + 1);
-    $inactiveColor: scaleLightness($color, $executedMinLightness);
+    // The active/inactive colors are generated in a separate loop so they always have higher priority.
+    @for $j from 5 through 0 {
+        $color: nth($colors, $j + 1);
+        $inactiveColor: scaleLightness($color, $executedMinLightness);
 
-    .arrowInactive#{$j} {
-        fill: makeArrowColor($inactiveColor);
-    }
+        .arrowInactive#{$j}#{$colorMode} {
+            fill: scaleLightness($inactiveColor, $arrowLightnessShift);
+        }
 
-    .cellInactive#{$j} {
-        fill: $inactiveColor;
-    }
+        .cellInactive#{$j}#{$colorMode} {
+            fill: $inactiveColor;
+        }
 
-    .arrowActive#{$j} {
-        fill: makeArrowColor($color);
-    }
+        .arrowActive#{$j}#{$colorMode} {
+            fill: scaleLightness($color, $arrowLightnessShift);
+        }
 
-    .cellActive#{$j} {
-        fill: $color;
-    }
+        .cellActive#{$j}#{$colorMode} {
+            fill: $color;
+        }
 
-    .cellActive#{$j}Secondary {
-        fill: makeSecondaryColor($color);
+        .cellActive#{$j}#{$colorMode}Secondary {
+            fill: scaleLightness($color, nth($secondaryLightnessShifts, $colorModeIndex));
+        }
     }
 }
 
