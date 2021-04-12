@@ -226,6 +226,12 @@ div #memoryPanel > h1 {
     column-gap: 1rem;
 }
 
+textarea {
+    background: var(--background);
+    border: none;
+    font-family: root.$monospace;
+}
+
 .col1 {
     grid-column: 1;
 }
