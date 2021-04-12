@@ -1,20 +1,42 @@
 $monospace: Consolas, Menlo, monospace;
 
 :root {
-    --background: #fdfdfd;
-    --color:      #343a40;
-    --disabled-color: #707070;
-    --red: #ed1c24;
-    --blue: #1c74bc;
-    --orange: #F7941D;
+    --color: rgb(53, 59, 65);
+    --background: hsl(0, 0%, 99%);
     --panel-background: hsl(0, 0%, 95%);
     --output-background: hsl(0, 0%, 83%);
     --hexagon-stroke: hsl(0, 0%, 50%);
+    --hexagon-fill: white;
+    --disabled-color: hsl(0, 0%, 44%);
+    --red: hsl(358, 85%, 52%);
+    --blue: hsl(207, 74%, 42%);
+    --orange: hsl(33, 93%, 54%);
     --foreground-color: black;
     --set-memory: var(--foreground-color);
     --outline-color:var(--foreground-color);
     --text-color: var(--foreground-color);
-    --hexagon-fill: white;
+}
+
+:root.darkMode {
+    --color: #fdfdfd;
+    --background: hsl(210, 10%, 13%);
+    --panel-background: hsl(210, 10%, 23%);
+    --output-background: var(--background);
+    --hexagon-stroke: hsl(0, 0%, 50%);
+    --hexagon-fill: hsl(210, 10%, 10%);
+    --disabled-color: hsl(0, 0%, 44%);
+    --red: hsl(358, 85%, 60%);
+    --blue: hsl(207, 74%, 60%);
+    --orange: hsl(33, 93%, 60%);
+    --foreground-color: hsl(0, 0%, 99%);
+    --set-memory: var(--foreground-color);
+    --outline-color:var(--foreground-color);
+    --text-color: var(--foreground-color);
+}
+
+header {
+    --color: rgb(53, 59, 65);
+    --background: hsl(0, 0%, 99%);
 }
 
 body {
