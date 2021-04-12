@@ -186,6 +186,23 @@ div #memoryPanel > h1 {
     margin: 0.5rem;
 }
 
+.bodyButton {
+    color: var(--text-color);
+    background: var(--button);
+}
+
+.bodyButton:disabled {
+    color: var(--disabled-color);
+}
+
+.bodyButton:hover:not(:disabled) {
+    background: var(--hover-button);
+}
+
+.bodyButton:active:not(:disabled) {
+    background: var(--active-button);
+}
+
 #inputBox {
     grid-column: 1/3;
 }
