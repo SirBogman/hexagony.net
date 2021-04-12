@@ -95,15 +95,15 @@ export function layoutSource(code) {
 }
 
 export function removeDebug(code) {
-    return code.replaceAll(/`/g, '');
+    return code.replace(/`/g, '');
 }
 
 export function removeWhitespace(code) {
-    return code.replaceAll(/ |\t|\n|\v|\f|\r/g, '');
+    return code.replace(/ |\t|\n|\v|\f|\r/g, '');
 }
 
 export function removeWhitespaceAndDebug(code) {
-    return code.replaceAll(/ |\t|\n|\v|\f|\r|`/g, '');
+    return code.replace(/ |\t|\n|\v|\f|\r|`/g, '');
 }
 
 export function getRowCount(size) {

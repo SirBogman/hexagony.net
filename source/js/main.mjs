@@ -350,7 +350,7 @@ function onStep() {
 function getInput() {
     let input = inputBox.value;
     if (inputArgumentsRadioButton.checked) {
-        input = input.replaceAll(/\n/g, '\0');
+        input = input.replace(/\n/g, '\0');
     }
     return input;
 }
