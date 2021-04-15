@@ -64,10 +64,10 @@ $executedColorCount: 10;
 // Arrays for light and dark values.
 $colorModes: Light Dark;
 $arrowLightnessShifts: -50% 50%;
-$executedLightnessShifts: 90% -90%;
 $secondaryLightnessShifts: 75% -65%;
-$executedMinLightnessValues: 66% -66%;
-$executedMaxLightnessValues: 88% -88%;
+$executedMinLightnessValues: 66% -51%;
+$executedMaxLightnessValues: 88% -73%;
+$executedLightnessShifts: 90% -75%;
 $executedLightnessIncrements:
     (nth($executedMaxLightnessValues, 1) - nth($executedMinLightnessValues, 1)) / ($executedColorCount - 1)
     (nth($executedMaxLightnessValues, 2) - nth($executedMinLightnessValues, 2)) / ($executedColorCount - 1);
