@@ -58,39 +58,27 @@
     @return color.scale($color, $lightness: $amount);
 }
 
-$lightArrowLightnessShift: -50%;
-$lightExecutedLightnessShift: 90%;
-$lightSecondaryLightnessShift: 75%;
-
-$darkArrowLightnessShift: 50%;
-$darkExecutedLightnessShift: -90%;
-$darkSecondaryLightnessShift: -65%;
-
-$arrowLightnessShifts: $lightArrowLightnessShift $darkArrowLightnessShift;
-$executedLightnessShifts: $lightExecutedLightnessShift $darkExecutedLightnessShift;
-$secondaryLightnessShifts: $lightSecondaryLightnessShift $darkSecondaryLightnessShift;
-
 // This should match executedColorCount in gridview.mjs.
 $executedColorCount: 10;
-$lightExecutedMinLightness: 66%;
-$lightExecutedMaxLightness: 88%;
-$lightExecutedLightnessIncrement: ($lightExecutedMaxLightness - $lightExecutedMinLightness) / ($executedColorCount - 1);
 
-$darkExecutedMinLightness: -66%;
-$darkExecutedMaxLightness: -88%;
-$darkExecutedLightnessIncrement: ($darkExecutedMaxLightness - $darkExecutedMinLightness) / ($executedColorCount - 1);
-
-$executedMinLightnessValues: $lightExecutedMinLightness $darkExecutedMinLightness;
-$executedLightnessIncrements: $lightExecutedLightnessIncrement $darkExecutedLightnessIncrement;
-
+// Arrays for light and dark values.
+$colorModes: Light Dark;
+$arrowLightnessShifts: -50% 50%;
+$executedLightnessShifts: 90% -90%;
+$secondaryLightnessShifts: 75% -65%;
+$executedMinLightnessValues: 66% -66%;
+$executedMaxLightnessValues: 88% -88%;
+$executedLightnessIncrements:
+    (nth($executedMaxLightnessValues, 1) - nth($executedMinLightnessValues, 1)) / ($executedColorCount - 1)
+    (nth($executedMaxLightnessValues, 2) - nth($executedMinLightnessValues, 2)) / ($executedColorCount - 1);
+    
 $lightColors:
     hsl(200, 100%, 50%)
     hsl(270, 100%, 70%)
     hsl(0, 100%, 70%)
     hsl(30, 100%, 50%)
     hsl(60, 90%, 50%)
-    hsl(140, 80%, 50%)
-;
+    hsl(140, 80%, 50%);
 
 $darkColors:
     hsl(200, 100%, 50%)
@@ -98,11 +86,9 @@ $darkColors:
     hsl(0, 100%, 60%)
     hsl(30, 100%, 40%)
     hsl(60, 90%, 40%)
-    hsl(140, 80%, 40%)
-;
+    hsl(140, 80%, 40%);
 
 $colorLists: $lightColors $darkColors;
-$colorModes: Light Dark;
 
 @for $colorModeIndex from 1 through 2 {
     $colorMode: nth($colorModes, $colorModeIndex); 
