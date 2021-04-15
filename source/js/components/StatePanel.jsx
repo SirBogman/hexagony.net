@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { InfoPanel } from './InfoPanel.jsx';
+import { getInfoContent } from './InfoPanel.jsx';
 
 let onSelectedIPChangedCallback;
 
@@ -49,6 +49,7 @@ function getExecutionInfo(ticks) {
 export class StatePanel extends React.Component {
     render() {
         const { colorMode, terminationReason, memoryPointer, memoryDir, memoryCw, ticks, info } = this.props;
+        const { breakpoints, size, chars, bytes, operators } = info;
         return (
             <>
                 <div id='statePanelTop'>
@@ -64,11 +65,11 @@ export class StatePanel extends React.Component {
                     <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
                         {memoryCw ? 'CW' : 'CCW'}</p>
                     {getExecutionInfo(ticks)}
-                    <InfoPanel {...info}/>
+                    {getInfoContent(breakpoints, size, chars, bytes, operators)}
                 </div>
                 <div id="stateGrid2">
                     {getExecutionInfo(ticks)}
-                    <InfoPanel {...info}/>
+                    {getInfoContent(breakpoints, size, chars, bytes, operators)}
                 </div>
             </>
         );
@@ -95,5 +96,11 @@ StatePanel.propTypes = {
         q: PropTypes.number.isRequired,
         r: PropTypes.number.isRequired,
     }).isRequired,
-    info: PropTypes.object.isRequired,
+    info: PropTypes.shape({
+        breakpoints: PropTypes.number.isRequired,
+        size: PropTypes.number.isRequired,
+        bytes: PropTypes.number.isRequired,
+        chars: PropTypes.number.isRequired,
+        operators: PropTypes.number.isRequired,
+    }).isRequired,
 };

@@ -21,7 +21,6 @@ const editContent = document.querySelectorAll('.editContent');
 
 const sourceCodeInput = document.querySelector('#sourceCodeInput');
 const inputBox = document.querySelector('#inputBox');
-const infoInfo = document.querySelector('#infoInfo');
 
 const smallerButton = document.querySelector('#smallerButton');
 const resetButton = document.querySelector('#resetButton');
@@ -55,6 +54,7 @@ const toggleArrowsButton = document.querySelector('#toggleArrowsButton');
 const toggleIPsButton = document.querySelector('#toggleIPsButton');
 const toggleDarkModeButton = document.querySelector('#toggleDarkModeButton');
 
+const infoPanel = document.querySelector('#infoPanel');
 const memoryPanel = document.querySelector('#memoryPanel');
 const outputPanel = document.querySelector('#outputPanel');
 const statePanel = document.querySelector('#statePanel');
@@ -462,7 +462,7 @@ function getInfoPanelState() {
 }
 
 function updateInfo() {
-    updateInfoPanel(infoInfo, getInfoPanelState());
+    updateInfoPanel(infoPanel, getInfoPanelState());
 }
 
 function updateStateText() {
