@@ -21,7 +21,7 @@ function getMPCoordinates(memory) {
     return [memory.getX() * xFactor, memory.getY() * yFactor];
 }
 
-export class MemoryPointer extends React.PureComponent {
+class MemoryPointer extends React.PureComponent {
     render() {
         const {x, y, angle, delay} = this.props;
         // The transform must be set through the style for it to animate automatically.
@@ -45,7 +45,7 @@ MemoryPointer.propTypes = {
     delay: PropTypes.string.isRequired,
 };
 
-export class MemoryCell extends React.PureComponent {
+class MemoryCell extends React.PureComponent {
     render() {
         const key= `${this.props.x},${this.props.y}`;
         const transform = `translate(${(this.props.x * xFactor).toFixed(2)},${(this.props.y * yFactor).toFixed(2)})rotate(${this.props.angle})`;
@@ -92,7 +92,7 @@ MemoryCell.propTypes = {
     value: PropTypes.any,
 };
 
-export class MemoryHexagonGrid extends React.PureComponent {
+class MemoryHexagonGrid extends React.PureComponent {
     render() {
         const {x, y, rows, columns} = this.props;
         let path = '';
@@ -147,7 +147,7 @@ MemoryHexagonGrid.propTypes = {
 };
 
 // Displays the values that are set in memory.
-export class MemoryCells extends React.Component {
+class MemoryCells extends React.Component {
     constructor(props) {
         super(props);
         this.lastDataVersion = -1;
@@ -174,7 +174,7 @@ MemoryCells.propTypes = {
     memory: PropTypes.object.isRequired,
 };
 
-export class MemoryView extends React.Component {
+class MemoryView extends React.Component {
     constructor(props) {
         super(props);
         this.viewRef = React.createRef();
