@@ -172,7 +172,7 @@
                     <input type="radio" name="inputMode" value="raw" id="inputRawRadioButton">Raw
                 </label>
             </div>
-            <textarea id="inputBox" spellcheck="False" autocapitalize="off" autocomplete="off"></textarea>
+            <textarea id="inputBox" spellcheck="False" autocapitalize="off" autocomplete="off" aria-label="Input"></textarea>
         </div>
         <div id="infoPanel" class="editContent">
             <h1>Info</h1>
@@ -191,7 +191,7 @@
                     Layout Source
                 </button>
             </div>
-            <textarea id="sourceCodeInput" spellcheck="False" autocapitalize="off" autocomplete="off"></textarea>
+            <textarea id="sourceCodeInput" spellcheck="False" autocapitalize="off" autocomplete="off" aria-label="Source Code Import/Export"></textarea>
             <h2>Generate Link</h2>
             <div>
                 <button class="editButton bodyButton" id="generateLinkButton"
@@ -203,7 +203,7 @@
                     Generate and Copy
                 </button>
             </div>
-            <input id="urlExportText" type="text" placeholder="Generate a link that encodes to the current program and input." readonly>
+            <input id="urlExportText" type="text" placeholder="Generate a link that encodes to the current program and input." readonly aria-label="Generated URL">
         </div>
         <div id="hotkeysPanel" class="editContent">
             <h1>Hotkeys</h1>
