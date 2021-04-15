@@ -22,7 +22,7 @@ export class Hexagony {
         this.ipDirs = [east, southEast, southWest, west, northWest, northEast];
         this.activeIp = 0;
         this.ticks = 0;
-        this.output = '';
+        this.output = [];
         this.error = null;
         this.generator = this.execute();
     }
@@ -141,7 +141,7 @@ export class Hexagony {
                 break;
             }
             case ';':
-                this.appendOutput(String.fromCharCode(Number(this.memory.getValue() % 256n)));
+                this.output.push(Number(this.memory.getValue() % 256n));
                 break;
 
             case '?':
@@ -149,7 +149,7 @@ export class Hexagony {
                 break;
 
             case '!':
-                this.appendOutput(this.memory.getValue().toString());
+                this.output.push(...new TextEncoder().encode(this.memory.getValue().toString()));
                 break;
 
             // Control flow

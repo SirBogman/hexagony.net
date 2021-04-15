@@ -4,6 +4,7 @@ import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { setChecked } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
+import { hackSetOutputPanelHeight, updateOutputPanel } from './components/OutputPanel.jsx';
 import { updateStatePanel, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
 import { updateInfoPanel } from './components/InfoPanel.jsx';
 
@@ -49,15 +50,14 @@ const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 
 const urlExportText = document.querySelector('#urlExportText');
 
-const outputBox = document.querySelector('#outputBox');
-
 const edgeTransitionButton = document.querySelector('#edgeTransitionButton');
 const toggleArrowsButton = document.querySelector('#toggleArrowsButton');
 const toggleIPsButton = document.querySelector('#toggleIPsButton');
 const toggleDarkModeButton = document.querySelector('#toggleDarkModeButton');
 
-const statePanel = document.querySelector('#statePanel');
 const memoryPanel = document.querySelector('#memoryPanel');
+const outputPanel = document.querySelector('#outputPanel');
+const statePanel = document.querySelector('#statePanel');
 
 const darkColorMode = 'Dark';
 const colorModes = ['Light', darkColorMode];
@@ -175,7 +175,7 @@ function updateButtons() {
             appGrid.classList.replace('editGrid', 'playGrid');
             // This prevents the output panel from growing in height when there is more output.
             // It would be nicer to find a way to do something equivalent in CSS.
-           outputBox.parentNode.style.height = getComputedStyle(inputBox).height;
+            hackSetOutputPanelHeight(getComputedStyle(inputBox).height);
         }
     }
     else {
@@ -241,7 +241,7 @@ function loadData() {
         userData = JSON.parse(localStorage.userData);
     }
     // eslint-disable-next-line no-empty
-    catch (e) {
+    catch {
     }
 
     if (!userData || !userData.code) {
@@ -428,8 +428,7 @@ function stepHelper(play = false) {
     const forceUpdateExecutionState = stepCount > 1;
     gridView.updateActiveCell(executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
 
-    outputBox.textContent = hexagony.output;
-    outputBox.scrollTop = outputBox.scrollHeight;
+    updateOutputPanel(outputPanel, hexagony.output);
 
     terminationReason = hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
     updateStateText();

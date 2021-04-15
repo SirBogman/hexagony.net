@@ -76,6 +76,8 @@ header {
 
 div #outputPanel {
     grid-area: outputPanel;
+    display: grid;
+    grid-template-rows: auto 1fr;
 }
 
 #outputBox {
@@ -203,7 +205,7 @@ div #memoryPanel > h1 {
     background: var(--active-button);
 }
 
-#inputBox {
+#inputBox, #outputContainer {
     grid-column: 1/3;
 }
 
