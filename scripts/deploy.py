@@ -10,7 +10,7 @@ TIMESTAMP = datetime.utcnow().isoformat().replace(':', '').replace('-', '')
 SETTINGS = yaml.safe_load(open(os.path.expanduser("~/.hexagony.net.yaml")))
 BUCKET = SETTINGS["bucket"]
 CLOUDFRONT_DISTRIBUTION_ID = SETTINGS["cloudfront_distribution_id"]
-ROOT = os.path.dirname(os.path.realpath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 BUILD_DIR = os.path.join(ROOT, 'build')
 
 def buildSite():
@@ -78,7 +78,7 @@ def invalidate():
         Id=invalidationId)
 
     status = response['Invalidation']['Status']
-    print('Cloudfront Invalidation: {status}.')
+    print(f'Cloudfront Invalidation: {status}.')
 
 def _main():
     buildSite()
