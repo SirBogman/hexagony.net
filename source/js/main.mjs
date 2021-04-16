@@ -293,6 +293,8 @@ function loadDataFromURL() {
     }
 
     if (newData && newData.code) {
+        // Stop execution first, as the hexagon size may change.
+        onStop();
         setSourceCode(newData.code, !initFinished);
 
         for (const radioButton of inputModeRadioButtons) {
@@ -307,7 +309,6 @@ function loadDataFromURL() {
         updateInputTextArea();
         // Indicate that the generated URL is up to date.
         generateLinkButton.disabled = true;
-        onStop();
         saveData();
     }
 }
