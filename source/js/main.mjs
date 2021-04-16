@@ -253,6 +253,7 @@ function loadData() {
     updateAnimationDelay(userData.delay ?? 250);
     userData.breakpoints = userData.breakpoints ?? [];
     userData.colorMode = colorModes.includes(userData.colorMode) ? userData.colorMode : defaultColorMode;
+    userData.colorOffset = userData.colorOffset ?? 0;
     gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
     userData.showArrows = userData.showArrows ?? false;
     gridView.setShowArrows(userData.showArrows);
@@ -472,6 +473,8 @@ function updateStateText() {
 
     updateStatePanel(statePanel, {
         colorMode: userData.colorMode,
+        colorOffset: userData.colorOffset,
+        cycleColorOffset,
         terminationReason,
         ipStates: arrayInitialize(6, i => {
             const [coords, dir] = hexagony.getIPState(i);
@@ -632,7 +635,27 @@ document.addEventListener('keydown', e => {
 
 function updateColorMode() {
     document.documentElement.classList.toggle('darkMode', userData.colorMode == darkColorMode);
-    initializeGridColors(userData.colorMode);
+    initializeGridColors(userData.colorMode, userData.colorOffset);
+}
+
+function onColorPropertyChanged() {
+    updateStateText();
+    updateColorMode();
+    // It's easier to recreate the grid than to update all color-related class names.
+    gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);
+    gridView.setBreakpoints(getBreakpoints());
+    updateViewButtons();
+    saveData();
+}
+
+function toggleDarkMode() {
+    userData.colorMode = colorModes[1 - colorModes.indexOf(userData.colorMode)];
+    onColorPropertyChanged();
+}
+
+function cycleColorOffset() {
+    userData.colorOffset = (userData.colorOffset + 1) % 6;
+    onColorPropertyChanged();
 }
 
 function init() {
@@ -689,16 +712,7 @@ function init() {
         saveData();
     });
 
-    toggleDarkModeButton.addEventListener('click', () => {
-        userData.colorMode = colorModes[1 - colorModes.indexOf(userData.colorMode)];
-        updateStateText();
-        updateColorMode();
-        // It's easier to recreate the grid than to update all color-related class names.
-        gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);
-        gridView.setBreakpoints(getBreakpoints());
-        updateViewButtons();
-        saveData();
-    });
+    toggleDarkModeButton.addEventListener('click', toggleDarkMode);
 
     updateButtons();
     updateViewButtons();

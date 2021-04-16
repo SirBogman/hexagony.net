@@ -12,3 +12,6 @@ Eventually:
     Let users choose primary IP color.
 
     Panning by touching in area between hexagons.
+
+    Can't seem to leave execute mode after pasting data URL while running, because there can be an exception in onStop.
+

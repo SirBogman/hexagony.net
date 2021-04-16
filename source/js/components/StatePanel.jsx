@@ -19,7 +19,7 @@ function onSelectedIPChanged(event) {
     }
 }
 
-function getIPState(state, colorMode) {
+function getIPState(state, colorMode, colorOffset) {
     const active = state.active ? 'activeIp' : '';
     const titleExtra = state.active ? '. This is the currently active IP' : '';
     const i = state.number;
@@ -27,7 +27,7 @@ function getIPState(state, colorMode) {
         <React.Fragment key={`IP${i}`}>
             <label className={`col1 ${active}`} title={`Select to show the execution path for instruction pointer ${i}${titleExtra}.`}>
                 <input type="radio" name="selectIp" value={i} checked={state.selected} onChange={onSelectedIPChanged}/>
-                <span className={`colorSwatch${i}${colorMode}`}></span>
+                <span className={`colorSwatch${(i + colorOffset) % 6}${colorMode}`}></span>
                 IP {i}
             </label>
             <p className="col2 right" title={`Coordinates of instruction pointer ${i}`}>{state.coords.q}</p>
@@ -48,16 +48,20 @@ function getExecutionInfo(ticks) {
 
 export class StatePanel extends React.Component {
     render() {
-        const { colorMode, terminationReason, memoryPointer, memoryDir, memoryCw, ticks, info } = this.props;
+        const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir, memoryCw, ticks, info } = this.props;
         const { breakpoints, size, chars, bytes, operators } = info;
         return (
             <>
                 <div id='statePanelTop'>
                     <h1>State</h1>
                     <div id='terminationReasonText'>{terminationReason}</div>
+                    <button id="cycleColorsButton" className="bodyButton" onClick={cycleColorOffset}
+                        title="Cycle the colors of the instruction pointers.">
+                        Cycle Colors
+                    </button>
                 </div>
                 <div id="stateGrid1">
-                    {this.props.ipStates.map(x => getIPState(x, colorMode))}
+                    {this.props.ipStates.map(x => getIPState(x, colorMode, colorOffset))}
                     <p key="mp" className="col1" title="Information about the memory pointer">MP</p>
                     <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{memoryPointer.q}</p>
                     <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{memoryPointer.r}</p>
@@ -78,6 +82,8 @@ export class StatePanel extends React.Component {
 
 StatePanel.propTypes = {
     colorMode: PropTypes.string.isRequired,
+    colorOffset: PropTypes.number.isRequired,
+    cycleColorOffset: PropTypes.func.isRequired,
     ipStates: PropTypes.arrayOf(PropTypes.shape({
         number: PropTypes.number.isRequired,
         active: PropTypes.bool.isRequired,

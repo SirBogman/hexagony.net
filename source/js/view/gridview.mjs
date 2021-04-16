@@ -15,17 +15,17 @@ let arrowInactive;
 let cellExecutedArray;
 let arrowExecutedArray;
 
-export function initializeGridColors(colorMode) {
-    cellExecuted = arrayInitialize(6, index => `cellExecuted${index}${colorMode}`);
-    cellActive = arrayInitialize(6, index => `cellActive${index}${colorMode}`);
-    cellInactive = arrayInitialize(6, index => `cellInactive${index}${colorMode}`);
-    arrowExecuted = arrayInitialize(6, index => `arrowExecuted${index}${colorMode}`);
-    arrowActive = arrayInitialize(6, index => `arrowActive${index}${colorMode}`);
-    arrowInactive = arrayInitialize(6, index => `arrowInactive${index}${colorMode}`);
+export function initializeGridColors(colorMode, offset) {
+    cellExecuted = arrayInitialize(6, index => `cellExecuted${(index + offset) % 6}${colorMode}`);
+    cellActive = arrayInitialize(6, index => `cellActive${(index + offset) % 6}${colorMode}`);
+    cellInactive = arrayInitialize(6, index => `cellInactive${(index + offset) % 6}${colorMode}`);
+    arrowExecuted = arrayInitialize(6, index => `arrowExecuted${(index + offset) % 6}${colorMode}`);
+    arrowActive = arrayInitialize(6, index => `arrowActive${(index + offset) % 6}${colorMode}`);
+    arrowInactive = arrayInitialize(6, index => `arrowInactive${(index + offset) % 6}${colorMode}`);
     cellExecutedArray = arrayInitialize(6, i =>
-        arrayInitialize(executedColorCount, j => `cellExecuted${i}_${j}${colorMode}`));
+        arrayInitialize(executedColorCount, j => `cellExecuted${(i + offset) % 6}_${j}${colorMode}`));
     arrowExecutedArray = arrayInitialize(6, i =>
-        arrayInitialize(executedColorCount, j => `arrowExecuted${i}_${j}${colorMode}`));
+        arrayInitialize(executedColorCount, j => `arrowExecuted${(i + offset) % 6}_${j}${colorMode}`));
 }
 
 function getIndices(elem) {
