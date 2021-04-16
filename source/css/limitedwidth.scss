@@ -3,10 +3,23 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: var(--text-color);
 }
 
 body main {
     max-width: 1280px;
+
+    a {
+        color: var(--link-color);
+    }
+
+    a:visited {
+        color: var(--visited-link-color);
+    }
+
+    a:active {
+        color: var(--active-link-color);
+    }
 }
 
 body header {

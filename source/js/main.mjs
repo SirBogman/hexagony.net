@@ -1,7 +1,7 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView, initializeGridColors } from './view/gridview.mjs';
-import { setChecked } from './view/viewutil.mjs';
+import { applyColorMode, colorModes, darkColorMode, setChecked, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { hackSetOutputPanelHeight, updateOutputPanel } from './components/OutputPanel.jsx';
@@ -58,9 +58,6 @@ const infoPanel = document.querySelector('#infoPanel');
 const memoryPanel = document.querySelector('#memoryPanel');
 const outputPanel = document.querySelector('#outputPanel');
 const statePanel = document.querySelector('#statePanel');
-
-const darkColorMode = 'Dark';
-const colorModes = ['Light', darkColorMode];
 
 let gridView;
 let hexagony;
@@ -228,10 +225,6 @@ function toggleBreakpointCallback(i, j) {
     saveData();
     updateBreakpointCountText();
     updateButtons();
-}
-
-function prefersDarkColorScheme() {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 // This should only be called once when initially loading.
@@ -635,7 +628,7 @@ document.addEventListener('keydown', e => {
 });
 
 function updateColorMode() {
-    document.documentElement.classList.toggle('darkMode', userData.colorMode == darkColorMode);
+    applyColorMode(userData.colorMode);
     initializeGridColors(userData.colorMode, userData.colorOffset);
 }
 

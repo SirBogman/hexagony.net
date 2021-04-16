@@ -17,7 +17,6 @@ def buildSite():
     subprocess.run('npm run build', cwd=ROOT, shell=True, check=True)
 
 def updateFiles():
-    os.unlink(os.path.join(BUILD_DIR, 'secondary.mjs'))
     for root, dirs, files in os.walk(BUILD_DIR):
         for name in files:
             if name.endswith('.html'):

@@ -25,3 +25,14 @@ export function base64ToUnicodeString(value) {
     }
     return new TextDecoder().decode(array);
 }
+
+export function prefersDarkColorScheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+export function applyColorMode(colorMode) {
+    document.documentElement.classList.toggle('darkMode', colorMode == darkColorMode);
+}
+
+export const darkColorMode = 'Dark';
+export const colorModes = ['Light', darkColorMode];

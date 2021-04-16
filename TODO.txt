@@ -7,6 +7,4 @@ Eventually:
 
     Change step icon to have a vertical line at the right side.
 
-    Dark mode about page.
-
     Panning by touching in area between hexagons.
