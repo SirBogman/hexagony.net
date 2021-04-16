@@ -9,7 +9,7 @@ export class Memory {
         this.cw = false;
         this.maxX = this.minX = undefined;
         this.maxY = this.minY = undefined;
-        // data version is incremented whenever anything in this class changes.
+        // data version is incremented whenever this.data changes.
         this.dataVersion = 0;
         this.memoryPointerVersion = 0;
     }
