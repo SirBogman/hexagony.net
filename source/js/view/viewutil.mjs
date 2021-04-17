@@ -8,10 +8,6 @@ export function emptyElement(element) {
     }
 }
 
-export function setChecked(element, active) {
-    element.setAttribute('aria-checked', active ? 'true' : 'false');
-}
-
 export function unicodeStringToBase64(value) {
     const utf8 = String.fromCharCode(...new TextEncoder().encode(value));
     return btoa(utf8);

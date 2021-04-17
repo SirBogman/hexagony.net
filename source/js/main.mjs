@@ -1,13 +1,14 @@
 import { Hexagony } from './hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView, initializeGridColors } from './view/gridview.mjs';
-import { applyColorMode, colorModes, darkColorMode, setChecked, prefersDarkColorScheme } from './view/viewutil.mjs';
+import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { updateNavigationLinks } from './components/NavigationLinks.jsx';
 import { hackSetOutputPanelHeight, updateOutputPanelHelper } from './components/OutputPanel.jsx';
 import { updateStatePanelHelper, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
+import { updateViewControlsHelper } from './components/ViewControls.jsx';
 
 import '../css/index.scss';
 
@@ -50,15 +51,11 @@ const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 
 const urlExportText = document.querySelector('#urlExportText');
 
-const edgeTransitionButton = document.querySelector('#edgeTransitionButton');
-const toggleArrowsButton = document.querySelector('#toggleArrowsButton');
-const toggleIPsButton = document.querySelector('#toggleIPsButton');
-const toggleDarkModeButton = document.querySelector('#toggleDarkModeButton');
-
 const infoPanel = document.querySelector('#infoPanel');
 const memoryPanel = document.querySelector('#memoryPanel');
 const outputPanel = document.querySelector('#outputPanel');
 const statePanel = document.querySelector('#statePanel');
+const viewControls = document.querySelector('#viewControls');
 
 let gridView;
 let hexagony;
@@ -181,13 +178,6 @@ function updateButtons() {
         editContent.forEach(x => x.classList.remove('hiddenSection'));
         appGrid.classList.replace('playGrid', 'editGrid');
     }
-}
-
-function updateViewButtons() {
-    setChecked(edgeTransitionButton, userData.edgeTransitionMode);
-    setChecked(toggleArrowsButton, userData.showArrows);
-    setChecked(toggleIPsButton, userData.showIPs);
-    setChecked(toggleDarkModeButton, userData.colorMode === darkColorMode);
 }
 
 function breakpointExistsAt(i, j) {
@@ -502,6 +492,19 @@ function updateStatePanel() {
     });
 }
 
+function updateViewControls() {
+    updateViewControlsHelper(viewControls, {
+        edgeTransitionModeEnabled: userData.edgeTransitionMode,
+        arrowsEnabled: userData.showArrows,
+        ipsEnabled: userData.showIPs,
+        darkModeEnabled: userData.colorMode === darkColorMode,
+        toggleEdgeTransitionMode,
+        toggleArrows,
+        toggleIPs,
+        toggleDarkMode,
+    });
+}
+
 function resizeCode(size) {
     const oldCode = removeWhitespaceAndDebug(userData.code);
     const oldSize = getHexagonSize(countCodepoints(oldCode));
@@ -652,7 +655,30 @@ function onColorPropertyChanged() {
     // It's easier to recreate the grid than to update all color-related class names.
     gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);
     gridView.setBreakpoints(getBreakpoints());
-    updateViewButtons();
+    updateViewControls();
+    saveData();
+}
+
+function toggleEdgeTransitionMode() {
+    gridView.edgeTransitionMode = userData.edgeTransitionMode = !userData.edgeTransitionMode;
+    gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);
+    gridView.setBreakpoints(getBreakpoints());
+    updateViewControls();
+    saveData();
+}
+
+function toggleArrows() {
+    userData.showArrows = !userData.showArrows;
+    gridView.setShowArrows(userData.showArrows);
+    resetCellColors();
+    updateViewControls();
+    saveData();
+}
+
+function toggleIPs() {
+    userData.showIPs = !userData.showIPs;
+    gridView.setShowIPs(userData.showIPs);
+    updateViewControls();
     saveData();
 }
 
@@ -714,33 +740,8 @@ function init() {
     speedSlider.addEventListener('focus', () => speedSliderContainer.classList.add('focused'));
     speedSlider.addEventListener('focusout', () => speedSliderContainer.classList.remove('focused'));
 
-    edgeTransitionButton.addEventListener('click', () => {
-        gridView.edgeTransitionMode = userData.edgeTransitionMode = !userData.edgeTransitionMode;
-        gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);
-        gridView.setBreakpoints(getBreakpoints());
-        updateViewButtons();
-        saveData();
-    });
-
-    toggleArrowsButton.addEventListener('click', () => {
-        userData.showArrows = !userData.showArrows;
-        gridView.setShowArrows(userData.showArrows);
-        resetCellColors();
-        updateViewButtons();
-        saveData();
-    });
-
-    toggleIPsButton.addEventListener('click', () => {
-        userData.showIPs = !userData.showIPs;
-        gridView.setShowIPs(userData.showIPs);
-        updateViewButtons();
-        saveData();
-    });
-
-    toggleDarkModeButton.addEventListener('click', toggleDarkMode);
-
     updateButtons();
-    updateViewButtons();
+    updateViewControls();
 
     onhashchange = loadDataFromURL;
     initFinished = true;
