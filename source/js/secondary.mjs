@@ -5,7 +5,6 @@ function parseStorage(storage) {
     try {
         return JSON.parse(storage);
     }
-    // eslint-disable-next-line no-empty
     catch {
         return null;
     }
