@@ -243,6 +243,9 @@ function loadData() {
 
     if (!userData?.code) {
         userData = parseStorage(localStorage.userData);
+        // This is a new tab. Copy its state to sessionStorage so that it will be
+        // independent of existing tabs.
+        sessionStorage.userData = localStorage.userData;
     }
 
     if (!userData?.code) {
