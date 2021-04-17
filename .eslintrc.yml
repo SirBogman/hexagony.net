@@ -45,6 +45,8 @@ rules:
     - warn
     - single
     - avoidEscape: true
+  react/jsx-indent: warn
+  react/no-typos: warn
   semi: warn
   template-curly-spacing: warn
   unicode-bom: warn
