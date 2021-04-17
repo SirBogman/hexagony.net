@@ -4,7 +4,7 @@ import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, setChecked, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
-import { hackSetOutputPanelHeight, updateOutputPanel } from './components/OutputPanel.jsx';
+import { hackSetOutputPanelHeight, updateOutputPanelHelper } from './components/OutputPanel.jsx';
 import { updateStatePanel, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
 import { updateInfoPanel } from './components/InfoPanel.jsx';
 
@@ -247,6 +247,7 @@ function loadData() {
     userData.breakpoints = userData.breakpoints ?? [];
     userData.colorMode = colorModes.includes(userData.colorMode) ? userData.colorMode : defaultColorMode;
     userData.colorOffset = userData.colorOffset ?? 0;
+    userData.utf8Output = userData.utf8Output ?? true;
     gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
     userData.showArrows = userData.showArrows ?? false;
     gridView.setShowArrows(userData.showArrows);
@@ -423,7 +424,7 @@ function stepHelper(play = false) {
     const forceUpdateExecutionState = stepCount > 1;
     gridView.updateActiveCell(executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
 
-    updateOutputPanel(outputPanel, hexagony.output);
+    updateOutputPanel();
 
     terminationReason = hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
     updateStateText();
@@ -650,6 +651,22 @@ function toggleDarkMode() {
 function cycleColorOffset() {
     userData.colorOffset = (userData.colorOffset + 1) % 6;
     onColorPropertyChanged();
+}
+
+function updateOutputPanel() {
+    if (hexagony) {
+        updateOutputPanelHelper(outputPanel, {
+            outputBytes: hexagony.output,
+            utf8Output: userData.utf8Output,
+            onUtf8OutputChanged,
+        });
+    }
+}
+
+function onUtf8OutputChanged(newValue) {
+    userData.utf8Output = newValue;
+    updateOutputPanel();
+    saveData();
 }
 
 function init() {

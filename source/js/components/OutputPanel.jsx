@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 
 const outputRef = React.createRef();
 
-export function updateOutputPanel(element, outputBytes) {
-    ReactDOM.render(<React.StrictMode><OutputPanel outputBytes={outputBytes} ref={outputRef}/></React.StrictMode>, element);
+export function updateOutputPanelHelper(element, props) {
+    ReactDOM.render(
+        <React.StrictMode><OutputPanel {...props} ref={outputRef}/></React.StrictMode>,
+        element);
 }
 
 export function hackSetOutputPanelHeight(height) {
@@ -27,35 +29,16 @@ export function hackSetOutputPanelHeight(height) {
 class OutputPanel extends React.Component {
     constructor(props) {
         super(props);
-        let utf8Output;
-        try {
-             utf8Output = JSON.parse(localStorage.utf8Output);
-        }
-        // eslint-disable-next-line no-empty
-        catch {
-        }
-
-        if (utf8Output !== true && utf8Output !== false) {
-            utf8Output = true;
-        }
-
-        this.state = { utf8Output };
         this.outputBoxRef = React.createRef();
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate(nextProps) {
         return nextProps.outputBytes.length !== this.lastOutputLength ||
-            nextState.utf8Output !== this.state.utf8Output;
-    }
-
-    onUtf8OutputChanged(value) {
-        this.setState({utf8Output: value});
-        localStorage.utf8Output = JSON.stringify(value);
+            nextProps.utf8Output !== this.props.utf8Output;
     }
 
     render() {
-        const { outputBytes } = this.props;
-        const { utf8Output } = this.state;
+        const { outputBytes, utf8Output, onUtf8OutputChanged } = this.props;
         this.lastOutputLength = outputBytes.length;
         let output;
         if (utf8Output) {
@@ -75,7 +58,7 @@ class OutputPanel extends React.Component {
                             name="outputMode"
                             value="utf8"
                             checked={utf8Output}
-                            onChange={() => this.onUtf8OutputChanged(true)}/>
+                            onChange={() => onUtf8OutputChanged(true)}/>
                         UTF-8
                     </label>
                     <label title="Raw output mode: the output byte stream is displayed directly.">
@@ -84,7 +67,7 @@ class OutputPanel extends React.Component {
                             name="outputMode"
                             value="raw"
                             checked={!utf8Output}
-                            onChange={() => this.onUtf8OutputChanged(false)}/>
+                            onChange={() => onUtf8OutputChanged(false)}/>
                         Raw
                     </label>
                 </div>
@@ -103,4 +86,6 @@ class OutputPanel extends React.Component {
 
 OutputPanel.propTypes = {
     outputBytes: PropTypes.arrayOf(PropTypes.number).isRequired,
+    utf8Output: PropTypes.bool.isRequired,
+    onUtf8OutputChanged: PropTypes.func.isRequired,
 };
