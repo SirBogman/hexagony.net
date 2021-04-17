@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export function updateInfoPanelHelper(element, info) {
-    ReactDOM.render(<React.StrictMode><InfoPanel {...info}/></React.StrictMode>, element);
+export function updateInfoPanelHelper(element, props) {
+    ReactDOM.render(<React.StrictMode><InfoPanel {...props}/></React.StrictMode>, element);
 }
 
 export function getInfoContent(breakpoints, size, chars, bytes, operators) {
@@ -23,18 +23,16 @@ export function getInfoContent(breakpoints, size, chars, bytes, operators) {
     );
 }
 
-class InfoPanel extends React.Component {
-    render() {
-        const { breakpoints, size, chars, bytes, operators } = this.props;
-        return (
-            <>
-                <h1>Info</h1>
-                <div id="infoInfo">
-                    {getInfoContent(breakpoints, size, chars, bytes, operators)}
-                </div>
-            </>
-        );
-    }
+function InfoPanel(props) {
+    const { breakpoints, size, chars, bytes, operators } = props;
+    return (
+        <>
+            <h1>Info</h1>
+            <div id="infoInfo">
+                {getInfoContent(breakpoints, size, chars, bytes, operators)}
+            </div>
+        </>
+    );
 }
 
 InfoPanel.propTypes = {

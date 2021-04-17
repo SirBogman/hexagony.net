@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { getInfoContent } from './InfoPanel.jsx';
 
-export function updateStatePanelHelper(element, state) {
-    ReactDOM.render(<React.StrictMode><StatePanel {...state}/></React.StrictMode>, element);
+export function updateStatePanelHelper(element, props) {
+    ReactDOM.render(<React.StrictMode><StatePanel {...props}/></React.StrictMode>, element);
 }
 
 function getIPState(state, colorMode, colorOffset, onSelectedIPChanged) {
@@ -34,39 +34,37 @@ function getExecutionInfo(ticks) {
     );
 }
 
-export class StatePanel extends React.Component {
-    render() {
-        const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
-            memoryCw, ticks, info, onSelectedIPChanged } = this.props;
-        const { breakpoints, size, chars, bytes, operators } = info;
-        return (
-            <>
-                <div id='statePanelTop'>
-                    <h1>State</h1>
-                    <div id='terminationReasonText'>{terminationReason}</div>
-                    <button id="cycleColorsButton" className="bodyButton" onClick={cycleColorOffset}
-                        title="Cycle the colors of the instruction pointers.">
-                        Cycle Colors
-                    </button>
-                </div>
-                <div id="stateGrid1">
-                    {this.props.ipStates.map(x => getIPState(x, colorMode, colorOffset, onSelectedIPChanged))}
-                    <p key="mp" className="col1" title="Information about the memory pointer">MP</p>
-                    <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{memoryPointer.q}</p>
-                    <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{memoryPointer.r}</p>
-                    <p key="dir" className="col4" title="Direction of memory pointer">{memoryDir.toString()}</p>
-                    <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
-                        {memoryCw ? 'CW' : 'CCW'}</p>
-                    {getExecutionInfo(ticks)}
-                    {getInfoContent(breakpoints, size, chars, bytes, operators)}
-                </div>
-                <div id="stateGrid2">
-                    {getExecutionInfo(ticks)}
-                    {getInfoContent(breakpoints, size, chars, bytes, operators)}
-                </div>
-            </>
-        );
-    }
+function StatePanel(props) {
+    const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
+        memoryCw, ticks, info, ipStates, onSelectedIPChanged } = props;
+    const { breakpoints, size, chars, bytes, operators } = info;
+    return (
+        <>
+            <div id='statePanelTop'>
+                <h1>State</h1>
+                <div id='terminationReasonText'>{terminationReason}</div>
+                <button id="cycleColorsButton" className="bodyButton" onClick={cycleColorOffset}
+                    title="Cycle the colors of the instruction pointers.">
+                    Cycle Colors
+                </button>
+            </div>
+            <div id="stateGrid1">
+                {ipStates.map(x => getIPState(x, colorMode, colorOffset, onSelectedIPChanged))}
+                <p key="mp" className="col1" title="Information about the memory pointer">MP</p>
+                <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{memoryPointer.q}</p>
+                <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{memoryPointer.r}</p>
+                <p key="dir" className="col4" title="Direction of memory pointer">{memoryDir.toString()}</p>
+                <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
+                    {memoryCw ? 'CW' : 'CCW'}</p>
+                {getExecutionInfo(ticks)}
+                {getInfoContent(breakpoints, size, chars, bytes, operators)}
+            </div>
+            <div id="stateGrid2">
+                {getExecutionInfo(ticks)}
+                {getInfoContent(breakpoints, size, chars, bytes, operators)}
+            </div>
+        </>
+    );
 }
 
 StatePanel.propTypes = {
