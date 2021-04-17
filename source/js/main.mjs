@@ -3,10 +3,11 @@ import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLe
 import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, setChecked, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
+import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
+import { updateNavigationLinks } from './components/NavigationLinks.jsx';
 import { hackSetOutputPanelHeight, updateOutputPanelHelper } from './components/OutputPanel.jsx';
 import { updateStatePanelHelper, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
-import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 
 import '../css/index.scss';
 
@@ -682,6 +683,7 @@ function onUtf8OutputChanged(newValue) {
 }
 
 function init() {
+    updateNavigationLinks(document.getElementById('navigation'));
     setSelectedIPChangedCallback(onSelectedIPChanged);
     gridView = new GridView(updateCode, updateButtons, toggleBreakpointCallback);
     loadData();
