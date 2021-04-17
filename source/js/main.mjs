@@ -227,17 +227,25 @@ function toggleBreakpointCallback(i, j) {
     updateButtons();
 }
 
-// This should only be called once when initially loading.
-function loadData() {
-    userData = undefined;
+function parseStorage(storage) {
     try {
-        userData = JSON.parse(localStorage.userData);
+        return JSON.parse(storage);
     }
     // eslint-disable-next-line no-empty
     catch {
+        return null;
+    }
+}
+
+// This should only be called once when initially loading.
+function loadData() {
+    userData = parseStorage(sessionStorage.userData);
+
+    if (!userData?.code) {
+        userData = parseStorage(localStorage.userData);
     }
 
-    if (!userData || !userData.code) {
+    if (!userData?.code) {
         userData = { code: layoutSource(helloWorldExample) };
     }
 
@@ -257,6 +265,12 @@ function loadData() {
     updateInputModeButtons();
     updateInputTextArea();
     updateSpeedSlider();
+}
+
+function saveData() {
+    const serializedData = JSON.stringify(userData);
+    sessionStorage.userData = serializedData;
+    localStorage.userData = serializedData;
 }
 
 function loadDataFromURL() {
@@ -319,10 +333,6 @@ function copyLink() {
     generateLink();
     urlExportText.select();
     document.execCommand('copy');
-}
-
-function saveData() {
-    localStorage.userData = JSON.stringify(userData);
 }
 
 function onPlayPause() {
