@@ -5,7 +5,7 @@ class NorthEast {
     get reflectAtPipe() { return northWest; }
     reflectAtLessThan() { return southWest; }
     reflectAtGreaterThan() { return east; }
-    get angle() { return -60; }
+    get angle() { return 300; }
     get vector() { return [1, -1]; }
     toString() { return 'NE'; }
 }

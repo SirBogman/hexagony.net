@@ -21,17 +21,31 @@ function getMPCoordinates(memory) {
     return [memory.getX() * xFactor, memory.getY() * yFactor];
 }
 
+// Calculate new rotation angle to avoid spinning when using CSS transition.
+function smoothRotation(oldRotation, newRotation) {
+    let delta = newRotation - oldRotation;
+    if (delta > 180) {
+        delta -= 360;
+    }
+    if (delta < -180) {
+        delta += 360;
+    }
+    return oldRotation + delta;
+}
+
 class MemoryPointer extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.rotation = 0;
+    }
+
     render() {
         const {x, y, angle, delay} = this.props;
-        // The transform must be set through the style for it to animate automatically.
-        // Sometimes the pointer spins around extra times when animating.
-        // In some cases, this can be avoided by chosing different angles with the same remainder mod 360.
-        // I tried to avoid the issue by setting the transform as a matrix, but it didn't seem to make a difference.
+        this.rotation = smoothRotation(this.rotation, angle);
         return <path id="memoryPointer"
             d="M0-23.12l-3 46.24h6z"
             style={{
-                transform: `translate(${x.toFixed(2)}px,${y.toFixed(2)}px)rotate(${angle % 360}deg)`,
+                transform: `translate(${x.toFixed(2)}px,${y.toFixed(2)}px)rotate(${this.rotation}deg)`,
                 transitionDuration: delay,
             }}
         />;
