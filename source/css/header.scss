@@ -90,7 +90,7 @@ header > nav button {
 }
 
 header a:hover,
-header a:not([href]),
+header a.active,
 header > nav button[aria-checked="true"],
 header > nav button:enabled:hover {
     background: var(--background);
