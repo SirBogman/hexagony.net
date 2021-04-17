@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export function updateInfoPanel(element, info) {
+export function updateInfoPanelHelper(element, info) {
     ReactDOM.render(<React.StrictMode><InfoPanel {...info}/></React.StrictMode>, element);
 }
 

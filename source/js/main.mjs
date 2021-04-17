@@ -5,8 +5,8 @@ import { applyColorMode, colorModes, darkColorMode, setChecked, prefersDarkColor
 import { LZString } from './lz-string.min.js';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { hackSetOutputPanelHeight, updateOutputPanelHelper } from './components/OutputPanel.jsx';
-import { updateStatePanel, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
-import { updateInfoPanel } from './components/InfoPanel.jsx';
+import { updateStatePanelHelper, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
+import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 
 import '../css/index.scss';
 
@@ -88,7 +88,7 @@ function updateCode(code, isProgrammatic=false) {
     if (!isProgrammatic && initFinished) {
         saveData();
     }
-    updateInfo();
+    updateInfoPanel();
     invalidateGeneratedURL();
 
     if (hexagony != null) {
@@ -440,7 +440,7 @@ function stepHelper(play = false) {
     updateOutputPanel();
 
     terminationReason = hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
-    updateStateText();
+    updateStatePanel();
 
     if (play && isRunning() && !isTerminated()) {
         gridView.timeoutID = window.setTimeout(() => {
@@ -454,8 +454,8 @@ function stepHelper(play = false) {
 }
 
 function updateBreakpointCountText() {
-    updateInfo();
-    updateStateText();
+    updateInfoPanel();
+    updateStatePanel();
 }
 
 function getInfoPanelState() {
@@ -470,16 +470,16 @@ function getInfoPanelState() {
     };
 }
 
-function updateInfo() {
-    updateInfoPanel(infoPanel, getInfoPanelState());
+function updateInfoPanel() {
+    updateInfoPanelHelper(infoPanel, getInfoPanelState());
 }
 
-function updateStateText() {
+function updateStatePanel() {
     if (!hexagony) {
         return;
     }
 
-    updateStatePanel(statePanel, {
+    updateStatePanelHelper(statePanel, {
         colorMode: userData.colorMode,
         colorOffset: userData.colorOffset,
         cycleColorOffset,
@@ -589,7 +589,7 @@ function resetCellColors() {
 function onSelectedIPChanged(ip) {
     selectedIp = ip;
     resetCellColors();
-    updateStateText();
+    updateStatePanel();
 }
 
 function isPlaying() {
@@ -647,7 +647,7 @@ function updateColorMode() {
 }
 
 function onColorPropertyChanged() {
-    updateStateText();
+    updateStatePanel();
     updateColorMode();
     // It's easier to recreate the grid than to update all color-related class names.
     gridView.recreateGrid(hexagony ? hexagony.getExecutedGrid() : null);

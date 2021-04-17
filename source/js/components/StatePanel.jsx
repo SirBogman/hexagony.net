@@ -9,7 +9,7 @@ export function setSelectedIPChangedCallback(callback) {
     onSelectedIPChangedCallback = callback;
 }
 
-export function updateStatePanel(element, state) {
+export function updateStatePanelHelper(element, state) {
     ReactDOM.render(<React.StrictMode><StatePanel {...state}/></React.StrictMode>, element);
 }
 
