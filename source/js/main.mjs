@@ -7,7 +7,7 @@ import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { updateNavigationLinks } from './components/NavigationLinks.jsx';
 import { hackSetOutputPanelHeight, updateOutputPanelHelper } from './components/OutputPanel.jsx';
-import { updateStatePanelHelper, setSelectedIPChangedCallback } from './components/StatePanel.jsx';
+import { updateStatePanelHelper } from './components/StatePanel.jsx';
 import { updateViewControlsHelper } from './components/ViewControls.jsx';
 
 import '../css/index.scss';
@@ -489,6 +489,7 @@ function updateStatePanel() {
         memoryDir: hexagony.memory.dir,
         memoryCw: hexagony.memory.cw,
         info: getInfoPanelState(),
+        onSelectedIPChanged,
     });
 }
 
@@ -710,7 +711,6 @@ function onUtf8OutputChanged(newValue) {
 
 function init() {
     updateNavigationLinks(document.getElementById('navigation'));
-    setSelectedIPChangedCallback(onSelectedIPChanged);
     gridView = new GridView(updateCode, updateButtons, toggleBreakpointCallback);
     loadData();
     updateColorMode();

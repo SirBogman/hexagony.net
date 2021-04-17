@@ -3,30 +3,18 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { getInfoContent } from './InfoPanel.jsx';
 
-let onSelectedIPChangedCallback;
-
-export function setSelectedIPChangedCallback(callback) {
-    onSelectedIPChangedCallback = callback;
-}
-
 export function updateStatePanelHelper(element, state) {
     ReactDOM.render(<React.StrictMode><StatePanel {...state}/></React.StrictMode>, element);
 }
 
-function onSelectedIPChanged(event) {
-    if (onSelectedIPChangedCallback) {
-        onSelectedIPChangedCallback(Number(event.target.value));
-    }
-}
-
-function getIPState(state, colorMode, colorOffset) {
+function getIPState(state, colorMode, colorOffset, onSelectedIPChanged) {
     const active = state.active ? 'activeIp' : '';
     const titleExtra = state.active ? '. This is the currently active IP' : '';
     const i = state.number;
     return (
         <React.Fragment key={`IP${i}`}>
             <label className={`col1 ${active}`} title={`Select to show the execution path for instruction pointer ${i}${titleExtra}.`}>
-                <input type="radio" name="selectIp" value={i} checked={state.selected} onChange={onSelectedIPChanged}/>
+                <input type="radio" name="selectIp" value={i} checked={state.selected} onChange={() => onSelectedIPChanged(i)}/>
                 <span className={`colorSwatch${(i + colorOffset) % 6}${colorMode}`}></span>
                 IP {i}
             </label>
@@ -48,7 +36,8 @@ function getExecutionInfo(ticks) {
 
 export class StatePanel extends React.Component {
     render() {
-        const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir, memoryCw, ticks, info } = this.props;
+        const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
+            memoryCw, ticks, info, onSelectedIPChanged } = this.props;
         const { breakpoints, size, chars, bytes, operators } = info;
         return (
             <>
@@ -61,7 +50,7 @@ export class StatePanel extends React.Component {
                     </button>
                 </div>
                 <div id="stateGrid1">
-                    {this.props.ipStates.map(x => getIPState(x, colorMode, colorOffset))}
+                    {this.props.ipStates.map(x => getIPState(x, colorMode, colorOffset, onSelectedIPChanged))}
                     <p key="mp" className="col1" title="Information about the memory pointer">MP</p>
                     <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{memoryPointer.q}</p>
                     <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{memoryPointer.r}</p>
@@ -109,4 +98,5 @@ StatePanel.propTypes = {
         chars: PropTypes.number.isRequired,
         operators: PropTypes.number.isRequired,
     }).isRequired,
+    onSelectedIPChanged: PropTypes.func.isRequired,
 };
