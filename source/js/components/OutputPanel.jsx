@@ -2,28 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-const outputRef = React.createRef();
-
 export function updateOutputPanelHelper(element, props) {
     ReactDOM.render(
-        <React.StrictMode><OutputPanel {...props} ref={outputRef}/></React.StrictMode>,
+        <React.StrictMode><OutputPanel {...props}/></React.StrictMode>,
         element);
-}
-
-export function hackSetOutputPanelHeight(height) {
-    const component = outputRef.current;
-    if (component) {
-        const outputBox = component.outputBoxRef.current;
-        if (outputBox) {
-            outputBox.parentNode.style.height = height;
-        }
-        else {
-            console.log('WARNING NO OUTPUT BOX');
-        }
-    }
-    else {
-        console.log('WARNING NO OUTPUT COMPONENT');
-    }
 }
 
 class OutputPanel extends React.Component {

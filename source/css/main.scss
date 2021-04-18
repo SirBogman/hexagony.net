@@ -80,12 +80,18 @@ div #outputPanel {
     grid-template-rows: auto 1fr;
 }
 
+#outputContainer {
+    position: relative;
+}
+
 #outputBox {
     background-color: var(--output-background);
     min-height: 1em;
     max-height: 100%;
     padding: 0.5em;
+    position: absolute;
     overflow: auto;
+    width: 100%;
 }
 
 div #importPanel {

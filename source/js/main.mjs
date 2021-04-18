@@ -6,7 +6,7 @@ import { LZString } from './lz-string.min.js';
 import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { updateNavigationLinks } from './components/NavigationLinks.jsx';
-import { hackSetOutputPanelHeight, updateOutputPanelHelper } from './components/OutputPanel.jsx';
+import { updateOutputPanelHelper } from './components/OutputPanel.jsx';
 import { updateStatePanelHelper } from './components/StatePanel.jsx';
 import { updateViewControlsHelper } from './components/ViewControls.jsx';
 
@@ -166,12 +166,7 @@ function updateButtons() {
     if (running) {
         playContent.forEach(x => x.classList.remove('hiddenSection'));
         editContent.forEach(x => x.classList.add('hiddenSection'));
-        if (appGrid.classList.contains('editGrid')) {
-            appGrid.classList.replace('editGrid', 'playGrid');
-            // This prevents the output panel from growing in height when there is more output.
-            // It would be nicer to find a way to do something equivalent in CSS.
-            hackSetOutputPanelHeight(getComputedStyle(inputBox).height);
-        }
+        appGrid.classList.replace('editGrid', 'playGrid');
     }
     else {
         playContent.forEach(x => x.classList.add('hiddenSection'));
