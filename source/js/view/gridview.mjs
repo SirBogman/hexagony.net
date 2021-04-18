@@ -61,9 +61,9 @@ export class GridView {
         this.edgeTransitionMode = false;
         this.showArrows = false;
         this.showIPs = false;
-        this.codeSvgContainer = document.querySelector('#codeSvgContainer');
-        this.codeSvgParent = document.querySelector('#codeSvgParent');
-        this.svg = document.querySelector('#codeSvg');
+        this.codeSvgContainer = document.getElementById('codeSvgContainer');
+        this.codeSvgParent = document.getElementById('codeSvgParent');
+        this.svg = document.getElementById('codeSvg');
         this.cellContainer = this.svg.appendChild(createSvgElement('g'));
         this.cellTemplate = this.svg.querySelector('defs [class~=cell]');
         this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=cellExecutedArrow]');
@@ -497,7 +497,7 @@ export class GridView {
             return;
         }
         if (event.key == 'Escape') {
-            document.querySelector('#speedSlider').focus();
+            document.getElementById('speedSlider').focus();
             event.preventDefault();
             return;
         }

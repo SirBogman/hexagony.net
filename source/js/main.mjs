@@ -18,40 +18,40 @@ const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 const maxSpeedIterations = 10000;
 const executionHistoryCount = 20;
 
-const appGrid = document.querySelector('#appGrid');
+const appGrid = document.getElementById('appGrid');
 const playContent = document.querySelectorAll('.playContent');
 const editContent = document.querySelectorAll('.editContent');
 
-const sourceCodeInput = document.querySelector('#sourceCodeInput');
-const inputBox = document.querySelector('#inputBox');
+const sourceCodeInput = document.getElementById('sourceCodeInput');
+const inputBox = document.getElementById('inputBox');
 
-const playPauseButton = document.querySelector('#playPauseButton');
+const playPauseButton = document.getElementById('playPauseButton');
 const playIcon = playPauseButton.querySelector('#playIcon');
 const pauseIcon = playPauseButton.querySelector('#pauseIcon');
-const stepButton = document.querySelector('#stepButton');
-const stopButton = document.querySelector('#stopButton');
-const speedSlider = document.querySelector('#speedSlider');
-const speedSliderContainer = document.querySelector('#speedSliderContainer');
+const stepButton = document.getElementById('stepButton');
+const stopButton = document.getElementById('stopButton');
+const speedSlider = document.getElementById('speedSlider');
+const speedSliderContainer = document.getElementById('speedSliderContainer');
 
-const minifyButton = document.querySelector('#minifyButton');
-const layoutButton = document.querySelector('#layoutButton');
-const generateLinkButton = document.querySelector('#generateLinkButton');
-const copyLinkButton = document.querySelector('#copyLinkButton');
+const minifyButton = document.getElementById('minifyButton');
+const layoutButton = document.getElementById('layoutButton');
+const generateLinkButton = document.getElementById('generateLinkButton');
+const copyLinkButton = document.getElementById('copyLinkButton');
 
-const inputArgumentsRadioButton = document.querySelector('#inputArgumentsRadioButton');
-const inputRawRadioButton = document.querySelector('#inputRawRadioButton');
+const inputArgumentsRadioButton = document.getElementById('inputArgumentsRadioButton');
+const inputRawRadioButton = document.getElementById('inputRawRadioButton');
 const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
 
-const urlExportText = document.querySelector('#urlExportText');
+const urlExportText = document.getElementById('urlExportText');
 
-const infoPanel = document.querySelector('#infoPanel');
-const memoryPanel = document.querySelector('#memoryPanel');
-const outputPanel = document.querySelector('#outputPanel');
-const statePanel = document.querySelector('#statePanel');
+const infoPanel = document.getElementById('infoPanel');
+const memoryPanel = document.getElementById('memoryPanel');
+const outputPanel = document.getElementById('outputPanel');
+const statePanel = document.getElementById('statePanel');
 
-const editControls = document.querySelector('#editControls');
+const editControls = document.getElementById('editControls');
 const navigation = document.getElementById('navigation');
-const viewControls = document.querySelector('#viewControls');
+const viewControls = document.getElementById('viewControls');
 
 let gridView;
 let hexagony;
