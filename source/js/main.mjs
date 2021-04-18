@@ -3,6 +3,7 @@ import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLe
 import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
+import { updateEditControlsHelper } from './components/EditControls.jsx';
 import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { updateNavigationLinks } from './components/NavigationLinks.jsx';
@@ -24,13 +25,6 @@ const editContent = document.querySelectorAll('.editContent');
 const sourceCodeInput = document.querySelector('#sourceCodeInput');
 const inputBox = document.querySelector('#inputBox');
 
-const smallerButton = document.querySelector('#smallerButton');
-const resetButton = document.querySelector('#resetButton');
-const deleteBreakpointsButton = document.querySelector('#deleteBreakpointsButton');
-const biggerButton = document.querySelector('#biggerButton');
-const undoButton = document.querySelector('#undoButton');
-const redoButton = document.querySelector('#redoButton');
-
 const playPauseButton = document.querySelector('#playPauseButton');
 const playIcon = playPauseButton.querySelector('#playIcon');
 const pauseIcon = playPauseButton.querySelector('#pauseIcon');
@@ -43,7 +37,6 @@ const minifyButton = document.querySelector('#minifyButton');
 const layoutButton = document.querySelector('#layoutButton');
 const generateLinkButton = document.querySelector('#generateLinkButton');
 const copyLinkButton = document.querySelector('#copyLinkButton');
-const editButtons = [smallerButton, resetButton, biggerButton, minifyButton, layoutButton];
 
 const inputArgumentsRadioButton = document.querySelector('#inputArgumentsRadioButton');
 const inputRawRadioButton = document.querySelector('#inputRawRadioButton');
@@ -55,6 +48,8 @@ const infoPanel = document.querySelector('#infoPanel');
 const memoryPanel = document.querySelector('#memoryPanel');
 const outputPanel = document.querySelector('#outputPanel');
 const statePanel = document.querySelector('#statePanel');
+
+const editControls = document.querySelector('#editControls');
 const viewControls = document.querySelector('#viewControls');
 
 let gridView;
@@ -150,11 +145,19 @@ function invalidateGeneratedURL() {
 
 function updateButtons() {
     const running = isRunning();
-    editButtons.forEach(x => x.disabled = running);
 
-    deleteBreakpointsButton.disabled = userData.breakpoints.length === 0;
-    undoButton.disabled = !gridView.canUndo(running);
-    redoButton.disabled = !gridView.canRedo(running);
+    updateEditControlsHelper(editControls, {
+        canDeleteBreakpoints: userData.breakpoints.length !== 0,
+        canEdit: !running,
+        canRedo: gridView.canRedo(running),
+        canUndo: gridView.canUndo(running),
+        onBigger,
+        onDeleteBreakpoints,
+        onRedo: () => gridView.redo(),
+        onReset,
+        onSmaller,
+        onUndo: () => gridView.undo(),
+    });
 
     playIcon.classList.toggle('hidden', isPlaying());
     pauseIcon.classList.toggle('hidden', !isPlaying());
@@ -186,7 +189,7 @@ function* getBreakpoints() {
     }
 }
 
-function clearBreakpoints() {
+function onDeleteBreakpoints() {
     for (const [i, j] of getBreakpoints()) {
         gridView.setBreakpointState(i, j, false);
     }
@@ -541,7 +544,15 @@ function resize(size) {
     console.log(`resize ${size} took ${p2 - p1}`);
 }
 
-function onShrink() {
+function onBigger() {
+    resize(gridView.size + 1);
+}
+
+function onReset() {
+    reset(gridView.size);
+}
+
+function onSmaller() {
     const newCode = resizeCode(gridView.size - 1);
     if (countOperators(userData.code) == countOperators(newCode) ||
         confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
@@ -714,13 +725,6 @@ function init() {
     inputBox.addEventListener('input', onInputChanged);
     setSourceCode(userData.code, true);
 
-    resetButton.addEventListener('click', () => reset(gridView.size));
-    biggerButton.addEventListener('click', () => resize(gridView.size + 1));
-    smallerButton.addEventListener('click', () => onShrink());
-    undoButton.addEventListener('click', () => gridView.undo());
-    redoButton.addEventListener('click', () => gridView.redo());
-
-    deleteBreakpointsButton.addEventListener('click', clearBreakpoints);
     playPauseButton.addEventListener('click', onPlayPause);
     stepButton.addEventListener('click', onStep);
     stopButton.addEventListener('click', onStop);
