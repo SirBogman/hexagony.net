@@ -6,8 +6,9 @@
 }
 
 .pre:after {
-    /* Allows user to see a trailing line break. */
-    content: '';
+    // Allows user to see a trailing line break.
+    // For Chrome and Safari, this cannot be an empty string.
+    content: ' ';
 }
 
 #appGrid {
