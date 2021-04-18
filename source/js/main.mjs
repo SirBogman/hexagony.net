@@ -5,6 +5,7 @@ import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } fro
 import { LZString } from './lz-string.min.js';
 import { updateEditControlsHelper } from './components/EditControls.jsx';
 import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
+import { inputModeArguments, isValidInputMode, updateInputPanelHelper } from './components/InputPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { updateNavigationLinks } from './components/NavigationLinks.jsx';
 import { updateOutputPanelHelper } from './components/OutputPanel.jsx';
@@ -24,20 +25,15 @@ const playContent = document.querySelectorAll('.playContent');
 const editContent = document.querySelectorAll('.editContent');
 
 const sourceCodeInput = document.getElementById('sourceCodeInput');
-const inputBox = document.getElementById('inputBox');
 
 const minifyButton = document.getElementById('minifyButton');
 const layoutButton = document.getElementById('layoutButton');
 const generateLinkButton = document.getElementById('generateLinkButton');
 const copyLinkButton = document.getElementById('copyLinkButton');
-
-const inputArgumentsRadioButton = document.getElementById('inputArgumentsRadioButton');
-const inputRawRadioButton = document.getElementById('inputRawRadioButton');
-const inputModeRadioButtons = [inputArgumentsRadioButton, inputRawRadioButton];
-
 const urlExportText = document.getElementById('urlExportText');
 
 const infoPanel = document.getElementById('infoPanel');
+const inputPanel = document.getElementById('inputPanel');
 const memoryPanel = document.getElementById('memoryPanel');
 const outputPanel = document.getElementById('outputPanel');
 const statePanel = document.getElementById('statePanel');
@@ -87,8 +83,9 @@ function updateCode(code, isProgrammatic=false) {
     }
 }
 
-function onInputChanged() {
-    userData.input = inputBox.value;
+function onInputChanged(value) {
+    userData.input = value;
+    updateInputPanel();
     saveData();
     invalidateGeneratedURL();
     if (hexagony != null) {
@@ -96,12 +93,9 @@ function onInputChanged() {
     }
 }
 
-function updateInputTextArea() {
-    inputBox.value = userData.input ?? '';
-}
-
-function onInputModeChanged() {
-    userData.inputMode = inputArgumentsRadioButton.checked ? inputArgumentsRadioButton.value : inputRawRadioButton.value;
+function onInputModeChanged(value) {
+    userData.inputMode = value;
+    updateInputPanel();
     saveData();
     invalidateGeneratedURL();
     if (hexagony != null) {
@@ -109,13 +103,13 @@ function onInputModeChanged() {
     }
 }
 
-function updateInputModeButtons() {
-    for (const radioButton of inputModeRadioButtons) {
-        if (userData.inputMode == radioButton.value) {
-            radioButton.checked = true;
-            break;
-        }
-    }
+function updateInputPanel() {
+    updateInputPanelHelper(inputPanel, {
+        input: userData.input,
+        inputMode: userData.inputMode,
+        onInputChanged,
+        onInputModeChanged,
+    });
 }
 
 function updateAnimationDelay(value) {
@@ -247,6 +241,8 @@ function loadData() {
     userData.breakpoints = userData.breakpoints ?? [];
     userData.colorMode = colorModes.includes(userData.colorMode) ? userData.colorMode : defaultColorMode;
     userData.colorOffset = userData.colorOffset ?? 0;
+    userData.input = userData.input ?? '';
+    userData.inputMode = isValidInputMode(userData.inputMode) ? userData.inputMode : inputModeArguments;
     userData.utf8Output = userData.utf8Output ?? true;
     gridView.edgeTransitionMode = userData.edgeTransitionMode = userData.edgeTransitionMode ?? true;
     userData.showArrows = userData.showArrows ?? false;
@@ -254,8 +250,7 @@ function loadData() {
     userData.showIPs = userData.showIPs ?? false;
     gridView.setShowIPs(userData.showIPs);
 
-    updateInputModeButtons();
-    updateInputTextArea();
+    updateInputPanel();
 }
 
 function saveData() {
@@ -296,16 +291,15 @@ function loadDataFromURL() {
         onStop();
         setSourceCode(newData.code, !initFinished);
 
-        for (const radioButton of inputModeRadioButtons) {
-            if (newData.inputMode == radioButton.value) {
-                userData.inputMode = newData.inputMode;
-                updateInputModeButtons();
-                break;
-            }
+        if (isValidInputMode(newData.inputMode)) {
+            userData.inputMode = newData.inputMode;
         }
 
-        userData.input = newData.input;
-        updateInputTextArea();
+        if (newData.input) {
+            userData.input = newData.input;
+        }
+
+        updateInputPanel();
         // Indicate that the generated URL is up to date.
         generateLinkButton.disabled = true;
         saveData();
@@ -345,8 +339,8 @@ function onStep() {
 }
 
 function getInput() {
-    let input = inputBox.value;
-    if (inputArgumentsRadioButton.checked) {
+    let input = userData.input;
+    if (userData.inputMode === inputModeArguments) {
         input = input.replace(/\n/g, '\0');
     }
     return input;
@@ -632,7 +626,7 @@ document.addEventListener('keydown', e => {
             e.preventDefault();
         }
         else if (e.key == 'z') {
-            if (e.target != inputBox) {
+            if (e.target.id !== 'inputBox') {
                 if (gridView.canUndo(isRunning())) {
                     gridView.undo();
                 }
@@ -640,7 +634,7 @@ document.addEventListener('keydown', e => {
             }
         }
         else if (e.key == 'y') {
-            if (e.target != inputBox) {
+            if (e.target.id !== 'inputBox') {
                 if (gridView.canRedo(isRunning())) {
                     gridView.redo();
                 }
@@ -722,16 +716,12 @@ function init() {
     updateColorMode();
     loadDataFromURL();
     sourceCodeInput.addEventListener('input', () => updateFromSourceCode(false));
-    inputBox.addEventListener('input', onInputChanged);
     setSourceCode(userData.code, true);
 
     minifyButton.addEventListener('click', () => setSourceCode(minifySource(userData.code)));
     layoutButton.addEventListener('click', () => setSourceCode(layoutSource(userData.code)));
     generateLinkButton.addEventListener('click', generateLink);
     copyLinkButton.addEventListener('click', copyLink);
-
-    inputArgumentsRadioButton.addEventListener('change', onInputModeChanged);
-    inputRawRadioButton.addEventListener('change', onInputModeChanged);
 
     updateButtons();
     updateViewControls();
