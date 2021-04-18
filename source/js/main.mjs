@@ -50,6 +50,7 @@ const outputPanel = document.querySelector('#outputPanel');
 const statePanel = document.querySelector('#statePanel');
 
 const editControls = document.querySelector('#editControls');
+const navigation = document.getElementById('navigation');
 const viewControls = document.querySelector('#viewControls');
 
 let gridView;
@@ -716,7 +717,7 @@ function onUtf8OutputChanged(newValue) {
 }
 
 function init() {
-    updateNavigationLinks(document.getElementById('navigation'));
+    updateNavigationLinks(navigation);
     gridView = new GridView(updateCode, updateButtons, toggleBreakpointCallback);
     loadData();
     updateColorMode();
