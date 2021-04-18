@@ -43,10 +43,6 @@ header {
     grid-area: header;
 }
 
-.hidden {
-    display: none;
-}
-
 #appGrid > div {
     background: var(--panel-background);
     padding: 0.5rem;

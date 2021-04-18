@@ -8,6 +8,7 @@ import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
 import { updateNavigationLinks } from './components/NavigationLinks.jsx';
 import { updateOutputPanelHelper } from './components/OutputPanel.jsx';
+import { updatePlayControlsHelper } from './components/PlayControls.jsx';
 import { updateStatePanelHelper } from './components/StatePanel.jsx';
 import { updateViewControlsHelper } from './components/ViewControls.jsx';
 
@@ -24,14 +25,6 @@ const editContent = document.querySelectorAll('.editContent');
 
 const sourceCodeInput = document.getElementById('sourceCodeInput');
 const inputBox = document.getElementById('inputBox');
-
-const playPauseButton = document.getElementById('playPauseButton');
-const playIcon = playPauseButton.querySelector('#playIcon');
-const pauseIcon = playPauseButton.querySelector('#pauseIcon');
-const stepButton = document.getElementById('stepButton');
-const stopButton = document.getElementById('stopButton');
-const speedSlider = document.getElementById('speedSlider');
-const speedSliderContainer = document.getElementById('speedSliderContainer');
 
 const minifyButton = document.getElementById('minifyButton');
 const layoutButton = document.getElementById('layoutButton');
@@ -51,6 +44,7 @@ const statePanel = document.getElementById('statePanel');
 
 const editControls = document.getElementById('editControls');
 const navigation = document.getElementById('navigation');
+const playControls = document.getElementById('playControls');
 const viewControls = document.getElementById('viewControls');
 
 let gridView;
@@ -131,17 +125,28 @@ function updateAnimationDelay(value) {
     gridView.setDelay(animationDelay);
 }
 
-function onSpeedSliderChanged() {
-    updateAnimationDelay(Math.floor(10 ** -3 * (1000 - speedSlider.value) ** 2));
+function onSpeedSliderChanged(value) {
+    updateAnimationDelay(Math.floor(10 ** -3 * (1000 - value) ** 2));
     saveData();
-}
-
-function updateSpeedSlider() {
-    speedSlider.value = 1000 - Math.sqrt(1000 * userData.delay);
+    updatePlayControls();
 }
 
 function invalidateGeneratedURL() {
     generateLinkButton.disabled = false;
+}
+
+function updatePlayControls() {
+    updatePlayControlsHelper(playControls, {
+        canPlayPause: !isTerminated(),
+        canStep: !isTerminated() && !isPlaying(),
+        canStop: isRunning(),
+        delay: userData.delay,
+        isPlaying: isPlaying(),
+        onPlayPause,
+        onSpeedSliderChanged,
+        onStep,
+        onStop,
+    });
 }
 
 function updateButtons() {
@@ -160,12 +165,7 @@ function updateButtons() {
         onUndo: () => gridView.undo(),
     });
 
-    playIcon.classList.toggle('hidden', isPlaying());
-    pauseIcon.classList.toggle('hidden', !isPlaying());
-
-    playPauseButton.disabled = isTerminated();
-    stepButton.disabled = isTerminated() || isPlaying();
-    stopButton.disabled = !running;
+    updatePlayControls();
 
     if (running) {
         playContent.forEach(x => x.classList.remove('hiddenSection'));
@@ -256,7 +256,6 @@ function loadData() {
 
     updateInputModeButtons();
     updateInputTextArea();
-    updateSpeedSlider();
 }
 
 function saveData() {
@@ -726,9 +725,6 @@ function init() {
     inputBox.addEventListener('input', onInputChanged);
     setSourceCode(userData.code, true);
 
-    playPauseButton.addEventListener('click', onPlayPause);
-    stepButton.addEventListener('click', onStep);
-    stopButton.addEventListener('click', onStop);
     minifyButton.addEventListener('click', () => setSourceCode(minifySource(userData.code)));
     layoutButton.addEventListener('click', () => setSourceCode(layoutSource(userData.code)));
     generateLinkButton.addEventListener('click', generateLink);
@@ -736,9 +732,6 @@ function init() {
 
     inputArgumentsRadioButton.addEventListener('change', onInputModeChanged);
     inputRawRadioButton.addEventListener('change', onInputModeChanged);
-    speedSlider.addEventListener('input', onSpeedSliderChanged);
-    speedSlider.addEventListener('focus', () => speedSliderContainer.classList.add('focused'));
-    speedSlider.addEventListener('focusout', () => speedSliderContainer.classList.remove('focused'));
 
     updateButtons();
     updateViewControls();
