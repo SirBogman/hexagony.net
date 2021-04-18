@@ -1,8 +1,9 @@
 $buttonInnerWidth: 1.5rem;
 $buttonOuterWidth: 2.75rem;
 $narrowButtonOuterWidth: 2.35rem;
-// The slider counts as two buttons.
-$buttonCount: 17;
+// $sliderButtonWidth is the width of the slider in button widths.
+$sliderButtonWidth: 3;
+$buttonCount: 15;
 $narrowWidthPadding: 0.5;
 
 body header {
@@ -34,7 +35,7 @@ header nav {
 // iPhone 12: 750
 // iPhone 12 Pro: 750
 // iPhone 12 Pro Max: 832
-@media (max-width: ($buttonCount + $narrowWidthPadding) * $narrowButtonOuterWidth) {
+@media (max-width: ($buttonCount + $sliderButtonWidth + $narrowWidthPadding) * $narrowButtonOuterWidth) {
     header nav {
         grid-template-columns: auto 1fr auto;
         grid-template-rows: auto auto;
@@ -105,13 +106,8 @@ header > nav button:disabled {
     border: 1px dotted var(--background);
 }
 
-#speedSliderContainer {
-    width: 130px;
-}
-
 .slider {
     -webkit-appearance: none;
-    width: 100px;
     opacity: 0.8;
     transition: opacity .2s;
     height: 1px;
@@ -140,6 +136,14 @@ header > nav button:disabled {
     border: none;
 }
 
+#speedSliderContainer {
+    width: $buttonOuterWidth * $sliderButtonWidth;
+}
+
+.slider {
+    width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
+}
+
 @media (max-width: 850px) {
     // Reduce the outer width of buttons a bit, before changing to the one column layout.
     $buttonOuterWidth: $narrowButtonOuterWidth;
@@ -150,10 +154,10 @@ header > nav button:disabled {
     }
 
     #speedSliderContainer {
-        width: $buttonOuterWidth * 2;
+        width: $buttonOuterWidth * $sliderButtonWidth;
     }
 
     .slider {
-        width: $buttonOuterWidth + $buttonInnerWidth;
+        width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
     }
 }
