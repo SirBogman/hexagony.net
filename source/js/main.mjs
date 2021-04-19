@@ -559,12 +559,7 @@ function reset(size) {
 }
 
 function setSourceCode(newCode, isProgrammatic=false) {
-    sourceCodeInput.value = newCode;
-    updateFromSourceCode(isProgrammatic);
-}
-
-function updateFromSourceCode(isProgrammatic=false) {
-    gridView.setSourceCode(sourceCodeInput.value, isProgrammatic);
+    gridView.setSourceCode(newCode, isProgrammatic);
 }
 
 function onPause() {
@@ -715,7 +710,7 @@ function init() {
     loadData();
     updateColorMode();
     loadDataFromURL();
-    sourceCodeInput.addEventListener('input', () => updateFromSourceCode(false));
+    sourceCodeInput.addEventListener('input', () => setSourceCode(sourceCodeInput.value));
     setSourceCode(userData.code, true);
 
     minifyButton.addEventListener('click', () => setSourceCode(minifySource(userData.code)));
