@@ -27,7 +27,7 @@
     grid-template-areas:
         "header header header"
         "codePanel codePanel hotkeysPanel"
-        "codePanel codePanel importPanel"
+        "codePanel codePanel importExportPanel"
         "inputPanel inputPanel infoPanel";
 }
 
@@ -90,8 +90,8 @@ div #outputPanel {
     width: 100%;
 }
 
-div #importPanel {
-    grid-area: importPanel;
+div #importExportPanel {
+    grid-area: importExportPanel;
     display: grid;
     grid-template-rows: auto auto 1fr;
 }
@@ -263,7 +263,7 @@ textarea {
     font-family: root.$monospace;
 }
 
-#urlExportText {
+input[type=text] {
     background: var(--background);
     border: none;
     color: var(--text-color);
@@ -304,7 +304,7 @@ textarea {
             "header"
             "codePanel"
             "inputPanel"
-            "importPanel"
+            "importExportPanel"
             "infoPanel"
             "hotkeysPanel";
     }

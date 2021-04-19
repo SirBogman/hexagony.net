@@ -4,6 +4,7 @@ import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { LZString } from './lz-string.min.js';
 import { updateEditControlsHelper } from './components/EditControls.jsx';
+import { updateImportExportPanelHelper } from './components/ImportExportPanel.jsx';
 import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { inputModeArguments, isValidInputMode, updateInputPanelHelper } from './components/InputPanel.jsx';
 import { updateMemoryPanel } from './components/MemoryPanel.jsx';
@@ -24,14 +25,7 @@ const appGrid = document.getElementById('appGrid');
 const playContent = document.querySelectorAll('.playContent');
 const editContent = document.querySelectorAll('.editContent');
 
-const sourceCodeInput = document.getElementById('sourceCodeInput');
-
-const minifyButton = document.getElementById('minifyButton');
-const layoutButton = document.getElementById('layoutButton');
-const generateLinkButton = document.getElementById('generateLinkButton');
-const copyLinkButton = document.getElementById('copyLinkButton');
-const urlExportText = document.getElementById('urlExportText');
-
+const importExportPanel = document.getElementById('importExportPanel');
 const infoPanel = document.getElementById('infoPanel');
 const inputPanel = document.getElementById('inputPanel');
 const memoryPanel = document.getElementById('memoryPanel');
@@ -51,6 +45,8 @@ let initFinished = false;
 let userData;
 let animationDelay;
 let terminationReason;
+let isGeneratedLinkUpToDate = false;
+let link = '';
 
 function updateCode(code, isProgrammatic=false) {
     userData.code = code;
@@ -64,16 +60,18 @@ function updateCode(code, isProgrammatic=false) {
         const [i, j] = id.split(',').map(Number);
         return i < newRowCount && j < getRowSize(newSize, i);
     });
-    updateBreakpointCountText();
 
     gridView.setBreakpoints(getBreakpoints());
 
-    sourceCodeInput.value = code;
     if (!isProgrammatic && initFinished) {
         saveData();
     }
-    updateInfoPanel();
+
     invalidateGeneratedURL();
+    updateImportExportPanel();
+    updateInfoPanel();
+    // Update breakpoint count in state panel.
+    updateStatePanel();
 
     if (hexagony != null) {
         // The code should be the same size hexagon.
@@ -83,24 +81,37 @@ function updateCode(code, isProgrammatic=false) {
     }
 }
 
-function onInputChanged(value) {
-    userData.input = value;
+function updateImportExportPanel() {
+    updateImportExportPanelHelper(importExportPanel, {
+        isGeneratedLinkUpToDate,
+        link,
+        sourceCode: userData.code,
+        onGenerateLink,
+        onGenerateAndCopyLink,
+        onImportSourceCode: setSourceCode,
+        onLayoutCode,
+        onMinifyCode,
+    });
+}
+
+function onInputPropertyChanged() {
     updateInputPanel();
     saveData();
     invalidateGeneratedURL();
+    updateImportExportPanel();
     if (hexagony != null) {
         hexagony.setInput(getInput());
     }
 }
 
+function onInputChanged(value) {
+    userData.input = value;
+    onInputPropertyChanged();
+}
+
 function onInputModeChanged(value) {
     userData.inputMode = value;
-    updateInputPanel();
-    saveData();
-    invalidateGeneratedURL();
-    if (hexagony != null) {
-        hexagony.setInput(getInput());
-    }
+    onInputPropertyChanged();
 }
 
 function updateInputPanel() {
@@ -126,7 +137,7 @@ function onSpeedSliderChanged(value) {
 }
 
 function invalidateGeneratedURL() {
-    generateLinkButton.disabled = false;
+    isGeneratedLinkUpToDate = false;
 }
 
 function updatePlayControls() {
@@ -282,7 +293,7 @@ function loadDataFromURL() {
     if (location.hash) {
         // After consuming the hash, move the URL to the export box and remove it from the location.
         // Otherwise, changes in localStorage will be overwritten when reloading the page.
-        urlExportText.value = location;
+        link = location.href;
         history.replaceState(null, '', location.origin);
     }
 
@@ -300,24 +311,32 @@ function loadDataFromURL() {
         }
 
         updateInputPanel();
-        // Indicate that the generated URL is up to date.
-        generateLinkButton.disabled = true;
+        isGeneratedLinkUpToDate = true;
         saveData();
     }
+
+    updateImportExportPanel();
 }
 
-function generateLink() {
+function onMinifyCode() {
+    setSourceCode(minifySource(userData.code));
+}
+
+function onLayoutCode() {
+    setSourceCode(layoutSource(userData.code));
+}
+
+function onGenerateLink() {
     const urlData = { code: userData.code, input: userData.input, inputMode: userData.inputMode };
     const json = JSON.stringify(urlData);
-    // Disable button, until the code changes.
-    generateLinkButton.disabled = true;
-    urlExportText.value = `${location.origin}/#lz${LZString.compressToBase64(json)}`;
+    isGeneratedLinkUpToDate = true;
+    link = `${location.origin}/#lz${LZString.compressToBase64(json)}`;
+    updateImportExportPanel();
 }
 
-function copyLink() {
-    generateLink();
-    urlExportText.select();
-    document.execCommand('copy');
+function onGenerateAndCopyLink() {
+    onGenerateLink();
+    navigator.clipboard.writeText(link);
 }
 
 function onPlayPause() {
@@ -710,13 +729,7 @@ function init() {
     loadData();
     updateColorMode();
     loadDataFromURL();
-    sourceCodeInput.addEventListener('input', () => setSourceCode(sourceCodeInput.value));
     setSourceCode(userData.code, true);
-
-    minifyButton.addEventListener('click', () => setSourceCode(minifySource(userData.code)));
-    layoutButton.addEventListener('click', () => setSourceCode(layoutSource(userData.code)));
-    generateLinkButton.addEventListener('click', generateLink);
-    copyLinkButton.addEventListener('click', copyLink);
 
     updateButtons();
     updateViewControls();
