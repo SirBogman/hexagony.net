@@ -15,13 +15,13 @@ function ImportExportPanel(props) {
     return (
         <>
             <h1>Import/Export</h1>
-            <div>
-                <button className="editButton bodyButton"
+            <div className="panelButtonSection">
+                <button className="panelLeftButton bodyButton"
                     onClick={onMinifyCode}
                     title="Remove unnecessary whitespace and trailing no-ops from the Hexagony program.">
                     Minify Source
                 </button>
-                <button className="editButton bodyButton"
+                <button className="panelRightButton bodyButton"
                     onClick={onLayoutCode}
                     title="Format the Hexagony program as hexagon using whitespace. Intended for export.">
                     Layout Source
@@ -29,20 +29,21 @@ function ImportExportPanel(props) {
             </div>
             <textarea
                 aria-label="Source Code Import/Export"
-                spellCheck="False"
+                className="twoColumn"
                 autoCapitalize="off"
                 autoComplete="off"
+                spellCheck="False"
                 value={sourceCode}
                 onChange={e => onImportSourceCode(e.target.value)}/>
-            <h2>Generate Link</h2>
-            <div>
-                <button className="editButton bodyButton"
+            <h2 className="centerAlignText">Generate Link</h2>
+            <div className="panelButtonSection">
+                <button className="panelLeftButton bodyButton"
                     disabled={isGeneratedLinkUpToDate}
                     onClick={onGenerateLink}
                     title="Create a link to the current Hexagony program and its input">
                     Generate
                 </button>
-                <button className="editButton bodyButton"
+                <button className="panelRightButton bodyButton"
                     onClick={onGenerateAndCopyLink}
                     title="Copy a link to the current Hexagony program and its input to the clipboard">
                     Generate and Copy
@@ -51,6 +52,7 @@ function ImportExportPanel(props) {
             <input
                 type="text"
                 aria-label="Generated URL"
+                className="twoColumn"
                 placeholder="Generate a link that encodes to the current program and input."
                 readOnly={true}
                 value={link}/>
