@@ -4,23 +4,6 @@ export function arrayInitialize(length, indexToValue) {
     return Array.from(new Array(length), (_, index) => indexToValue(index));
 }
 
-export function arraysEqual(a, b) {
-    if (a === null || b === null)
-        return (a === null) === (b === null);
-
-    if (a.length !== b.length) {
-        return false;
-    }
-
-    for (let i = 0; i < a.length; i++) {
-        if (a[i] !== b[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 export function countBytes(code) {
     return new TextEncoder().encode(code).length;
 }
@@ -122,7 +105,7 @@ export function rubyStyleRemainder(leftVal, rightVal) {
     // The semantics of integer division and modulo are different in Hexagony because the
     // reference interpreter was written in Ruby. Account for this discrepancy.
     const result = leftVal % rightVal;
-    return (leftVal < 0) != (rightVal < 0) && result != 0 ? result + rightVal : result;
+    return leftVal < 0 != rightVal < 0 && result != 0 ? result + rightVal : result;
 }
 
 export function rubyStyleDivide(leftVal, rightVal) {
@@ -135,5 +118,5 @@ export function rubyStyleDivide(leftVal, rightVal) {
     // Example: 5 / 15 == 0
     // Example: 5 % 15 == 5
     const result = leftVal / rightVal;
-    return (leftVal < 0) != (rightVal < 0) && leftVal % rightVal != 0 ? result - 1n : result;
+    return leftVal < 0 != rightVal < 0 && leftVal % rightVal != 0 ? result - 1n : result;
 }
