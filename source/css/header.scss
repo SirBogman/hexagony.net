@@ -106,7 +106,7 @@ header > nav button:disabled {
     border: 1px dotted var(--background);
 }
 
-.slider {
+input[type=range] {
     -webkit-appearance: none;
     opacity: 0.8;
     transition: opacity .2s;
@@ -115,12 +115,12 @@ header > nav button:disabled {
     outline: none;
 }
 
-.slider:hover,
-.slider:focus {
+input[type=range]:hover,
+input[type=range]:focus {
     opacity: 1.0;
 }
 
-.slider::-webkit-slider-thumb {
+input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     background: var(--background);
@@ -128,7 +128,7 @@ header > nav button:disabled {
     height: 1.5rem;
 }
 
-.slider::-moz-range-thumb {
+input[type=range]::-moz-range-thumb {
     width: 10px;
     height: 1.5rem;
     background: var(--background);
@@ -140,7 +140,7 @@ header > nav button:disabled {
     width: $buttonOuterWidth * $sliderButtonWidth;
 }
 
-.slider {
+#speedSlider {
     width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
 }
 
@@ -157,7 +157,7 @@ header > nav button:disabled {
         width: $buttonOuterWidth * $sliderButtonWidth;
     }
 
-    .slider {
+    #speedSlider {
         width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
     }
 }

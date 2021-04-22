@@ -53,7 +53,6 @@ function PlayControls(props) {
                     max="1000"
                     value={1000 - Math.sqrt(1000 * delay)}
                     step="10"
-                    className="slider"
                     id="speedSlider"
                     onInput={e => onSpeedSliderChanged(e.target.value)}
                     onBlur={() => setSpeedSliderFocused(false)}
