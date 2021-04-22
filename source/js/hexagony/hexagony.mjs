@@ -141,7 +141,7 @@ export class Hexagony {
                 break;
             }
             case ';':
-                this.output.push(Number(this.memory.getValue() % 256n));
+                this.output.push((Number(this.memory.getValue() % 256n) + 256) % 256);
                 break;
 
             case '?':
