@@ -90,12 +90,18 @@ header > nav button {
     padding: 0;
 }
 
-header a:hover,
 header a.active,
-header > nav button[aria-checked="true"],
-header > nav button:enabled:hover {
+header > nav button[aria-checked=true] {
     background: var(--background);
     color: var(--color);
+}
+
+@media (hover: hover) {
+    header a:hover,
+    header > nav button:enabled:hover {
+        background: var(--background);
+        color: var(--color);
+    }
 }
 
 header > nav button:disabled {

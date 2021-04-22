@@ -207,8 +207,10 @@ div #memoryPanel > h1 {
     color: var(--disabled-color);
 }
 
-.bodyButton:hover:not(:disabled) {
-    background: var(--hover-button);
+@media (hover: hover) {
+    .bodyButton:hover:not(:disabled) {
+        background: var(--hover-button);
+    }
 }
 
 .bodyButton:active:not(:disabled) {
