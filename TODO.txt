@@ -8,3 +8,19 @@ Eventually:
     Change step icon to have a vertical line at the right side.
 
     Panning by touching in area between hexagons.
+
+    Context menu:
+        set breakpoint in cell.
+        inspect element (some way to access default context menu?)
+
+    show codepoint value in hexagon cell tooltip
+    dialog to input codepoint numeric value into hexagon cell. show value % 256 and -value % 256.
+
+    ImportExportPanel:
+        move buttons to the right of headings.
+
+    Move lzstring to dependency.
+
+    Memory pointer % 360.
+
+    Continue to minify or layout code automatically when changes are made.
