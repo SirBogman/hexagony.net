@@ -93,8 +93,7 @@ div #outputPanel {
 div #importExportPanel {
     grid-area: importExportPanel;
     display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
 }
 
 textarea {
@@ -199,24 +198,6 @@ div #memoryPanel > h1 {
     margin: 0.5rem;
 }
 
-.centerAlignText {
-    align-self: center;
-}
-
-.panelButtonSection {
-    align-self: flex-end;
-    justify-self: end;
-    grid-column: 2;
-}
-
-.panelLeftButton {
-    margin: 0.5rem;
-}
-
-.panelRightButton {
-    margin: 0.5rem 0 0.5rem 0;
-}
-
 .bodyButton {
     color: var(--text-color);
     background: var(--button);
@@ -288,10 +269,6 @@ input[type=text] {
     background: var(--background);
     border: none;
     color: var(--text-color);
-}
-
-.twoColumn {
-    grid-column: 1/3;
 }
 
 .col1 {

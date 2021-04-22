@@ -21,7 +21,3 @@ Eventually:
     Memory pointer % 360.
 
     Continue to minify or layout code automatically when changes are made.
-
-
-Negative codepoint test (prints A):
-    ¿~;@................
