@@ -3,6 +3,7 @@ import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLe
 import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { updateEditControlsHelper } from './components/EditControls.jsx';
+import { updateHotkeysPanelHelper } from './components/HotkeysPanel.jsx';
 import { updateImportExportPanelHelper } from './components/ImportExportPanel.jsx';
 import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
 import { inputModeArguments, isValidInputMode, updateInputPanelHelper } from './components/InputPanel.jsx';
@@ -25,6 +26,7 @@ const appGrid = document.getElementById('appGrid');
 const playContent = document.querySelectorAll('.playContent');
 const editContent = document.querySelectorAll('.editContent');
 
+const hotkeysPanel = document.getElementById('hotkeysPanel');
 const importExportPanel = document.getElementById('importExportPanel');
 const infoPanel = document.getElementById('infoPanel');
 const inputPanel = document.getElementById('inputPanel');
@@ -725,6 +727,7 @@ function onUtf8OutputChanged(newValue) {
 
 function init() {
     updateNavigationLinks(navigation);
+    updateHotkeysPanelHelper(hotkeysPanel);
     gridView = new GridView(updateCode, updateButtons, toggleBreakpointCallback);
     loadData();
     updateColorMode();
