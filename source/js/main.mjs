@@ -2,7 +2,6 @@ import { Hexagony } from './hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from './hexagony/util.mjs';
 import { GridView, initializeGridColors } from './view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from './view/viewutil.mjs';
-import { LZString } from './lz-string.min.js';
 import { updateEditControlsHelper } from './components/EditControls.jsx';
 import { updateImportExportPanelHelper } from './components/ImportExportPanel.jsx';
 import { updateInfoPanelHelper } from './components/InfoPanel.jsx';
@@ -13,6 +12,7 @@ import { updateOutputPanelHelper } from './components/OutputPanel.jsx';
 import { updatePlayControlsHelper } from './components/PlayControls.jsx';
 import { updateStatePanelHelper } from './components/StatePanel.jsx';
 import { updateViewControlsHelper } from './components/ViewControls.jsx';
+import LZString from 'lz-string';
 
 import '../css/index.scss';
 

@@ -16,8 +16,6 @@ Eventually:
     show codepoint value in hexagon cell tooltip
     dialog to input codepoint numeric value into hexagon cell. show value % 256 and -value % 256.
 
-    Move lzstring to dependency.
-
     Memory pointer % 360.
 
     Continue to minify or layout code automatically when changes are made.
