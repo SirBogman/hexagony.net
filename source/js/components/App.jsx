@@ -21,7 +21,7 @@ import { ViewControls } from './ViewControls.jsx';
 import { EditControls } from './EditControls.jsx';
 import { PlayControls } from './PlayControls.jsx';
 
-
+const fibonacciExample = ')="/}.!+/M8;';
 const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 const maxSpeedIterations = 10000;
 const executionHistoryCount = 20;
@@ -42,6 +42,34 @@ function parseStorage(storage) {
     catch {
         return null;
     }
+}
+
+function loadHashData() {
+    let hashData = null;
+
+    if (location.hash.startsWith('#lz')) {
+        try {
+            if (location.hash) {
+                hashData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(3)));
+            }
+        }
+        // eslint-disable-next-line no-empty
+        catch (e) {
+        }
+    }
+    else if (location.hash === '#fibonacci') {
+        hashData = { code: fibonacciExample };
+    }
+    else if (location.hash === '#helloworld') {
+        hashData = { code: layoutSource(helloWorldExample) };
+    }
+
+    if (hashData !== null) {
+        hashData.link = location.href;
+    }
+
+
+    return hashData;
 }
 
 function loadUserData() {
@@ -72,6 +100,14 @@ function loadUserData() {
     return userData;
 }
 
+function clearLocationHash() {
+    // After consuming the hash, move the URL to the export box and remove it from the location.
+    // Otherwise, changes in localStorage would be overwritten when reloading the page.
+    // For some reason, calling replaceState while in the constructor of a React component
+    // can cause the page to reload, so delay it until the next event cycle.
+    window.setTimeout(() => history.replaceState(null, '', '/'));
+}
+
 export class App extends React.Component {
     constructor(props) {
         super(props);
@@ -87,13 +123,27 @@ export class App extends React.Component {
             timeoutID: null,
         };
 
+        const hashData = loadHashData();
+        if (hashData && hashData.code) {
+            this.applyHashDataToState(this.state, hashData);
+            // This is a new tab. Copy its state to sessionStorage so that it will be
+            // independent of existing tabs.
+            this.saveUserData();
+            clearLocationHash();
+        }
+
         this.hexagony = null;
         this.gridView = null;
         this.executionHistory = [];
         this.startingToPlay = false;
 
-        // TODO: this.loadDataFromURL?
         this.updateColorMode();
+    }
+
+    saveUserData() {
+        const serializedData = JSON.stringify(this.state.userData);
+        sessionStorage.userData = serializedData;
+        localStorage.userData = serializedData;
     }
 
     updateCode = code => {
@@ -227,51 +277,30 @@ export class App extends React.Component {
         }));
     };
 
+    applyHashDataToState(state, hashData) {
+        state.userData.code = hashData.code;
+
+        if (isValidInputMode(hashData.inputMode)) {
+            state.userData.inputMode = hashData.inputMode;
+        }
+
+        if (hashData.input) {
+            state.userData.input = hashData.input;
+        }
+
+        state.link = hashData.link;
+        state.isGeneratedLinkUpToDate = true;
+    }
+
     loadDataFromURL = () => {
-        let newData = undefined;
+        const hashData = loadHashData();
 
-        if (location.hash.startsWith('#lz')) {
-            try {
-                if (location.hash) {
-                    newData = JSON.parse(LZString.decompressFromBase64(location.hash.slice(3)));
-                }
-            }
-            // eslint-disable-next-line no-empty
-            catch (e) {
-            }
-        }
-        else if (location.hash === '#fibonacci') {
-            newData = { code: ')="/}.!+/M8;' };
-        }
-        else if (location.hash === '#helloworld') {
-            newData = { code: layoutSource('H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;') };
-        }
-
-        if (location.hash) {
-            // After consuming the hash, move the URL to the export box and remove it from the location.
-            // Otherwise, changes in localStorage will be overwritten when reloading the page.
-            this.setState(produce(state => { state.link = location.href; }));
-            history.replaceState(null, '', location.origin);
-        }
-
-        if (newData && newData.code) {
+        if (hashData && hashData.code) {
             // Stop execution first, as the hexagon size may change.
             this.onStop();
-            this.setSourceCode(newData.code);
-
-            this.setState(produce(state => {
-                if (isValidInputMode(newData.inputMode)) {
-                    state.userData.inputMode = newData.inputMode;
-                }
-
-                if (newData.input) {
-                    state.userData.input = newData.input;
-                }
-
-                //updateInputPanel();
-                state.userData.isGeneratedLinkUpToDate = true;
-                //saveData();
-            }));
+            this.setSourceCode(hashData.code);
+            this.setState(produce(state => this.applyHashDataToState(state, hashData)));
+            clearLocationHash();
         }
     };
 
@@ -601,7 +630,6 @@ export class App extends React.Component {
                 }
             }
         }
-        // console.log(`keydown ${e.key} ${e.ctrlKey} ${e.shiftKey} ${e.altKey} ${Object.keys(e)}`);
     };
 
     updateColorMode() {
@@ -652,12 +680,13 @@ export class App extends React.Component {
 
     componentDidMount() {
         const { animationDelay, userData } = this.state;
-        this.gridView = new GridView(this.updateCode, this.toggleBreakpointCallback);
+        this.gridView = new GridView(this.toggleBreakpointCallback);
         this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
         this.gridView.setDelay(animationDelay);
         this.gridView.setShowArrows(userData.showArrows);
         this.gridView.setShowIPs(userData.showIPs);
         this.gridView.setSourceCode(userData.code);
+        this.gridView.setUpdateCodeCallback(this.updateCode);
 
         document.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('hashchange', this.loadDataFromURL);
@@ -673,17 +702,8 @@ export class App extends React.Component {
         const prevUserData = prevState.userData;
 
         if (userData !== prevUserData) {
-            // TODO: make sure init finished before saving data?
             if (prevState) {
-                for (const thing in userData) {
-                    if (userData[thing] != prevUserData[thing]) {
-                        console.log(`CHANGED: ${thing} OLD: ${prevUserData[thing]} NEW: ${userData[thing]}`);
-                    }
-                }
-                console.log('Save DATA!');
-                const serializedData = JSON.stringify(this.state.userData);
-                sessionStorage.userData = serializedData;
-                localStorage.userData = serializedData;
+                this.saveUserData();
             }
 
             if (userData.colorMode !== prevUserData.colorMode ||

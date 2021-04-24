@@ -37,8 +37,8 @@ function outlineHelper(x1, y1, x2, y2, size) {
 }
 
 export class GridView {
-    constructor(updateCodeCallback, toggleBreakpointCallback) {
-        this.updateCodeCallback = updateCodeCallback;
+    constructor(toggleBreakpointCallback) {
+        this.updateCodeCallback = null;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.cellPaths = [];
         this.edgeConnectors = {};
@@ -247,8 +247,14 @@ export class GridView {
         this.filteredSourceCode = removeWhitespaceAndDebug(code);
         if (this.sourceCode != code) {
             this.sourceCode = code;
-            this.updateCodeCallback(code, isProgrammatic);
+            if (this.updateCodeCallback) {
+                this.updateCodeCallback(code, isProgrammatic);
+            }
         }
+    }
+
+    setUpdateCodeCallback(updateCodeCallback) {
+        this.updateCodeCallback = updateCodeCallback;
     }
 
     canUndo(isRunning) {
