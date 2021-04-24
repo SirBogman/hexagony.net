@@ -1,13 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-export function updateHotkeysPanelHelper(element) {
-    ReactDOM.render(<React.StrictMode><HotkeysPanel/></React.StrictMode>, element);
-}
-
-function HotkeysPanel() {
+export function HotkeysPanel() {
     return (
-        <>
+        <div id="hotkeysPanel">
             <h1>Hotkeys</h1>
             <div id="hotkeysGrid">
                 <p className="col1">(Shift) Tab</p><p className="col2">Navigate on the W-E axis (with wrapping)</p>
@@ -21,6 +16,6 @@ function HotkeysPanel() {
                 <p className="col1">Ctrl + Shift + Enter</p><p className="col2">Stop Execution</p>
                 <p className="col1">Ctrl + .</p><p className="col2">Step (execute next instruction)</p>
             </div>
-        </>
+        </div>
     );
 }

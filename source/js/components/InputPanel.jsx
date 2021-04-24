@@ -1,12 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-
-export function updateInputPanelHelper(element, props) {
-    ReactDOM.render(
-        <React.StrictMode><InputPanel {...props}/></React.StrictMode>,
-        element);
-}
 
 export const inputModeArguments = 'arg';
 export const inputModeRaw = 'raw';
@@ -15,11 +8,11 @@ export function isValidInputMode(inputMode) {
     return inputMode === inputModeArguments || inputMode === inputModeRaw;
 }
 
-function InputPanel(props) {
+export function InputPanel(props) {
     const { input, inputMode, onInputChanged, onInputModeChanged } = props;
 
     return (
-        <>
+        <div id="inputPanel">
             <h1>Input</h1>
             <div className="radio">
                 <label title="Arguments input mode: each line of input is considered an argument and arguments are separate by null characters (ASCII 0). This is compatible with Code Golf.">
@@ -49,7 +42,7 @@ function InputPanel(props) {
                 aria-label="Input"
                 value={input}
                 onInput={e => onInputChanged(e.target.value)}/>
-        </>
+        </div>
     );
 }
 

@@ -1,19 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export function updateImportExportPanelHelper(element, props) {
-    ReactDOM.render(
-        <React.StrictMode><ImportExportPanel {...props}/></React.StrictMode>,
-        element);
-}
-
-function ImportExportPanel(props) {
+export function ImportExportPanel(props) {
     const { isGeneratedLinkUpToDate, link, sourceCode, onGenerateLink, onGenerateAndCopyLink,
         onImportSourceCode, onLayoutCode, onMinifyCode } = props;
 
     return (
-        <>
+        <div id="importExportPanel">
             <h1>Import/Export</h1>
             <div>
                 <button className="editButton bodyButton"
@@ -54,7 +47,7 @@ function ImportExportPanel(props) {
                 placeholder="Generate a link that encodes to the current program and input."
                 readOnly={true}
                 value={link}/>
-        </>
+        </div>
     );
 }
 

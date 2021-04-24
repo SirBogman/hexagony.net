@@ -1,10 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-
-export function updateInfoPanelHelper(element, props) {
-    ReactDOM.render(<React.StrictMode><InfoPanel {...props}/></React.StrictMode>, element);
-}
 
 export function getInfoContent(breakpoints, size, chars, bytes, operators) {
     return (
@@ -23,15 +18,15 @@ export function getInfoContent(breakpoints, size, chars, bytes, operators) {
     );
 }
 
-function InfoPanel(props) {
+export function InfoPanel(props) {
     const { breakpoints, size, chars, bytes, operators } = props;
     return (
-        <>
+        <div id="infoPanel">
             <h1>Info</h1>
             <div id="infoInfo">
                 {getInfoContent(breakpoints, size, chars, bytes, operators)}
             </div>
-        </>
+        </div>
     );
 }
 

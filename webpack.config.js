@@ -1,5 +1,5 @@
 const path = require('path');
-const CopyPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
@@ -19,11 +19,17 @@ module.exports = {
     rules: [
       {
         test: /\.(sa|sc|c)ss$/i,
-        use: [ MiniCssExtractPlugin.loader, "css-loader", "sass-loader" ]
+        use: [ MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader' ]
       },
       {
         test: /\.jsx$/i,
-        use: [{ loader: "babel-loader", options: { presets: ["@babel/preset-react"] }}]
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-react'],
+            plugins: ['@babel/plugin-proposal-class-properties'],
+          },
+        },
       },
     ],
   },

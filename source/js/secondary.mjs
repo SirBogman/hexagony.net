@@ -2,7 +2,7 @@ import '../css/secondary.scss';
 import { applyColorMode, colorModes, prefersDarkColorScheme } from './view/viewutil.mjs';
 import { updateNavigationLinks } from './components/NavigationLinks.jsx';
 
-const navigation = document.getElementById('navigation');
+const navigation = document.getElementById('nav');
 
 function parseStorage(storage) {
     try {

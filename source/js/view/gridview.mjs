@@ -37,9 +37,8 @@ function outlineHelper(x1, y1, x2, y2, size) {
 }
 
 export class GridView {
-    constructor(updateCodeCallback, updateUndoButtonsCallback, toggleBreakpointCallback) {
+    constructor(updateCodeCallback, toggleBreakpointCallback) {
         this.updateCodeCallback = updateCodeCallback;
-        this.updateUndoButtonsCallback = updateUndoButtonsCallback;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.cellPaths = [];
         this.edgeConnectors = {};
@@ -50,7 +49,6 @@ export class GridView {
         this.selectedIp = 0;
         this.size = -1;
         this.rowCount = -1;
-        this.timeoutID = null;
         this.fullWidth = 0;
         this.fullHeight = 0;
         this.sourceCode = '';
@@ -92,7 +90,7 @@ export class GridView {
     }
 
     // Public API for updating source code.
-    setSourceCode(code, isProgrammatic) {
+    setSourceCode(code, isProgrammatic=false) {
         const oldCode = this.sourceCode;
         if (oldCode != code) {
             const filteredCode = removeWhitespaceAndDebug(code);
@@ -269,6 +267,10 @@ export class GridView {
         return !isRunning || !this.redoStack[this.redoStack.length - 1].isSizeChange;
     }
 
+    // NOTE: It probably makes more sense to have the App component own the undo stack.
+    // The reason it's currently set up this way is that it allows the GridView to create
+    // small undo items when editing characters in that view, which represent single character
+    // changes, rather than whole string changes. There are other ways to do this though.
     undo() {
         if (this.undoStack.length) {
             const undoItem = this.undoStack.pop();
@@ -280,7 +282,6 @@ export class GridView {
             finally {
                 this.isUndoRedoInProgress = false;
             }
-            this.updateUndoButtonsCallback();
         }
     }
 
@@ -295,7 +296,6 @@ export class GridView {
             finally {
                 this.isUndoRedoInProgress = false;
             }
-            this.updateUndoButtonsCallback();
         }
     }
 
@@ -307,7 +307,6 @@ export class GridView {
                 isSizeChange,
             });
             this.redoStack = [];
-            this.updateUndoButtonsCallback();
         }
     }
 

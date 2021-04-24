@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export function updatePlayControlsHelper(element, props) {
-    ReactDOM.render(
-        <React.StrictMode><PlayControls {...props}/></React.StrictMode>,
-        element);
-}
-
-function PlayControls(props) {
+export function PlayControls(props) {
     const [speedSliderFocused, setSpeedSliderFocused] = useState(false);
     const { canPlayPause, canStep, canStop, delay, isPlaying, onPlayPause, onSpeedSliderChanged,
         onStep, onStop } = props;
@@ -18,7 +11,7 @@ function PlayControls(props) {
         <svg viewBox="0 0 16 16"><path fill="currentColor" d="M0 0v16l16-8z"/></svg>;
 
     return (
-        <>
+        <div id="playControls" className="group">
             <button
                 aria-label="Start/Pause"
                 disabled={!canPlayPause}
@@ -58,7 +51,7 @@ function PlayControls(props) {
                     onBlur={() => setSpeedSliderFocused(false)}
                     onFocus={() => setSpeedSliderFocused(true)}/>
             </div>
-        </>
+        </div>
     );
 }
 

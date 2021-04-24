@@ -1,19 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export function updateEditControlsHelper(element, props) {
-    ReactDOM.render(
-        <React.StrictMode><EditControls {...props}/></React.StrictMode>,
-        element);
-}
-
-function EditControls(props) {
+export function EditControls(props) {
     const { canDeleteBreakpoints, canEdit, canRedo, canUndo, onBigger, onDeleteBreakpoints, onRedo,
         onReset, onSmaller, onUndo } = props;
 
     return (
-        <>
+        <div id="editControls" className="group">
             <button
                 aria-label="Decrease Size"
                 disabled={!canEdit}
@@ -73,7 +66,7 @@ function EditControls(props) {
                     <path fill="currentColor" d="M31.68 5.5l5.75 14.88-15.76-2.45L31.68 5.5z"/>
                 </svg>
             </button>
-        </>
+        </div>
     );
 }
 

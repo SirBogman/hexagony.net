@@ -1,19 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export function updateViewControlsHelper(element, props) {
-    ReactDOM.render(
-        <React.StrictMode><ViewControls {...props}/></React.StrictMode>,
-        element);
-}
-
-function ViewControls(props) {
+export function ViewControls(props) {
     const { edgeTransitionModeEnabled, arrowsEnabled, ipsEnabled, darkModeEnabled,
         toggleEdgeTransitionMode, toggleArrows, toggleIPs, toggleDarkMode } = props;
 
     return (
-        <>
+        <div id="viewControls" className="group">
             <button
                 role="switch"
                 aria-label="Edge Transition Mode"
@@ -55,7 +48,7 @@ function ViewControls(props) {
                     <path fill="currentColor" d="M27.06,45.11a21,21,0,1,1,0-40.22,21,21,0,0,0,0,40.22Z"/>
                 </svg>
             </button>
-        </>
+        </div>
     );
 }
 

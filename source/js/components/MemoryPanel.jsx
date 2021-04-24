@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { northEast, southEast } from '../hexagony/direction.mjs';
 import panzoom from 'panzoom';
@@ -341,7 +340,7 @@ export class MemoryPanel extends React.Component {
     render() {
         const {delay, memory} = this.props;
         return (
-            <>
+            <div id="memoryPanel">
                 <h1>Memory</h1>
                 <button id="resetViewButton" className="bodyButton" onClick={() => this.resetView()}
                     title="Reset the position and zoom level of the view.">
@@ -350,7 +349,7 @@ export class MemoryPanel extends React.Component {
                 <div id="memoryContainer">
                     <MemoryView memory={memory} delay={delay} ref={this.viewRef}/>
                 </div>
-            </>
+            </div>
         );
     }
 
@@ -372,7 +371,3 @@ MemoryPanel.propTypes = {
     memory: PropTypes.object,
     delay: PropTypes.string.isRequired,
 };
-
-export function updateMemoryPanel(element, memory, delay) {
-    ReactDOM.render(<React.StrictMode><MemoryPanel memory={memory} delay={delay}/></React.StrictMode>, element);
-}

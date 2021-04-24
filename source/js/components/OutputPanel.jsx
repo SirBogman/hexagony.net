@@ -1,14 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export function updateOutputPanelHelper(element, props) {
-    ReactDOM.render(
-        <React.StrictMode><OutputPanel {...props}/></React.StrictMode>,
-        element);
-}
-
-class OutputPanel extends React.Component {
+export class OutputPanel extends React.Component {
     constructor(props) {
         super(props);
         this.outputBoxRef = React.createRef();
@@ -31,7 +24,7 @@ class OutputPanel extends React.Component {
         }
 
         return (
-            <>
+            <div id="outputPanel">
                 <h1>Output</h1>
                 <div className="radio">
                     <label title="UTF-8 output mode: the output byte stream is interepreted as UTF-8. This is compatible with Code Golf.">
@@ -56,7 +49,7 @@ class OutputPanel extends React.Component {
                 <div id="outputContainer">
                     <div id="outputBox" className="pre" ref={this.outputBoxRef}>{output}</div>
                 </div>
-            </>
+            </div>
         );
     }
 

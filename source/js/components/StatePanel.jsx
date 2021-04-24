@@ -1,11 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { getInfoContent } from './InfoPanel.jsx';
-
-export function updateStatePanelHelper(element, props) {
-    ReactDOM.render(<React.StrictMode><StatePanel {...props}/></React.StrictMode>, element);
-}
 
 function getIPState(state, colorMode, colorOffset, onSelectedIPChanged) {
     const active = state.active ? 'activeIp' : '';
@@ -34,12 +29,12 @@ function getExecutionInfo(ticks) {
     );
 }
 
-function StatePanel(props) {
+export function StatePanel(props) {
     const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
         memoryCw, ticks, info, ipStates, onSelectedIPChanged } = props;
     const { breakpoints, size, chars, bytes, operators } = info;
     return (
-        <>
+        <div id="statePanel">
             <div id='statePanelTop'>
                 <h1>State</h1>
                 <div id='terminationReasonText'>{terminationReason}</div>
@@ -63,7 +58,7 @@ function StatePanel(props) {
                 {getExecutionInfo(ticks)}
                 {getInfoContent(breakpoints, size, chars, bytes, operators)}
             </div>
-        </>
+        </div>
     );
 }
 
