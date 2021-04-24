@@ -90,6 +90,7 @@ export class App extends React.Component {
         this.hexagony = null;
         this.gridView = null;
         this.executionHistory = [];
+        this.startingToPlay = false;
 
         // TODO: this.loadDataFromURL?
         this.updateColorMode();
@@ -353,6 +354,10 @@ export class App extends React.Component {
             window.totalTime = 0;
         }
 
+        if (play) {
+            this.startingToPlay = true;
+        }
+
         const hexagony = this.hexagony;
         let breakpoint = false;
 
@@ -393,6 +398,7 @@ export class App extends React.Component {
         const selectedIp = hexagony.activeIp;
         const forceUpdateExecutionState = stepCount > 1;
         this.gridView.updateActiveCell(this.executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
+        this.startingToPlay = false;
 
         const timeoutID = play && this.isRunning() && !this.isTerminated() ?
             window.setTimeout(this.onStart, userData.delay) :
@@ -550,7 +556,7 @@ export class App extends React.Component {
         this.setState({ selectedIp: ip });
 
     isPlaying() {
-        return this.state.timeoutID !== null;
+        return this.startingToPlay || this.state.timeoutID !== null;
     }
 
     // Returns whether the view is in execution mode. This includes just after the program
