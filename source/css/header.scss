@@ -5,6 +5,7 @@ $narrowButtonOuterWidth: 2.35rem;
 $sliderButtonWidth: 3;
 $buttonCount: 15;
 $narrowWidthPadding: 0.5;
+$transitionTime: 0.2s;
 
 body header {
     background: var(--color);
@@ -79,6 +80,11 @@ header > nav button,
     fill: var(--background);
 }
 
+header a,
+header > nav button {
+    transition: background $transitionTime ease-out, color $transitionTime ease-out;
+}
+
 header > nav .group {
     display: flex;
 }
@@ -99,8 +105,12 @@ header > nav button[aria-checked=true] {
 @media (hover: hover) {
     header a:hover,
     header > nav button:enabled:hover {
-        background: var(--background);
-        color: var(--color);
+        background: var(--hover);
+    }
+
+    header a.active:hover,
+    header > nav button[aria-checked=true]:enabled:hover {
+        background: var(--hover-active);
     }
 }
 
@@ -115,7 +125,7 @@ header > nav button:disabled {
 input[type=range] {
     -webkit-appearance: none;
     opacity: 0.8;
-    transition: opacity .2s;
+    transition: opacity $transitionTime ease-out;
     height: 1px;
     // don't put a weird outline on it when using it in Chrome.
     outline: none;

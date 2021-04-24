@@ -1,7 +1,7 @@
 $monospace: Consolas, Menlo, monospace;
 
 :root {
-    --color: rgb(53, 59, 65);
+    --color: hsl(210, 10%, 23%);
     --background: hsl(0, 0%, 99%);
     --panel-background: hsl(0, 0%, 95%);
     --output-background: hsl(0, 0%, 83%);
@@ -47,8 +47,10 @@ $monospace: Consolas, Menlo, monospace;
 }
 
 header {
-    --color: rgb(53, 59, 65);
+    --color: hsl(210, 10%, 23%);
     --background: hsl(0, 0%, 99%);
+    --hover: hsl(0, 0%, 40%);
+    --hover-active: hsl(0, 0%, 90%);
 }
 
 body {
