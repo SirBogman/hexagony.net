@@ -265,7 +265,7 @@ textarea {
     font-family: root.$monospace;
 }
 
-input[type=text] {
+.inputBox {
     background: var(--background);
     border: none;
     color: var(--text-color);

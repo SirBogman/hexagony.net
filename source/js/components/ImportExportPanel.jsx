@@ -42,6 +42,7 @@ export function ImportExportPanel(props) {
                 </button>
             </div>
             <input
+                className="inputBox"
                 type="text"
                 aria-label="Generated URL"
                 placeholder="Generate a link that encodes to the current program and input."
