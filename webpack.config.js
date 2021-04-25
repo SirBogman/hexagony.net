@@ -9,6 +9,7 @@ module.exports = {
   },
   output: {
     filename: '[name].mjs',
+    // eslint-disable-next-line no-undef
     path: path.resolve(__dirname, 'build'),
   },
   devServer: {
