@@ -16,6 +16,9 @@ plugins:
 rules:
   # https://eslint.org/docs/rules/
   # eqeqeq: warn
+  array-bracket-spacing:
+    - warn
+    - never
   arrow-body-style:
     - warn
     - as-needed
@@ -29,20 +32,38 @@ rules:
     - allowSingleLine: true
   curly: warn
   dot-notation: warn
+  eol-last: warn
+  func-call-spacing: warn
   indent:
     - warn
     - 4
     - SwitchCase: 1
+  key-spacing: warn
+  keyword-spacing: warn
+  max-len:
+    - off
+    - 120
   no-array-constructor: warn
   no-duplicate-imports: warn
   no-extra-parens: warn
+  no-lonely-if: warn
   no-multi-spaces: warn
+  no-multiple-empty-lines:
+    - warn
+    - max: 1
   no-new-wrappers: warn
   no-trailing-spaces: warn
   no-unneeded-ternary: warn
   no-unused-vars: warn
   no-var: warn
+  no-whitespace-before-property: warn
   object-shorthand: warn
+  object-curly-spacing:
+    - warn
+    - always
+  padded-blocks:
+    - warn
+    - never
   prefer-arrow-callback: warn
   prefer-const: warn
   prefer-destructuring:

@@ -68,7 +68,6 @@ function loadHashData() {
         hashData.link = location.href;
     }
 
-
     return hashData;
 }
 

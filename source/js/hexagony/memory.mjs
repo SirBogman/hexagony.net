@@ -1,5 +1,5 @@
-import {east, northEast, southEast} from './direction.mjs';
-import {PointAxial} from './pointaxial.mjs';
+import { east, northEast, southEast } from './direction.mjs';
+import { PointAxial } from './pointaxial.mjs';
 
 export class Memory {
     constructor() {

@@ -39,7 +39,7 @@ class MemoryPointer extends React.PureComponent {
     }
 
     render() {
-        const {x, y, angle, delay} = this.props;
+        const { x, y, angle, delay } = this.props;
         this.rotation = smoothRotation(this.rotation, angle);
         return <path id="memoryPointer"
             d="M0-23.12l-3 46.24h6z"
@@ -107,7 +107,7 @@ MemoryCell.propTypes = {
 
 class MemoryHexagonGrid extends React.PureComponent {
     render() {
-        const {x, y, rows, columns} = this.props;
+        const { x, y, rows, columns } = this.props;
         let path = '';
         const startX = (2 * x - 1.5 + y % 2) * cellOffsetX;
         const startY = (y + 0.5) * cellOffsetY - 0.5 * edgeLength;
@@ -170,7 +170,7 @@ class MemoryCells extends React.Component {
         const { memory } = this.props;
         this.lastDataVersion = memory.dataVersion;
         const cells = memory.getDataArray().map(entry => {
-            const {x, y, dir, value} = entry;
+            const { x, y, dir, value } = entry;
             const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
             return <MemoryCell key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>;
         });
@@ -198,7 +198,7 @@ class MemoryView extends React.Component {
     }
 
     render() {
-        const {delay, memory} = this.props;
+        const { delay, memory } = this.props;
         if (!memory) {
             return <svg ref={this.viewRef}/>;
         }
@@ -338,7 +338,7 @@ export class MemoryPanel extends React.Component {
     }
 
     render() {
-        const {delay, memory} = this.props;
+        const { delay, memory } = this.props;
         return (
             <div id="memoryPanel">
                 <h1>Memory</h1>

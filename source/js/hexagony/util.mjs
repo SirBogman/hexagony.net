@@ -1,4 +1,4 @@
-import {PointAxial} from './pointaxial.mjs';
+import { PointAxial } from './pointaxial.mjs';
 
 export function arrayInitialize(length, indexToValue) {
     return Array.from(new Array(length), (_, index) => indexToValue(index));

@@ -1,8 +1,8 @@
-import {east, northEast, northWest, southEast, southWest, west} from './direction.mjs';
-import {Grid} from './grid.mjs';
-import {Memory} from './memory.mjs';
-import {PointAxial} from './pointaxial.mjs';
-import {rubyStyleDivide, rubyStyleRemainder} from './util.mjs';
+import { east, northEast, northWest, southEast, southWest, west } from './direction.mjs';
+import { Grid } from './grid.mjs';
+import { Memory } from './memory.mjs';
+import { PointAxial } from './pointaxial.mjs';
+import { rubyStyleDivide, rubyStyleRemainder } from './util.mjs';
 
 export class Hexagony {
     constructor(sourceCode, inputString, edgeEventHandler) {
