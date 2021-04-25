@@ -7,7 +7,7 @@ export function updateNavigationLinks(element) {
         element);
 }
 
-export function NavigationLinks() {
+function NavigationLinksFunction() {
     const homeClass = window.location.pathname === '/' ? 'active' : null;
     const aboutClass = window.location.pathname === '/about.html' ? 'active' : null;
 
@@ -27,3 +27,5 @@ export function NavigationLinks() {
         </div>
     );
 }
+
+export const NavigationLinks = React.memo(NavigationLinksFunction);

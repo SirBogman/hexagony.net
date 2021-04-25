@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function HotkeysPanel() {
+function HotkeysPanelFunction() {
     return (
         <div id="hotkeysPanel">
             <h1>Hotkeys</h1>
@@ -19,3 +19,5 @@ export function HotkeysPanel() {
         </div>
     );
 }
+
+export const HotkeysPanel = React.memo(HotkeysPanelFunction);
