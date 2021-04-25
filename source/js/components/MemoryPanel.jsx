@@ -216,7 +216,7 @@ class MemoryView extends React.Component {
     }
 
     renderHexagonGrid() {
-        const memory = this.props.memory;
+        const { memory } = this.props;
         const currentX = memory.getX();
         const currentY = memory.getY();
         const haveBounds = memory.minX !== undefined;

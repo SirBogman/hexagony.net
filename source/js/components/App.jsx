@@ -340,7 +340,7 @@ export class App extends React.Component {
 
     getInput() {
         const { userData } = this.state;
-        let input = userData.input;
+        let { input } = userData;
         if (userData.inputMode === inputModeArguments) {
             input = input.replace(/\n/g, '\0');
         }
@@ -387,7 +387,7 @@ export class App extends React.Component {
             this.startingToPlay = true;
         }
 
-        const hexagony = this.hexagony;
+        const { hexagony } = this;
         let breakpoint = false;
 
         let maximumSteps = 1;
@@ -404,7 +404,7 @@ export class App extends React.Component {
             stepCount++;
             hexagony.step();
             const [i, j] = hexagony.grid.axialToIndex(hexagony.coords);
-            const angle = hexagony.dir.angle;
+            const { angle } = hexagony.dir;
 
             // The active coordinates don't change when the program terminates.
             if (!this.isTerminated()) {
@@ -455,7 +455,7 @@ export class App extends React.Component {
     }
 
     getStatePanelProps() {
-        const hexagony = this.hexagony;
+        const { hexagony } = this;
         const { terminationReason, userData, selectedIp } = this.state;
 
         return {
@@ -753,7 +753,7 @@ export class App extends React.Component {
 
     render() {
         const { animationDelay } = this.state;
-        const hexagony = this.hexagony;
+        const { hexagony } = this;
         const mainContent = hexagony !== null ?
             <>
                 <OutputPanel {...this.getOutputPanelProps()}/>

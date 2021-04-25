@@ -43,7 +43,7 @@ rules:
   prefer-const: warn
   prefer-destructuring:
     - warn
-    - object: false
+    - object: true
       array: true
   quotes:
     - warn

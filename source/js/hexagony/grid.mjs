@@ -53,7 +53,7 @@ export class Grid {
 
         if (setExecutedDirection && activeIp !== null) {
             const array = this.executed[activeIp][index[0]][index[1]];
-            const angle = setExecutedDirection.angle;
+            const { angle } = setExecutedDirection;
             if (!array.includes(angle)) {
                 array.push(angle);
             }

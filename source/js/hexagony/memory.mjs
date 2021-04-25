@@ -78,9 +78,7 @@ export class Memory {
     }
 
     get leftIndex() {
-        let mp = this.mp;
-        let dir = this.dir;
-        let cw = this.cw;
+        let { mp, dir, cw } = this;
         if (dir == northEast) {
             mp = cw ? new PointAxial(mp.q + 1, mp.r - 1) : new PointAxial(mp.q, mp.r - 1);
             dir = southEast;
@@ -98,10 +96,7 @@ export class Memory {
     }
 
     get rightIndex() {
-        let mp = this.mp;
-        let dir = this.dir;
-        let cw = this.cw;
-
+        let { mp, dir, cw } = this;
         if (dir == northEast) {
             mp = cw ? mp : new PointAxial(mp.q, mp.r - 1);
             dir = east;

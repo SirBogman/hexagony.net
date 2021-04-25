@@ -217,7 +217,7 @@ export class Hexagony {
 
         // Move the pointer back to the hex near the edge
         this.ips[this.activeIp] = this.ips[this.activeIp].subtract(this.dir.vector);
-        const coords = this.coords;
+        const { coords } = this;
 
         // If two values are still in range, we are wrapping around an edge (not a corner).
         if (!xBigger && !yBigger) {
