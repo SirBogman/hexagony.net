@@ -755,12 +755,15 @@ export class App extends React.Component {
     }
 
     render() {
-        const { animationDelay } = this.state;
+        const { animationDelay, userData } = this.state;
         const { hexagony } = this;
         const mainContent = hexagony !== null ?
             <>
                 <OutputPanel {...this.getOutputPanelProps()}/>
-                <MemoryPanel memory={hexagony.memory} delay={animationDelay}/>
+                <MemoryPanel
+                    delay={animationDelay}
+                    isPlayingAtHighSpeed={this.isPlaying() && userData.delay === 0}
+                    memory={hexagony.memory}/>
                 <StatePanel {...this.getStatePanelProps()}/>
             </> :
             <>

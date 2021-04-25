@@ -365,9 +365,16 @@ export class MemoryPanel extends React.Component {
         this.memoryPanZoom.zoomTo(x, y, 1.0 / this.getScale());
         this.memoryPanZoom.moveTo(x, y);
     }
+
+    shouldComponentUpdate(nextProps) {
+        // It slows down the app too much to render the memory panel when executing at maximum speed.
+        // Don't render until the execution stops, or the execution speed is reduced.
+        return !nextProps.isPlayingAtHighSpeed;
+    }
 }
 
 MemoryPanel.propTypes = {
-    memory: PropTypes.object,
     delay: PropTypes.string.isRequired,
+    isPlayingAtHighSpeed: PropTypes.bool.isRequired,
+    memory: PropTypes.object.isRequired,
 };
