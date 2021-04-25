@@ -5,12 +5,14 @@ env:
 extends:
   - eslint:recommended
   - plugin:react/recommended
-parser: babel-eslint
+parser: '@babel/eslint-parser'
 parserOptions:
   ecmaVersion: 12
   sourceType: module
   ecmaFeatures:
     jsx: true
+plugins:
+  - '@babel'
 rules:
   # https://eslint.org/docs/rules/
   # eqeqeq: warn
