@@ -685,7 +685,7 @@ export class App extends React.Component {
         this.gridView.setDelay(animationDelay);
         this.gridView.setShowArrows(userData.showArrows);
         this.gridView.setShowIPs(userData.showIPs);
-        this.gridView.setSourceCode(userData.code);
+        this.gridView.setSourceCode(userData.code, true);
         this.gridView.setUpdateCodeCallback(this.updateCode);
 
         document.addEventListener('keydown', this.onKeyDown);

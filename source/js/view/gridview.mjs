@@ -104,7 +104,7 @@ export class GridView {
                 this.updateHexagonWithCode(k, filteredCode);
             }
 
-            this._updateCode(code, isProgrammatic);
+            this._updateCode(code);
 
             if (!isProgrammatic) {
                 this.pushUndoItem(
@@ -243,12 +243,12 @@ export class GridView {
         }
     }
 
-    _updateCode(code, isProgrammatic=false) {
+    _updateCode(code) {
         this.filteredSourceCode = removeWhitespaceAndDebug(code);
         if (this.sourceCode != code) {
             this.sourceCode = code;
             if (this.updateCodeCallback) {
-                this.updateCodeCallback(code, isProgrammatic);
+                this.updateCodeCallback(code);
             }
         }
     }
