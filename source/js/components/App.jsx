@@ -544,7 +544,7 @@ export class App extends React.Component {
         const newCode = this.resizeCode(this.gridView.size - 1);
         if (countOperators(this.state.userData.code) == countOperators(newCode) ||
             confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
-                this.resize(Math.max(1, this.gridView.size - 1));
+            this.resize(Math.max(1, this.gridView.size - 1));
         }
     };
 

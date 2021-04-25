@@ -29,6 +29,10 @@ rules:
     - allowSingleLine: true
   curly: warn
   dot-notation: warn
+  indent:
+    - warn
+    - 4
+    - SwitchCase: 1
   no-array-constructor: warn
   no-duplicate-imports: warn
   no-extra-parens: warn
