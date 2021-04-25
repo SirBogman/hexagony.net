@@ -156,6 +156,9 @@ export class App extends React.Component {
             return i < newRowCount && j < getRowSize(newSize, i);
         });
 
+        // Restore breakpoints, because the size of the grid may have changed.
+        this.gridView.setBreakpoints(this.getBreakpoints());
+
         this.setState(produce(state => {
             state.userData.code = code;
             state.isGeneratedLinkUpToDate = false;
@@ -686,6 +689,7 @@ export class App extends React.Component {
         this.gridView.setShowIPs(userData.showIPs);
         this.gridView.setSourceCode(userData.code, true);
         this.gridView.setUpdateCodeCallback(this.updateCode);
+        this.gridView.setBreakpoints(this.getBreakpoints());
 
         document.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('hashchange', this.loadDataFromURL);
