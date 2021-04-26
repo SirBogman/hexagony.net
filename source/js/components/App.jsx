@@ -479,6 +479,7 @@ export class App extends React.Component {
             memoryPointer: hexagony.memory.mp,
             memoryDir: hexagony.memory.dir,
             memoryCw: hexagony.memory.cw,
+            memoryEdges: Object.keys(hexagony.memory.data).length,
             info: this.getInfoPanelProps(),
             onSelectedIPChanged: this.onSelectedIPChanged,
         };

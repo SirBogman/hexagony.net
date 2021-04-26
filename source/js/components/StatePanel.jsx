@@ -20,18 +20,20 @@ function getIPState(state, colorMode, colorOffset, onSelectedIPChanged) {
     );
 }
 
-function getExecutionInfo(ticks) {
+function getExecutionInfo(ticks, memoryEdges) {
     return (
         <>
-            <p key="ec" className="extraState col1">Executed Count</p>
-            <p key="ec2" className="extraState col2 right">{ticks.toLocaleString('en')}</p>
+            <p key="ec" className="extraState col1" title="Number of executed instructions">Executed</p>
+            <p key="ec2" className="extraState col2 right" title="Number of executed instructions">{ticks.toLocaleString('en')}</p>
+            <p key="mc" className="extraState col1" title="Number of memory edges storing data">Memory Edges</p>
+            <p key="mc2" className="extraState col2 right" title="Number of memory edges storing data">{memoryEdges.toLocaleString('en')}</p>
         </>
     );
 }
 
 export function StatePanel(props) {
     const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
-        memoryCw, ticks, info, ipStates, onSelectedIPChanged } = props;
+        memoryCw, memoryEdges, ticks, info, ipStates, onSelectedIPChanged } = props;
     const { breakpoints, size, chars, bytes, operators } = info;
     return (
         <div id="statePanel">
@@ -51,11 +53,11 @@ export function StatePanel(props) {
                 <p key="dir" className="col4" title="Direction of memory pointer">{memoryDir.toString()}</p>
                 <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
                     {memoryCw ? 'CW' : 'CCW'}</p>
-                {getExecutionInfo(ticks)}
+                {getExecutionInfo(ticks, memoryEdges)}
                 {getInfoContent(breakpoints, size, chars, bytes, operators)}
             </div>
             <div id="stateGrid2">
-                {getExecutionInfo(ticks)}
+                {getExecutionInfo(ticks, memoryEdges)}
                 {getInfoContent(breakpoints, size, chars, bytes, operators)}
             </div>
         </div>
@@ -80,6 +82,7 @@ StatePanel.propTypes = {
     ticks: PropTypes.number.isRequired,
     memoryCw: PropTypes.bool.isRequired,
     memoryDir: PropTypes.object.isRequired,
+    memoryEdges: PropTypes.number.isRequired,
     memoryPointer: PropTypes.shape({
         q: PropTypes.number.isRequired,
         r: PropTypes.number.isRequired,
