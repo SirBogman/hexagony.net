@@ -356,7 +356,7 @@ export class GridView {
         }
     }
 
-    checkArrowKeys(i, j, k, elem, event) {
+    onKeyDown(i, j, k, elem, event) {
         if (elem.selectionStart == elem.selectionEnd &&
             (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Backspace')) {
             // No text is selected. Let the text input element handle it.
@@ -478,7 +478,7 @@ export class GridView {
 
         input.focus();
         input.select();
-        input.addEventListener('keydown', e => this.checkArrowKeys(i, j, k, input, e));
+        input.addEventListener('keydown', e => this.onKeyDown(i, j, k, input, e));
 
         input.addEventListener('input', () => {
             const newText = removeWhitespaceAndDebug(input.value) || '.';
