@@ -17,5 +17,3 @@ Eventually:
     dialog to input codepoint numeric value into hexagon cell. show value % 256 and -value % 256.
 
     Memory pointer % 360.
-
-    Continue to minify or layout code automatically when changes are made.

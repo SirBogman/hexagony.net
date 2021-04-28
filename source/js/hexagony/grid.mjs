@@ -1,4 +1,4 @@
-import { arrayInitialize, getHexagonSize, getRowSize } from './util.mjs';
+import { arrayInitialize, getHexagonSize, getRowSize, isWhitespaceOrDebug } from './util.mjs';
 
 export class Grid {
     constructor(sourceCode) {
@@ -9,18 +9,8 @@ export class Grid {
     setSourceCode(sourceCode) {
         const data = [];
         for (const char of sourceCode) {
-            switch (char) {
-                case '`':
-                case ' ':
-                case '\t':
-                case '\n':
-                case '\v':
-                case '\f':
-                case '\r':
-                    break;
-                default:
-                    data.push(char);
-                    break;
+            if (!isWhitespaceOrDebug(char)) {
+                data.push(char);
             }
         }
         this.size = getHexagonSize(data.length);

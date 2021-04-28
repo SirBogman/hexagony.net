@@ -17,6 +17,11 @@ export function countCodepoints(code) {
     return count;
 }
 
+// Returns the number of debug metacharacters.
+export function countDebug(code) {
+    return (code.match(/`/g) || []).length;
+}
+
 export function countOperators(code) {
     let count = 0;
     for (const char of removeWhitespaceAndDebug(code)) {
@@ -41,44 +46,23 @@ export function indexToAxial(size, rowIndex, columnIndex) {
     return new PointAxial(Math.max(1 - size, -rowIndex) + columnIndex, rowIndex - size + 1);
 }
 
-export function minifySource(code) {
-    code = removeWhitespace(code);
-    const size = getHexagonSize(countCodepoints(code));
-    const minimumLength = getCodeLength(size - 1) + 1;
-    code = code.replace(/\.+$/, '');
-    const newLength = countCodepoints(code);
-    if (newLength < minimumLength) {
-        code += '.'.repeat(minimumLength - newLength);
+export function isWhitespaceOrDebug(char) {
+    switch (char) {
+        case '`':
+        case ' ':
+        case '\t':
+        case '\n':
+        case '\v':
+        case '\f':
+        case '\r':
+            return true;
+        default:
+            return false;
     }
-    return code;
 }
 
-export function layoutSource(code) {
-    code = removeWhitespace(code);
-    const size = getHexagonSize(countCodepoints(removeDebug(code)));
-    const iterator = code[Symbol.iterator]();
-    let newCode = '';
-    const rowCount = getRowCount(size);
-    for (let i = 0; i < rowCount; i++) {
-        newCode += ' '.repeat(rowCount - getRowSize(size, i));
-        for (let j = 0; j < getRowSize(size, i); j++) {
-            let prefix = ' ';
-            let next = iterator.next();
-            if (next.value == '`') {
-                prefix = '`';
-                next = iterator.next();
-            }
-            newCode += `${prefix}${next.value || '.'}`;
-        }
-        if (i != rowCount - 1) {
-            newCode += '\n';
-        }
-    }
-    return newCode;
-}
-
-export function removeDebug(code) {
-    return code.replace(/`/g, '');
+export function containsWhitespace(code) {
+    return code.match(/ |\t|\n|\v|\f|\r/);
 }
 
 export function removeWhitespace(code) {

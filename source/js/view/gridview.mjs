@@ -1,4 +1,4 @@
-import { arrayInitialize, countCodepoints, getHexagonSize, getRowCount, getRowSize, indexToAxial, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
+import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { createSvgElement, emptyElement } from './viewutil.mjs';
 
 const edgeLength = 20;
@@ -37,8 +37,8 @@ function outlineHelper(x1, y1, x2, y2, size) {
 }
 
 export class GridView {
-    constructor(toggleBreakpointCallback) {
-        this.updateCodeCallback = null;
+    constructor(updateCodeCallback, toggleBreakpointCallback) {
+        this.updateCodeCallback = updateCodeCallback;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.cellPaths = [];
         this.edgeConnectors = {};
@@ -51,11 +51,6 @@ export class GridView {
         this.rowCount = -1;
         this.fullWidth = 0;
         this.fullHeight = 0;
-        this.sourceCode = '';
-        this.filteredSourceCode = '';
-        this.undoStack = [];
-        this.redoStack = [];
-        this.isUndoRedoInProgress = false;
         this.edgeTransitionMode = false;
         this.showArrows = false;
         this.showIPs = false;
@@ -90,28 +85,14 @@ export class GridView {
     }
 
     // Public API for updating source code.
-    setSourceCode(code, isProgrammatic=false) {
-        const oldCode = this.sourceCode;
-        if (oldCode != code) {
-            const filteredCode = removeWhitespaceAndDebug(code);
-            const newSize = getHexagonSize(countCodepoints(filteredCode));
-            const isSizeChange = newSize != this.size;
-            if (isSizeChange) {
-                this._createGrid(newSize);
-            }
+    setSourceCode(sourceCode) {
+        this.sourceCode = sourceCode;
+        if (sourceCode.size !== this.size) {
+            this._createGrid(sourceCode.size);
+        }
 
-            for (let k = 0; k < this.cellPaths.length; k++) {
-                this.updateHexagonWithCode(k, filteredCode);
-            }
-
-            this._updateCode(code);
-
-            if (!isProgrammatic) {
-                this.pushUndoItem(
-                    () => this.setSourceCode(oldCode),
-                    () => this.setSourceCode(code),
-                    isSizeChange);
-            }
+        for (let k = 0; k < this.cellPaths.length; k++) {
+            this.updateHexagonWithCode(k);
         }
     }
 
@@ -156,7 +137,7 @@ export class GridView {
         this._createGrid(this.size);
 
         for (let k = 0; k < this.cellPaths.length; k++) {
-            this.updateHexagonWithCode(k, this.filteredSourceCode);
+            this.updateHexagonWithCode(k);
         }
 
         this._updateExecutionHistoryColors();
@@ -240,79 +221,6 @@ export class GridView {
             const path = cell.firstElementChild;
             path.classList.remove(className);
             path.style.transitionDuration = this.delay;
-        }
-    }
-
-    _updateCode(code) {
-        this.filteredSourceCode = removeWhitespaceAndDebug(code);
-        if (this.sourceCode != code) {
-            this.sourceCode = code;
-            if (this.updateCodeCallback) {
-                this.updateCodeCallback(code);
-            }
-        }
-    }
-
-    setUpdateCodeCallback(updateCodeCallback) {
-        this.updateCodeCallback = updateCodeCallback;
-    }
-
-    canUndo(isRunning) {
-        if (this.undoStack.length == 0) {
-            return false;
-        }
-
-        return !isRunning || !this.undoStack[this.undoStack.length - 1].isSizeChange;
-    }
-
-    canRedo(isRunning) {
-        if (this.redoStack.length == 0) {
-            return false;
-        }
-
-        return !isRunning || !this.redoStack[this.redoStack.length - 1].isSizeChange;
-    }
-
-    // NOTE: It probably makes more sense to have the App component own the undo stack.
-    // The reason it's currently set up this way is that it allows the GridView to create
-    // small undo items when editing characters in that view, which represent single character
-    // changes, rather than whole string changes. There are other ways to do this though.
-    undo() {
-        if (this.undoStack.length) {
-            const undoItem = this.undoStack.pop();
-            this.redoStack.push(undoItem);
-            this.isUndoRedoInProgress = true;
-            try {
-                undoItem.undo();
-            }
-            finally {
-                this.isUndoRedoInProgress = false;
-            }
-        }
-    }
-
-    redo() {
-        if (this.redoStack.length) {
-            const undoItem = this.redoStack.pop();
-            this.undoStack.push(undoItem);
-            this.isUndoRedoInProgress = true;
-            try {
-                undoItem.redo();
-            }
-            finally {
-                this.isUndoRedoInProgress = false;
-            }
-        }
-    }
-
-    pushUndoItem(undoFunction, redoFunction, isSizeChange) {
-        if (!this.isUndoRedoInProgress) {
-            this.undoStack.push({
-                undo: undoFunction,
-                redo: redoFunction,
-                isSizeChange,
-            });
-            this.redoStack = [];
         }
     }
 
@@ -429,91 +337,52 @@ export class GridView {
         }
     }
 
-    updateHexagonWithCode(index, code) {
-        const iterator = code[Symbol.iterator]();
+    updateHexagonWithCode(index) {
+        const { grid } = this.sourceCode;
         for (let i = 0; i < this.cellPaths[index].length; i++) {
+            const row = grid[i];
             for (let j = 0; j < this.cellPaths[index][i].length; j++) {
                 const cell = this.cellPaths[index][i][j];
-                const char = iterator.next().value || '.';
+                const char = row[j];
                 const input = cell.querySelector('input');
                 if (input) {
                     input.value = char;
                     input.select();
                 }
                 else {
-                    const text = cell.querySelector('text');
-                    text.textContent = char;
-                    if (char == '.') {
-                        text.classList.add('noop');
-                    }
-                    else {
-                        text.classList.remove('noop');
-                    }
+                    this._setSvgText(cell.querySelector('text'), char);
                 }
             }
         }
-    }
-
-    updateFromHexagons(targetI, targetJ, value, skipActiveHexagon = null) {
-        let code = '';
-        let oldValue = '.';
-
-        const iterator = this.filteredSourceCode[Symbol.iterator]();
-        for (let i = 0; i < this.rowCount; i++) {
-            for (let j = 0; j < getRowSize(this.size, i); j++) {
-                let current = iterator.next().value;
-                if (i == targetI && j == targetJ) {
-                    oldValue = current;
-                    if (oldValue == value) {
-                        return;
-                    }
-                    current = value;
-                }
-                code += current || '.';
-            }
-        }
-
-        this.pushUndoItem(
-            () => this.updateFromHexagons(targetI, targetJ, oldValue),
-            () => this.updateFromHexagons(targetI, targetJ, value),
-            false);
-
-        for (let k = 0; k < this.cellPaths.length; k++) {
-            if (k != skipActiveHexagon) {
-                this.updateHexagonWithCode(k, code);
-            }
-        }
-
-        this._updateCode(minifySource(code));
     }
 
     checkArrowKeys(i, j, k, elem, event) {
         if (elem.selectionStart == elem.selectionEnd &&
-            (event.key == 'ArrowLeft' || event.key == 'ArrowRight' || event.key == 'Backspace')) {
+            (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Backspace')) {
             // No text is selected. Let the text input element handle it.
             return;
         }
 
-        if (event.key == 'b' && event.ctrlKey) {
+        if (event.key === 'b' && event.ctrlKey) {
             if (this.toggleBreakpointCallback) {
                 this.toggleBreakpointCallback(i, j);
             }
             event.preventDefault();
             return;
         }
-        if (event.key == 'Escape') {
+        if (event.key === 'Escape') {
             document.getElementById('speedSlider').focus();
             event.preventDefault();
             return;
         }
-        if (event.key == 'Backspace' || event.key == 'Delete') {
-            this.updateFromHexagons(i, j, '.');
+        if (event.key === 'Backspace' || event.key === 'Delete') {
+            this.updateCodeCallback(i, j, '.');
             event.preventDefault();
             return;
         }
 
         let di = 0, dj = 0;
-        if (event.key == 'ArrowLeft' || event.key == 'Tab' && event.shiftKey) {
+        if (event.key === 'ArrowLeft' || event.key === 'Tab' && event.shiftKey) {
             if (j > 0) {
                 dj = -1;
             }
@@ -527,8 +396,8 @@ export class GridView {
                 return;
             }
         }
-        else if (event.key == 'ArrowRight' || event.key == 'Tab' && !event.shiftKey ||
-                 event.key == 'Enter' && !event.ctrlKey) {
+        else if (event.key === 'ArrowRight' || event.key === 'Tab' && !event.shiftKey ||
+                 event.key === 'Enter' && !event.ctrlKey) {
             if (j < this.cellPaths[0][i].length - 1) {
                 dj = 1;
             }
@@ -542,10 +411,10 @@ export class GridView {
                 return;
             }
         }
-        else if (event.key == 'ArrowUp') {
+        else if (event.key === 'ArrowUp') {
             di = -1;
         }
-        else if (event.key == 'ArrowDown') {
+        else if (event.key === 'ArrowDown') {
             di = 1;
         }
         if (di != 0 || dj != 0) {
@@ -613,15 +482,20 @@ export class GridView {
 
         input.addEventListener('input', () => {
             const newText = removeWhitespaceAndDebug(input.value) || '.';
-            this.updateFromHexagons(i, j, newText, k);
+            this.updateCodeCallback(i, j, newText);
             // Reselect the text so that backspace can work normally.
             input.select();
         });
 
         input.addEventListener('focusout', () => {
             svgCell.removeChild(container);
-            this.updateHexagonWithCode(k, this.filteredSourceCode);
+            this._setSvgText(svgText, input.value);
         });
+    }
+
+    _setSvgText(textElement, text) {
+        textElement.textContent = text;
+        textElement.classList.toggle('noop', text === '.');
     }
 
     _addEdgeConnector(key, connector, isSecondary) {

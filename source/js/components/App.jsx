@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import produce from 'immer';
+import { produce } from 'immer';
 import LZString from 'lz-string';
 
 import { Hexagony } from '../hexagony/hexagony.mjs';
-import { arrayInitialize, countBytes, countCodepoints, countOperators, getCodeLength, getHexagonSize, getRowCount, getRowSize, layoutSource, minifySource, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
+import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { GridView, initializeGridColors } from '../view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from '../view/viewutil.mjs';
+import { getCode, SourceCode } from '../view/SourceCode.mjs';
 
 import { CodePanel } from './CodePanel.jsx';
 import { HotkeysPanel } from './HotkeysPanel.jsx';
@@ -61,7 +62,7 @@ function loadHashData() {
         hashData = { code: fibonacciExample };
     }
     else if (location.hash === '#helloworld') {
-        hashData = { code: layoutSource(helloWorldExample) };
+        hashData = { code: SourceCode.fromString(helloWorldExample).layoutCode() };
     }
 
     if (hashData !== null) {
@@ -82,7 +83,7 @@ function loadUserData() {
     }
 
     if (!userData?.code) {
-        userData = { code: layoutSource(helloWorldExample) };
+        userData = { code: SourceCode.fromString(helloWorldExample).layoutCode() };
     }
 
     const defaultColorMode = colorModes[Number(prefersDarkColorScheme())];
@@ -116,21 +117,28 @@ export class App extends React.Component {
             selectedIp: 0,
             link: '',
             isGeneratedLinkUpToDate: false,
+            // isRunning indicates whether the view is in execution mode. This includes just after the program
+            // terminates, so that the user can see its state.
+            isRunning: false,
+            isUndoRedoInProgress: false,
             animationDelay: getAnimationDelay(userData.delay),
             terminationReason: null,
             ticks: 0,
             timeoutID: null,
+            undoStack: [],
+            redoStack: [],
         };
 
         const hashData = loadHashData();
         if (hashData && hashData.code) {
-            this.applyHashDataToState(this.state, hashData);
+            App.applyHashDataToState(this.state, hashData);
             // This is a new tab. Copy its state to sessionStorage so that it will be
             // independent of existing tabs.
             this.saveUserData();
             clearLocationHash();
         }
 
+        this.state.sourceCode = SourceCode.fromString(this.state.userData.code).toObject();
         this.hexagony = null;
         this.gridView = null;
         this.executionHistory = [];
@@ -145,30 +153,149 @@ export class App extends React.Component {
         localStorage.userData = serializedData;
     }
 
-    updateCode = code => {
-        // Clear breakpoints that non longer fit.
-        // The gridView will automatically discard UI elements associated with them when the size changes.
-        const filteredCode = removeWhitespaceAndDebug(code);
-        const newSize = getHexagonSize(countCodepoints(filteredCode));
-        const newRowCount = getRowCount(newSize);
-        const breakpoints = this.state.userData.breakpoints.filter(id => {
-            const [i, j] = id.split(',').map(Number);
-            return i < newRowCount && j < getRowSize(newSize, i);
-        });
+    static canUndo(state) {
+        const { isRunning, undoStack } = state;
+        return undoStack.length !== 0 &&
+            (!isRunning || !undoStack[undoStack.length - 1].isSizeChange);
+    }
 
-        // Restore breakpoints, because the size of the grid may have changed.
-        this.gridView.setBreakpoints(this.getBreakpoints());
+    static canRedo(state) {
+        const { isRunning, redoStack } = state;
+        return redoStack.length !== 0 &&
+            (!isRunning || !redoStack[redoStack.length - 1].isSizeChange);
+    }
 
+    updateCodeCallback = (i, j, char) =>
+        this.setState(produce(state => App.applyCodeChangeToState(state, char, i, j)));
+
+    setSourceCode = newCode =>
+        this.setState(produce(state => App.applyCodeChangeToState(state, newCode)));
+
+    applySourceCodeChange = sourceCodeToNewCode =>
+        this.setState(produce(state =>
+            App.applyCodeChangeToState(state,
+                sourceCodeToNewCode(SourceCode.fromObject(state.sourceCode)))));
+
+    onLayoutCode = () =>
+        this.applySourceCodeChange(sourceCode => sourceCode.layoutCode());
+
+    onMinifyCode = () =>
+        this.applySourceCodeChange(sourceCode => sourceCode.minifyCode());
+
+    onBigger = () =>
+        this.applySourceCodeChange(sourceCode => sourceCode.resizeCode(sourceCode.size + 1));
+
+    onReset = () =>
+        this.applySourceCodeChange(sourceCode => sourceCode.resetCode());
+
+    onSmaller = () => {
+        const { state } = this;
+        const { size } = state.sourceCode;
+        const newSize = Math.max(1, size - 1);
+        // Can't use applySourceCodeChange, because side effects (the confirm dialog)
+        // aren't compatible with produce.
+        const newCode = SourceCode.fromObject(state.sourceCode).resizeCode(newSize);
+        if (countOperators(this.state.userData.code) == countOperators(newCode) ||
+            confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
+            this.setState(produce(state => App.applyCodeChangeToState(state, newCode)));
+        }
+    };
+
+    onUndo = () =>
         this.setState(produce(state => {
-            state.userData.code = code;
-            state.isGeneratedLinkUpToDate = false;
-
-            // Avoid changing from one empty array to another and triggering saving data on load.
-            if (state.userData.breakpoints.length !== breakpoints.length) {
-                state.userData.breakpoints = breakpoints;
+            if (App.canUndo(state)) {
+                const undoItem = state.undoStack.pop();
+                state.redoStack.push(undoItem);
+                const { i, j, oldCode } = undoItem;
+                state.isUndoRedoInProgress = true;
+                try {
+                    App.applyCodeChangeToState(state, oldCode, i, j);
+                }
+                finally {
+                    state.isUndoRedoInProgress = false;
+                }
             }
         }));
-    };
+
+    onRedo = () =>
+        this.setState(produce(state => {
+            if (App.canRedo(state)) {
+                const undoItem = state.redoStack.pop();
+                state.undoStack.push(undoItem);
+                const { i, j, newCode } = undoItem;
+                state.isUndoRedoInProgress = true;
+                try {
+                    App.applyCodeChangeToState(state, newCode, i, j);
+                }
+                finally {
+                    state.isUndoRedoInProgress = false;
+                }
+            }
+        }));
+
+    static applyCodeChangeToState(state, newCode, i=null, j=null) {
+        const { isUndoRedoInProgress, sourceCode, userData } = state;
+
+        if (i !== null) {
+            // It's a one character change.
+            const oldCode = sourceCode.grid[i][j];
+            if (newCode === oldCode) {
+                return;
+            }
+            state.isGeneratedLinkUpToDate = false;
+            sourceCode.grid[i][j] = newCode;
+            sourceCode.code = getCode(sourceCode);
+            userData.code = sourceCode.code;
+
+            if (!isUndoRedoInProgress) {
+                state.undoStack.push({
+                    i,
+                    j,
+                    newCode,
+                    oldCode,
+                    isSizeChange: false,
+                });
+                state.redoStack = [];
+            }
+
+            return;
+        }
+
+        // Replace all of the code.
+        // It would be possible to detect single char changes.
+        // They only happen through the import/export panel though, which is likely used
+        // less than the main code panel for editing.
+        const oldCode = sourceCode.code;
+        if (newCode === oldCode) {
+            return;
+        }
+        state.isGeneratedLinkUpToDate = false;
+        const newSourceCode = SourceCode.fromString(newCode).toObject();
+        const newSize = newSourceCode.size;
+        const oldSize = sourceCode.size;
+        state.sourceCode = newSourceCode;
+        userData.code = newCode;
+
+        if (!isUndoRedoInProgress) {
+            state.undoStack.push({
+                i: null,
+                j: null,
+                newCode,
+                oldCode,
+                isSizeChange: newSize !== oldSize,
+            });
+            state.redoStack = [];
+        }
+
+        if (newSize < oldSize) {
+            // Remove breakpoints that no longer fit.
+            const newRowCount = getRowCount(newSize);
+            userData.breakpoints = userData.breakpoints.filter(id => {
+                const [i, j] = id.split(',').map(Number);
+                return i < newRowCount && j < getRowSize(newSize, i);
+            });
+        }
+    }
 
     getImportExportPanelProps() {
         const { isGeneratedLinkUpToDate, link, userData } = this.state;
@@ -215,11 +342,12 @@ export class App extends React.Component {
     };
 
     getPlayControlsProps() {
+        const { isRunning, userData } = this.state;
         return {
             canPlayPause: !this.isTerminated(),
             canStep: !this.isTerminated() && !this.isPlaying(),
-            canStop: this.isRunning(),
-            delay: this.state.userData.delay,
+            canStop: isRunning,
+            delay: userData.delay,
             isPlaying: this.isPlaying(),
             onPlayPause: this.onPlayPause,
             onSpeedSliderChanged: this.onSpeedSliderChanged,
@@ -229,12 +357,12 @@ export class App extends React.Component {
     }
 
     getEditControlsProps() {
-        const running = this.isRunning();
+        const { isRunning, userData } = this.state;
         return {
-            canDeleteBreakpoints: this.state.userData.breakpoints.length !== 0,
-            canEdit: !running,
-            canRedo: this.gridView !== null && this.gridView.canRedo(running),
-            canUndo: this.gridView !== null && this.gridView.canUndo(running),
+            canDeleteBreakpoints: userData.breakpoints.length !== 0,
+            canEdit: !isRunning,
+            canRedo: App.canRedo(this.state),
+            canUndo: App.canUndo(this.state),
             onBigger: this.onBigger,
             onDeleteBreakpoints: this.onDeleteBreakpoints,
             onRedo: this.onRedo,
@@ -279,7 +407,7 @@ export class App extends React.Component {
         }));
     };
 
-    applyHashDataToState(state, hashData) {
+    static applyHashDataToState(state, hashData) {
         state.userData.code = hashData.code;
 
         if (isValidInputMode(hashData.inputMode)) {
@@ -300,15 +428,13 @@ export class App extends React.Component {
         if (hashData && hashData.code) {
             // Stop execution first, as the hexagon size may change.
             this.onStop();
-            this.setSourceCode(hashData.code);
-            this.setState(produce(state => this.applyHashDataToState(state, hashData)));
+            this.setState(produce(state => {
+                App.applyCodeChangeToState(state, hashData.code);
+                App.applyHashDataToState(state, hashData);
+            }));
             clearLocationHash();
         }
     };
-
-    onMinifyCode = () => this.setSourceCode(minifySource(this.state.userData.code));
-
-    onLayoutCode = () => this.setSourceCode(layoutSource(this.state.userData.code));
 
     onGenerateLink = () => {
         const { userData } = this.state;
@@ -419,7 +545,6 @@ export class App extends React.Component {
 
             if (this.breakpointExistsAt(i, j)) {
                 breakpoint = true;
-                play = false;
             }
         }
 
@@ -431,11 +556,12 @@ export class App extends React.Component {
         this.gridView.updateActiveCell(this.executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
         this.startingToPlay = false;
 
-        const timeoutID = play && this.isRunning() && !this.isTerminated() ?
+        const timeoutID = play && !breakpoint && !this.isTerminated() ?
             window.setTimeout(this.onStart, userData.delay) :
             null;
 
         this.setState({
+            isRunning: true,
             selectedIp,
             terminationReason: hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null),
             ticks: hexagony.ticks,
@@ -499,82 +625,25 @@ export class App extends React.Component {
         };
     }
 
-    resizeCode(size) {
-        const oldCode = removeWhitespaceAndDebug(this.state.userData.code);
-        const oldSize = getHexagonSize(countCodepoints(oldCode));
-        let newCode = '';
+    onPause = () => this.setState(produce(state => App.pause(state)));
 
-        if (size > oldSize) {
-            const iterator = oldCode[Symbol.iterator]();
-            for (let i = 0; i < getRowCount(oldSize); i++) {
-                for (let j = 0; j < getRowSize(oldSize, i); j++) {
-                    newCode += iterator.next().value || '.';
-                }
-
-                newCode += '.'.repeat(getRowSize(size, i) - getRowSize(oldSize, i));
-            }
-        }
-        else {
-            const iterator = oldCode[Symbol.iterator]();
-            for (let i = 0; i < getRowCount(size); i++) {
-                for (let j = 0; j < getRowSize(size, i); j++) {
-                    newCode += iterator.next().value || '.';
-                }
-
-                for (let j = getRowSize(oldSize, i) - getRowSize(size, i); j > 0; j--) {
-                    iterator.next();
-                }
-            }
-        }
-
-        newCode += '.'.repeat(getCodeLength(size) - countCodepoints(newCode));
-        newCode = minifySource(newCode);
-        return newCode;
-    }
-
-    resize(size) {
-        const p1 = performance.now();
-        this.setSourceCode(this.resizeCode(size));
-        const p2 = performance.now();
-        console.log(`resize ${size} took ${p2 - p1}`);
-    }
-
-    onBigger = () => this.resize(this.gridView.size + 1);
-
-    onReset = () => this.reset(this.gridView.size);
-
-    onSmaller = () => {
-        const newCode = this.resizeCode(this.gridView.size - 1);
-        if (countOperators(this.state.userData.code) == countOperators(newCode) ||
-            confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
-            this.resize(Math.max(1, this.gridView.size - 1));
-        }
-    };
-
-    onRedo = () => this.gridView.redo();
-
-    onUndo = () => this.gridView.undo();
-
-    reset(size) {
-        this.setSourceCode('.'.repeat(getCodeLength(size - 1) + 1));
-    }
-
-    setSourceCode = newCode => this.gridView.setSourceCode(newCode);
-
-    onPause = () => {
-        const { timeoutID } = this.state;
+    static pause(state) {
+        const { timeoutID } = state;
         if (timeoutID !== null) {
             window.clearTimeout(timeoutID);
-            this.setState({ timeoutID: null });
+            state.timeoutID = null;
         }
-    };
+    }
 
     onStop = () => {
         this.hexagony = null;
         this.executionHistory = null;
         this.gridView.clearCellExecutionColors();
-        this.onPause();
-        this.setState({ ticks: 0 });
+        this.setState(produce(state => {
+            App.pause(state);
+            state.ticks = 0;
+            state.isRunning = false;
+        }));
     };
 
     resetCellColors() {
@@ -591,23 +660,17 @@ export class App extends React.Component {
         return this.startingToPlay || this.state.timeoutID !== null;
     }
 
-    // Returns whether the view is in execution mode. This includes just after the program
-    // terminates, so that the user can see its state.
-    isRunning() {
-        return this.hexagony != null;
-    }
-
     isTerminated() {
         return this.hexagony != null && this.hexagony.getTerminationReason() != null;
     }
 
     onKeyDown = e => {
         if (e.ctrlKey) {
-            if (e.key == '.') {
+            if (e.key === '.') {
                 this.onStep();
                 e.preventDefault();
             }
-            else if (e.key == 'Enter') {
+            else if (e.key === 'Enter') {
                 if (e.shiftKey) {
                     this.onStop();
                 }
@@ -616,19 +679,15 @@ export class App extends React.Component {
                 }
                 e.preventDefault();
             }
-            else if (e.key == 'z') {
+            else if (e.key === 'z') {
                 if (e.target.id !== 'inputBox') {
-                    if (this.gridView.canUndo(this.isRunning())) {
-                        this.gridView.undo();
-                    }
+                    this.onUndo();
                     e.preventDefault();
                 }
             }
-            else if (e.key == 'y') {
+            else if (e.key === 'y') {
                 if (e.target.id !== 'inputBox') {
-                    if (this.gridView.canRedo(this.isRunning())) {
-                        this.gridView.redo();
-                    }
+                    this.onRedo();
                     e.preventDefault();
                 }
             }
@@ -682,14 +741,14 @@ export class App extends React.Component {
         this.setState(produce(state => { state.userData.utf8Output = newValue; }));
 
     componentDidMount() {
-        const { animationDelay, userData } = this.state;
-        this.gridView = new GridView(this.toggleBreakpointCallback);
+        const { animationDelay, sourceCode, userData } = this.state;
+
+        this.gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback);
         this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
         this.gridView.setDelay(animationDelay);
         this.gridView.setShowArrows(userData.showArrows);
         this.gridView.setShowIPs(userData.showIPs);
-        this.gridView.setSourceCode(userData.code, true);
-        this.gridView.setUpdateCodeCallback(this.updateCode);
+        this.gridView.setSourceCode(sourceCode);
         this.gridView.setBreakpoints(this.getBreakpoints());
 
         document.addEventListener('keydown', this.onKeyDown);
@@ -702,12 +761,21 @@ export class App extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { animationDelay, selectedIp, userData } = this.state;
+        const { animationDelay, selectedIp, sourceCode, userData } = this.state;
         const prevUserData = prevState.userData;
+        const prevSourceCode = prevState.sourceCode;
 
         if (userData !== prevUserData) {
             if (prevState) {
                 this.saveUserData();
+            }
+
+            if (userData.code !== prevUserData.code) {
+                this.gridView.setSourceCode(sourceCode);
+                if (sourceCode.size !== prevSourceCode.size) {
+                    // Replace breakpoints, because the grid has been recreated.
+                    this.gridView.setBreakpoints(this.getBreakpoints());
+                }
             }
 
             if (userData.colorMode !== prevUserData.colorMode ||
