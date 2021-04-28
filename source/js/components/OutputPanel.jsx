@@ -57,10 +57,10 @@ export class OutputPanel extends React.Component {
         const outputBox = this.outputBoxRef.current;
         outputBox.scrollTop = outputBox.scrollHeight;
     }
-}
 
-OutputPanel.propTypes = {
-    outputBytes: PropTypes.arrayOf(PropTypes.number).isRequired,
-    utf8Output: PropTypes.bool.isRequired,
-    onUtf8OutputChanged: PropTypes.func.isRequired,
-};
+    static propTypes = {
+        outputBytes: PropTypes.arrayOf(PropTypes.number).isRequired,
+        utf8Output: PropTypes.bool.isRequired,
+        onUtf8OutputChanged: PropTypes.func.isRequired,
+    };
+}

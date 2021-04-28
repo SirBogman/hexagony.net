@@ -49,14 +49,14 @@ class MemoryPointer extends React.PureComponent {
             }}
         />;
     }
-}
 
-MemoryPointer.propTypes = {
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    angle: PropTypes.number.isRequired,
-    delay: PropTypes.string.isRequired,
-};
+    static propTypes = {
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        angle: PropTypes.number.isRequired,
+        delay: PropTypes.string.isRequired,
+    };
+}
 
 class MemoryCell extends React.PureComponent {
     render() {
@@ -95,15 +95,15 @@ class MemoryCell extends React.PureComponent {
             );
         }
     }
-}
 
-MemoryCell.propTypes = {
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    angle: PropTypes.number.isRequired,
-    // value should be a BigInt but that doesn't seem to be supported.
-    value: PropTypes.any,
-};
+    static propTypes = {
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        angle: PropTypes.number.isRequired,
+        // value should be a BigInt but that doesn't seem to be supported.
+        value: PropTypes.any,
+    };
+}
 
 class MemoryHexagonGrid extends React.PureComponent {
     render() {
@@ -150,14 +150,14 @@ class MemoryHexagonGrid extends React.PureComponent {
 
         return <path className="memoryCell" d={path}/>;
     }
-}
 
-MemoryHexagonGrid.propTypes = {
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    rows: PropTypes.number.isRequired,
-    columns: PropTypes.number.isRequired,
-};
+    static propTypes = {
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        rows: PropTypes.number.isRequired,
+        columns: PropTypes.number.isRequired,
+    };
+}
 
 // Displays the values that are set in memory.
 class MemoryCells extends React.Component {
@@ -181,11 +181,11 @@ class MemoryCells extends React.Component {
     shouldComponentUpdate(nextProps) {
         return nextProps.memory.dataVersion !== this.lastDataVersion;
     }
-}
 
-MemoryCells.propTypes = {
-    memory: PropTypes.object.isRequired,
-};
+    static propTypes = {
+        memory: PropTypes.object.isRequired,
+    };
+}
 
 class MemoryView extends React.Component {
     constructor(props) {
@@ -241,6 +241,11 @@ class MemoryView extends React.Component {
         // Render the background as a single path. If rendered as more than one path, you can sometimes see seams between the parts.
         return <MemoryHexagonGrid x={x1} y={y1} columns={x2 - x1 + 1} rows={y2 - y1 + 1}/>;
     }
+
+    static propTypes = {
+        memory: PropTypes.object,
+        delay: PropTypes.string.isRequired,
+    };
 }
 
 function roundGridValueLowerBound(value) {
@@ -254,11 +259,6 @@ function roundGridValueUpperBound(value) {
     // The difference between (Math.floor(value / 5) + 3) * 5 and x is between 11 and 15.
     return (Math.floor(value / 5) + 3) * 5;
 }
-
-MemoryView.propTypes = {
-    memory: PropTypes.object,
-    delay: PropTypes.string.isRequired,
-};
 
 export class MemoryPanel extends React.Component {
     constructor(props) {
@@ -371,10 +371,10 @@ export class MemoryPanel extends React.Component {
         // Don't render until the execution stops, or the execution speed is reduced.
         return !nextProps.isPlayingAtHighSpeed;
     }
-}
 
-MemoryPanel.propTypes = {
-    delay: PropTypes.string.isRequired,
-    isPlayingAtHighSpeed: PropTypes.bool.isRequired,
-    memory: PropTypes.object.isRequired,
-};
+    static propTypes = {
+        delay: PropTypes.string.isRequired,
+        isPlayingAtHighSpeed: PropTypes.bool.isRequired,
+        memory: PropTypes.object.isRequired,
+    };
+}
