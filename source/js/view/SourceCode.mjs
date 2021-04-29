@@ -2,8 +2,7 @@ import { arrayInitialize, containsWhitespace, countCodepoints, countDebug, getCo
     getRowCount, getRowSize, isWhitespaceOrDebug, removeWhitespace, removeWhitespaceAndDebug
 } from '../hexagony/util.mjs';
 
-export function getCode(sourceCode) {
-    const { grid, prefixGrid } = sourceCode;
+export function getCode({ grid, prefixGrid }) {
     let code = '';
     for (let i = 0; i < grid.length; i++) {
         const row = grid[i];
