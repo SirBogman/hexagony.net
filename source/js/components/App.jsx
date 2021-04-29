@@ -297,20 +297,6 @@ export class App extends React.Component {
         }
     }
 
-    getImportExportPanelProps() {
-        const { isGeneratedLinkUpToDate, link, userData } = this.state;
-        return {
-            isGeneratedLinkUpToDate,
-            link,
-            sourceCode: userData.code,
-            onGenerateLink: this.onGenerateLink,
-            onGenerateAndCopyLink: this.onGenerateAndCopyLink,
-            onImportSourceCode: this.setSourceCode,
-            onLayoutCode: this.onLayoutCode,
-            onMinifyCode: this.onMinifyCode,
-        };
-    }
-
     onInputChanged = value =>
         this.setState(produce(state => {
             state.userData.input = value;
@@ -323,16 +309,6 @@ export class App extends React.Component {
             state.isGeneratedLinkUpToDate = false;
         }));
 
-    getInputPanelProps() {
-        const { userData } = this.state;
-        return {
-            input: userData.input,
-            inputMode: userData.inputMode,
-            onInputChanged: this.onInputChanged,
-            onInputModeChanged: this.onInputModeChanged,
-        };
-    }
-
     onSpeedSliderChanged = rawValue => {
         const value = Math.floor(10 ** -3 * (1000 - rawValue) ** 2);
         this.setState(produce(state => {
@@ -340,37 +316,6 @@ export class App extends React.Component {
             state.animationDelay = getAnimationDelay(value);
         }));
     };
-
-    getPlayControlsProps() {
-        const { isRunning, userData } = this.state;
-        return {
-            canPlayPause: !this.isTerminated(),
-            canStep: !this.isTerminated() && !this.isPlaying(),
-            canStop: isRunning,
-            delay: userData.delay,
-            isPlaying: this.isPlaying(),
-            onPlayPause: this.onPlayPause,
-            onSpeedSliderChanged: this.onSpeedSliderChanged,
-            onStep: this.onStep,
-            onStop: this.onStop,
-        };
-    }
-
-    getEditControlsProps() {
-        const { isRunning, userData } = this.state;
-        return {
-            canDeleteBreakpoints: userData.breakpoints.length !== 0,
-            canEdit: !isRunning,
-            canRedo: App.canRedo(this.state),
-            canUndo: App.canUndo(this.state),
-            onBigger: this.onBigger,
-            onDeleteBreakpoints: this.onDeleteBreakpoints,
-            onRedo: this.onRedo,
-            onReset: this.onReset,
-            onSmaller: this.onSmaller,
-            onUndo: this.onUndo,
-        };
-    }
 
     breakpointExistsAt(i, j) {
         const id = `${i},${j}`;
@@ -611,20 +556,6 @@ export class App extends React.Component {
         };
     }
 
-    getViewControlsProps() {
-        const { userData } = this.state;
-        return {
-            edgeTransitionModeEnabled: userData.edgeTransitionMode,
-            arrowsEnabled: userData.showArrows,
-            ipsEnabled: userData.showIPs,
-            darkModeEnabled: userData.colorMode === darkColorMode,
-            toggleEdgeTransitionMode: this.toggleEdgeTransitionMode,
-            toggleArrows: this.toggleArrows,
-            toggleIPs: this.toggleIPs,
-            toggleDarkMode: this.toggleDarkMode,
-        };
-    }
-
     onPause = () => this.setState(produce(state => App.pause(state)));
 
     static pause(state) {
@@ -729,14 +660,6 @@ export class App extends React.Component {
     cycleColorOffset = () =>
         this.setState(produce(state => { state.userData.colorOffset = (state.userData.colorOffset + 1) % 6; }));
 
-    getOutputPanelProps() {
-        return {
-            outputBytes: this.hexagony.output,
-            utf8Output: this.state.userData.utf8Output,
-            onUtf8OutputChanged: this.onUtf8OutputChanged,
-        };
-    }
-
     onUtf8OutputChanged = newValue =>
         this.setState(produce(state => { state.userData.utf8Output = newValue; }));
 
@@ -824,11 +747,14 @@ export class App extends React.Component {
     }
 
     render() {
-        const { animationDelay, userData } = this.state;
+        const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, userData } = this.state;
         const { hexagony } = this;
         const mainContent = hexagony !== null ?
             <>
-                <OutputPanel {...this.getOutputPanelProps()}/>
+                <OutputPanel
+                    outputBytes={this.hexagony.output}
+                    utf8Output={this.state.userData.utf8Output}
+                    onUtf8OutputChanged={this.onUtf8OutputChanged}/>
                 <MemoryPanel
                     delay={animationDelay}
                     isPlayingAtHighSpeed={this.isPlaying() && userData.delay === 0}
@@ -837,7 +763,15 @@ export class App extends React.Component {
             </> :
             <>
                 <InfoPanel {...this.getInfoPanelProps()}/>
-                <ImportExportPanel {...this.getImportExportPanelProps()}/>
+                <ImportExportPanel
+                    isGeneratedLinkUpToDate={isGeneratedLinkUpToDate}
+                    link={link}
+                    sourceCode={userData.code}
+                    onGenerateLink={this.onGenerateLink}
+                    onGenerateAndCopyLink={this.onGenerateAndCopyLink}
+                    onImportSourceCode={this.setSourceCode}
+                    onLayoutCode={this.onLayoutCode}
+                    onMinifyCode={this.onMinifyCode}/>
                 <HotkeysPanel/>
             </>;
 
@@ -847,13 +781,44 @@ export class App extends React.Component {
                     <header>
                         <nav>
                             <NavigationLinks/>
-                            <ViewControls {...this.getViewControlsProps()}/>
-                            <EditControls {...this.getEditControlsProps()}/>
-                            <PlayControls {...this.getPlayControlsProps()}/>
+                            <ViewControls
+                                edgeTransitionModeEnabled={userData.edgeTransitionMode}
+                                arrowsEnabled={userData.showArrows}
+                                ipsEnabled={userData.showIPs}
+                                darkModeEnabled={userData.colorMode === darkColorMode}
+                                toggleEdgeTransitionMode={this.toggleEdgeTransitionMode}
+                                toggleArrows={this.toggleArrows}
+                                toggleIPs={this.toggleIPs}
+                                toggleDarkMode={this.toggleDarkMode}/>
+                            <EditControls
+                                canDeleteBreakpoints={userData.breakpoints.length !== 0}
+                                canEdit={!isRunning}
+                                canRedo={App.canRedo(this.state)}
+                                canUndo={App.canUndo(this.state)}
+                                onBigger={this.onBigger}
+                                onDeleteBreakpoints={this.onDeleteBreakpoints}
+                                onRedo={this.onRedo}
+                                onReset={this.onReset}
+                                onSmaller={this.onSmaller}
+                                onUndo={this.onUndo}/>
+                            <PlayControls
+                                canPlayPause={!this.isTerminated()}
+                                canStep={!this.isTerminated() && !this.isPlaying()}
+                                canStop={isRunning}
+                                delay={userData.delay}
+                                isPlaying={this.isPlaying()}
+                                onPlayPause={this.onPlayPause}
+                                onSpeedSliderChanged={this.onSpeedSliderChanged}
+                                onStep={this.onStep}
+                                onStop={this.onStop}/>
                         </nav>
                     </header>
                     <CodePanel/>
-                    <InputPanel {...this.getInputPanelProps()}/>
+                    <InputPanel
+                        input={userData.input}
+                        inputMode={userData.inputMode}
+                        onInputChanged={this.onInputChanged}
+                        onInputModeChanged={this.onInputModeChanged}/>
                     {mainContent}
                 </div>
             </>
