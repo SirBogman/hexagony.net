@@ -6,6 +6,7 @@
   "dependencies": {
     "immer": "^9.0.1",
     "lz-string": "^1.4.4",
+    "memoize-one": "^5.2.1",
     "panzoom": "github:SirBogman/panzoom#2269422",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
