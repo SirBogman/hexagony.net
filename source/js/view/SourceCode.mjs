@@ -2,20 +2,8 @@ import { arrayInitialize, containsWhitespace, countCodepoints, countDebug, getCo
     getRowCount, getRowSize, isWhitespaceOrDebug, removeWhitespace, removeWhitespaceAndDebug
 } from '../hexagony/util.mjs';
 
-export function getCode({ grid, prefixGrid }) {
-    let code = '';
-    for (let i = 0; i < grid.length; i++) {
-        const row = grid[i];
-        for (let j = 0; j < row.length; j++) {
-            code += prefixGrid[i][j] + row[j];
-        }
-    }
-    return code;
-}
-
 export class SourceCode {
-    constructor(code, size, grid, prefixGrid) {
-        this.code = code;
+    constructor(size, grid, prefixGrid) {
         this.size = size;
         this.grid = grid;
         // The prefix grid preserves whitespace and debug characters.
@@ -23,8 +11,8 @@ export class SourceCode {
     }
 
     static fromObject(object) {
-        const { code, size, grid, prefixGrid } = object;
-        return new SourceCode(code, size, grid, prefixGrid);
+        const { size, grid, prefixGrid } = object;
+        return new SourceCode(size, grid, prefixGrid);
     }
 
     static fromString(code) {
@@ -52,17 +40,29 @@ export class SourceCode {
             prefixGrid.push(prefixRow);
         }
 
-        return new SourceCode(code, size, grid, prefixGrid);
+        return new SourceCode(size, grid, prefixGrid);
+    }
+
+    containsWhitespace() {
+        for (const row of this.prefixGrid) {
+            for (const cell of row) {
+                if (cell && containsWhitespace(cell)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // Only works when changing the size by one, which is currently the only use case,
     // due to code involved in shifting the bottom half of the hexagon horizontally.
     resizeCode(newSize) {
-        const { code, size, grid, prefixGrid } = this;
+        const { size, grid, prefixGrid } = this;
         const newRowCount = getRowCount(newSize);
         const result = {
             grid: [],
             prefixGrid: [],
+            size: newSize,
         };
 
         if (newSize > size) {
@@ -102,24 +102,23 @@ export class SourceCode {
             }
         }
 
-        const newSourceCode = SourceCode.fromString(getCode(result));
-        return containsWhitespace(code) ?
+        const newSourceCode = SourceCode.fromObject(result);
+        return this.containsWhitespace() ?
             newSourceCode.layoutCode() :
             newSourceCode.minifyCode();
     }
 
     resetCode() {
-        const { code, size } = this;
-        const newCode = '.'.repeat(getCodeLength(size));
+        const newCode = '.'.repeat(getCodeLength(this.size));
         const newSourceCode = SourceCode.fromString(newCode);
-        return containsWhitespace(code) ?
+        return this.containsWhitespace() ?
             newSourceCode.layoutCode() :
             newSourceCode.minifyCode();
     }
 
     minifyCode() {
         const minimumLength = getCodeLength(this.size - 1) + 1;
-        let result = removeWhitespace(this.code).replace(/\.+$/, '');
+        let result = removeWhitespace(this._toStringInternal()).replace(/\.+$/, '');
         const newLength = countCodepoints(result) - countDebug(result);
         if (newLength < minimumLength) {
             result += '.'.repeat(minimumLength - newLength);
@@ -146,11 +145,28 @@ export class SourceCode {
     }
 
     toObject() {
+        // Convert to plain object for use with immer.
+        // Alternatively, "[immerable] = true" could be added to this class.
         return {
-            code: this.code,
             size: this.size,
             grid: this.grid,
             prefixGrid: this.prefixGrid,
         };
+    }
+
+    _toStringInternal() {
+        let result = '';
+        for (let i = 0; i < this.grid.length; i++) {
+            const row = this.grid[i];
+            for (let j = 0; j < row.length; j++) {
+                result += this.prefixGrid[i][j] + row[j];
+            }
+        }
+        return result;
+    }
+
+    toString() {
+        const result = this._toStringInternal();
+        return containsWhitespace(result) ? result : this.minifyCode();
     }
 }

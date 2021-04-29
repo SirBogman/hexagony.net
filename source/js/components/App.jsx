@@ -7,7 +7,7 @@ import { Hexagony } from '../hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { GridView, initializeGridColors } from '../view/gridview.mjs';
 import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from '../view/viewutil.mjs';
-import { getCode, SourceCode } from '../view/SourceCode.mjs';
+import { SourceCode } from '../view/SourceCode.mjs';
 
 import { CodePanel } from './CodePanel.jsx';
 import { HotkeysPanel } from './HotkeysPanel.jsx';
@@ -244,8 +244,7 @@ export class App extends React.Component {
             }
             state.isGeneratedLinkUpToDate = false;
             sourceCode.grid[i][j] = newCode;
-            sourceCode.code = getCode(sourceCode);
-            userData.code = sourceCode.code;
+            userData.code = SourceCode.fromObject(sourceCode).toString();
 
             if (!isUndoRedoInProgress) {
                 state.undoStack.push({
@@ -265,7 +264,7 @@ export class App extends React.Component {
         // It would be possible to detect single char changes.
         // They only happen through the import/export panel though, which is likely used
         // less than the main code panel for editing.
-        const oldCode = sourceCode.code;
+        const oldCode = userData.code;
         if (newCode === oldCode) {
             return;
         }
