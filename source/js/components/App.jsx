@@ -5,8 +5,7 @@ import LZString from 'lz-string';
 
 import { Hexagony } from '../hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
-import { GridView, initializeGridColors } from '../view/gridview.mjs';
-import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from '../view/viewutil.mjs';
+import { applyColorMode, colorModes, darkColorMode, parseBreakpoint, prefersDarkColorScheme } from '../view/viewutil.mjs';
 import { SourceCode } from '../view/SourceCode.mjs';
 
 import { CodePanel } from './CodePanel.jsx';
@@ -25,6 +24,7 @@ import { PlayControls } from './PlayControls.jsx';
 const fibonacciExample = ')="/}.!+/M8;';
 const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 const maxSpeedIterations = 10000;
+const edgeTransitionSizeLimit = 25;
 const executionHistoryCount = 20;
 
 export function updateAppHelper(element) {
@@ -113,6 +113,7 @@ export class App extends React.Component {
         super(props);
         const userData = loadUserData();
         this.state = {
+            executionHistory: null,
             userData,
             selectedIp: 0,
             link: '',
@@ -140,9 +141,8 @@ export class App extends React.Component {
 
         this.state.sourceCode = SourceCode.fromString(this.state.userData.code).toObject();
         this.hexagony = null;
-        this.gridView = null;
-        this.executionHistory = [];
         this.startingToPlay = false;
+        this.codePanelRef = React.createRef();
 
         this.updateColorMode();
     }
@@ -165,7 +165,7 @@ export class App extends React.Component {
             (!isRunning || !redoStack[redoStack.length - 1].isSizeChange);
     }
 
-    updateCodeCallback = (i, j, char) =>
+    onEditHexagonCharacter = (i, j, char) =>
         this.setState(produce(state => App.applyCodeChangeToState(state, char, i, j)));
 
     setSourceCode = newCode =>
@@ -290,7 +290,7 @@ export class App extends React.Component {
             // Remove breakpoints that no longer fit.
             const newRowCount = getRowCount(newSize);
             userData.breakpoints = userData.breakpoints.filter(id => {
-                const [i, j] = id.split(',').map(Number);
+                const [i, j] = parseBreakpoint(id);
                 return i < newRowCount && j < getRowSize(newSize, i);
             });
         }
@@ -323,30 +323,24 @@ export class App extends React.Component {
 
     * getBreakpoints() {
         for (const id of this.state.userData.breakpoints) {
-            yield id.split(',').map(Number);
+            yield parseBreakpoint(id);
         }
     }
 
     onDeleteBreakpoints = () => {
-        for (const [i, j] of this.getBreakpoints()) {
-            this.gridView.setBreakpointState(i, j, false);
-        }
-
         this.setState(produce(state => { state.userData.breakpoints = []; }));
     };
 
-    toggleBreakpointCallback = (i, j) => {
+    onToggleBreakpoint = (i, j) => {
         const id = `${i},${j}`;
 
         this.setState(produce(state => {
             const index = state.userData.breakpoints.indexOf(id);
             if (index > -1) {
                 state.userData.breakpoints.splice(index, 1);
-                this.gridView.setBreakpointState(i, j, false);
             }
             else {
                 state.userData.breakpoints.push(id);
-                this.gridView.setBreakpointState(i, j, true);
             }
         }));
     };
@@ -419,22 +413,12 @@ export class App extends React.Component {
         return input;
     }
 
-    startEdgeAnimation(connectors, name) {
-        if (connectors) {
-            connectors.forEach(x => {
-                x.classList.add(name);
-                x.style.animationDuration = this.state.animationDelay;
-            });
-        }
-    }
-
     edgeEventHandler = (edgeName, isBranch) => {
         // Don't show edge transition animations when running at high speed.
         const { userData } = this.state;
-        if (userData.edgeTransitionMode && (userData.delay || !this.isPlaying())) {
-            const name = isBranch ? 'connectorFlash' : 'connectorNeutralFlash';
-            this.startEdgeAnimation(this.gridView.edgeConnectors[edgeName], name);
-            this.startEdgeAnimation(this.gridView.edgeConnectors2[edgeName], `${name}Secondary`);
+        if (userData.edgeTransitionMode && (userData.delay || !this.isPlaying()) &&
+            this.codePanelRef.current) {
+            this.codePanelRef.current.playEdgeAnimation(edgeName, isBranch);
         }
     };
 
@@ -444,15 +428,21 @@ export class App extends React.Component {
         }
 
         const { userData } = this.state;
+        let executionHistory;
 
         if (this.hexagony === null) {
             this.hexagony = new Hexagony(userData.code, this.getInput(), this.edgeEventHandler);
-            this.executionHistory = arrayInitialize(6, index => {
+            executionHistory = arrayInitialize(6, index => {
                 const [coords, dir] = this.hexagony.getIPState(index);
                 const [i, j] = this.hexagony.grid.axialToIndex(coords);
                 return [[i, j, dir.angle]];
             });
             window.totalTime = 0;
+        }
+        else {
+            // Make a copy of the array, because entries are replaced each time this function is called.
+            // It helps code panel know to update.
+            executionHistory = this.state.executionHistory.slice();
         }
 
         if (play) {
@@ -481,9 +471,10 @@ export class App extends React.Component {
             // The active coordinates don't change when the program terminates.
             if (!this.isTerminated()) {
                 const ip = hexagony.activeIp;
-                const previous = this.executionHistory[ip];
+                const previous = executionHistory[ip];
                 if (i != previous[0][0] || j != previous[0][1] || angle != previous[0][2]) {
-                    this.executionHistory[ip] = [[i, j, angle], ...previous.slice(0, executionHistoryCount)];
+                    const temp = previous.slice(0, executionHistoryCount);
+                    executionHistory[ip] = [[i, j, angle], ...temp];
                 }
             }
 
@@ -496,8 +487,6 @@ export class App extends React.Component {
         window.totalTime += p2 - p1;
 
         const selectedIp = hexagony.activeIp;
-        const forceUpdateExecutionState = stepCount > 1;
-        this.gridView.updateActiveCell(this.executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
         this.startingToPlay = false;
 
         const timeoutID = play && !breakpoint && !this.isTerminated() ?
@@ -505,6 +494,7 @@ export class App extends React.Component {
             null;
 
         this.setState({
+            executionHistory,
             isRunning: true,
             selectedIp,
             terminationReason: hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null),
@@ -567,21 +557,13 @@ export class App extends React.Component {
 
     onStop = () => {
         this.hexagony = null;
-        this.executionHistory = null;
-        this.gridView.clearCellExecutionColors();
         this.setState(produce(state => {
+            state.executionHistory = null;
             App.pause(state);
             state.ticks = 0;
             state.isRunning = false;
         }));
     };
-
-    resetCellColors() {
-        if (this.hexagony != null) {
-            const { selectedIp } = this.state;
-            this.gridView.updateActiveCell(this.executionHistory, selectedIp, this.hexagony.getExecutedGrid(), true);
-        }
-    }
 
     onSelectedIPChanged = ip =>
         this.setState({ selectedIp: ip });
@@ -625,23 +607,7 @@ export class App extends React.Component {
     };
 
     updateColorMode() {
-        const { userData } = this.state;
         applyColorMode(this.state.userData.colorMode);
-        initializeGridColors(userData.colorMode, userData.colorOffset);
-    }
-
-    onColorPropertyChanged() {
-        this.updateColorMode();
-        // It's easier to recreate the grid than to update all color-related class names.
-        this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
-        this.gridView.setBreakpoints(this.getBreakpoints());
-    }
-
-    onEdgeTransitionModeChanged() {
-        const { userData } = this.state;
-        this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
-        this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
-        this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
     toggleEdgeTransitionMode = () =>
@@ -663,16 +629,6 @@ export class App extends React.Component {
         this.setState(produce(state => { state.userData.utf8Output = newValue; }));
 
     componentDidMount() {
-        const { animationDelay, sourceCode, userData } = this.state;
-
-        this.gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback);
-        this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
-        this.gridView.setDelay(animationDelay);
-        this.gridView.setShowArrows(userData.showArrows);
-        this.gridView.setShowIPs(userData.showIPs);
-        this.gridView.setSourceCode(sourceCode);
-        this.gridView.setBreakpoints(this.getBreakpoints());
-
         document.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('hashchange', this.loadDataFromURL);
     }
@@ -683,42 +639,16 @@ export class App extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { animationDelay, selectedIp, sourceCode, userData } = this.state;
+        const { userData } = this.state;
         const prevUserData = prevState.userData;
-        const prevSourceCode = prevState.sourceCode;
 
         if (userData !== prevUserData) {
             if (prevState) {
                 this.saveUserData();
             }
 
-            if (userData.code !== prevUserData.code) {
-                this.gridView.setSourceCode(sourceCode);
-                if (sourceCode.size !== prevSourceCode.size) {
-                    // Replace breakpoints, because the grid has been recreated.
-                    this.gridView.setBreakpoints(this.getBreakpoints());
-                }
-            }
-
-            if (userData.colorMode !== prevUserData.colorMode ||
-                userData.colorOffset !== prevUserData.colorOffset) {
-                this.onColorPropertyChanged();
-            }
-
-            if (userData.showIPs !== prevUserData.showIPs) {
-                this.gridView.setShowIPs(userData.showIPs);
-            }
-
-            if (userData.showArrows !== prevUserData.showArrows) {
-                this.gridView.setShowArrows(userData.showArrows);
-                this.resetCellColors();
-            }
-
-            if (userData.edgeTransitionMode !== prevUserData.edgeTransitionMode) {
-                this.onEdgeTransitionModeChanged();
-            }
-            else if (userData.breakpoints !== prevUserData.breakpoints) {
-                this.gridView.setBreakpoints(this.getBreakpoints());
+            if (userData.colorMode !== prevUserData.colorMode) {
+                this.updateColorMode();
             }
 
             if (this.hexagony !== null) {
@@ -735,18 +665,10 @@ export class App extends React.Component {
                 }
             }
         }
-
-        if (selectedIp !== prevState.selectedIp) {
-            this.resetCellColors();
-        }
-
-        if (animationDelay !== prevState.animationDelay) {
-            this.gridView.setDelay(animationDelay);
-        }
     }
 
     render() {
-        const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, userData } = this.state;
+        const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, selectedIp, sourceCode, userData } = this.state;
         const { hexagony } = this;
         const mainContent = hexagony !== null ?
             <>
@@ -812,7 +734,21 @@ export class App extends React.Component {
                                 onStop={this.onStop}/>
                         </nav>
                     </header>
-                    <CodePanel/>
+                    <CodePanel
+                        colorMode={Number(userData.colorMode === darkColorMode)}
+                        colorOffset={userData.colorOffset}
+                        breakpoints={userData.breakpoints}
+                        delay={animationDelay}
+                        edgeTransitionMode={userData.edgeTransitionMode && sourceCode.size < edgeTransitionSizeLimit}
+                        executionHistory={this.state.executionHistory}
+                        grid={sourceCode.grid}
+                        onEditHexagonCharacter={this.onEditHexagonCharacter}
+                        onToggleBreakpoint={this.onToggleBreakpoint}
+                        selectedIp={selectedIp}
+                        ref={this.codePanelRef}
+                        showArrows={userData.showArrows}
+                        showIPs={userData.showIPs}
+                        size={sourceCode.size}/>
                     <InputPanel
                         input={userData.input}
                         inputMode={userData.inputMode}

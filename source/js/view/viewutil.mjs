@@ -1,13 +1,3 @@
-export function createSvgElement(name) {
-    return document.createElementNS('http://www.w3.org/2000/svg', name);
-}
-
-export function emptyElement(element) {
-    while (element.firstChild) {
-        element.removeChild(element.firstChild);
-    }
-}
-
 export function unicodeStringToBase64(value) {
     const utf8 = String.fromCharCode(...new TextEncoder().encode(value));
     return btoa(utf8);
@@ -20,6 +10,10 @@ export function base64ToUnicodeString(value) {
         array[i] = decoded.charCodeAt(i);
     }
     return new TextDecoder().decode(array);
+}
+
+export function parseBreakpoint(id) {
+    return id.split(',').map(Number);
 }
 
 export function prefersDarkColorScheme() {

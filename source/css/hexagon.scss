@@ -37,6 +37,8 @@
 }
 
 .outlineSecondary {
+    fill: none;
+    stroke: var(--outline-color);
     stroke-width: 0.75;
 }
 
