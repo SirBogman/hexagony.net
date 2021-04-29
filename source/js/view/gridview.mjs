@@ -591,13 +591,13 @@ export class GridView {
             offsets = [[0, 0]];
         }
 
-        function getX(size, i, j, k) {
+        function getX(i, j, k) {
             return centerX +
                 (j - size + 1 + offsets[k][0]) * cellWidth +
                 Math.abs(i - size + 1) * cellOffsetX;
         }
 
-        function getY(size, i, k) {
+        function getY(i, k) {
             return centerY + (i - size + 1 + offsets[k][1]) * cellOffsetY;
         }
 
@@ -621,8 +621,8 @@ export class GridView {
                     const cell = this.cellTemplate.cloneNode(true);
                     cell.angles = [];
                     pathRow.push(cell);
-                    const cellX = getX(size, i, j, k);
-                    const cellY = getY(size, i, k);
+                    const cellX = getX(i, j, k);
+                    const cellY = getY(i, k);
                     cell.id = `path_${i}_${j}_${k}`;
                     cell.setAttribute('transform', `translate(${cellX},${cellY})`);
                     cell.querySelector('title').textContent = tooltip;
@@ -633,8 +633,8 @@ export class GridView {
             this.cellPaths.push(pathGrid);
 
             {
-                const cellX = getX(size, 0, 0, k);
-                const cellY = getY(size, 0, k);
+                const cellX = getX(0, 0, k);
+                const cellY = getY(0, k);
                 const outline = createSvgElement('path');
                 outline.classList.add('outline');
                 if (k && edgeTransitionMode) {
@@ -655,8 +655,8 @@ export class GridView {
                     // Top edge.
                     if (offsets[k][1] > verticalConnectorsLimit) {
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
-                        cellX = getX(size, 0, i, k) + 0.5 * cellOffsetX;
-                        cellY = getY(size, 0, k) - 0.75 * edgeLength;
+                        cellX = getX(0, i, k) + 0.5 * cellOffsetX;
+                        cellY = getY(0, k) - 0.75 * edgeLength;
                         scaleX = 1;
                         scaleY = -1;
                         if (i == 0) {
@@ -674,8 +674,8 @@ export class GridView {
                         this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
-                        cellX = getX(size, 0, i, k) + 0.5 * cellOffsetX;
-                        cellY = getY(size, 0, k) - cellOffsetY - 0.75 * edgeLength;
+                        cellX = getX(0, i, k) + 0.5 * cellOffsetX;
+                        cellY = getY(0, k) - cellOffsetY - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
                         if (i == 0) {
                             cellX -= cellOffsetX;
@@ -692,8 +692,8 @@ export class GridView {
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] >= verticalConnectorsLimit) {
                         // North east edge
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
-                        cellX = getX(size, i, getRowSize(size, i) - 1, k) + cellOffsetX;
-                        cellY = getY(size, i, k);
+                        cellX = getX(i, getRowSize(size, i) - 1, k) + cellOffsetX;
+                        cellY = getY(i, k);
                         scaleX = 1;
                         scaleY = -1;
                         if (i == 0) {
@@ -710,8 +710,8 @@ export class GridView {
                         this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
-                        cellX = getX(size, i, getRowSize(size, i) - 1, k) + cellWidth + 0.5 * cellOffsetX;
-                        cellY = getY(size, i, k) - 0.75 * edgeLength;
+                        cellX = getX(i, getRowSize(size, i) - 1, k) + cellWidth + 0.5 * cellOffsetX;
+                        cellY = getY(i, k) - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
                         if (i == 0) {
                             cellX -= cellWidth;
@@ -728,8 +728,8 @@ export class GridView {
                         // South east edge
                         const a = i + size - 1;
                         connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
-                        cellX = getX(size, a, getRowSize(size, a) - 1, k) + 0.5 * cellOffsetX;
-                        cellY = getY(size, a, k) + 0.75 * edgeLength;
+                        cellX = getX(a, getRowSize(size, a) - 1, k) + 0.5 * cellOffsetX;
+                        cellY = getY(a, k) + 0.75 * edgeLength;
                         scaleX = 1;
                         scaleY = -1;
                         if (i == 0) {
@@ -745,8 +745,8 @@ export class GridView {
                         this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
                         connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
-                        cellX = getX(size, a, getRowSize(size, a) - 1, k) + cellWidth;
-                        cellY = getY(size, a, k) + cellOffsetY;
+                        cellX = getX(a, getRowSize(size, a) - 1, k) + cellWidth;
+                        cellY = getY(a, k) + cellOffsetY;
                         scaleX = scaleY = -1;
                         if (i == 0) {
                             cellX -= cellOffsetX;
