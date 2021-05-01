@@ -208,9 +208,9 @@ class MemoryView extends React.Component {
 
         return (
             <svg overflow="visible" ref={this.viewRef}>
+                {this.renderHexagonGrid()}
                 <MemoryCells memory={memory}/>
                 <MemoryPointer x={x} y={y} angle={angle} delay={delay}/>
-                {this.renderHexagonGrid()}
             </svg>
         );
     }
