@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { xFactor, yFactor } from './MemoryHexagonGrid.jsx';
+import { edgeLength, xFactor, yFactor } from './MemoryHexagonGrid.jsx';
+
+const path = `M${-edgeLength / 2} 0h${edgeLength}`;
 
 /**
  * Displays the value of a single edge in the memory grid.
@@ -32,7 +34,7 @@ export class MemoryEdge extends React.PureComponent {
 
         return (
             <g key={key} transform={transform}>
-                <path className="memoryCell memoryValue" d="M-23.12 0h46.24"/>
+                <path className="memoryCell memoryValue" d={path}/>
                 <text fill="currentColor" fontSize="12px" transform="translate(0 14)" textAnchor="middle">{text}</text>
                 <title>{fullString}</title>
             </g>

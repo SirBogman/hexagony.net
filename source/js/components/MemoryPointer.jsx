@@ -1,5 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { edgeLength } from './MemoryHexagonGrid.jsx';
+
+const fatEndWidth = 6 * edgeLength / 46.24;
+const path = `M0${-edgeLength / 2}l${-fatEndWidth / 2} ${edgeLength}h${fatEndWidth}z`;
 
 // Calculate new rotation angle to avoid spinning when using CSS transition.
 function smoothRotation(oldRotation, newRotation) {
@@ -23,7 +27,7 @@ export class MemoryPointer extends React.PureComponent {
         const { x, y, angle, delay } = this.props;
         this.rotation = smoothRotation(this.rotation, angle);
         return <path id="memoryPointer"
-            d="M0-23.12l-3 46.24h6z"
+            d={path}
             style={{
                 transform: `translate(${x.toFixed(2)}px,${y.toFixed(2)}px)rotate(${this.rotation}deg)`,
                 transitionDuration: delay,
