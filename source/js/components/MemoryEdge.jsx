@@ -13,7 +13,7 @@ export class MemoryEdge extends React.PureComponent {
         const key= `${this.props.x},${this.props.y}`;
         const transform = `translate(${(this.props.x * xFactor).toFixed(2)},${(this.props.y * yFactor).toFixed(2)})rotate(${this.props.angle})`;
 
-        const string = this.props.value.toString();
+        const string = this.props.value.toLocaleString('en');
         let extraString = '';
 
         const charCode = Number(this.props.value % 256n);

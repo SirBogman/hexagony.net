@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const edgeLength = 46.24;
+export const edgeLength = 46.24 * 1.4;
 const cellHeight = 2 * edgeLength;
 const cellOffsetY = 3 / 4 * cellHeight;
 const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
