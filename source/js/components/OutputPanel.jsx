@@ -53,7 +53,15 @@ export class OutputPanel extends React.Component {
         );
     }
 
+    componentDidMount() {
+        this.scrollToEnd();
+    }
+
     componentDidUpdate() {
+        this.scrollToEnd();
+    }
+
+    scrollToEnd() {
         const outputBox = this.outputBoxRef.current;
         outputBox.scrollTop = outputBox.scrollHeight;
     }
