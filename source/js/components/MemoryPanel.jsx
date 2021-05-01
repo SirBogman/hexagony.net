@@ -22,7 +22,7 @@ function getMPCoordinates(memory) {
 
 // Calculate new rotation angle to avoid spinning when using CSS transition.
 function smoothRotation(oldRotation, newRotation) {
-    let delta = newRotation - oldRotation;
+    let delta = (newRotation - oldRotation) % 360;
     if (delta > 180) {
         delta -= 360;
     }
