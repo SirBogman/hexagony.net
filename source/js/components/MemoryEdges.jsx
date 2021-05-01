@@ -1,10 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { northEast, southEast } from '../hexagony/direction.mjs';
-import { MemoryCell } from './MemoryCell.jsx';
+import { MemoryEdge } from './MemoryEdge.jsx';
 
-// Displays the values that are set in memory.
-export class MemoryCells extends React.Component {
+/**
+ * Renders all values that are set on edges in the memory grid.
+ * The primary purpose of this component is to avoid rendering
+ * the memory edges, unless the memory data version has changed.
+ * @component
+ */
+export class MemoryEdges extends React.Component {
     constructor(props) {
         super(props);
         this.lastDataVersion = -1;
@@ -16,7 +21,7 @@ export class MemoryCells extends React.Component {
         const cells = memory.getDataArray().map(entry => {
             const { x, y, dir, value } = entry;
             const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
-            return <MemoryCell key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>;
+            return <MemoryEdge key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>;
         });
 
         return <g>{cells}</g>;

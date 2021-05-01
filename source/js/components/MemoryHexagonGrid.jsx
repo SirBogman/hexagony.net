@@ -13,6 +13,10 @@ export function getMPCoordinates(memory) {
     return [memory.getX() * xFactor, memory.getY() * yFactor];
 }
 
+/**
+ * Renders a hexagonal grid for the background of the memory grid.
+ * @component
+ */
 export class MemoryHexagonGrid extends React.PureComponent {
     render() {
         const { x, y, rows, columns } = this.props;

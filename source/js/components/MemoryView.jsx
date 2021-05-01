@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { MemoryCells } from './MemoryCells.jsx';
+import { MemoryEdges } from './MemoryEdges.jsx';
 import { getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid.jsx';
 import { MemoryPointer } from './MemoryPointer.jsx';
 
@@ -16,6 +16,10 @@ function roundGridValueUpperBound(value) {
     return (Math.floor(value / 5) + 3) * 5;
 }
 
+/**
+ * Represents view of Hexagony's memory grid.
+ * @component
+ */
 export class MemoryView extends React.Component {
     constructor(props) {
         super(props);
@@ -38,7 +42,7 @@ export class MemoryView extends React.Component {
         return (
             <svg overflow="visible" ref={this.viewRef}>
                 {this.renderHexagonGrid()}
-                <MemoryCells memory={memory}/>
+                <MemoryEdges memory={memory}/>
                 <MemoryPointer x={x} y={y} angle={angle} delay={delay}/>
             </svg>
         );
