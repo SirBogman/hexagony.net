@@ -1,6 +1,6 @@
 import memoizeOne from 'memoize-one';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
-import { createSvgElement, emptyElement } from './viewutil.mjs';
+import { createSvgElement, emptyElement, getControlKey } from './viewutil.mjs';
 
 const edgeTransitionSizeLimit = 25;
 
@@ -376,7 +376,7 @@ export class GridView {
             return;
         }
 
-        if (event.key === 'b' && event.ctrlKey) {
+        if (event.key === 'b' && getControlKey(event)) {
             if (this.toggleBreakpointCallback) {
                 this.toggleBreakpointCallback(i, j);
             }
@@ -410,7 +410,7 @@ export class GridView {
             }
         }
         else if (event.key === 'ArrowRight' || event.key === 'Tab' && !event.shiftKey ||
-                 event.key === 'Enter' && !event.ctrlKey) {
+                 event.key === 'Enter' && !getControlKey(event)) {
             if (j < this.cellPaths[0][i].length - 1) {
                 dj = 1;
             }

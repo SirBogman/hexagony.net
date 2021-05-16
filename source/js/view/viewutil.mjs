@@ -8,6 +8,11 @@ export function emptyElement(element) {
     }
 }
 
+export function getControlKey(keyboardEvent) {
+    // Allow the use of the meta key (cmd on macOS) wherever ctrl is used.
+    return keyboardEvent.ctrlKey || keyboardEvent.metaKey;
+}
+
 export function unicodeStringToBase64(value) {
     const utf8 = String.fromCharCode(...new TextEncoder().encode(value));
     return btoa(utf8);

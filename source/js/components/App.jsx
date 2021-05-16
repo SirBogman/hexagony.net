@@ -6,7 +6,7 @@ import LZString from 'lz-string';
 import { Hexagony } from '../hexagony/hexagony.mjs';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { GridView, initializeGridColors } from '../view/gridview.mjs';
-import { applyColorMode, colorModes, darkColorMode, prefersDarkColorScheme } from '../view/viewutil.mjs';
+import { applyColorMode, colorModes, darkColorMode, getControlKey, prefersDarkColorScheme } from '../view/viewutil.mjs';
 import { SourceCode } from '../view/SourceCode.mjs';
 
 import { CodePanel } from './CodePanel.jsx';
@@ -595,7 +595,7 @@ export class App extends React.Component {
     }
 
     onKeyDown = e => {
-        if (e.ctrlKey) {
+        if (getControlKey(e)) {
             if (e.key === '.') {
                 this.onStep();
                 e.preventDefault();
@@ -609,13 +609,13 @@ export class App extends React.Component {
                 }
                 e.preventDefault();
             }
-            else if (e.key === 'z') {
+            else if (e.key === 'z' && !e.shiftKey) {
                 if (e.target.id !== 'inputBox') {
                     this.onUndo();
                     e.preventDefault();
                 }
             }
-            else if (e.key === 'y') {
+            else if (e.key === 'y' || (e.key === 'z' && e.shiftKey)) {
                 if (e.target.id !== 'inputBox') {
                     this.onRedo();
                     e.preventDefault();
