@@ -493,6 +493,9 @@ export class GridView {
         input.select();
         input.addEventListener('keydown', e => this.onKeyDown(i, j, k, input, e));
 
+        const angle = 0;
+        this._addExecutionAngleClass([i, j, angle], 'typingDirectionArrow');
+
         input.addEventListener('input', () => {
             const newText = removeWhitespaceAndDebug(input.value) || '.';
             this.updateCodeCallback(i, j, newText);
@@ -501,6 +504,7 @@ export class GridView {
         });
 
         input.addEventListener('focusout', () => {
+            this._removeExecutionAngleClass([i, j, angle], 'typingDirectionArrow');
             svgCell.removeChild(container);
             this._setSvgText(svgText, input.value);
         });

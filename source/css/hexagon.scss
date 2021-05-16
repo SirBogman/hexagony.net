@@ -160,6 +160,10 @@ $colorLists: $lightColors $darkColors;
     }
 }
 
+.typingDirectionArrow {
+    fill: var(--text-color);
+}
+
 .connector {
     fill: none;
     stroke: var(--orange);
