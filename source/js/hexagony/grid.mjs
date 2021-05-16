@@ -3,6 +3,9 @@ import { arrayInitialize, getHexagonSize, getRowSize, isWhitespaceOrDebug } from
 export class Grid {
     constructor(sourceCode) {
         this.setSourceCode(sourceCode);
+        this.executed = arrayInitialize(6, () =>
+            arrayInitialize(this.rowCount, index =>
+                arrayInitialize(this.rowSize(index), () => [])));
     }
 
     // This should only be called if the new source code uses the same size hexagon.
@@ -26,9 +29,6 @@ export class Grid {
             grid.push(row);
         }
         this.grid = grid;
-        this.executed = arrayInitialize(6, () =>
-            arrayInitialize(this.rowCount, index =>
-                arrayInitialize(this.rowSize(index), () => [])));
     }
 
     getExecutedGrid() {
