@@ -20,7 +20,7 @@ export class CodePanel extends React.PureComponent {
                                 <path className="neutralConnector connector" d="M0 0h3.76c2.45 0 4.9 1.98 4.9 4.43v21.14c0 2.45 1.52 4.43 3.96 4.43h4.7"/>
                                 <g className="positiveConnector">
                                     <path className="connector" d="M0 0h3.76c2.45 0 4.9 1.98 4.9 4.43v21.14c0 2.45 1.52 4.43 3.96 4.43h4.7"/>
-                                    <text className="positiveText" textAnchor="middle" transform="matrix(0 .6 -.6 0 0 5)">+</text>
+                                    <text className="positiveText" textAnchor="middle" transform="matrix(0 .6 -.6 0 1 5)">+</text>
                                 </g>
                                 <g className="negativeConnector">
                                     <path className="connector" d="M0 0h3.76c2.45 0 4.9 1.98 4.9 4.43v21.14c0 2.45 1.52 4.43 3.96 4.43h4.7"/>
