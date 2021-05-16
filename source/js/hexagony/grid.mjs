@@ -16,7 +16,11 @@ export class Grid {
                 data.push(char);
             }
         }
-        this.size = getHexagonSize(data.length);
+        const size = getHexagonSize(data.length);
+        if (this.size && this.size !== size) {
+            throw new Error('Unexpected hexagon size change.');
+        }
+        this.size = size;
         this.rowCount = this.size * 2 - 1;
         let k = 0;
         const grid = [];
