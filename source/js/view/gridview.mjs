@@ -163,8 +163,7 @@ export class GridView {
         this.creatingGrid = false;
     }
 
-    _foreachExecutionArrow(indices, allowCreate, callback) {
-        const [i, j, angle] = indices;
+    _foreachExecutionArrow([i, j, angle], allowCreate, callback) {
         let create = false;
         const cell = this.cellPaths[0][i][j];
         if (!cell.angles.includes(angle)) {
