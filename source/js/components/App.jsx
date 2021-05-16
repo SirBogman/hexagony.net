@@ -450,7 +450,7 @@ export class App extends React.Component {
             this.executionHistory = arrayInitialize(6, index => {
                 const [coords, dir] = this.hexagony.getIPState(index);
                 const [i, j] = this.hexagony.grid.axialToIndex(coords);
-                return [[i, j, dir.angle]];
+                return [[i, j, dir]];
             });
             window.totalTime = 0;
         }
@@ -475,15 +475,14 @@ export class App extends React.Component {
         while (stepCount < maximumSteps && !breakpoint && !this.isTerminated()) {
             stepCount++;
             hexagony.step();
-            const [i, j] = hexagony.grid.axialToIndex(hexagony.coords);
-            const { angle } = hexagony.dir;
+            const { activeIp, coords, dir, grid } = hexagony;
+            const [i, j] = grid.axialToIndex(coords);
 
             // The active coordinates don't change when the program terminates.
             if (!this.isTerminated()) {
-                const ip = hexagony.activeIp;
-                const previous = this.executionHistory[ip];
-                if (i != previous[0][0] || j != previous[0][1] || angle != previous[0][2]) {
-                    this.executionHistory[ip] = [[i, j, angle], ...previous.slice(0, executionHistoryCount)];
+                const previous = this.executionHistory[activeIp];
+                if (i !== previous[0][0] || j !== previous[0][1] || dir !== previous[0][2]) {
+                    this.executionHistory[activeIp] = [[i, j, dir], ...previous.slice(0, executionHistoryCount)];
                 }
             }
 

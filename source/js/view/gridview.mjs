@@ -1,4 +1,5 @@
 import memoizeOne from 'memoize-one';
+import { east } from '../hexagony/direction.mjs';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { createSvgElement, emptyElement, getControlKey } from './viewutil.mjs';
 
@@ -163,15 +164,15 @@ export class GridView {
         this.creatingGrid = false;
     }
 
-    _foreachExecutionArrow([i, j, angle], allowCreate, callback) {
+    _foreachExecutionArrow([i, j, dir], allowCreate, callback) {
         let create = false;
         const cell = this.cellPaths[0][i][j];
-        if (!cell.angles.includes(angle)) {
+        if (!cell.directions.includes(dir)) {
             if (!allowCreate) {
                 return;
             }
             create = true;
-            cell.angles.push(angle);
+            cell.directions.push(dir);
         }
 
         let arrow;
@@ -180,13 +181,13 @@ export class GridView {
             if (!this.creatingGrid) {
                 arrow.style.animationDuration = this.delay;
             }
-            arrow.angle = angle;
-            arrow.setAttribute('transform', `rotate(${angle})`);
+            arrow.dir = dir;
+            arrow.setAttribute('transform', `rotate(${dir.angle})`);
             cell.appendChild(arrow);
         }
         else {
             for (arrow of cell.querySelectorAll('.cellExecutedArrow')) {
-                if (arrow.angle === angle) {
+                if (arrow.dir === dir) {
                     break;
                 }
             }
@@ -239,15 +240,15 @@ export class GridView {
 
     setExecutedState(executedState) {
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
-            const angles = executedState[this.selectedIp][i][j];
-            if (angles.length) {
+            const directions = executedState[this.selectedIp][i][j];
+            if (directions.length) {
                 const path = cell.firstElementChild;
                 path.classList.add(cellExecuted[this.selectedIp]);
                 path.style.transitionDuration = this.delay;
             }
             if (this.showArrows) {
-                for (const angle of angles) {
-                    this._addExecutionAngleClass([i, j, angle], arrowExecuted[this.selectedIp]);
+                for (const dir of directions) {
+                    this._addExecutionAngleClass([i, j, dir], arrowExecuted[this.selectedIp]);
                 }
             }
         }));
@@ -493,8 +494,8 @@ export class GridView {
         input.select();
         input.addEventListener('keydown', e => this.onKeyDown(i, j, k, input, e));
 
-        const angle = 0;
-        this._addExecutionAngleClass([i, j, angle], 'typingDirectionArrow');
+        const dir = east;
+        this._addExecutionAngleClass([i, j, dir], 'typingDirectionArrow');
 
         input.addEventListener('input', () => {
             const newText = removeWhitespaceAndDebug(input.value) || '.';
@@ -504,7 +505,7 @@ export class GridView {
         });
 
         input.addEventListener('focusout', () => {
-            this._removeExecutionAngleClass([i, j, angle], 'typingDirectionArrow');
+            this._removeExecutionAngleClass([i, j, dir], 'typingDirectionArrow');
             svgCell.removeChild(container);
             this._setSvgText(svgText, input.value);
         });
@@ -622,7 +623,7 @@ export class GridView {
                 for (let j = 0; j < getRowSize(size, i); j++) {
                     const tooltip = `Coordinates: (${indexToAxial(size, i, j)})`;
                     const cell = this.cellTemplate.cloneNode(true);
-                    cell.angles = [];
+                    cell.directions = [];
                     pathRow.push(cell);
                     const cellX = getX(i, j, k);
                     const cellY = getY(i, k);
