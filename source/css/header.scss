@@ -47,6 +47,10 @@ $two-row-width: ($buttonCount + $sliderButtonWidth + $narrowWidthPadding) * $nar
         "navigation spacer1 editControls"
         "viewControls spacer1 playControls";
     }
+
+    .largeToolbarOnly {
+        display: none;
+    }
 }
 
 nav > #navigation {
@@ -59,6 +63,7 @@ nav > #viewControls {
 
 nav > #editControls {
     grid-area: editControls;
+    justify-self: right;
 }
 
 nav > #playControls {

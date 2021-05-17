@@ -51,6 +51,7 @@ export function EditControls(props) {
             </button>
             <button
                 aria-label="Delete Breakpoints"
+                className="largeToolbarOnly"
                 disabled={!canDeleteBreakpoints}
                 onClick={onDeleteBreakpoints}
                 title="Delete all breakpoints. Select an instruction and press Ctrl + B to set a breakpoint.">
@@ -60,6 +61,7 @@ export function EditControls(props) {
             </button>
             <button
                 aria-label="Reverse Memory Movement"
+                className="largeToolbarOnly"
                 onClick={onReverseMemoryMovement}
                 title="Reverse the direction of all memory movement commands.">
                 <svg viewBox="0 0 42 50">
