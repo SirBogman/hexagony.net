@@ -403,6 +403,11 @@ export class GridView {
         }
 
         if (this.directionalTyping) {
+            if (event.key === 'Tab') {
+                this._advanceCursor(i, j, k);
+                event.preventDefault();
+                return;
+            }
             if (event.key === 'ArrowLeft') {
                 this._setTypingDirection(i, j, k, west);
                 event.preventDefault();
