@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 export function EditControls(props) {
     const { canDeleteBreakpoints, canEdit, canRedo, canUndo, onBigger, onDeleteBreakpoints, onRedo,
-        onReset, onSmaller, onUndo } = props;
+        onReset, onReverseMemoryMovement, onSmaller, onUndo } = props;
 
     return (
         <div id="editControls" className="group">
@@ -47,6 +47,15 @@ export function EditControls(props) {
                 </svg>
             </button>
             <button
+                aria-label="Reverse Memory Movement"
+                onClick={onReverseMemoryMovement}
+                title="Reverse the direction of all memory movement commands.">
+                <svg viewBox="0 0 42 50">
+                    <path fill="currentColor" d="M14.82,44c-2.83,0-5-.68-6.34-2s-2.09-3.52-2.09-6.47V30.3a4.66,4.66,0,0,0-.95-3.18,4,4,0,0,0-3.13-1.06H1V22.18H2.31a6.41,6.41,0,0,0,1.88-.24,3,3,0,0,0,1.28-.72A2.85,2.85,0,0,0,6.17,20a6.55,6.55,0,0,0,.22-1.83V14.51a12.9,12.9,0,0,1,.48-3.71A6.16,6.16,0,0,1,11,6.52,12,12,0,0,1,14.82,6h1.72V9.83H15.25a6.13,6.13,0,0,0-1.78.24,3.29,3.29,0,0,0-2.24,2.17,6.47,6.47,0,0,0-.31,2.17V18a11.59,11.59,0,0,1-.26,2.62,4.9,4.9,0,0,1-.79,1.82,3.51,3.51,0,0,1-1.35,1.12,6.54,6.54,0,0,1-1.93.57,4.37,4.37,0,0,1,3.26,1.71,7.69,7.69,0,0,1,1.07,4.5v5.21a6.71,6.71,0,0,0,.31,2.22,3.4,3.4,0,0,0,.88,1.41,3.26,3.26,0,0,0,1.36.76,6.51,6.51,0,0,0,1.78.23h1.29V44Z"/>
+                    <path fill="currentColor" d="M27.16,6q4.28,0,6.36,2t2.09,6.49V18a4.66,4.66,0,0,0,.93,3.16,4,4,0,0,0,3.13,1.06H41v3.88H39.67a6.44,6.44,0,0,0-1.88.23,3,3,0,0,0-1.27.73,2.86,2.86,0,0,0-.69,1.26,6.63,6.63,0,0,0-.22,1.84v5.39a12.83,12.83,0,0,1-.48,3.7,6.39,6.39,0,0,1-1.51,2.66A6.53,6.53,0,0,1,31,43.48a12.1,12.1,0,0,1-3.84.54H25.44V40.17h1.31a6.51,6.51,0,0,0,1.78-.23,3.28,3.28,0,0,0,1.36-.77,3.47,3.47,0,0,0,.88-1.41,6.51,6.51,0,0,0,.31-2.17V30.26a11.27,11.27,0,0,1,.26-2.64,5.15,5.15,0,0,1,.77-1.82,3.42,3.42,0,0,1,1.35-1.12,6.86,6.86,0,0,1,1.93-.55,4.45,4.45,0,0,1-3.25-1.73,7.71,7.71,0,0,1-1.06-4.51V14.47a6.81,6.81,0,0,0-.31-2.23,3.37,3.37,0,0,0-.88-1.42,3.26,3.26,0,0,0-1.36-.76,6.51,6.51,0,0,0-1.78-.23H25.44V6Z"/>
+                </svg>
+            </button>
+            <button
                 aria-label="Undo"
                 disabled={!canUndo}
                 onClick={onUndo}
@@ -79,6 +88,7 @@ EditControls.propTypes = {
     onDeleteBreakpoints: PropTypes.func.isRequired,
     onRedo: PropTypes.func.isRequired,
     onReset: PropTypes.func.isRequired,
+    onReverseMemoryMovement: PropTypes.func.isRequired,
     onSmaller: PropTypes.func.isRequired,
     onUndo: PropTypes.func.isRequired,
 };

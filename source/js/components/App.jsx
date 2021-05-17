@@ -188,6 +188,35 @@ export class App extends React.Component {
     onReset = () =>
         this.applySourceCodeChange(sourceCode => sourceCode.resetCode());
 
+    onReverseMemoryMovement = () => {
+        const { state } = this;
+        const oldCode = SourceCode.fromObject(state.sourceCode).toString();
+        const newCode = oldCode.replace(/\{|}|'|"/g, match => {
+            switch (match) {
+                case '{':
+                    return '}';
+                case '}':
+                    return '{';
+                case "'":
+                    return '"';
+                case '"':
+                    return "'";
+            }
+        });
+
+        if (newCode === oldCode) {
+            console.log('ommmmppp');
+            return;
+        }
+
+        // Can't use applySourceCodeChange, because side effects (the confirm dialog)
+        // aren't compatible with produce.
+        if (!newCode.match(/-|:|%|\^|&/) ||
+            confirm('Reversing the direction of memory movement commands will change the functionality of this program.')) {
+            this.setState(produce(state => App.applyCodeChangeToState(state, newCode)));
+        }
+    };
+
     onSmaller = () => {
         const { state } = this;
         const { size } = state.sourceCode;
@@ -796,6 +825,7 @@ export class App extends React.Component {
                                 onDeleteBreakpoints={this.onDeleteBreakpoints}
                                 onRedo={this.onRedo}
                                 onReset={this.onReset}
+                                onReverseMemoryMovement={this.onReverseMemoryMovement}
                                 onSmaller={this.onSmaller}
                                 onUndo={this.onUndo}/>
                             <PlayControls
