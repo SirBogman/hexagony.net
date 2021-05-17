@@ -404,6 +404,7 @@ export class GridView {
 
         if (this.directionalTyping) {
             if (event.key === 'Tab') {
+                this._clearTypingDirectionArrow(i, j, k);
                 this._advanceCursor(i, j, k);
                 event.preventDefault();
                 return;
@@ -535,7 +536,7 @@ export class GridView {
         }
 
         const unfocus = () => {
-            this._removeExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+            this._clearTypingDirectionArrow(i, j, k);
             svgCell.removeChild(container);
             const newText = removeWhitespaceAndDebug(input.value) || '.';
             this._setSvgText(svgText, newText);
@@ -544,7 +545,7 @@ export class GridView {
         input.addEventListener('input', () => {
             if (this.directionalTyping && input.value === ' ') {
                 // Advance via space.
-                this._removeExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+                this._clearTypingDirectionArrow(i, j, k);
                 svgCell.removeChild(container);
                 this._setSvgText(svgText, originalText);
                 this._advanceCursor(i, j, k);
@@ -583,8 +584,12 @@ export class GridView {
         this.navigateTo(newI, newJ, k);
     }
 
-    _setTypingDirection(i, j, k, dir) {
+    _clearTypingDirectionArrow(i, j, k) {
         this._removeExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+    }
+
+    _setTypingDirection(i, j, k, dir) {
+        this._clearTypingDirectionArrow(i, j, k);
         this.typingDirection = dir;
         this._addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
     }
