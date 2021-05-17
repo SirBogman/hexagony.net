@@ -205,7 +205,6 @@ export class App extends React.Component {
         });
 
         if (newCode === oldCode) {
-            console.log('ommmmppp');
             return;
         }
 
