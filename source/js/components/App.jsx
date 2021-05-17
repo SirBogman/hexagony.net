@@ -410,8 +410,8 @@ export class App extends React.Component {
         this.onPause();
     };
 
-    getInput() {
-        const { userData } = this.state;
+    static getInput(state) {
+        const { userData } = state;
         let { input } = userData;
         if (userData.inputMode === inputModeArguments) {
             input = input.replace(/\n/g, '\0');
@@ -443,13 +443,13 @@ export class App extends React.Component {
             return;
         }
 
-        const { userData } = this.state;
+        const { sourceCode, userData } = this.state;
 
         if (this.hexagony === null) {
-            this.hexagony = new Hexagony(userData.code, this.getInput(), this.edgeEventHandler);
+            this.hexagony = new Hexagony(sourceCode, App.getInput(this.state), this.edgeEventHandler);
             this.executionHistory = arrayInitialize(6, index => {
                 const [coords, dir] = this.hexagony.getIPState(index);
-                const [i, j] = this.hexagony.grid.axialToIndex(coords);
+                const [i, j] = this.hexagony.axialToIndex(coords);
                 return [[i, j, dir]];
             });
             window.totalTime = 0;
@@ -475,8 +475,8 @@ export class App extends React.Component {
         while (stepCount < maximumSteps && !breakpoint && !this.isTerminated()) {
             stepCount++;
             hexagony.step();
-            const { activeIp, coords, dir, grid } = hexagony;
-            const [i, j] = grid.axialToIndex(coords);
+            const { activeIp, coords, dir } = hexagony;
+            const [i, j] = hexagony.axialToIndex(coords);
 
             // The active coordinates don't change when the program terminates.
             if (!this.isTerminated()) {
@@ -692,6 +692,13 @@ export class App extends React.Component {
             }
 
             if (userData.code !== prevUserData.code) {
+                if (this.hexagony !== null) {
+                    // The code should be the same size hexagon.
+                    // When running, undo/redo is disabled for different size hexagons,
+                    // the resize buttons are disabled, and the import/export panel is hidden.
+                    this.hexagony.setSourceCode(sourceCode);
+                }
+
                 this.gridView.setSourceCode(sourceCode);
                 if (sourceCode.size !== prevSourceCode.size) {
                     // Replace breakpoints, because the grid has been recreated.
@@ -720,18 +727,10 @@ export class App extends React.Component {
                 this.gridView.setBreakpoints(this.getBreakpoints());
             }
 
-            if (this.hexagony !== null) {
-                if (userData.code !== prevUserData.code) {
-                    // The code should be the same size hexagon.
-                    // When running, undo/redo is disabled for different size hexagons,
-                    // the resize buttons are disabled, and the import/export panel is hidden.
-                    this.hexagony.setSourceCode(userData.code);
-                }
-
-                if (userData.input !== prevUserData.input ||
-                    userData.inputMode !== prevUserData.inputMode) {
-                    this.hexagony.setInput(this.getInput());
-                }
+            if (this.hexagony !== null &&
+                (userData.input !== prevUserData.input ||
+                userData.inputMode !== prevUserData.inputMode)) {
+                this.hexagony.setInput(App.getInput(state));
             }
         }
 

@@ -2,6 +2,10 @@ import { arrayInitialize, containsWhitespace, countCodepoints, countDebug, getCo
     getRowCount, getRowSize, isWhitespaceOrDebug, removeWhitespace, removeWhitespaceAndDebug
 } from '../hexagony/util.mjs';
 
+/**
+ * Represents a source code grid.
+ * Intended to be used as an immutable object.
+ */
 export class SourceCode {
     constructor(size, grid, prefixGrid) {
         this.size = size;

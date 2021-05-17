@@ -2,22 +2,23 @@ import { east, northEast, northWest, southEast, southWest, west } from './direct
 import { Grid } from './grid.mjs';
 import { Memory } from './memory.mjs';
 import { PointAxial } from './pointaxial.mjs';
-import { rubyStyleDivide, rubyStyleRemainder } from './util.mjs';
+import { indexToAxial, rubyStyleDivide, rubyStyleRemainder } from './util.mjs';
 
 export class Hexagony {
-    constructor(sourceCode, inputString, edgeEventHandler) {
+    constructor(sourceCode, inputString = '', edgeEventHandler = null) {
         this.grid = new Grid(sourceCode);
+        this.size = this.grid.size;
         this.memory = new Memory();
         this.setInput(inputString);
         this.inputPosition = 0;
         this.edgeEventHandler = edgeEventHandler;
         this.ips = [
-            new PointAxial(0, -this.grid.size + 1),
-            new PointAxial(this.grid.size - 1, -this.grid.size + 1),
-            new PointAxial(this.grid.size - 1, 0),
-            new PointAxial(0, this.grid.size - 1),
-            new PointAxial(-this.grid.size + 1, this.grid.size - 1),
-            new PointAxial(-this.grid.size + 1, 0)
+            new PointAxial(0, -this.size + 1),
+            new PointAxial(this.size - 1, -this.size + 1),
+            new PointAxial(this.size - 1, 0),
+            new PointAxial(0, this.size - 1),
+            new PointAxial(-this.size + 1, this.size - 1),
+            new PointAxial(-this.size + 1, 0),
         ];
         this.ipDirs = [east, southEast, southWest, west, northWest, northEast];
         this.activeIp = 0;
@@ -25,6 +26,14 @@ export class Hexagony {
         this.output = [];
         this.error = null;
         this.generator = this.execute();
+    }
+
+    axialToIndex(coords) {
+        return this.grid.axialToIndex(coords);
+    }
+
+    indexToAxial(i, j) {
+        return indexToAxial(this.size, i, j);
     }
 
     getTerminationReason() {
@@ -51,8 +60,16 @@ export class Hexagony {
         return this.ipDirs[this.activeIp];
     }
 
+    set dir(value) {
+        this.ipDirs[this.activeIp] = value;
+    }
+
     get coords() {
         return this.ips[this.activeIp];
+    }
+
+    set coords(value) {
+        this.ips[this.activeIp] = value;
     }
 
     step() {
@@ -198,7 +215,7 @@ export class Hexagony {
     }
 
     handleEdges() {
-        if (this.grid.size == 1) {
+        if (this.size == 1) {
             this.ips[this.activeIp] = new PointAxial(0, 0);
             return;
         }
@@ -207,13 +224,13 @@ export class Hexagony {
         const z = this.coords.r;
         const y = -x - z;
 
-        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < this.grid.size) {
+        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < this.size) {
             return;
         }
 
-        const xBigger = Math.abs(x) >= this.grid.size;
-        const yBigger = Math.abs(y) >= this.grid.size;
-        const zBigger = Math.abs(z) >= this.grid.size;
+        const xBigger = Math.abs(x) >= this.size;
+        const yBigger = Math.abs(y) >= this.size;
+        const zBigger = Math.abs(z) >= this.size;
 
         // Move the pointer back to the hex near the edge
         this.ips[this.activeIp] = this.ips[this.activeIp].subtract(this.dir.vector);
