@@ -642,7 +642,7 @@ export class App extends React.Component {
                     e.preventDefault();
                 }
             }
-            else if (e.key === 'y' || (e.key === 'z' && e.shiftKey)) {
+            else if (e.key === 'y' || e.key === 'z' && e.shiftKey) {
                 if (e.target.id !== 'inputBox') {
                     this.onRedo();
                     e.preventDefault();
@@ -758,7 +758,7 @@ export class App extends React.Component {
             if (this.hexagony !== null &&
                 (userData.input !== prevUserData.input ||
                 userData.inputMode !== prevUserData.inputMode)) {
-                this.hexagony.setInput(App.getInput(state));
+                this.hexagony.setInput(App.getInput(this.state));
             }
         }
 
