@@ -88,6 +88,7 @@ function loadUserData() {
 
     const defaultColorMode = colorModes[Number(prefersDarkColorScheme())];
     userData.delay = userData.delay ?? 250;
+    userData.directionalTyping = userData.directionalTyping ?? false;
     userData.breakpoints = userData.breakpoints ?? [];
     userData.colorMode = colorModes.includes(userData.colorMode) ? userData.colorMode : defaultColorMode;
     userData.colorOffset = userData.colorOffset ?? 0;
@@ -677,6 +678,9 @@ export class App extends React.Component {
     toggleArrows = () =>
         this.setState(produce(state => { state.userData.showArrows = !state.userData.showArrows; }));
 
+    toggleDirectionalTyping = () =>
+        this.setState(produce(state => { state.userData.directionalTyping = !state.userData.directionalTyping; }));
+
     toggleIPs = () =>
         this.setState(produce(state => { state.userData.showIPs = !state.userData.showIPs; }));
 
@@ -695,6 +699,7 @@ export class App extends React.Component {
         this.gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback);
         this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
         this.gridView.setDelay(animationDelay);
+        this.gridView.setDirectionalTyping(userData.directionalTyping);
         this.gridView.setShowArrows(userData.showArrows);
         this.gridView.setShowIPs(userData.showIPs);
         this.gridView.setSourceCode(sourceCode);
@@ -737,6 +742,10 @@ export class App extends React.Component {
             if (userData.colorMode !== prevUserData.colorMode ||
                 userData.colorOffset !== prevUserData.colorOffset) {
                 this.onColorPropertyChanged();
+            }
+
+            if (userData.directionalTyping !== prevUserData.directionalTyping) {
+                this.gridView.setDirectionalTyping(userData.directionalTyping);
             }
 
             if (userData.showIPs !== prevUserData.showIPs) {
@@ -820,13 +829,15 @@ export class App extends React.Component {
                                 canEdit={!isRunning}
                                 canRedo={App.canRedo(this.state)}
                                 canUndo={App.canUndo(this.state)}
+                                directionalTyping={userData.directionalTyping}
                                 onBigger={this.onBigger}
                                 onDeleteBreakpoints={this.onDeleteBreakpoints}
                                 onRedo={this.onRedo}
                                 onReset={this.onReset}
                                 onReverseMemoryMovement={this.onReverseMemoryMovement}
                                 onSmaller={this.onSmaller}
-                                onUndo={this.onUndo}/>
+                                onUndo={this.onUndo}
+                                toggleDirectionalTyping={this.toggleDirectionalTyping}/>
                             <PlayControls
                                 canPlayPause={!this.isTerminated()}
                                 canStep={!this.isTerminated() && !this.isPlaying()}

@@ -2,11 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export function EditControls(props) {
-    const { canDeleteBreakpoints, canEdit, canRedo, canUndo, onBigger, onDeleteBreakpoints, onRedo,
-        onReset, onReverseMemoryMovement, onSmaller, onUndo } = props;
+    const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
+        onReset, onReverseMemoryMovement, onSmaller, onUndo, toggleDirectionalTyping } = props;
 
     return (
         <div id="editControls" className="group">
+            <button
+                role="switch"
+                aria-label="Directional Typing"
+                aria-checked={directionalTyping}
+                onClick={toggleDirectionalTyping}
+                title="Toggle directional typing mode.">
+                <svg viewBox="0 0 42 50">
+                    <polygon fill="none" stroke="currentColor" strokeWidth="3px" points="2 14.03 2 35.97 21 46.94 40 35.97 40 14.03 21 3.06 2 14.03"/>
+                    <polygon fill="currentColor" points="11 25 3 14.9 3 35.1 11 25"/>
+                    <path fill="currentColor" d="M23,18V35.21H19V18H13.44v-3.2H28.56V18Z"/>
+                </svg>
+            </button>
             <button
                 aria-label="Decrease Size"
                 disabled={!canEdit}
@@ -84,6 +96,7 @@ EditControls.propTypes = {
     canEdit: PropTypes.bool.isRequired,
     canRedo: PropTypes.bool.isRequired,
     canUndo: PropTypes.bool.isRequired,
+    directionalTyping: PropTypes.bool.isRequired,
     onBigger: PropTypes.func.isRequired,
     onDeleteBreakpoints: PropTypes.func.isRequired,
     onRedo: PropTypes.func.isRequired,
@@ -91,4 +104,5 @@ EditControls.propTypes = {
     onReverseMemoryMovement: PropTypes.func.isRequired,
     onSmaller: PropTypes.func.isRequired,
     onUndo: PropTypes.func.isRequired,
+    toggleDirectionalTyping: PropTypes.func.isRequired,
 };

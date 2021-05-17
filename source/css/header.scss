@@ -3,7 +3,7 @@ $buttonOuterWidth: 2.75rem;
 $narrowButtonOuterWidth: 2.35rem;
 // $sliderButtonWidth is the width of the slider in button widths.
 $sliderButtonWidth: 3;
-$buttonCount: 16;
+$buttonCount: 17;
 $narrowWidthPadding: 0.5;
 $transitionTime: 0.2s;
 
@@ -63,6 +63,7 @@ nav > #editControls {
 
 nav > #playControls {
     grid-area: playControls;
+    justify-self: right;
 }
 
 header svg {
@@ -163,7 +164,7 @@ input[type=range]::-moz-range-thumb {
     width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
 }
 
-@media (max-width: 850px) {
+@media (max-width: 950px) {
     // Reduce the outer width of buttons a bit, before changing to the one column layout.
     $buttonOuterWidth: $narrowButtonOuterWidth;
 

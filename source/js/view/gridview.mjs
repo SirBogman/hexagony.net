@@ -1,5 +1,6 @@
 import memoizeOne from 'memoize-one';
-import { east } from '../hexagony/direction.mjs';
+import { east, northEast, northWest, southEast, southWest, west } from '../hexagony/direction.mjs';
+import { Hexagony } from '../hexagony/hexagony.mjs';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
 import { createSvgElement, emptyElement, getControlKey } from './viewutil.mjs';
 
@@ -59,6 +60,7 @@ export class GridView {
         this.edgeConnectors = {};
         this.edgeConnectors2 = {};
         this.delay = 0;
+        this.directionalTyping = false;
         this.executionHistory = arrayInitialize(6, () => []);
         this.creatingGrid = false;
         this.selectedIp = 0;
@@ -69,6 +71,7 @@ export class GridView {
         this.edgeTransitionMode = false;
         this.showArrows = false;
         this.showIPs = false;
+        this.typingDirection = east;
         this.codeSvgContainer = document.getElementById('codeSvgContainer');
         this.codeSvgParent = document.getElementById('codeSvgParent');
         this.svg = document.getElementById('codeSvg');
@@ -164,9 +167,9 @@ export class GridView {
         this.creatingGrid = false;
     }
 
-    _foreachExecutionArrow([i, j, dir], allowCreate, callback) {
+    _foreachExecutionArrow([i, j, dir], k, allowCreate, callback) {
         let create = false;
-        const cell = this.cellPaths[0][i][j];
+        const cell = this.cellPaths[k][i][j];
         if (!cell.directions.includes(dir)) {
             if (!allowCreate) {
                 return;
@@ -196,15 +199,15 @@ export class GridView {
         callback(arrow);
     }
 
-    _addExecutionAngleClass(indices, className) {
-        this._foreachExecutionArrow(indices, true, arrow => {
+    _addExecutionAngleClass(indices, className, k = 0) {
+        this._foreachExecutionArrow(indices, k, true, arrow => {
             arrow.classList.add(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    _removeExecutionAngleClass(indices, className) {
-        this._foreachExecutionArrow(indices, false, arrow => {
+    _removeExecutionAngleClass(indices, className, k = 0) {
+        this._foreachExecutionArrow(indices, k, false, arrow => {
             arrow.classList.remove(className);
             arrow.style.transitionDuration = this.delay;
         });
@@ -323,6 +326,10 @@ export class GridView {
         this.delay = value;
     }
 
+    setDirectionalTyping(value) {
+        this.directionalTyping = value;
+    }
+
     setShowArrows(value) {
         this.clearCellExecutionColors();
         this.showArrows = value;
@@ -393,6 +400,29 @@ export class GridView {
             this.updateCodeCallback(i, j, '.');
             event.preventDefault();
             return;
+        }
+
+        if (this.directionalTyping) {
+            if (event.key === 'ArrowLeft') {
+                this._setTypingDirection(i, j, k, west);
+                event.preventDefault();
+                return;
+            }
+            else if (event.key === 'ArrowRight') {
+                this._setTypingDirection(i, j, k, east);
+                event.preventDefault();
+                return;
+            }
+            else if (event.key === 'ArrowDown') {
+                this._setTypingDirection(i, j, k, event.shiftKey ? southEast : southWest);
+                event.preventDefault();
+                return;
+            }
+            else if (event.key === 'ArrowUp') {
+                this._setTypingDirection(i, j, k, event.shiftKey ? northWest : northEast);
+                event.preventDefault();
+                return;
+            }
         }
 
         let di = 0, dj = 0;
@@ -467,6 +497,7 @@ export class GridView {
         // Hide the text in the SVG cell, create an input element, and select it.
         const svgCell = this.cellPaths[k][i][j];
         const svgText = svgCell.querySelector('text');
+        const originalText = svgText.textContent;
 
         const input = document.createElement('input');
         input.type = 'text';
@@ -475,7 +506,7 @@ export class GridView {
         input.spellcheck = 'false';
         input.maxLength = 1;
         input.classList.add('cellInput');
-        input.value = svgText.textContent;
+        input.value = originalText;
         // Temporarily clear the text.
         svgText.textContent = '';
 
@@ -494,21 +525,63 @@ export class GridView {
         input.select();
         input.addEventListener('keydown', e => this.onKeyDown(i, j, k, input, e));
 
-        const dir = east;
-        this._addExecutionAngleClass([i, j, dir], 'typingDirectionArrow');
+        if (this.directionalTyping) {
+            this._addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+        }
+
+        const unfocus = () => {
+            this._removeExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+            svgCell.removeChild(container);
+            const newText = removeWhitespaceAndDebug(input.value) || '.';
+            this._setSvgText(svgText, newText);
+        };
 
         input.addEventListener('input', () => {
+            if (this.directionalTyping && input.value === ' ') {
+                // Advance via space.
+                this._removeExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+                svgCell.removeChild(container);
+                this._setSvgText(svgText, originalText);
+                this._advanceCursor(i, j, k);
+                return;
+            }
+
             const newText = removeWhitespaceAndDebug(input.value) || '.';
             this.updateCodeCallback(i, j, newText);
-            // Reselect the text so that backspace can work normally.
-            input.select();
+
+            if (this.directionalTyping) {
+                unfocus();
+                this._advanceCursor(i, j, k);
+            }
+            else {
+                // Reselect the text so that backspace can work normally.
+                input.select();
+            }
         });
 
-        input.addEventListener('focusout', () => {
-            this._removeExecutionAngleClass([i, j, dir], 'typingDirectionArrow');
-            svgCell.removeChild(container);
-            this._setSvgText(svgText, input.value);
-        });
+        input.addEventListener('focusout', unfocus);
+    }
+
+    _advanceCursor(i, j, k) {
+        // When following an edge transition, go back to the center hexagon to ensure the cursor
+        // remains on screen.
+        const edgeEventHandler = () => k = 0;
+        const hexagony = new Hexagony(this.sourceCode, '', edgeEventHandler);
+        hexagony.coords = hexagony.indexToAxial(i, j);
+        hexagony.dir = this.typingDirection;
+        // The initial step doesn't do anything. This allows the first instruction to be
+        // highlighted in the UI before executing it.
+        hexagony.step();
+        hexagony.step();
+        this.typingDirection = hexagony.dir;
+        const [newI, newJ] = hexagony.axialToIndex(hexagony.coords);
+        this.navigateTo(newI, newJ, k);
+    }
+
+    _setTypingDirection(i, j, k, dir) {
+        this._removeExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+        this.typingDirection = dir;
+        this._addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
     }
 
     _setSvgText(textElement, text) {
