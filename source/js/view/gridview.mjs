@@ -535,7 +535,12 @@ export class GridView {
             this._addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
         }
 
+        let removed = false;
         const unfocus = () => {
+            if (removed) {
+                return;
+            }
+            removed = true;
             this._clearTypingDirectionArrow(i, j, k);
             svgCell.removeChild(container);
             const newText = removeWhitespaceAndDebug(input.value) || '.';
