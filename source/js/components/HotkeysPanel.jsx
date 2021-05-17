@@ -1,14 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-function HotkeysPanelFunction() {
+function HotkeysPanelFunction({ directionalTyping }) {
+    const prefix = directionalTyping ? 'Set the typing direction' : 'Navigate';
+    const suffix = directionalTyping ? '' : ' (with wrapping)';
     return (
         <div id="hotkeysPanel">
             <h1>Hotkeys</h1>
             <div id="hotkeysGrid">
                 <p className="col1">(Shift) Tab</p><p className="col2">Navigate on the W-E axis (with wrapping)</p>
-                <p className="col1">Left/Right Arrow</p><p className="col2">Navigate on the W-E axis (with wrapping)</p>
-                <p className="col1">Up/Down Arrow</p><p className="col2">Navigate on the NE-SW axis</p>
-                <p className="col1">Shift + Up/Down Arrow</p><p className="col2">Navigate on the NW-SE axis</p>
+                <p className="col1">Left/Right Arrow</p><p className="col2">{prefix} on the W-E axis{suffix}</p>
+                <p className="col1">Up/Down Arrow</p><p className="col2">{prefix} on the NE-SW axis</p>
+                <p className="col1">Shift + Up/Down Arrow</p><p className="col2">{prefix} on the NW-SE axis</p>
                 <p className="col1">Enter</p><p className="col2">Move to next operator (with wrapping)</p>
                 <p className="col1">Backspace/Delete</p><p className="col2">Remove operator</p>
                 <p className="col1">Ctrl + B</p><p className="col2">Set breakpoint</p>
@@ -19,5 +22,9 @@ function HotkeysPanelFunction() {
         </div>
     );
 }
+
+HotkeysPanelFunction.propTypes = {
+    directionalTyping: PropTypes.bool.isRequired,
+};
 
 export const HotkeysPanel = React.memo(HotkeysPanelFunction);

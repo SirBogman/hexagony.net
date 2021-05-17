@@ -806,7 +806,8 @@ export class App extends React.Component {
                     onImportSourceCode={this.setSourceCode}
                     onLayoutCode={this.onLayoutCode}
                     onMinifyCode={this.onMinifyCode}/>
-                <HotkeysPanel/>
+                <HotkeysPanel
+                    directionalTyping={userData.directionalTyping}/>
             </>;
 
         return (
