@@ -448,22 +448,11 @@ export class App extends React.Component {
         return input;
     }
 
-    startEdgeAnimation(connectors, name) {
-        if (connectors) {
-            connectors.forEach(x => {
-                x.classList.add(name);
-                x.style.animationDuration = this.state.animationDelay;
-            });
-        }
-    }
-
     edgeEventHandler = (edgeName, isBranch) => {
         // Don't show edge transition animations when running at high speed.
         const { userData } = this.state;
-        if (userData.edgeTransitionMode && (userData.delay || !this.isPlaying())) {
-            const name = isBranch ? 'connectorFlash' : 'connectorNeutralFlash';
-            this.startEdgeAnimation(this.gridView.edgeConnectors[edgeName], name);
-            this.startEdgeAnimation(this.gridView.edgeConnectors2[edgeName], `${name}Secondary`);
+        if (userData.delay || !this.isPlaying()) {
+            this.gridView.playEdgeAnimation(edgeName, isBranch);
         }
     };
 

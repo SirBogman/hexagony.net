@@ -558,12 +558,32 @@ export class GridView {
         });
     }
 
+    _startEdgeAnimation(connectors, name) {
+        if (connectors) {
+            connectors.forEach(x => {
+                x.classList.add(name);
+                x.style.animationDuration = this.delay;
+            });
+        }
+    }
+
+    playEdgeAnimation(edgeName, isBranch) {
+        if (this.edgeTransitionMode) {
+            const name = isBranch ? 'connectorFlash' : 'connectorNeutralFlash';
+            this._startEdgeAnimation(this.edgeConnectors[edgeName], name);
+            this._startEdgeAnimation(this.edgeConnectors2[edgeName], `${name}Secondary`);
+        }
+    }
+
     _advanceCursor(i, j, k, reverse = false) {
         // When following an edge transition, go back to the center hexagon to ensure the cursor
         // remains on screen.
         const oldDirection = this.typingDirection;
         let newK = k;
-        const edgeEventHandler = () => newK = 0;
+        const edgeEventHandler = (edgeName, isBranch) => {
+            newK = 0;
+            this.playEdgeAnimation(edgeName, isBranch);
+        };
         const hexagony = new Hexagony(this.sourceCode, '', edgeEventHandler);
         // Follow positive branches.
         hexagony.setMemoryValue(1);
