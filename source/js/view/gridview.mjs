@@ -398,14 +398,16 @@ export class GridView {
         }
         if (event.key === 'Backspace' || event.key === 'Delete') {
             this.updateCodeCallback(i, j, '.');
+            if (this.directionalTyping && event.key === 'Backspace') {
+                this._advanceCursor(i, j, k, true);
+            }
             event.preventDefault();
             return;
         }
 
         if (this.directionalTyping) {
-            if (event.key === 'Tab') {
-                this._clearTypingDirectionArrow(i, j, k);
-                this._advanceCursor(i, j, k);
+            if (event.key === 'Tab' || event.key === ' ') {
+                this._advanceCursor(i, j, k, event.shiftKey);
                 event.preventDefault();
                 return;
             }
@@ -535,33 +537,11 @@ export class GridView {
             this._addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
         }
 
-        let removed = false;
-        const unfocus = () => {
-            if (removed) {
-                return;
-            }
-            removed = true;
-            this._clearTypingDirectionArrow(i, j, k);
-            svgCell.removeChild(container);
-            const newText = removeWhitespaceAndDebug(input.value) || '.';
-            this._setSvgText(svgText, newText);
-        };
-
         input.addEventListener('input', () => {
-            if (this.directionalTyping && input.value === ' ') {
-                // Advance via space.
-                this._clearTypingDirectionArrow(i, j, k);
-                svgCell.removeChild(container);
-                this._setSvgText(svgText, originalText);
-                this._advanceCursor(i, j, k);
-                return;
-            }
-
             const newText = removeWhitespaceAndDebug(input.value) || '.';
             this.updateCodeCallback(i, j, newText);
 
-            if (this.directionalTyping) {
-                unfocus();
+            if (this.directionalTyping && newText != '@') {
                 this._advanceCursor(i, j, k);
             }
             else {
@@ -570,27 +550,35 @@ export class GridView {
             }
         });
 
-        input.addEventListener('focusout', unfocus);
+        input.addEventListener('focusout', () => {
+            this._clearTypingDirectionArrow(i, j, k);
+            svgCell.removeChild(container);
+            const newText = removeWhitespaceAndDebug(input.value) || '.';
+            this._setSvgText(svgText, newText);
+        });
     }
 
-    _advanceCursor(i, j, k) {
+    _advanceCursor(i, j, k, reverse = false) {
         // When following an edge transition, go back to the center hexagon to ensure the cursor
         // remains on screen.
-        const edgeEventHandler = () => k = 0;
+        const oldDirection = this.typingDirection;
+        let newK = k;
+        const edgeEventHandler = () => newK = 0;
         const hexagony = new Hexagony(this.sourceCode, '', edgeEventHandler);
+        hexagony.setIgnoreDivideByZero();
         hexagony.coords = hexagony.indexToAxial(i, j);
         hexagony.dir = this.typingDirection;
-        // The initial step doesn't do anything. This allows the first instruction to be
-        // highlighted in the UI before executing it.
-        hexagony.step();
-        hexagony.step();
+        hexagony.step(reverse);
         this.typingDirection = hexagony.dir;
         const [newI, newJ] = hexagony.axialToIndex(hexagony.coords);
-        this.navigateTo(newI, newJ, k);
+        if (newI !== i || newJ !== j) {
+            this._clearTypingDirectionArrow(i, j, k, oldDirection);
+            this.navigateTo(newI, newJ, newK);
+        }
     }
 
-    _clearTypingDirectionArrow(i, j, k) {
-        this._removeExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+    _clearTypingDirectionArrow(i, j, k, direction = null) {
+        this._removeExecutionAngleClass([i, j, direction ?? this.typingDirection], 'typingDirectionArrow', k);
     }
 
     _setTypingDirection(i, j, k, dir) {

@@ -25,6 +25,9 @@ export class Hexagony {
         this.ticks = 0;
         this.output = [];
         this.error = null;
+        this.firstStepNoop = false;
+        this.ignoreDivideByZero = false;
+        this.reverse = false;
         this.generator = this.execute();
     }
 
@@ -38,6 +41,21 @@ export class Hexagony {
 
     getTerminationReason() {
         return this.terminationReason;
+    }
+
+    /**
+     * Prevents the initial call to step from executing an instruction. This allows the first instruction to be
+     * highlighted in the UI before it's executed.
+     */
+    setFirstStepNoop() {
+        this.firstStepNoop = true;
+    }
+
+    /**
+     * Do nothing when attempting to divide by zero. This is useful for implementing directional typing.
+     */
+    setIgnoreDivideByZero() {
+        this.ignoreDivideByZero = true;
     }
 
     setSourceCode(sourceCode) {
@@ -72,13 +90,28 @@ export class Hexagony {
         this.ips[this.activeIp] = value;
     }
 
-    step() {
-        this.generator.next();
+    step(reverse = false) {
+        if (reverse) {
+            this.dir = this.dir.reverse;
+            this.reverse = true;
+            this.generator.next();
+            this.reverse = false;
+            this.dir = this.dir.reverse;
+        }
+        else {
+            this.generator.next();
+        }
     }
 
     * execute() {
         while (!this.terminationReason) {
-            yield;
+            if (this.firstStepNoop || this.ticks) {
+                yield;
+            }
+
+            if (this.reverse) {
+                this.handleMovement();
+            }
 
             const opcode = this.grid.getInstruction(this.coords, this.dir, this.activeIp);
             this.executeOpcode(opcode);
@@ -107,26 +140,26 @@ export class Hexagony {
             case '*': this.memory.setValue(this.memory.getLeft() * this.memory.getRight()); break;
             case '~': this.memory.setValue(-this.memory.getValue()); break;
 
-            case ':': {
-                const leftVal = this.memory.getLeft();
-                const rightVal = this.memory.getRight();
-                if (rightVal == 0) {
-                    this.terminationReason = 'Error: Program terminated due to division by zero.';
-                    this.ticks++;
-                    return;
-                }
-                this.memory.setValue(rubyStyleDivide(leftVal, rightVal));
-                break;
-            }
+            case ':':
             case '%': {
                 const leftVal = this.memory.getLeft();
                 const rightVal = this.memory.getRight();
+                let execute = false;
                 if (rightVal == 0) {
-                    this.terminationReason = 'Error: Program terminated due to division by zero.';
-                    this.ticks++;
-                    return;
+                    if (this.ignoreDivideByZero) {
+                        execute = false;
+                    }
+                    else {
+                        this.terminationReason = 'Error: Program terminated due to division by zero.';
+                        this.ticks++;
+                        return;
+                    }
                 }
-                this.memory.setValue(rubyStyleRemainder(leftVal, rightVal));
+                if (execute) {
+                    this.memory.setValue(opcode === ':' ?
+                        rubyStyleDivide(leftVal, rightVal) :
+                        rubyStyleRemainder(leftVal, rightVal));
+                }
                 break;
             }
             // Memory manipulation
@@ -180,8 +213,7 @@ export class Hexagony {
             case '[': newIp = (this.activeIp + 5) % 6; break;
             case '#': newIp = (Number(this.memory.getValue() % 6n) + 6) % 6; break;
             case '$':
-                this.ips[this.activeIp] = this.ips[this.activeIp].add(this.dir.vector);
-                this.handleEdges();
+                this.handleMovement();
                 break;
 
             // Digits, letters, and other characters.
@@ -198,8 +230,9 @@ export class Hexagony {
             }
         }
 
-        this.ips[this.activeIp] = this.ips[this.activeIp].add(this.dir.vector);
-        this.handleEdges();
+        if (!this.reverse) {
+            this.handleMovement();
+        }
         this.activeIp = newIp;
         this.ticks++;
     }
@@ -214,9 +247,11 @@ export class Hexagony {
         }
     }
 
-    handleEdges() {
+    handleMovement() {
+        this.coords = this.coords.add(this.dir.vector);
+
         if (this.size == 1) {
-            this.ips[this.activeIp] = new PointAxial(0, 0);
+            this.coords = new PointAxial(0, 0);
             return;
         }
 
@@ -233,21 +268,21 @@ export class Hexagony {
         const zBigger = Math.abs(z) >= this.size;
 
         // Move the pointer back to the hex near the edge
-        this.ips[this.activeIp] = this.ips[this.activeIp].subtract(this.dir.vector);
+        this.coords = this.coords.subtract(this.dir.vector);
         const { coords } = this;
 
         // If two values are still in range, we are wrapping around an edge (not a corner).
         if (!xBigger && !yBigger) {
             this.followEdge();
-            this.ips[this.activeIp] = new PointAxial(coords.q + coords.r, -coords.r);
+            this.coords = new PointAxial(coords.q + coords.r, -coords.r);
         }
         else if (!yBigger && !zBigger) {
             this.followEdge();
-            this.ips[this.activeIp] = new PointAxial(-coords.q, coords.q + coords.r);
+            this.coords = new PointAxial(-coords.q, coords.q + coords.r);
         }
         else if (!zBigger && !xBigger) {
             this.followEdge();
-            this.ips[this.activeIp] = new PointAxial(-coords.r, -coords.q);
+            this.coords = new PointAxial(-coords.r, -coords.q);
         }
         else {
             // If two values are out of range, we navigated into a corner.
@@ -256,13 +291,13 @@ export class Hexagony {
             this.followEdge(isPositive ? '+' : '-', true);
 
             if (!xBigger && !isPositive || !yBigger && isPositive) {
-                this.ips[this.activeIp] = new PointAxial(coords.q + coords.r, -coords.r);
+                this.coords = new PointAxial(coords.q + coords.r, -coords.r);
             }
             else if (!yBigger || !zBigger && isPositive) {
-                this.ips[this.activeIp] = new PointAxial(-coords.q, coords.q + coords.r);
+                this.coords = new PointAxial(-coords.q, coords.q + coords.r);
             }
             else if (!zBigger || !xBigger) {
-                this.ips[this.activeIp] = new PointAxial(-coords.r, -coords.q);
+                this.coords = new PointAxial(-coords.r, -coords.q);
             }
         }
     }

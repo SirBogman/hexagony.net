@@ -5,6 +5,7 @@ class NorthEast {
     get reflectAtPipe() { return northWest; }
     reflectAtLessThan() { return southWest; }
     reflectAtGreaterThan() { return east; }
+    get reverse() { return southWest; }
     get angle() { return 300; }
     get vector() { return [1, -1]; }
     toString() { return 'NE'; }
@@ -17,6 +18,7 @@ class NorthWest {
     get reflectAtPipe() { return northEast; }
     reflectAtLessThan() { return west; }
     reflectAtGreaterThan() { return southEast; }
+    get reverse() { return southEast; }
     get angle() { return 240; }
     get vector() { return [0, -1]; }
     toString() { return 'NW'; }
@@ -29,6 +31,7 @@ class West {
     get reflectAtPipe() { return east; }
     reflectAtLessThan() { return east; }
     reflectAtGreaterThan(positive) { return positive ? northWest : southWest; }
+    get reverse() { return east; }
     get angle() { return 180; }
     get vector() { return [-1, 0]; }
     toString() { return 'W'; }
@@ -41,6 +44,7 @@ class SouthWest {
     get reflectAtPipe() { return southEast; }
     reflectAtLessThan() { return west; }
     reflectAtGreaterThan() { return northEast; }
+    get reverse() { return northEast; }
     get angle() { return 120; }
     get vector() { return [-1, 1]; }
     toString() { return 'SW'; }
@@ -53,6 +57,7 @@ class SouthEast {
     get reflectAtPipe() { return southWest; }
     reflectAtLessThan() { return northWest; }
     reflectAtGreaterThan() { return east; }
+    get reverse() { return northWest; }
     get angle() { return 60; }
     get vector() { return [0, 1]; }
     toString() { return 'SE'; }
@@ -65,6 +70,7 @@ class East {
     get reflectAtPipe() { return west; }
     reflectAtLessThan(positive) { return positive ? southEast : northEast; }
     reflectAtGreaterThan() { return west; }
+    get reverse() { return west; }
     get angle() { return 0; }
     get vector() { return [1, 0]; }
     toString() { return 'E'; }

@@ -476,6 +476,7 @@ export class App extends React.Component {
 
         if (this.hexagony === null) {
             this.hexagony = new Hexagony(sourceCode, App.getInput(this.state), this.edgeEventHandler);
+            this.hexagony.setFirstStepNoop();
             this.executionHistory = arrayInitialize(6, index => {
                 const [coords, dir] = this.hexagony.getIPState(index);
                 const [i, j] = this.hexagony.axialToIndex(coords);
