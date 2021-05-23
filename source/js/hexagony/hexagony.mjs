@@ -58,6 +58,13 @@ export class Hexagony {
         this.ignoreDivideByZero = true;
     }
 
+    /**
+     * Set the value of the current memory edge. Used to determine whether branches are followed for directional typing.
+     */
+    setMemoryValue(value) {
+        this.memory.setValue(value);
+    }
+
     setSourceCode(sourceCode) {
         this.grid.setSourceCode(sourceCode);
     }

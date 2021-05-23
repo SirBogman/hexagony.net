@@ -565,6 +565,8 @@ export class GridView {
         let newK = k;
         const edgeEventHandler = () => newK = 0;
         const hexagony = new Hexagony(this.sourceCode, '', edgeEventHandler);
+        // Follow positive branches.
+        hexagony.setMemoryValue(1);
         hexagony.setIgnoreDivideByZero();
         hexagony.coords = hexagony.indexToAxial(i, j);
         hexagony.dir = this.typingDirection;
