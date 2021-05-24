@@ -151,7 +151,7 @@ export class Hexagony {
             case '%': {
                 const leftVal = this.memory.getLeft();
                 const rightVal = this.memory.getRight();
-                let execute = false;
+                let execute = true;
                 if (rightVal == 0) {
                     if (this.ignoreDivideByZero) {
                         execute = false;
