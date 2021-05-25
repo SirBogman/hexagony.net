@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-export function PlayControls(props) {
+interface IPlayControlsProps {
+    canPlayPause: boolean;
+    canStep: boolean;
+    canStop: boolean;
+    delay: number;
+    isPlaying: boolean;
+    onPlayPause: () => void;
+    onSpeedSliderChanged: (rawValue: number) => void,
+    onStep: () => void;
+    onStop: () => void;
+}
+
+export function PlayControls(props: IPlayControlsProps) {
     const [speedSliderFocused, setSpeedSliderFocused] = useState(false);
     const { canPlayPause, canStep, canStop, delay, isPlaying, onPlayPause, onSpeedSliderChanged,
         onStep, onStop } = props;
@@ -47,7 +59,7 @@ export function PlayControls(props) {
                     value={1000 - Math.sqrt(1000 * delay)}
                     step="10"
                     id="speedSlider"
-                    onInput={e => onSpeedSliderChanged(e.target.value)}
+                    onInput={e => onSpeedSliderChanged(Number((e.target as HTMLInputElement).value))}
                     onBlur={() => setSpeedSliderFocused(false)}
                     onFocus={() => setSpeedSliderFocused(true)}/>
             </div>

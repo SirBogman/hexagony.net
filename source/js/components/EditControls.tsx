@@ -1,7 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export function EditControls(props) {
+interface IEditControlProps {
+    canDeleteBreakpoints: boolean;
+    canEdit: boolean;
+    canRedo: boolean;
+    canUndo: boolean;
+    directionalTyping: boolean;
+    onBigger: () => void;
+    onDeleteBreakpoints: () => void;
+    onRedo: () => void;
+    onReset: () => void;
+    onReverseMemoryMovement: () => void;
+    onSmaller: () => void;
+    onUndo: () => void;
+    toggleDirectionalTyping: () => void;
+}
+
+export function EditControls(props: IEditControlProps) {
     const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
         onReset, onReverseMemoryMovement, onSmaller, onUndo, toggleDirectionalTyping } = props;
 

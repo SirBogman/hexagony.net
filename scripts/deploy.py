@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import os
+import sys
 import subprocess
 import boto3
 import yaml
@@ -12,6 +13,15 @@ BUCKET = SETTINGS["bucket"]
 CLOUDFRONT_DISTRIBUTION_ID = SETTINGS["cloudfront_distribution_id"]
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 BUILD_DIR = os.path.join(ROOT, 'build')
+
+def runNpmScript(name):
+    try:
+        subprocess.run(['npm', 'run', name], cwd=ROOT, shell=True, check=True)
+    except subprocess.CalledProcessError:
+        print(f'{name}: failed. Exiting.')
+        sys.exit(1)
+
+    print(f'{name}: succeeded.')
 
 def buildSite():
     subprocess.run('npm run build', cwd=ROOT, shell=True, check=True)
@@ -80,7 +90,9 @@ def invalidate():
     print(f'Cloudfront Invalidation: {status}.')
 
 def _main():
-    buildSite()
+    runNpmScript("eslint")
+    runNpmScript("tsc")
+    runNpmScript("build")
     updateFiles()
     s3Upload()
     invalidate()

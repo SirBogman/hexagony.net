@@ -1,33 +1,41 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { MemoryEdges } from './MemoryEdges.jsx';
-import { getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid.jsx';
-import { MemoryPointer } from './MemoryPointer.jsx';
+import { MemoryEdges } from './MemoryEdges';
+import { getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid';
+import { Memory } from '../hexagony/Memory';
+import { MemoryPointer } from './MemoryPointer';
 
-function roundGridValueLowerBound(value) {
+function roundGridValueLowerBound(value: number) {
     // Testing: [...Array(30)].fill(null).map((x,i) => i).map(x => roundGridValueUpperBound(x) - x);
     // The difference between x and (Math.ceil(value / 5) - 3) * 5 and x is between 11 and 15.
     return (Math.ceil(value / 5) - 3) * 5;
 }
 
-function roundGridValueUpperBound(value) {
+function roundGridValueUpperBound(value: number) {
     // Testing: [...Array(30)].fill(null).map((x,i) => i).map(x => (Math.floor(x / 5) + 3) * 5 - x);
     // The difference between (Math.floor(value / 5) + 3) * 5 and x is between 11 and 15.
     return (Math.floor(value / 5) + 3) * 5;
+}
+
+interface IMemoryViewProps {
+    memory: Memory;
+    delay: string;
 }
 
 /**
  * Represents view of Hexagony's memory grid.
  * @component
  */
-export class MemoryView extends React.Component {
-    constructor(props) {
+export class MemoryView extends React.Component<IMemoryViewProps> {
+    viewRef: React.RefObject<SVGSVGElement>;
+
+    constructor(props: IMemoryViewProps) {
         super(props);
         this.viewRef = React.createRef();
     }
 
     getSvg() {
-        return this.viewRef.current;
+        return this.viewRef.current!;
     }
 
     render() {
@@ -52,11 +60,10 @@ export class MemoryView extends React.Component {
         const { memory } = this.props;
         const currentX = memory.getX();
         const currentY = memory.getY();
-        const haveBounds = memory.minX !== undefined;
-        const minX = haveBounds ? Math.min(memory.minX, currentX) : currentX;
-        const minY = haveBounds ? Math.min(memory.minY, currentY) : currentY;
-        const maxX = haveBounds ? Math.max(memory.maxX, currentX) : currentX;
-        const maxY = haveBounds ? Math.max(memory.maxY, currentY) : currentY;
+        const minX = memory.minX !== undefined ? Math.min(memory.minX, currentX) : currentX;
+        const minY = memory.minY !== undefined ? Math.min(memory.minY, currentY) : currentY;
+        const maxX = memory.maxX !== undefined ? Math.max(memory.maxX, currentX) : currentX;
+        const maxY = memory.maxY !== undefined ? Math.max(memory.maxY, currentY) : currentY;
 
         // Coordinates for the center hexagon:
         // E edge: 1, 1

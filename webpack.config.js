@@ -1,11 +1,12 @@
+/* eslint @typescript-eslint/no-var-requires: off */
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: {
-        main: './source/js/main.mjs',
-        secondary: './source/js/secondary.mjs',
+        main: './source/js/main.ts',
+        secondary: './source/js/secondary.ts',
     },
     output: {
         filename: '[name].mjs',
@@ -23,7 +24,7 @@ module.exports = {
                 use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
             },
             {
-                test: /\.jsx$/i,
+                test: /\.tsx?$/i,
                 use: {
                     loader: 'babel-loader',
                 },
@@ -48,4 +49,8 @@ module.exports = {
             filename: '[name].css',
         }),
     ],
+    resolve: {
+        // Seems to help to find files for imports when extension is not specified.
+        extensions: ['.ts', '.tsx', '.js']
+    }
 };

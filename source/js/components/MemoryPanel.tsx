@@ -1,25 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import panzoom from 'panzoom';
-import { getMPCoordinates } from './MemoryHexagonGrid.jsx';
-import { MemoryView } from './MemoryView.jsx';
+import panzoom, { PanZoom } from 'panzoom';
+import { getMPCoordinates } from './MemoryHexagonGrid';
+import { Memory } from '../hexagony/Memory';
+import { MemoryView } from './MemoryView';
 
 // If the memory pointer is within this normalized distance of an the edge of the container,
 // then it will be recentered.
 const recenteringThreshold = 0.1;
 const recenteringMax = 1.0 - recenteringThreshold;
 
-export class MemoryPanel extends React.Component {
-    constructor(props) {
+interface IMemoryPanelProps {
+    delay: string;
+    isPlayingAtHighSpeed: boolean;
+    memory: Memory;
+}
+
+export class MemoryPanel extends React.Component<IMemoryPanelProps> {
+    viewRef: React.RefObject<MemoryView>;
+    memoryPanZoom: PanZoom | null;
+
+    constructor(props: IMemoryPanelProps) {
         super(props);
         this.viewRef = React.createRef();
+        this.memoryPanZoom = null;
     }
 
     componentDidMount() {
         this.memoryPanZoom = panzoom(this.getSvg(), {
             // Don't pan when clicking on text elements. This allows text selection.
-            beforeMouseDown: e => e.target.nodeName === 'text',
-            beforeDoubleClick: e => e.target.nodeName === 'text',
+            beforeMouseDown: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
+            beforeDoubleClick: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
             zoomDoubleClickSpeed: 1.5,
             // 6.5% zoom per mouse wheel event:
             zoomSpeed: 0.065,
@@ -32,7 +43,7 @@ export class MemoryPanel extends React.Component {
         }
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: IMemoryPanelProps) {
         if (!this.props.memory) {
             return;
         }
@@ -45,17 +56,17 @@ export class MemoryPanel extends React.Component {
             // Recenter the memory pointer when it gets too close to the edges.
             if (a < recenteringThreshold || a > recenteringMax || b < recenteringThreshold || b > recenteringMax) {
                 const [x, y] = this.getMPOffset(this.getScale());
-                this.memoryPanZoom.smoothMoveTo(x, y);
+                this.memoryPanZoom!.smoothMoveTo(x, y);
             }
         }
     }
 
     componentWillUnmount() {
-        this.memoryPanZoom.dispose();
+        this.memoryPanZoom!.dispose();
     }
 
     getContainerSize() {
-        const containerStyle = getComputedStyle(this.getSvg().parentNode);
+        const containerStyle = getComputedStyle(this.getSvg().parentElement!);
         return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)];
     }
 
@@ -65,7 +76,7 @@ export class MemoryPanel extends React.Component {
 
     getNormalizedMPCoordinates() {
         const [x, y] = this.getMPCoordinates();
-        const t = this.memoryPanZoom.getTransform();
+        const t = this.memoryPanZoom!.getTransform();
         const [width, height] = this.getContainerSize();
         return [(t.scale * x + t.x) / width, (t.scale * y + t.y) / height];
     }
@@ -79,11 +90,11 @@ export class MemoryPanel extends React.Component {
     }
 
     getScale() {
-        return this.memoryPanZoom.getTransform().scale;
+        return this.memoryPanZoom!.getTransform().scale;
     }
 
     getSvg() {
-        return this.viewRef.current.getSvg();
+        return this.viewRef.current!.getSvg();
     }
 
     render() {
@@ -104,18 +115,18 @@ export class MemoryPanel extends React.Component {
 
     recenterView() {
         const [x, y] = this.getMPOffset();
-        this.memoryPanZoom.moveTo(x, y);
+        this.memoryPanZoom!.moveTo(x, y);
     }
 
     resetView() {
         const [x, y] = this.getMPOffset();
         // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting (inertia).
         // if that method were used.
-        this.memoryPanZoom.zoomTo(x, y, 1.0 / this.getScale());
-        this.memoryPanZoom.moveTo(x, y);
+        this.memoryPanZoom!.zoomTo(x, y, 1.0 / this.getScale());
+        this.memoryPanZoom!.moveTo(x, y);
     }
 
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate(nextProps: IMemoryPanelProps) {
         // It slows down the app too much to render the memory panel when executing at maximum speed.
         // Don't render until the execution stops, or the execution speed is reduced.
         return !nextProps.isPlayingAtHighSpeed;

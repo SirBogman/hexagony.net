@@ -4,11 +4,18 @@ import PropTypes from 'prop-types';
 export const inputModeArguments = 'arg';
 export const inputModeRaw = 'raw';
 
-export function isValidInputMode(inputMode) {
+export function isValidInputMode(inputMode: string) {
     return inputMode === inputModeArguments || inputMode === inputModeRaw;
 }
 
-export function InputPanel(props) {
+interface IInputPanelProps {
+    input: string;
+    inputMode: string;
+    onInputChanged: (value: string) => void;
+    onInputModeChanged: (value: string) => void;
+}
+
+export function InputPanel(props: IInputPanelProps) {
     const { input, inputMode, onInputChanged, onInputModeChanged } = props;
 
     return (
@@ -36,12 +43,12 @@ export function InputPanel(props) {
             </div>
             <textarea
                 id="inputBox"
-                spellCheck="False"
+                spellCheck={false}
                 autoCapitalize="off"
                 autoComplete="off"
                 aria-label="Input"
                 value={input}
-                onInput={e => onInputChanged(e.target.value)}/>
+                onInput={e => onInputChanged((e.target as HTMLTextAreaElement).value)}/>
         </div>
     );
 }

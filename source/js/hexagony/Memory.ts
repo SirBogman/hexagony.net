@@ -1,7 +1,18 @@
-import { east, northEast, southEast } from './direction.mjs';
-import { PointAxial } from './pointaxial.mjs';
+import { Direction, east, northEast, southEast } from './Direction';
+import { PointAxial } from './PointAxial';
 
 export class Memory {
+    data: Record<string, { dir: Direction; value: bigint; x: number; y: number; }>;
+    mp: PointAxial;
+    dir: Direction;
+    cw: boolean;
+    maxX: number | undefined;
+    minX: number | undefined;
+    maxY: number | undefined;
+    minY: number | undefined;
+    dataVersion: number;
+    memoryPointerVersion: number;
+
     constructor() {
         this.data = {};
         this.mp = new PointAxial(0, 0);
@@ -29,11 +40,11 @@ export class Memory {
         this.memoryPointerVersion++;
     }
 
-    getValueAt(mp, dir) {
+    getValueAt(mp: PointAxial, dir: Direction) {
         return this.data[`${mp},${dir}`]?.value ?? 0n;
     }
 
-    tryGetValueAt(mp, dir) {
+    tryGetValueAt(mp: PointAxial, dir: Direction) {
         return this.data[`${mp},${dir}`]?.value;
     }
 
@@ -51,7 +62,7 @@ export class Memory {
         return this.getValueAt(mp, dir);
     }
 
-    setValue(value) {
+    setValue(value: bigint | number) {
         const x = this.getX();
         const y = this.getY();
         this.data[`${this.mp},${this.dir}`] = {
@@ -60,10 +71,10 @@ export class Memory {
             dir: this.dir,
             value: BigInt(value),
         };
-        if (this.dataVersion === 0 || x > this.maxX) { this.maxX = x; }
-        if (this.dataVersion === 0 || x < this.minX) { this.minX = x; }
-        if (this.dataVersion === 0 || y > this.maxY) { this.maxY = y; }
-        if (this.dataVersion === 0 || y < this.minY) { this.minY = y; }
+        if (this.dataVersion === 0 || this.maxX === undefined || x > this.maxX) { this.maxX = x; }
+        if (this.dataVersion === 0 || this.minX === undefined || x < this.minX) { this.minX = x; }
+        if (this.dataVersion === 0 || this.maxY === undefined || y > this.maxY) { this.maxY = y; }
+        if (this.dataVersion === 0 || this.minY === undefined || y < this.minY) { this.minY = y; }
         this.dataVersion++;
     }
 
@@ -77,7 +88,7 @@ export class Memory {
         return 2 * this.mp.r + (this.dir === northEast ? 0 : this.dir === east ? 1 : 2);
     }
 
-    get leftIndex() {
+    get leftIndex(): [PointAxial, Direction, boolean] {
         let { mp, dir, cw } = this;
         if (dir == northEast) {
             mp = cw ? new PointAxial(mp.q + 1, mp.r - 1) : new PointAxial(mp.q, mp.r - 1);
@@ -95,7 +106,7 @@ export class Memory {
         return [mp, dir, cw];
     }
 
-    get rightIndex() {
+    get rightIndex(): [PointAxial, Direction, boolean] {
         let { mp, dir, cw } = this;
         if (dir == northEast) {
             mp = cw ? mp : new PointAxial(mp.q, mp.r - 1);

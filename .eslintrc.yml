@@ -5,17 +5,28 @@ env:
 extends:
   - eslint:recommended
   - plugin:react/recommended
-parser: '@babel/eslint-parser'
+  - plugin:@typescript-eslint/recommended
+  # - plugin:@typescript-eslint/recommended-requiring-type-checking
+parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: 12
   sourceType: module
   ecmaFeatures:
     jsx: true
 plugins:
-  - '@babel'
+  - '@typescript-eslint/eslint-plugin'
 rules:
   # https://eslint.org/docs/rules/
   # eqeqeq: warn
+  '@typescript-eslint/no-unused-vars':
+    - warn
+  '@typescript-eslint/no-extra-parens':
+    - warn
+  # Temporarily disable some rules with violations:
+  '@typescript-eslint/explicit-module-boundary-types':
+    - off
+  '@typescript-eslint/no-non-null-assertion':
+    - off
   array-bracket-spacing:
     - warn
     - never
@@ -45,7 +56,6 @@ rules:
     - 120
   no-array-constructor: warn
   no-duplicate-imports: warn
-  no-extra-parens: warn
   no-lonely-if: warn
   no-multi-spaces: warn
   no-multiple-empty-lines:
@@ -54,7 +64,6 @@ rules:
   no-new-wrappers: warn
   no-trailing-spaces: warn
   no-unneeded-ternary: warn
-  no-unused-vars: warn
   no-var: warn
   no-whitespace-before-property: warn
   object-shorthand: warn

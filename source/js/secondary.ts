@@ -1,17 +1,8 @@
 import '../css/secondary.scss';
-import { applyColorMode, colorModes, prefersDarkColorScheme } from './view/viewutil.mjs';
-import { updateNavigationLinks } from './components/NavigationLinks.jsx';
+import { applyColorMode, colorModes, parseStorage, prefersDarkColorScheme } from './view/ViewUtil';
+import { updateNavigationLinks } from './components/NavigationLinks';
 
-const navigation = document.getElementById('nav');
-
-function parseStorage(storage) {
-    try {
-        return JSON.parse(storage);
-    }
-    catch {
-        return null;
-    }
-}
+const navigation = document.getElementById('nav')!;
 
 function init() {
     const userData = parseStorage(sessionStorage.userData) ?? parseStorage(localStorage.userData);

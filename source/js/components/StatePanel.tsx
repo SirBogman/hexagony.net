@@ -1,8 +1,37 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getInfoContent } from './InfoPanel.jsx';
+import { getInfoContent, IInfoPanelProps } from './InfoPanel';
+import { Direction } from '../hexagony/Direction';
+import { PointAxial } from '../hexagony/PointAxial';
 
-function getIPState(state, colorMode, colorOffset, onSelectedIPChanged) {
+interface IIPState {
+    number: number;
+    active: boolean;
+    selected: boolean;
+    dir: Direction;
+    coords: PointAxial;
+}
+
+interface IStatePanelProps {
+    colorMode: string;
+    colorOffset: number;
+    cycleColorOffset: () => void;
+    ipStates: IIPState[];
+    terminationReason: string | null;
+    ticks: number;
+    memoryCw: boolean;
+    memoryDir: Direction;
+    memoryEdges: number;
+    memoryPointer: PointAxial;
+    info: IInfoPanelProps;
+    onSelectedIPChanged: (ip: number) => void;
+}
+
+function getIPState(
+    state: IIPState,
+    colorMode: string,
+    colorOffset: number,
+    onSelectedIPChanged: (ip: number) => void) {
     const active = state.active ? 'activeIp' : '';
     const titleExtra = state.active ? '. This is the currently active IP' : '';
     const i = state.number;
@@ -20,7 +49,7 @@ function getIPState(state, colorMode, colorOffset, onSelectedIPChanged) {
     );
 }
 
-function getExecutionInfo(ticks, memoryEdges) {
+function getExecutionInfo(ticks: number, memoryEdges: number) {
     return (
         <>
             <p key="ec" className="extraState col1" title="Number of executed instructions">Executed</p>
@@ -31,10 +60,9 @@ function getExecutionInfo(ticks, memoryEdges) {
     );
 }
 
-export function StatePanel(props) {
+export function StatePanel(props: IStatePanelProps) {
     const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
         memoryCw, memoryEdges, ticks, info, ipStates, onSelectedIPChanged } = props;
-    const { breakpoints, size, chars, bytes, operators } = info;
     return (
         <div id="statePanel">
             <div id='statePanelTop'>
@@ -54,11 +82,11 @@ export function StatePanel(props) {
                 <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
                     {memoryCw ? 'CW' : 'CCW'}</p>
                 {getExecutionInfo(ticks, memoryEdges)}
-                {getInfoContent(breakpoints, size, chars, bytes, operators)}
+                {getInfoContent(info)}
             </div>
             <div id="stateGrid2">
                 {getExecutionInfo(ticks, memoryEdges)}
-                {getInfoContent(breakpoints, size, chars, bytes, operators)}
+                {getInfoContent(info)}
             </div>
         </div>
     );

@@ -1,4 +1,16 @@
-class NorthEast {
+export abstract class Direction {
+    abstract get reflectAtSlash(): Direction;
+    abstract get reflectAtBackslash(): Direction;
+    abstract get reflectAtUnderscore(): Direction;
+    abstract get reflectAtPipe(): Direction;
+    abstract reflectAtLessThan(positive: boolean): Direction;
+    abstract reflectAtGreaterThan(positive: boolean): Direction;
+    abstract get reverse(): Direction;
+    abstract get angle(): number;
+    abstract get vector(): [number, number];
+}
+
+class NorthEast extends Direction {
     get reflectAtSlash() { return northEast; }
     get reflectAtBackslash() { return west; }
     get reflectAtUnderscore() { return southEast; }
@@ -7,11 +19,11 @@ class NorthEast {
     reflectAtGreaterThan() { return east; }
     get reverse() { return southWest; }
     get angle() { return 300; }
-    get vector() { return [1, -1]; }
+    get vector(): [number, number] { return [1, -1]; }
     toString() { return 'NE'; }
 }
 
-class NorthWest {
+class NorthWest extends Direction {
     get reflectAtSlash() { return east; }
     get reflectAtBackslash() { return northWest; }
     get reflectAtUnderscore() { return southWest; }
@@ -20,24 +32,24 @@ class NorthWest {
     reflectAtGreaterThan() { return southEast; }
     get reverse() { return southEast; }
     get angle() { return 240; }
-    get vector() { return [0, -1]; }
+    get vector(): [number, number] { return [0, -1]; }
     toString() { return 'NW'; }
 }
 
-class West {
+class West extends Direction {
     get reflectAtSlash() { return southEast; }
     get reflectAtBackslash() { return northEast; }
     get reflectAtUnderscore() { return west; }
     get reflectAtPipe() { return east; }
     reflectAtLessThan() { return east; }
-    reflectAtGreaterThan(positive) { return positive ? northWest : southWest; }
+    reflectAtGreaterThan(positive: boolean) { return positive ? northWest : southWest; }
     get reverse() { return east; }
     get angle() { return 180; }
-    get vector() { return [-1, 0]; }
+    get vector(): [number, number] { return [-1, 0]; }
     toString() { return 'W'; }
 }
 
-class SouthWest {
+class SouthWest extends Direction {
     get reflectAtSlash() { return southWest; }
     get reflectAtBackslash() { return east; }
     get reflectAtUnderscore() { return northWest; }
@@ -46,11 +58,11 @@ class SouthWest {
     reflectAtGreaterThan() { return northEast; }
     get reverse() { return northEast; }
     get angle() { return 120; }
-    get vector() { return [-1, 1]; }
+    get vector(): [number, number] { return [-1, 1]; }
     toString() { return 'SW'; }
 }
 
-class SouthEast {
+class SouthEast extends Direction {
     get reflectAtSlash() { return west; }
     get reflectAtBackslash() { return southEast; }
     get reflectAtUnderscore() { return northEast; }
@@ -59,20 +71,20 @@ class SouthEast {
     reflectAtGreaterThan() { return east; }
     get reverse() { return northWest; }
     get angle() { return 60; }
-    get vector() { return [0, 1]; }
+    get vector(): [number, number] { return [0, 1]; }
     toString() { return 'SE'; }
 }
 
-class East {
+class East extends Direction {
     get reflectAtSlash() { return northWest; }
     get reflectAtBackslash() { return southWest; }
     get reflectAtUnderscore() { return east; }
     get reflectAtPipe() { return west; }
-    reflectAtLessThan(positive) { return positive ? southEast : northEast; }
+    reflectAtLessThan(positive: boolean) { return positive ? southEast : northEast; }
     reflectAtGreaterThan() { return west; }
     get reverse() { return west; }
     get angle() { return 0; }
-    get vector() { return [1, 0]; }
+    get vector(): [number, number] { return [1, 0]; }
     toString() { return 'E'; }
 }
 

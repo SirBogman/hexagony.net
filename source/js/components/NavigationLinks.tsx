@@ -1,15 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-export function updateNavigationLinks(element) {
+export function updateNavigationLinks(element: HTMLElement) {
     ReactDOM.render(
         <React.StrictMode><NavigationLinks/></React.StrictMode>,
         element);
 }
 
 function NavigationLinksFunction() {
-    const homeClass = window.location.pathname === '/' ? 'active' : null;
-    const aboutClass = window.location.pathname === '/about.html' ? 'active' : null;
+    const homeClass = window.location.pathname === '/' ? 'active' : undefined;
+    const aboutClass = window.location.pathname === '/about.html' ? 'active' : undefined;
 
     return (
         <div id="navigation" className="group">

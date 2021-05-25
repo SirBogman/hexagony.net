@@ -1,25 +1,35 @@
 import { arrayInitialize, containsWhitespace, countCodepoints, countDebug, getCodeLength, getHexagonSize,
     getRowCount, getRowSize, isWhitespaceOrDebug, removeWhitespace, removeWhitespaceAndDebug
-} from '../hexagony/util.mjs';
+} from '../hexagony/Util';
+
+export interface ISourceCode {
+    size: number;
+    grid: string[][];
+    prefixGrid: string[][];
+}
 
 /**
  * Represents a source code grid.
  * Intended to be used as an immutable object.
  */
 export class SourceCode {
-    constructor(size, grid, prefixGrid) {
+    size: number;
+    grid: string[][];
+    prefixGrid: string[][];
+
+    constructor(size: number, grid: string[][], prefixGrid: string[][]) {
         this.size = size;
         this.grid = grid;
         // The prefix grid preserves whitespace and debug characters.
         this.prefixGrid = prefixGrid;
     }
 
-    static fromObject(object) {
+    static fromObject(object: ISourceCode) {
         const { size, grid, prefixGrid } = object;
         return new SourceCode(size, grid, prefixGrid);
     }
 
-    static fromString(code) {
+    static fromString(code: string) {
         const size = getHexagonSize(countCodepoints(removeWhitespaceAndDebug(code)));
         const rowCount = getRowCount(size);
         const grid = [];
@@ -60,12 +70,12 @@ export class SourceCode {
 
     // Only works when changing the size by one, which is currently the only use case,
     // due to code involved in shifting the bottom half of the hexagon horizontally.
-    resizeCode(newSize) {
+    resizeCode(newSize: number) {
         const { size, grid, prefixGrid } = this;
         const newRowCount = getRowCount(newSize);
         const result = {
-            grid: [],
-            prefixGrid: [],
+            grid: [] as string[][],
+            prefixGrid: [] as string[][],
             size: newSize,
         };
 
@@ -148,7 +158,7 @@ export class SourceCode {
         return result;
     }
 
-    toObject() {
+    toObject(): ISourceCode {
         // Convert to plain object for use with immer.
         // Alternatively, "[immerable] = true" could be added to this class.
         return {
@@ -158,7 +168,7 @@ export class SourceCode {
         };
     }
 
-    _toStringInternal() {
+    _toStringInternal(): string {
         let result = '';
         for (let i = 0; i < this.grid.length; i++) {
             const row = this.grid[i];

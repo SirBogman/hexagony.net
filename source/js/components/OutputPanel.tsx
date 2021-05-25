@@ -1,13 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export class OutputPanel extends React.Component {
-    constructor(props) {
+interface IOutputPanelProps {
+    outputBytes: number[];
+    utf8Output: boolean;
+    onUtf8OutputChanged: (value: boolean) => void;
+}
+
+export class OutputPanel extends React.Component<IOutputPanelProps> {
+    outputBoxRef: React.RefObject<HTMLDivElement>;
+    lastOutputLength: number;
+
+    constructor(props: IOutputPanelProps) {
         super(props);
+        this.lastOutputLength = 0;
         this.outputBoxRef = React.createRef();
     }
 
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate(nextProps: IOutputPanelProps) {
         return nextProps.outputBytes.length !== this.lastOutputLength ||
             nextProps.utf8Output !== this.props.utf8Output;
     }
@@ -62,7 +72,7 @@ export class OutputPanel extends React.Component {
     }
 
     scrollToEnd() {
-        const outputBox = this.outputBoxRef.current;
+        const outputBox = this.outputBoxRef.current!;
         outputBox.scrollTop = outputBox.scrollHeight;
     }
 

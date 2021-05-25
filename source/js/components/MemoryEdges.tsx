@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { northEast, southEast } from '../hexagony/direction.mjs';
-import { MemoryEdge } from './MemoryEdge.jsx';
+import { northEast, southEast } from '../hexagony/Direction';
+import { Memory } from '../hexagony/Memory';
+import { MemoryEdge } from './MemoryEdge';
+
+interface IMemoryEdgesProps {
+    memory: Memory;
+}
 
 /**
  * Renders all values that are set on edges in the memory grid.
@@ -9,8 +14,10 @@ import { MemoryEdge } from './MemoryEdge.jsx';
  * the memory edges, unless the memory data version has changed.
  * @component
  */
-export class MemoryEdges extends React.Component {
-    constructor(props) {
+export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
+    lastDataVersion: number;
+
+    constructor(props: IMemoryEdgesProps) {
         super(props);
         this.lastDataVersion = -1;
     }
@@ -27,7 +34,7 @@ export class MemoryEdges extends React.Component {
         return <g>{cells}</g>;
     }
 
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate(nextProps: IMemoryEdgesProps) {
         return nextProps.memory.dataVersion !== this.lastDataVersion;
     }
 

@@ -1,16 +1,17 @@
 export class PointAxial {
-    constructor(q, r) {
+    q: number;
+    r: number;
+
+    constructor(q: number, r: number) {
         this.q = q;
         this.r = r;
     }
 
-    add(vector) {
-        const [q, r] = vector;
+    add([q, r]: [number, number]) {
         return new PointAxial(this.q + q, this.r + r);
     }
 
-    subtract(vector) {
-        const [q, r] = vector;
+    subtract([q, r]: [number, number]) {
         return new PointAxial(this.q - q, this.r - r);
     }
 

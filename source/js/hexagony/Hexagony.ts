@@ -1,15 +1,36 @@
-import { east, northEast, northWest, southEast, southWest, west } from './direction.mjs';
-import { Grid } from './grid.mjs';
-import { Memory } from './memory.mjs';
-import { PointAxial } from './pointaxial.mjs';
-import { indexToAxial, rubyStyleDivide, rubyStyleRemainder } from './util.mjs';
+import { Direction, east, northEast, northWest, southEast, southWest, west } from './Direction';
+import { Grid } from './Grid';
+import { Memory } from './Memory';
+import { PointAxial } from './PointAxial';
+import { indexToAxial, rubyStyleDivide, rubyStyleRemainder } from './Util';
+import { ISourceCode } from '../view/SourceCode';
 
 export class Hexagony {
-    constructor(sourceCode, inputString = '', edgeEventHandler = null) {
+    grid: Grid;
+    size: number;
+    memory: Memory;
+    inputPosition: number;
+    edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null;
+    ips: PointAxial[];
+    ipDirs: Direction[];
+    activeIp: number;
+    ticks: number;
+    output: number[];
+    input: string[];
+    firstStepNoop: boolean;
+    ignoreDivideByZero: boolean;
+    reverse: boolean;
+    generator: Generator;
+    terminationReason: string | null;
+
+    constructor(
+        sourceCode: ISourceCode,
+        inputString = '',
+        edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null = null) {
         this.grid = new Grid(sourceCode);
         this.size = this.grid.size;
         this.memory = new Memory();
-        this.setInput(inputString);
+        this.input = [...inputString];
         this.inputPosition = 0;
         this.edgeEventHandler = edgeEventHandler;
         this.ips = [
@@ -24,18 +45,18 @@ export class Hexagony {
         this.activeIp = 0;
         this.ticks = 0;
         this.output = [];
-        this.error = null;
         this.firstStepNoop = false;
         this.ignoreDivideByZero = false;
         this.reverse = false;
         this.generator = this.execute();
+        this.terminationReason = null;
     }
 
-    axialToIndex(coords) {
+    axialToIndex(coords: PointAxial) {
         return this.grid.axialToIndex(coords);
     }
 
-    indexToAxial(i, j) {
+    indexToAxial(i: number, j: number) {
         return indexToAxial(this.size, i, j);
     }
 
@@ -61,15 +82,15 @@ export class Hexagony {
     /**
      * Set the value of the current memory edge. Used to determine whether branches are followed for directional typing.
      */
-    setMemoryValue(value) {
+    setMemoryValue(value: bigint | number) {
         this.memory.setValue(value);
     }
 
-    setSourceCode(sourceCode) {
+    setSourceCode(sourceCode: ISourceCode) {
         this.grid.setSourceCode(sourceCode);
     }
 
-    setInput(inputString) {
+    setInput(inputString: string) {
         this.input = [...inputString];
     }
 
@@ -77,7 +98,7 @@ export class Hexagony {
         return this.grid.getExecutedGrid();
     }
 
-    getIPState(ipIndex) {
+    getIPState(ipIndex: number): [PointAxial, Direction] {
         return [this.ips[ipIndex], this.ipDirs[ipIndex]];
     }
 
@@ -125,7 +146,7 @@ export class Hexagony {
         }
     }
 
-    executeOpcode(opcode) {
+    executeOpcode(opcode: string) {
         // Execute the current instruction
         let newIp = this.activeIp;
 
@@ -152,7 +173,7 @@ export class Hexagony {
                 const leftVal = this.memory.getLeft();
                 const rightVal = this.memory.getRight();
                 let execute = true;
-                if (rightVal == 0) {
+                if (rightVal === 0n) {
                     if (this.ignoreDivideByZero) {
                         execute = false;
                     }
@@ -194,7 +215,7 @@ export class Hexagony {
 
             case ',': {
                 const byteValue = this.readByte();
-                this.memory.setValue(byteValue !== undefined ? byteValue.codePointAt(0) : -1);
+                this.memory.setValue(byteValue !== undefined ? byteValue.codePointAt(0) as number : -1);
                 break;
             }
             case ';':
@@ -225,7 +246,7 @@ export class Hexagony {
 
             // Digits, letters, and other characters.
             default: {
-                const value = opcode.codePointAt(0);
+                const value = opcode.codePointAt(0) as number;
                 if (value >= 48 && value <= 57) {
                     const memVal = this.memory.getValue();
                     this.memory.setValue(memVal * 10n + (memVal < 0 ? -BigInt(opcode) : BigInt(opcode)));
@@ -244,11 +265,7 @@ export class Hexagony {
         this.ticks++;
     }
 
-    appendOutput(string) {
-        this.output += string;
-    }
-
-    followEdge(edgeType = 0, isBranch = false) {
+    followEdge(edgeType = '0', isBranch = false) {
         if (this.edgeEventHandler) {
             this.edgeEventHandler(`${this.coords},${this.dir},${edgeType}`, isBranch);
         }
@@ -327,7 +344,7 @@ export class Hexagony {
                 this.readByte();
                 break;
             }
-            const codePoint = byteValue.codePointAt(0);
+            const codePoint = byteValue.codePointAt(0) as number;
             if (codePoint >= 48 && codePoint <= 57) {
                 break;
             }
@@ -342,7 +359,7 @@ export class Hexagony {
             if (byteValue === undefined) {
                 break;
             }
-            const codePoint = byteValue.codePointAt(0);
+            const codePoint = byteValue.codePointAt(0) as number;
             if (codePoint >= 48 && codePoint <= 57) {
                 value = value * 10n + BigInt(byteValue);
                 // Consume this character.

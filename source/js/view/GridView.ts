@@ -1,8 +1,9 @@
 import memoizeOne from 'memoize-one';
-import { east, northEast, northWest, southEast, southWest, west } from '../hexagony/direction.mjs';
-import { Hexagony } from '../hexagony/hexagony.mjs';
-import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/util.mjs';
-import { createSvgElement, emptyElement, getControlKey } from './viewutil.mjs';
+import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
+import { Hexagony } from '../hexagony/Hexagony';
+import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
+import { ISourceCode } from './SourceCode';
+import { createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 const edgeTransitionSizeLimit = 25;
 
@@ -14,33 +15,44 @@ const cellWidth = cellOffsetX * 2;
 const padding = 35;
 const executedColorCount = 10;
 
-let cellExecuted;
-let cellActive;
-let cellInactive;
-let arrowExecuted;
-let arrowActive;
-let arrowInactive;
-let cellExecutedArray;
-let arrowExecutedArray;
+let cellExecuted: string[];
+let cellActive: string[];
+let cellInactive: string[];
+let arrowExecuted: string[];
+let arrowActive: string[];
+let arrowInactive: string[];
+let cellExecutedArray: string[][];
+let arrowExecutedArray: string[][];
 
-export function initializeGridColors(colorMode, offset) {
-    cellExecuted = arrayInitialize(6, index => `cellExecuted${(index + offset) % 6}${colorMode}`);
-    cellActive = arrayInitialize(6, index => `cellActive${(index + offset) % 6}${colorMode}`);
-    cellInactive = arrayInitialize(6, index => `cellInactive${(index + offset) % 6}${colorMode}`);
-    arrowExecuted = arrayInitialize(6, index => `arrowExecuted${(index + offset) % 6}${colorMode}`);
-    arrowActive = arrayInitialize(6, index => `arrowActive${(index + offset) % 6}${colorMode}`);
-    arrowInactive = arrayInitialize(6, index => `arrowInactive${(index + offset) % 6}${colorMode}`);
-    cellExecutedArray = arrayInitialize(6, i =>
-        arrayInitialize(executedColorCount, j => `cellExecuted${(i + offset) % 6}_${j}${colorMode}`));
-    arrowExecutedArray = arrayInitialize(6, i =>
-        arrayInitialize(executedColorCount, j => `arrowExecuted${(i + offset) % 6}_${j}${colorMode}`));
+interface CellSVGElement extends SVGElement {
+    hasBreakpoint: boolean;
+    directions: Direction[];
 }
 
-function getIndices(elem) {
-    return elem.id.match(/\d+/g).map(x => parseInt(x));
+interface ArrowSVGElement extends SVGElement {
+    dir: Direction;
 }
 
-const outlineHelper = (x1, y1, x2, y2, size) =>
+type ConnectorDictionary = Record<string, SVGElement[]>;
+
+export function initializeGridColors(colorMode: string, offset: number) {
+    cellExecuted = arrayInitialize(6, (index: number) => `cellExecuted${(index + offset) % 6}${colorMode}`);
+    cellActive = arrayInitialize(6, (index: number) => `cellActive${(index + offset) % 6}${colorMode}`);
+    cellInactive = arrayInitialize(6, (index: number) => `cellInactive${(index + offset) % 6}${colorMode}`);
+    arrowExecuted = arrayInitialize(6, (index: number) => `arrowExecuted${(index + offset) % 6}${colorMode}`);
+    arrowActive = arrayInitialize(6, (index: number) => `arrowActive${(index + offset) % 6}${colorMode}`);
+    arrowInactive = arrayInitialize(6, (index: number) => `arrowInactive${(index + offset) % 6}${colorMode}`);
+    cellExecutedArray = arrayInitialize(6, (i: number) =>
+        arrayInitialize(executedColorCount, (j: number) => `cellExecuted${(i + offset) % 6}_${j}${colorMode}`));
+    arrowExecutedArray = arrayInitialize(6, (i: number) =>
+        arrayInitialize(executedColorCount, (j: number) => `arrowExecuted${(i + offset) % 6}_${j}${colorMode}`));
+}
+
+function getIndices(elem: Element) {
+    return elem.id.match(/\d+/g)!.map(x => parseInt(x));
+}
+
+const outlineHelper = (x1: number, y1: number, x2: number, y2: number, size: number) =>
     `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
 
 const getOutlinePath = memoizeOne(size =>
@@ -53,15 +65,50 @@ const getOutlinePath = memoizeOne(size =>
     outlineHelper(cellOffsetX, -edgeLength/2, 0, -edgeLength, size));
 
 export class GridView {
-    constructor(updateCodeCallback, toggleBreakpointCallback) {
+    sourceCode: ISourceCode;
+    updateCodeCallback: (i: number, j: number, char: string) => void;
+    toggleBreakpointCallback: (i: number, j: number) => void;
+    cellPaths: CellSVGElement[][][];
+    edgeConnectors: ConnectorDictionary;
+    edgeConnectors2: ConnectorDictionary;
+    delay: string;
+    directionalTyping: boolean;
+    executionHistory: [number, number, Direction][][];
+    creatingGrid: boolean;
+    selectedIp: number;
+    size: number;
+    rowCount: number;
+    fullWidth: number;
+    fullHeight: number;
+    edgeTransitionMode: boolean;
+    showArrows: boolean;
+    showIPs: boolean;
+    typingDirection: Direction;
+    codeSvgContainer: HTMLElement;
+    codeSvgParent: HTMLElement;
+    svg: SVGSVGElement;
+    cellContainer: SVGElement;
+    cellTemplate: SVGElement;
+    cellExecutedArrowTemplate: SVGElement;
+    cellBreakpointTemplate: SVGElement;
+    neutralConnectorTemplate: SVGElement;
+    positiveConnectorTemplate: SVGElement;
+    negativeConnectorTemplate: SVGElement;
+
+    constructor(
+        updateCodeCallback: (i: number, j: number, char: string) => void,
+        toggleBreakpointCallback: (i: number, j: number) => void,
+        sourceCode: ISourceCode,
+        delay: string) {
+        this.sourceCode = sourceCode;
         this.updateCodeCallback = updateCodeCallback;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.cellPaths = [];
         this.edgeConnectors = {};
         this.edgeConnectors2 = {};
-        this.delay = 0;
+        this.delay = delay;
         this.directionalTyping = false;
-        this.executionHistory = arrayInitialize(6, () => []);
+        this.executionHistory = arrayInitialize(6, () => [] as [number, number, Direction][]);
         this.creatingGrid = false;
         this.selectedIp = 0;
         this.size = -1;
@@ -72,29 +119,30 @@ export class GridView {
         this.showArrows = false;
         this.showIPs = false;
         this.typingDirection = east;
-        this.codeSvgContainer = document.getElementById('codeSvgContainer');
-        this.codeSvgParent = document.getElementById('codeSvgParent');
-        this.svg = document.getElementById('codeSvg');
+        this.codeSvgContainer = document.getElementById('codeSvgContainer')!;
+        this.codeSvgParent = document.getElementById('codeSvgParent')!;
+        this.svg = document.getElementById('codeSvg') as unknown as SVGSVGElement;
         this.cellContainer = this.svg.appendChild(createSvgElement('g'));
-        this.cellTemplate = this.svg.querySelector('defs [class~=cell]');
-        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=cellExecutedArrow]');
-        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cellBreakpoint]');
-        this.neutralConnectorTemplate = this.svg.querySelector('defs [class~=neutralConnector]');
-        this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positiveConnector]');
-        this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negativeConnector]');
+        this.cellTemplate = this.svg.querySelector('defs [class~=cell]')!;
+        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=cellExecutedArrow]')!;
+        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cellBreakpoint]')!;
+        this.neutralConnectorTemplate = this.svg.querySelector('defs [class~=neutralConnector]')!;
+        this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positiveConnector]')!;
+        this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negativeConnector]')!;
 
         this.svg.addEventListener('animationend', event => {
             if (event.animationName.startsWith('connector')) {
-                event.target.classList.remove('connectorFlash');
-                event.target.classList.remove('connectorNeutralFlash');
-                event.target.classList.remove('connectorFlashSecondary');
-                event.target.classList.remove('connectorNeutralFlashSecondary');
+                const target = event.target as Element;
+                target.classList.remove('connectorFlash');
+                target.classList.remove('connectorNeutralFlash');
+                target.classList.remove('connectorFlashSecondary');
+                target.classList.remove('connectorNeutralFlashSecondary');
             }
         });
 
         this.svg.addEventListener('click', event => {
             // Select text when clicking on the background or text of the cell.
-            const parent = event.target.parentNode;
+            const parent = (event.target as SVGElement).parentNode as SVGElement;
             if (parent.classList.contains('cell')) {
                 const [i, j, k] = getIndices(parent);
                 this.navigateTo(i, j, k);
@@ -103,7 +151,7 @@ export class GridView {
     }
 
     // Public API for updating source code.
-    setSourceCode(sourceCode) {
+    setSourceCode(sourceCode: ISourceCode) {
         this.sourceCode = sourceCode;
         if (sourceCode.size !== this.size) {
             this._createGrid(sourceCode.size);
@@ -114,13 +162,13 @@ export class GridView {
         }
     }
 
-    setBreakpoints(breakpoints) {
+    setBreakpoints(breakpoints: Iterable<number[]>) {
         for (const [i, j] of breakpoints) {
             this.setBreakpointState(i, j, true);
         }
     }
 
-    setBreakpointState(i, j, state) {
+    setBreakpointState(i: number, j: number, state: boolean) {
         for (let k = 0; k < this.cellPaths.length; k++) {
             if (i >= this.cellPaths[k].length || j >= this.cellPaths[k][i].length) {
                 return;
@@ -133,8 +181,8 @@ export class GridView {
 
             if (state) {
                 // Append breakpoints so that they appear higher in the Z-order.
-                const breakpoint = this.cellBreakpointTemplate.cloneNode();
-                breakpoint.setAttribute('transform', cell.getAttribute('transform'));
+                const breakpoint = this.cellBreakpointTemplate.cloneNode() as SVGElement;
+                breakpoint.setAttribute('transform', cell.getAttribute('transform')!);
                 breakpoint.id = `breakpoint${cell.id}`;
                 this.cellContainer.appendChild(breakpoint);
                 cell.hasBreakpoint = true;
@@ -142,7 +190,7 @@ export class GridView {
             else {
                 const breakpoint = this.svg.querySelector(`#breakpoint${cell.id}`);
                 if (breakpoint) {
-                    breakpoint.parentNode.removeChild(breakpoint);
+                    breakpoint.parentNode!.removeChild(breakpoint);
                 }
                 cell.hasBreakpoint = false;
             }
@@ -150,7 +198,7 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(executedState) {
+    recreateGrid(executedState: Direction[][][][] | null) {
         this.creatingGrid = true;
         this._createGrid(this.size);
 
@@ -167,7 +215,11 @@ export class GridView {
         this.creatingGrid = false;
     }
 
-    _foreachExecutionArrow([i, j, dir], k, allowCreate, callback) {
+    _foreachExecutionArrow(
+        [i, j, dir] : [number, number, Direction],
+        k: number,
+        allowCreate: boolean,
+        callback: (element: ArrowSVGElement) => void) {
         let create = false;
         const cell = this.cellPaths[k][i][j];
         if (!cell.directions.includes(dir)) {
@@ -178,9 +230,9 @@ export class GridView {
             cell.directions.push(dir);
         }
 
-        let arrow;
+        let arrow: ArrowSVGElement | null = null;
         if (create) {
-            arrow = this.cellExecutedArrowTemplate.cloneNode();
+            arrow = this.cellExecutedArrowTemplate.cloneNode() as ArrowSVGElement;
             if (!this.creatingGrid) {
                 arrow.style.animationDuration = this.delay;
             }
@@ -189,31 +241,34 @@ export class GridView {
             cell.appendChild(arrow);
         }
         else {
-            for (arrow of cell.querySelectorAll('.cellExecutedArrow')) {
+            for (const element of cell.querySelectorAll('.cellExecutedArrow')) {
+                arrow = element as ArrowSVGElement;
                 if (arrow.dir === dir) {
                     break;
                 }
             }
         }
 
-        callback(arrow);
+        if (arrow) {
+            callback(arrow);
+        }
     }
 
-    _addExecutionAngleClass(indices, className, k = 0) {
+    _addExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0) {
         this._foreachExecutionArrow(indices, k, true, arrow => {
             arrow.classList.add(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    _removeExecutionAngleClass(indices, className, k = 0) {
+    _removeExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0) {
         this._foreachExecutionArrow(indices, k, false, arrow => {
             arrow.classList.remove(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    _addCellClass(indices, className, centerHexagonOnly = false) {
+    _addCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false) {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -221,13 +276,13 @@ export class GridView {
                 className += 'Secondary';
             }
             const cell = this.cellPaths[k][i][j];
-            const path = cell.firstElementChild;
+            const path = cell.firstElementChild as SVGElement;
             path.classList.add(className);
             path.style.transitionDuration = this.delay;
         }
     }
 
-    _removeCellClass(indices, className, centerHexagonOnly = false) {
+    _removeCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false) {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -235,17 +290,17 @@ export class GridView {
                 className += 'Secondary';
             }
             const cell = this.cellPaths[k][i][j];
-            const path = cell.firstElementChild;
+            const path = cell.firstElementChild as SVGElement;
             path.classList.remove(className);
             path.style.transitionDuration = this.delay;
         }
     }
 
-    setExecutedState(executedState) {
+    setExecutedState(executedState: Direction[][][][]) {
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
             const directions = executedState[this.selectedIp][i][j];
             if (directions.length) {
-                const path = cell.firstElementChild;
+                const path = cell.firstElementChild as SVGElement;
                 path.classList.add(cellExecuted[this.selectedIp]);
                 path.style.transitionDuration = this.delay;
             }
@@ -266,11 +321,12 @@ export class GridView {
         this.executionHistory = arrayInitialize(6, () => []);
 
         this.cellPaths[0].forEach(rows => rows.forEach(cell => {
-            const path = cell.firstElementChild;
+            const path = cell.firstElementChild as SVGElement;
             path.classList.remove(cellExecuted[this.selectedIp]);
             path.style.transitionDuration = this.delay;
             if (this.showArrows) {
-                cell.querySelectorAll('.cellExecutedArrow').forEach(arrow => {
+                cell.querySelectorAll('.cellExecutedArrow').forEach(element => {
+                    const arrow = element as ArrowSVGElement;
                     arrow.classList.remove(arrowExecuted[this.selectedIp]);
                     arrow.style.transitionDuration = this.delay;
                 });
@@ -282,7 +338,7 @@ export class GridView {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
-                    this._removeCellClass(indices, i ? cellExecutedArray[ip][i - 1] : cellActive[ip], i);
+                    this._removeCellClass(indices, i ? cellExecutedArray[ip][i - 1] : cellActive[ip], Boolean(i));
                     this._removeExecutionAngleClass(indices, i ? arrowExecutedArray[ip][i - 1] : arrowActive[ip]);
                 });
             }
@@ -297,7 +353,7 @@ export class GridView {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
-                    this._addCellClass(indices, i ? cellExecutedArray[ip][i - 1] : cellActive[ip], i);
+                    this._addCellClass(indices, i ? cellExecutedArray[ip][i - 1] : cellActive[ip], Boolean(i));
                     if (!i) {
                         this._addExecutionAngleClass(indices, arrowActive[ip]);
                     }
@@ -322,26 +378,31 @@ export class GridView {
         }
     }
 
-    setDelay(value) {
+    setDelay(value: string) {
         this.delay = value;
     }
 
-    setDirectionalTyping(value) {
+    setDirectionalTyping(value: boolean) {
         this.directionalTyping = value;
     }
 
-    setShowArrows(value) {
+    setShowArrows(value: boolean) {
         this.clearCellExecutionColors();
         this.showArrows = value;
     }
 
-    setShowIPs(value) {
+    setShowIPs(value: boolean) {
         this._removeExecutionHistoryColors();
         this.showIPs = value;
         this._updateExecutionHistoryColors();
     }
 
-    updateActiveCell(executionHistory, selectedIp, executedState, forceReset, forceUpdateExecutionState) {
+    updateActiveCell(
+        executionHistory: [number, number, Direction][][],
+        selectedIp: number,
+        executedState: Direction[][][][],
+        forceReset: boolean,
+        forceUpdateExecutionState: boolean) {
         const reset = forceReset || selectedIp !== this.selectedIp;
         if (reset) {
             this.clearCellExecutionColors();
@@ -358,7 +419,7 @@ export class GridView {
         }
     }
 
-    updateHexagonWithCode(index) {
+    updateHexagonWithCode(index: number) {
         const { grid } = this.sourceCode;
         for (let i = 0; i < this.cellPaths[index].length; i++) {
             const row = grid[i];
@@ -371,13 +432,13 @@ export class GridView {
                     input.select();
                 }
                 else {
-                    this._setSvgText(cell.querySelector('text'), char);
+                    this._setSvgText(cell.querySelector('text')!, char);
                 }
             }
         }
     }
 
-    onKeyDown(i, j, k, elem, event) {
+    onKeyDown(i: number, j: number, k: number, elem: HTMLInputElement, event: KeyboardEvent) {
         if (elem.selectionStart == elem.selectionEnd &&
             (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Backspace')) {
             // No text is selected. Let the text input element handle it.
@@ -392,7 +453,7 @@ export class GridView {
             return;
         }
         if (event.key === 'Escape') {
-            document.getElementById('speedSlider').focus();
+            document.getElementById('speedSlider')!.focus();
             event.preventDefault();
             return;
         }
@@ -501,17 +562,17 @@ export class GridView {
         }
     }
 
-    navigateTo(i, j, k) {
+    navigateTo(i: number, j: number, k: number) {
         // Hide the text in the SVG cell, create an input element, and select it.
         const svgCell = this.cellPaths[k][i][j];
-        const svgText = svgCell.querySelector('text');
-        const originalText = svgText.textContent;
+        const svgText = svgCell.querySelector('text')!;
+        const originalText = svgText.textContent!;
 
         const input = document.createElement('input');
         input.type = 'text';
         input.autocomplete = 'off';
         input.autocapitalize = 'off';
-        input.spellcheck = 'false';
+        input.spellcheck = false;
         input.maxLength = 1;
         input.classList.add('cellInput');
         input.value = originalText;
@@ -520,10 +581,10 @@ export class GridView {
 
         const container = createSvgElement('foreignObject');
         const width = 28;
-        container.setAttribute('x', -width / 2);
-        container.setAttribute('y', -cellHeight / 2);
-        container.setAttribute('width', width);
-        container.setAttribute('height', cellHeight);
+        container.setAttribute('x', `${-width / 2}`);
+        container.setAttribute('y', `${-cellHeight / 2}`);
+        container.setAttribute('width', `${width}`);
+        container.setAttribute('height', `${cellHeight}`);
         input.style.width = `${width}px`;
         input.style.height = `${cellHeight}px`;
         container.appendChild(input);
@@ -558,7 +619,7 @@ export class GridView {
         });
     }
 
-    _startEdgeAnimation(connectors, name) {
+    _startEdgeAnimation(connectors: SVGElement[], name: string) {
         if (connectors) {
             connectors.forEach(x => {
                 x.classList.add(name);
@@ -567,7 +628,7 @@ export class GridView {
         }
     }
 
-    playEdgeAnimation(edgeName, isBranch) {
+    playEdgeAnimation(edgeName: string, isBranch: boolean) {
         if (this.edgeTransitionMode) {
             const name = isBranch ? 'connectorFlash' : 'connectorNeutralFlash';
             this._startEdgeAnimation(this.edgeConnectors[edgeName], name);
@@ -575,12 +636,12 @@ export class GridView {
         }
     }
 
-    _advanceCursor(i, j, k, reverse = false) {
+    _advanceCursor(i: number, j: number, k: number, reverse = false) {
         // When following an edge transition, go back to the center hexagon to ensure the cursor
         // remains on screen.
         const oldDirection = this.typingDirection;
         let newK = k;
-        const edgeEventHandler = (edgeName, isBranch) => {
+        const edgeEventHandler = (edgeName: string, isBranch: boolean) => {
             newK = 0;
             this.playEdgeAnimation(edgeName, isBranch);
         };
@@ -599,24 +660,24 @@ export class GridView {
         }
     }
 
-    _clearTypingDirectionArrow(i, j, k, direction = null) {
+    _clearTypingDirectionArrow(i: number, j: number, k: number, direction: Direction | null = null) {
         this._removeExecutionAngleClass([i, j, direction ?? this.typingDirection], 'typingDirectionArrow', k);
     }
 
-    _setTypingDirection(i, j, k, dir) {
+    _setTypingDirection(i: number, j: number, k: number, dir: Direction) {
         this._clearTypingDirectionArrow(i, j, k);
         this.typingDirection = dir;
         this._addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
     }
 
-    _setSvgText(textElement, text) {
+    _setSvgText(textElement: Element, text: string) {
         textElement.textContent = text;
         textElement.classList.toggle('noop', text === '.');
     }
 
-    _addEdgeConnector(key, connector, isSecondary) {
+    _addEdgeConnector(key: string, connector: SVGElement, isSecondary: boolean) {
         if (connector.nodeName !== 'path') {
-            connector = connector.firstElementChild;
+            connector = connector.firstElementChild as SVGElement;
         }
 
         const collection = isSecondary ? this.edgeConnectors2 : this.edgeConnectors;
@@ -632,7 +693,7 @@ export class GridView {
     /**
      * Re-create the hexagon grid using the given hexagon edge length.
      */
-    _createGrid(size) {
+    _createGrid(size: number) {
         this.size = size;
         this.rowCount = getRowCount(size);
 
@@ -661,8 +722,8 @@ export class GridView {
         this.codeSvgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
         this.codeSvgContainer.style.maxHeight = `${this.fullHeight /2}px`;
 
-        this.svg.setAttribute('width', this.fullWidth);
-        this.svg.setAttribute('height', this.fullHeight);
+        this.svg.setAttribute('width', this.fullWidth.toString());
+        this.svg.setAttribute('height', this.fullHeight.toString());
         const parent = createSvgElement('g');
         this.cellPaths = [];
         this.edgeConnectors = {};
@@ -674,7 +735,7 @@ export class GridView {
 
         const horizontalConnectorsLimit = largeGridOneRowOffset;
         const verticalConnectorsLimit = -largeGridOneRowOffset;
-        let offsets;
+        let offsets: [number, number, string][];
 
         if (this.edgeTransitionMode) {
             // Layout with seven hexagons.
@@ -690,22 +751,22 @@ export class GridView {
         }
         else {
             // Center hexagon only.
-            offsets = [[0, 0]];
+            offsets = [[0, 0, 'Center']];
         }
 
-        function getX(i, j, k) {
+        function getX(i: number, j: number, k: number) {
             return centerX +
                 (j - size + 1 + offsets[k][0]) * cellWidth +
                 Math.abs(i - size + 1) * cellOffsetX;
         }
 
-        function getY(i, k) {
+        function getY(i: number, k: number) {
             return centerY + (i - size + 1 + offsets[k][1]) * cellOffsetY;
         }
 
-        const outlines = [];
-        const connectors = [];
-        const positiveConnectors = [];
+        const outlines = [] as SVGElement[];
+        const connectors = [] as SVGElement[];
+        const positiveConnectors = [] as SVGElement[];
 
         const hexagonParents = [];
         for (let k = 0; k < offsets.length; k++) {
@@ -720,14 +781,15 @@ export class GridView {
                 const pathRow = [];
                 for (let j = 0; j < getRowSize(size, i); j++) {
                     const tooltip = `Coordinates: (${indexToAxial(size, i, j)})`;
-                    const cell = this.cellTemplate.cloneNode(true);
+                    const cell = this.cellTemplate.cloneNode(true) as CellSVGElement;
+                    cell.hasBreakpoint = false;
                     cell.directions = [];
                     pathRow.push(cell);
                     const cellX = getX(i, j, k);
                     const cellY = getY(i, k);
                     cell.id = `path_${i}_${j}_${k}`;
                     cell.setAttribute('transform', `translate(${cellX},${cellY})`);
-                    cell.querySelector('title').textContent = tooltip;
+                    cell.querySelector('title')!.textContent = tooltip;
                     hexagonParents[k].appendChild(cell);
                 }
                 pathGrid.push(pathRow);
@@ -756,7 +818,7 @@ export class GridView {
 
                     // Top edge.
                     if (offsets[k][1] > verticalConnectorsLimit) {
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
                         cellX = getX(0, i, k) + 0.5 * cellOffsetX;
                         cellY = getY(0, k) - 0.75 * edgeLength;
                         scaleX = 1;
@@ -775,7 +837,7 @@ export class GridView {
                         this._addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this._addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
                         cellX = getX(0, i, k) + 0.5 * cellOffsetX;
                         cellY = getY(0, k) - cellOffsetY - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
@@ -793,7 +855,7 @@ export class GridView {
 
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] >= verticalConnectorsLimit) {
                         // North east edge
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
                         cellX = getX(i, getRowSize(size, i) - 1, k) + cellOffsetX;
                         cellY = getY(i, k);
                         scaleX = 1;
@@ -811,7 +873,7 @@ export class GridView {
                         this._addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this._addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
                         cellX = getX(i, getRowSize(size, i) - 1, k) + cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(i, k) - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
@@ -829,7 +891,7 @@ export class GridView {
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] <= -verticalConnectorsLimit) {
                         // South east edge
                         const a = i + size - 1;
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
                         cellX = getX(a, getRowSize(size, a) - 1, k) + 0.5 * cellOffsetX;
                         cellY = getY(a, k) + 0.75 * edgeLength;
                         scaleX = 1;
@@ -846,7 +908,7 @@ export class GridView {
                         this._addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this._addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true);
+                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
                         cellX = getX(a, getRowSize(size, a) - 1, k) + cellWidth;
                         cellY = getY(a, k) + cellOffsetY;
                         scaleX = scaleY = -1;

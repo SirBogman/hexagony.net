@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Memory } from '../hexagony/Memory';
 
 export const edgeLength = 46.24 * 1.4;
 const cellHeight = 2 * edgeLength;
@@ -9,15 +10,22 @@ const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
 export const xFactor = 0.5 * cellOffsetX;
 export const yFactor = 0.5 * cellOffsetY;
 
-export function getMPCoordinates(memory) {
+export function getMPCoordinates(memory: Memory) {
     return [memory.getX() * xFactor, memory.getY() * yFactor];
+}
+
+interface IMemoryHexagonGrid {
+    x: number;
+    y: number;
+    rows: number;
+    columns: number;
 }
 
 /**
  * Renders a hexagonal grid for the background of the memory grid.
  * @component
  */
-export class MemoryHexagonGrid extends React.PureComponent {
+export class MemoryHexagonGrid extends React.PureComponent<IMemoryHexagonGrid> {
     render() {
         const { x, y, rows, columns } = this.props;
         let path = '';
@@ -32,7 +40,7 @@ export class MemoryHexagonGrid extends React.PureComponent {
             // NW and NE edges
             const isLastEvenRow = i === rows && i % 2 === 0;
             const isLastOddRow = i === rows && i % 2 !== 0;
-            path += `M${(startX + (isLastEvenRow ? cellOffsetX : 0)).toFixed(2)} ${(rowY - (i % 2 + isLastEvenRow) * 0.5 * edgeLength).toFixed(2)}`;
+            path += `M${(startX + (isLastEvenRow ? cellOffsetX : 0)).toFixed(2)} ${(rowY - (i % 2 + Number(isLastEvenRow)) * 0.5 * edgeLength).toFixed(2)}`;
             if (i % 2) {
                 path += neEdge;
             }

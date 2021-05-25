@@ -1,8 +1,16 @@
-import { arrayInitialize } from './util.mjs';
+import { ISourceCode } from '../view/SourceCode';
+import { Direction } from './Direction';
+import { PointAxial } from './PointAxial';
+import { arrayInitialize } from './Util';
 
 export class Grid {
-    constructor(sourceCode) {
-        this.setSourceCode(sourceCode);
+    size: number;
+    grid: string[][];
+    executed: Direction[][][][];
+
+    constructor(sourceCode: ISourceCode) {
+        this.size = sourceCode.size;
+        this.grid = sourceCode.grid;
         // Create an execution history grid for each IP.
         this.executed = arrayInitialize(6, () =>
             arrayInitialize(this.grid.length, index =>
@@ -10,7 +18,7 @@ export class Grid {
     }
 
     // This should only be called if the new source code uses the same size hexagon.
-    setSourceCode(sourceCode) {
+    setSourceCode(sourceCode: ISourceCode) {
         if (this.size && this.size !== sourceCode.size) {
             throw new Error('Unexpected hexagon size change.');
         }
@@ -22,7 +30,10 @@ export class Grid {
         return this.executed;
     }
 
-    getInstruction(coords, setExecutedDirection = null, activeIp = null) {
+    getInstruction(
+        coords: PointAxial,
+        setExecutedDirection: Direction | null = null,
+        activeIp: number | null = null) {
         const index = this.axialToIndex(coords);
         if (!index) {
             return '.';
@@ -38,12 +49,12 @@ export class Grid {
         return this.grid[index[0]][index[1]];
     }
 
-    axialToIndex(coords) {
+    axialToIndex(coords: PointAxial) {
         const x = coords.q;
         const z = coords.r;
         const y = -x - z;
         if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) >= this.size) {
-            return null;
+            throw new Error('Coordinates out of bounds.');
         }
 
         const i = z + this.size - 1;

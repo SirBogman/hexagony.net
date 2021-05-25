@@ -1,7 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export function getInfoContent(breakpoints, size, chars, bytes, operators) {
+export interface IInfoPanelProps {
+    breakpoints: number;
+    size: number;
+    bytes: number;
+    chars: number;
+    operators: number;
+}
+
+export function getInfoContent(props: IInfoPanelProps) {
+    const { breakpoints, size, chars, bytes, operators } = props;
     return (
         <>
             <p key="bp" className="extraState col1" title="The number of breakpoints set. Select an instruction and press Ctrl + B to set a breakpoint.">Breakpoints</p>
@@ -18,13 +27,12 @@ export function getInfoContent(breakpoints, size, chars, bytes, operators) {
     );
 }
 
-export function InfoPanel(props) {
-    const { breakpoints, size, chars, bytes, operators } = props;
+export function InfoPanel(props: IInfoPanelProps) {
     return (
         <div id="infoPanel">
             <h1>Info</h1>
             <div id="infoInfo">
-                {getInfoContent(breakpoints, size, chars, bytes, operators)}
+                {getInfoContent(props)}
             </div>
         </div>
     );

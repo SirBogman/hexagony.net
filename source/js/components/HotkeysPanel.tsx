@@ -1,7 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function HotkeysPanelFunction({ directionalTyping }) {
+interface IHotkeysPanelProps {
+    directionalTyping: boolean;
+}
+
+function HotkeysPanelFunction({ directionalTyping }: IHotkeysPanelProps) {
     const prefix = directionalTyping ? 'Set the typing direction' : 'Navigate';
     const suffix = directionalTyping ? '' : ' (with wrapping)';
     return (

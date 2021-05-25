@@ -1,14 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { edgeLength, xFactor, yFactor } from './MemoryHexagonGrid.jsx';
+import { edgeLength, xFactor, yFactor } from './MemoryHexagonGrid';
 
 const path = `M${-edgeLength / 2} 0h${edgeLength}`;
+
+interface IMemoryEdgeProps {
+    x: number;
+    y: number;
+    angle: number;
+    value: bigint;
+}
 
 /**
  * Displays the value of a single edge in the memory grid.
  * @component
  */
-export class MemoryEdge extends React.PureComponent {
+export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
     render() {
         const key= `${this.props.x},${this.props.y}`;
         const transform = `translate(${(this.props.x * xFactor).toFixed(2)},${(this.props.y * yFactor).toFixed(2)})rotate(${this.props.angle})`;

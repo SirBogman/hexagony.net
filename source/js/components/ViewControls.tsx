@@ -1,7 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export function ViewControls(props) {
+interface IViewControlsProps {
+    edgeTransitionModeEnabled: boolean;
+    arrowsEnabled: boolean;
+    ipsEnabled: boolean;
+    darkModeEnabled: boolean;
+    toggleEdgeTransitionMode: () => void;
+    toggleArrows: () => void;
+    toggleIPs: () => void;
+    toggleDarkMode: () => void;
+}
+
+export function ViewControls(props: IViewControlsProps) {
     const { edgeTransitionModeEnabled, arrowsEnabled, ipsEnabled, darkModeEnabled,
         toggleEdgeTransitionMode, toggleArrows, toggleIPs, toggleDarkMode } = props;
 

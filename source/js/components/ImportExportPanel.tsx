@@ -1,7 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export function ImportExportPanel(props) {
+interface IImportExportPanelProps {
+    isGeneratedLinkUpToDate: boolean,
+    link: string,
+    sourceCode: string,
+    onGenerateLink: () => void,
+    onGenerateAndCopyLink: () => void,
+    onImportSourceCode: (newSource: string) => void,
+    onLayoutCode: () => void,
+    onMinifyCode: () => void,
+}
+
+export function ImportExportPanel(props: IImportExportPanelProps) {
     const { isGeneratedLinkUpToDate, link, sourceCode, onGenerateLink, onGenerateAndCopyLink,
         onImportSourceCode, onLayoutCode, onMinifyCode } = props;
 
@@ -22,7 +33,7 @@ export function ImportExportPanel(props) {
             </div>
             <textarea
                 aria-label="Source Code Import/Export"
-                spellCheck="False"
+                spellCheck={false}
                 autoCapitalize="off"
                 autoComplete="off"
                 value={sourceCode}
