@@ -5,10 +5,10 @@ import LZString from 'lz-string';
 
 import { Direction } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
+import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
 import { GridView, initializeGridColors } from '../view/GridView';
 import { applyColorMode, colorModes, darkColorMode, getControlKey, parseStorage, prefersDarkColorScheme } from '../view/ViewUtil';
-import { ISourceCode, SourceCode } from '../view/SourceCode';
 
 import { CodePanel } from './CodePanel';
 import { HotkeysPanel } from './HotkeysPanel';

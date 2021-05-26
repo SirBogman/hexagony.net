@@ -1,8 +1,8 @@
 import memoizeOne from 'memoize-one';
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
+import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
-import { ISourceCode } from './SourceCode';
 import { createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 const edgeTransitionSizeLimit = 25;

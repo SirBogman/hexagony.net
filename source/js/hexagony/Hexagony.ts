@@ -2,8 +2,8 @@ import { Direction, east, northEast, northWest, southEast, southWest, west } fro
 import { Grid } from './Grid';
 import { Memory } from './Memory';
 import { PointAxial } from './PointAxial';
+import { ISourceCode } from './SourceCode';
 import { indexToAxial, rubyStyleDivide, rubyStyleRemainder } from './Util';
-import { ISourceCode } from '../view/SourceCode';
 
 export class Hexagony {
     grid: Grid;

@@ -1,6 +1,6 @@
-import { ISourceCode } from '../view/SourceCode';
 import { Direction } from './Direction';
 import { PointAxial } from './PointAxial';
+import { ISourceCode } from './SourceCode';
 import { arrayInitialize } from './Util';
 
 export class Grid {
