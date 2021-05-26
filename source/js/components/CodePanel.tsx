@@ -2,7 +2,7 @@ import React from 'react';
 
 // This is only a pure component because it's implementation is delegated to non-react code.
 export class CodePanel extends React.PureComponent {
-    render() {
+    render(): JSX.Element {
         return (
             <div id="codePanel">
                 <div id="codeSvgContainer">

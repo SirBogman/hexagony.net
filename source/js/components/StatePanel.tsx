@@ -12,7 +12,7 @@ interface IIPState {
     coords: PointAxial;
 }
 
-interface IStatePanelProps {
+export interface IStatePanelProps {
     colorMode: string;
     colorOffset: number;
     cycleColorOffset: () => void;
@@ -60,7 +60,7 @@ function getExecutionInfo(ticks: number, memoryEdges: number) {
     );
 }
 
-export function StatePanel(props: IStatePanelProps) {
+export function StatePanel(props: IStatePanelProps): JSX.Element {
     const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
         memoryCw, memoryEdges, ticks, info, ipStates, onSelectedIPChanged } = props;
     return (

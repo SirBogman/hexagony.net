@@ -34,11 +34,11 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         this.viewRef = React.createRef();
     }
 
-    getSvg() {
+    getSvg(): SVGSVGElement {
         return this.viewRef.current!;
     }
 
-    render() {
+    render(): JSX.Element {
         const { delay, memory } = this.props;
         if (!memory) {
             return <svg ref={this.viewRef}/>;
@@ -56,7 +56,7 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         );
     }
 
-    renderHexagonGrid() {
+    renderHexagonGrid(): JSX.Element {
         const { memory } = this.props;
         const currentX = memory.getX();
         const currentY = memory.getY();

@@ -17,7 +17,7 @@ interface IEditControlProps {
     toggleDirectionalTyping: () => void;
 }
 
-export function EditControls(props: IEditControlProps) {
+export function EditControls(props: IEditControlProps): JSX.Element {
     const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
         onReset, onReverseMemoryMovement, onSmaller, onUndo, toggleDirectionalTyping } = props;
 

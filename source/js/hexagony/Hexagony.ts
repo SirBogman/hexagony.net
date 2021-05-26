@@ -52,15 +52,15 @@ export class Hexagony {
         this.terminationReason = null;
     }
 
-    axialToIndex(coords: PointAxial) {
+    axialToIndex(coords: PointAxial): [number, number] {
         return this.grid.axialToIndex(coords);
     }
 
-    indexToAxial(i: number, j: number) {
+    indexToAxial(i: number, j: number): PointAxial {
         return indexToAxial(this.size, i, j);
     }
 
-    getTerminationReason() {
+    getTerminationReason(): string | null {
         return this.terminationReason;
     }
 
@@ -68,33 +68,33 @@ export class Hexagony {
      * Prevents the initial call to step from executing an instruction. This allows the first instruction to be
      * highlighted in the UI before it's executed.
      */
-    setFirstStepNoop() {
+    setFirstStepNoop(): void {
         this.firstStepNoop = true;
     }
 
     /**
      * Do nothing when attempting to divide by zero. This is useful for implementing directional typing.
      */
-    setIgnoreDivideByZero() {
+    setIgnoreDivideByZero(): void {
         this.ignoreDivideByZero = true;
     }
 
     /**
      * Set the value of the current memory edge. Used to determine whether branches are followed for directional typing.
      */
-    setMemoryValue(value: bigint | number) {
+    setMemoryValue(value: bigint | number): void {
         this.memory.setValue(value);
     }
 
-    setSourceCode(sourceCode: ISourceCode) {
+    setSourceCode(sourceCode: ISourceCode): void {
         this.grid.setSourceCode(sourceCode);
     }
 
-    setInput(inputString: string) {
+    setInput(inputString: string): void {
         this.input = [...inputString];
     }
 
-    getExecutedGrid() {
+    getExecutedGrid(): Direction[][][][] {
         return this.grid.getExecutedGrid();
     }
 
@@ -102,23 +102,23 @@ export class Hexagony {
         return [this.ips[ipIndex], this.ipDirs[ipIndex]];
     }
 
-    get dir() {
+    get dir(): Direction {
         return this.ipDirs[this.activeIp];
     }
 
-    set dir(value) {
+    set dir(value: Direction) {
         this.ipDirs[this.activeIp] = value;
     }
 
-    get coords() {
+    get coords(): PointAxial {
         return this.ips[this.activeIp];
     }
 
-    set coords(value) {
+    set coords(value: PointAxial) {
         this.ips[this.activeIp] = value;
     }
 
-    step(reverse = false) {
+    step(reverse = false): void {
         if (reverse) {
             this.dir = this.dir.reverse;
             this.reverse = true;
@@ -131,7 +131,7 @@ export class Hexagony {
         }
     }
 
-    * execute() {
+    * execute(): Generator {
         while (!this.terminationReason) {
             if (this.firstStepNoop || this.ticks) {
                 yield;
@@ -146,7 +146,7 @@ export class Hexagony {
         }
     }
 
-    executeOpcode(opcode: string) {
+    executeOpcode(opcode: string): void {
         // Execute the current instruction
         let newIp = this.activeIp;
 
@@ -265,13 +265,13 @@ export class Hexagony {
         this.ticks++;
     }
 
-    followEdge(edgeType = '0', isBranch = false) {
+    followEdge(edgeType = '0', isBranch = false): void {
         if (this.edgeEventHandler) {
             this.edgeEventHandler(`${this.coords},${this.dir},${edgeType}`, isBranch);
         }
     }
 
-    handleMovement() {
+    handleMovement(): void {
         this.coords = this.coords.add(this.dir.vector);
 
         if (this.size == 1) {
@@ -326,7 +326,7 @@ export class Hexagony {
         }
     }
 
-    findInteger() {
+    findInteger(): bigint {
         let value = 0n;
         let positive = true;
 
@@ -373,11 +373,11 @@ export class Hexagony {
         return positive ? value : -value;
     }
 
-    peekByte() {
+    peekByte(): string | undefined {
         return this.inputPosition < this.input.length ? this.input[this.inputPosition] : undefined;
     }
 
-    readByte() {
+    readByte(): string | undefined {
         return this.inputPosition < this.input.length ? this.input[this.inputPosition++] : undefined;
     }
 }

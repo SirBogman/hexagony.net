@@ -23,8 +23,6 @@ rules:
   '@typescript-eslint/no-extra-parens':
     - warn
   # Temporarily disable some rules with violations:
-  '@typescript-eslint/explicit-module-boundary-types':
-    - off
   '@typescript-eslint/no-non-null-assertion':
     - off
   array-bracket-spacing:

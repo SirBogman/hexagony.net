@@ -22,7 +22,7 @@ export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
         this.lastDataVersion = -1;
     }
 
-    render() {
+    render(): JSX.Element {
         const { memory } = this.props;
         this.lastDataVersion = memory.dataVersion;
         const cells = memory.getDataArray().map(entry => {
@@ -34,7 +34,7 @@ export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
         return <g>{cells}</g>;
     }
 
-    shouldComponentUpdate(nextProps: IMemoryEdgesProps) {
+    shouldComponentUpdate(nextProps: IMemoryEdgesProps): boolean {
         return nextProps.memory.dataVersion !== this.lastDataVersion;
     }
 

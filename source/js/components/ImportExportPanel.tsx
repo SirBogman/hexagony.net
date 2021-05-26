@@ -12,7 +12,7 @@ interface IImportExportPanelProps {
     onMinifyCode: () => void,
 }
 
-export function ImportExportPanel(props: IImportExportPanelProps) {
+export function ImportExportPanel(props: IImportExportPanelProps): JSX.Element {
     const { isGeneratedLinkUpToDate, link, sourceCode, onGenerateLink, onGenerateAndCopyLink,
         onImportSourceCode, onLayoutCode, onMinifyCode } = props;
 

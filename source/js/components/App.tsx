@@ -13,11 +13,11 @@ import { applyColorMode, colorModes, darkColorMode, getControlKey, parseStorage,
 import { CodePanel } from './CodePanel';
 import { HotkeysPanel } from './HotkeysPanel';
 import { ImportExportPanel } from './ImportExportPanel';
-import { InfoPanel } from './InfoPanel';
+import { IInfoPanelProps, InfoPanel } from './InfoPanel';
 import { InputPanel, inputModeArguments, isValidInputMode } from './InputPanel';
 import { MemoryPanel } from './MemoryPanel';
 import { OutputPanel } from './OutputPanel';
-import { StatePanel } from './StatePanel';
+import { IStatePanelProps, StatePanel } from './StatePanel';
 import { NavigationLinks } from './NavigationLinks';
 import { ViewControls } from './ViewControls';
 import { EditControls } from './EditControls';
@@ -28,7 +28,7 @@ const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 const maxSpeedIterations = 10000;
 const executionHistoryCount = 20;
 
-export function updateAppHelper(element: HTMLElement) {
+export function updateAppHelper(element: HTMLElement): void {
     ReactDOM.render(<React.StrictMode><App/></React.StrictMode>, element);
 }
 
@@ -216,48 +216,48 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.updateColorMode();
     }
 
-    static saveUserData(userData: IUserData) {
+    static saveUserData(userData: IUserData): void {
         const serializedData = JSON.stringify(userData);
         sessionStorage.userData = serializedData;
         localStorage.userData = serializedData;
     }
 
-    static canUndo(state: IAppState) {
+    static canUndo(state: IAppState): boolean {
         const { isRunning, undoStack } = state;
         return undoStack.length !== 0 &&
             (!isRunning || !undoStack[undoStack.length - 1].isSizeChange);
     }
 
-    static canRedo(state: IAppState) {
+    static canRedo(state: IAppState): boolean {
         const { isRunning, redoStack } = state;
         return redoStack.length !== 0 &&
             (!isRunning || !redoStack[redoStack.length - 1].isSizeChange);
     }
 
-    updateCodeCallback = (i: number, j: number, char: string) =>
+    updateCodeCallback = (i: number, j: number, char: string): void =>
         this.setState(produce(state => App.applyCodeChangeToState(state, char, i, j)));
 
-    setSourceCode = (newCode: string) =>
+    setSourceCode = (newCode: string): void =>
         this.setState(produce(state => App.applyCodeChangeToState(state, newCode)));
 
-    applySourceCodeChange = (sourceCodeToNewCode: (sourceCode: SourceCode) => string) =>
+    applySourceCodeChange = (sourceCodeToNewCode: (sourceCode: SourceCode) => string): void =>
         this.setState(produce(state =>
             App.applyCodeChangeToState(state,
                 sourceCodeToNewCode(SourceCode.fromObject(state.sourceCode)))));
 
-    onLayoutCode = () =>
+    onLayoutCode = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.layoutCode());
 
-    onMinifyCode = () =>
+    onMinifyCode = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.minifyCode());
 
-    onBigger = () =>
+    onBigger = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.resizeCode(sourceCode.size + 1));
 
-    onReset = () =>
+    onReset = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.resetCode());
 
-    onReverseMemoryMovement = () => {
+    onReverseMemoryMovement = (): void => {
         const { state } = this;
         const oldCode = SourceCode.fromObject(state.sourceCode).toString();
         const newCode = oldCode.replace(/\{|}|'|"/g, (match: string) => {
@@ -287,7 +287,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onSmaller = () => {
+    onSmaller = (): void => {
         const { state } = this;
         const { size } = state.sourceCode;
         const newSize = Math.max(1, size - 1);
@@ -300,7 +300,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onUndo = () =>
+    onUndo = (): void =>
         this.setState(produce(state => {
             if (App.canUndo(state)) {
                 const undoItem = state.undoStack.pop();
@@ -316,7 +316,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             }
         }));
 
-    onRedo = () =>
+    onRedo = (): void =>
         this.setState(produce(state => {
             if (App.canRedo(state)) {
                 const undoItem = state.redoStack.pop();
@@ -336,7 +336,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         state: IAppState,
         newCode: string,
         i: number | null = null,
-        j: number | null = null) {
+        j: number | null = null): void {
         const { isUndoRedoInProgress, sourceCode, userData } = state;
 
         if (i !== null && j !== null) {
@@ -399,19 +399,19 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     }
 
-    onInputChanged = (value: string) =>
+    onInputChanged = (value: string): void =>
         this.setState(produce(state => {
             state.userData.input = value;
             state.isGeneratedLinkUpToDate = false;
         }));
 
-    onInputModeChanged = (value: string) =>
+    onInputModeChanged = (value: string): void =>
         this.setState(produce(state => {
             state.userData.inputMode = value;
             state.isGeneratedLinkUpToDate = false;
         }));
 
-    onSpeedSliderChanged = (rawValue: number) => {
+    onSpeedSliderChanged = (rawValue: number): void => {
         const value = Math.floor(10 ** -3 * (1000 - rawValue) ** 2);
         this.setState(produce(state => {
             state.userData.delay = value;
@@ -419,18 +419,18 @@ export class App extends React.Component<IAppProps, IAppState> {
         }));
     };
 
-    breakpointExistsAt(i: number, j: number) {
+    breakpointExistsAt(i: number, j: number): boolean {
         const id = `${i},${j}`;
         return this.state.userData.breakpoints.indexOf(id) > -1;
     }
 
-    * getBreakpoints() {
+    * getBreakpoints(): Generator<number[]> {
         for (const id of this.state.userData.breakpoints) {
             yield id.split(',').map(Number);
         }
     }
 
-    onDeleteBreakpoints = () => {
+    onDeleteBreakpoints = (): void => {
         for (const [i, j] of this.getBreakpoints()) {
             this.gridView!.setBreakpointState(i, j, false);
         }
@@ -438,7 +438,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.setState(produce(state => { state.userData.breakpoints = []; }));
     };
 
-    toggleBreakpointCallback = (i: number, j: number) => {
+    toggleBreakpointCallback = (i: number, j: number): void => {
         const id = `${i},${j}`;
 
         this.setState(produce(state => {
@@ -454,7 +454,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }));
     };
 
-    static applyHashDataToState(state: IAppState, hashData: IHashData) {
+    static applyHashDataToState(state: IAppState, hashData: IHashData): void {
         state.userData.code = hashData.code;
 
         if (hashData.inputMode && isValidInputMode(hashData.inputMode)) {
@@ -469,7 +469,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         state.isGeneratedLinkUpToDate = true;
     }
 
-    loadDataFromURL = () => {
+    loadDataFromURL = (): void => {
         const hashData = loadHashData();
         if (hashData) {
             // Stop execution first, as the hexagon size may change.
@@ -482,7 +482,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onGenerateLink = () => {
+    onGenerateLink = (): string => {
         const { userData } = this.state;
         const urlData = { code: userData.code, input: userData.input, inputMode: userData.inputMode };
         const json = JSON.stringify(urlData);
@@ -494,9 +494,10 @@ export class App extends React.Component<IAppProps, IAppState> {
         return link;
     };
 
-    onGenerateAndCopyLink = () => navigator.clipboard.writeText(this.onGenerateLink());
+    onGenerateAndCopyLink = (): Promise<void> =>
+        navigator.clipboard.writeText(this.onGenerateLink());
 
-    onPlayPause = () => {
+    onPlayPause = (): void => {
         if (this.isPlaying()) {
             this.onPause();
         }
@@ -505,14 +506,14 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onStart = () => this.stepHelper(true);
+    onStart = (): void => this.stepHelper(true);
 
-    onStep = () => {
+    onStep = (): void => {
         this.stepHelper();
         this.onPause();
     };
 
-    static getInput(state: IAppState) {
+    static getInput(state: IAppState): string {
         const { userData } = state;
         let { input } = userData;
         if (userData.inputMode === inputModeArguments) {
@@ -521,7 +522,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         return input;
     }
 
-    edgeEventHandler = (edgeName: string, isBranch: boolean) => {
+    edgeEventHandler = (edgeName: string, isBranch: boolean): void => {
         // Don't show edge transition animations when running at high speed.
         const { userData } = this.state;
         if (userData.delay || !this.isPlaying()) {
@@ -529,7 +530,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    stepHelper(play = false) {
+    stepHelper(play = false): void {
         if (this.isTerminated()) {
             return;
         }
@@ -608,7 +609,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         });
     }
 
-    getInfoPanelProps() {
+    getInfoPanelProps(): IInfoPanelProps {
         const { userData } = this.state;
         const filteredCode = removeWhitespaceAndDebug(userData.code);
         const filteredCodepoints = countCodepoints(filteredCode);
@@ -621,7 +622,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         };
     }
 
-    getStatePanelProps() {
+    getStatePanelProps(): IStatePanelProps {
         const hexagony = this.hexagony!;
         const { terminationReason, userData, selectedIp } = this.state;
 
@@ -650,9 +651,9 @@ export class App extends React.Component<IAppProps, IAppState> {
         };
     }
 
-    onPause = () => this.setState(produce(state => App.pause(state)));
+    onPause = (): void => this.setState(produce(state => App.pause(state)));
 
-    static pause(state: IAppState) {
+    static pause(state: IAppState): void {
         const { timeoutID } = state;
         if (timeoutID !== null) {
             window.clearTimeout(timeoutID);
@@ -660,7 +661,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     }
 
-    onStop = () => {
+    onStop = (): void => {
         this.hexagony = null;
         this.executionHistory = [];
         this.gridView!.clearCellExecutionColors();
@@ -671,25 +672,25 @@ export class App extends React.Component<IAppProps, IAppState> {
         }));
     };
 
-    resetCellColors() {
+    resetCellColors(): void {
         if (this.hexagony != null) {
             const { selectedIp } = this.state;
             this.gridView!.updateActiveCell(this.executionHistory, selectedIp, this.hexagony.getExecutedGrid(), true, false);
         }
     }
 
-    onSelectedIPChanged = (ip: number) =>
+    onSelectedIPChanged = (ip: number): void =>
         this.setState({ selectedIp: ip });
 
-    isPlaying() {
+    isPlaying(): boolean {
         return this.startingToPlay || this.state.timeoutID !== null;
     }
 
-    isTerminated() {
+    isTerminated(): boolean {
         return this.hexagony != null && this.hexagony.getTerminationReason() != null;
     }
 
-    onKeyDown = (e: KeyboardEvent) => {
+    onKeyDown = (e: KeyboardEvent): void => {
         if (getControlKey(e)) {
             if (e.key === '.') {
                 this.onStep();
@@ -719,13 +720,13 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    updateColorMode() {
+    updateColorMode(): void {
         const { userData } = this.state;
         applyColorMode(this.state.userData.colorMode);
         initializeGridColors(userData.colorMode, userData.colorOffset);
     }
 
-    onColorPropertyChanged() {
+    onColorPropertyChanged(): void {
         this.updateColorMode();
         // It's easier to recreate the grid than to update all color-related class names.
         const gridView = this.gridView!;
@@ -733,7 +734,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         gridView.setBreakpoints(this.getBreakpoints());
     }
 
-    onEdgeTransitionModeChanged() {
+    onEdgeTransitionModeChanged(): void {
         const { userData } = this.state;
         const gridView = this.gridView!;
         gridView.edgeTransitionMode = userData.edgeTransitionMode;
@@ -741,28 +742,28 @@ export class App extends React.Component<IAppProps, IAppState> {
         gridView.setBreakpoints(this.getBreakpoints());
     }
 
-    toggleEdgeTransitionMode = () =>
+    toggleEdgeTransitionMode = (): void =>
         this.setState(produce(state => { state.userData.edgeTransitionMode = !state.userData.edgeTransitionMode; }));
 
-    toggleArrows = () =>
+    toggleArrows = (): void =>
         this.setState(produce(state => { state.userData.showArrows = !state.userData.showArrows; }));
 
-    toggleDirectionalTyping = () =>
+    toggleDirectionalTyping = (): void =>
         this.setState(produce(state => { state.userData.directionalTyping = !state.userData.directionalTyping; }));
 
-    toggleIPs = () =>
+    toggleIPs = (): void =>
         this.setState(produce(state => { state.userData.showIPs = !state.userData.showIPs; }));
 
-    toggleDarkMode = () =>
+    toggleDarkMode = (): void =>
         this.setState(produce(state => { state.userData.colorMode = colorModes[1 - colorModes.indexOf(state.userData.colorMode)]; }));
 
-    cycleColorOffset = () =>
+    cycleColorOffset = (): void =>
         this.setState(produce(state => { state.userData.colorOffset = (state.userData.colorOffset + 1) % 6; }));
 
-    onUtf8OutputChanged = (value: boolean) =>
+    onUtf8OutputChanged = (value: boolean): void =>
         this.setState(produce(state => { state.userData.utf8Output = value; }));
 
-    componentDidMount() {
+    componentDidMount(): void {
         const { animationDelay, sourceCode, userData } = this.state;
 
         this.gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback, sourceCode, animationDelay);
@@ -777,12 +778,12 @@ export class App extends React.Component<IAppProps, IAppState> {
         window.addEventListener('hashchange', this.loadDataFromURL);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         document.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('hashchange', this.loadDataFromURL);
     }
 
-    componentDidUpdate(prevProps: IAppProps, prevState: IAppState) {
+    componentDidUpdate(prevProps: IAppProps, prevState: IAppState): void {
         const { animationDelay, selectedIp, sourceCode, userData } = this.state;
         const prevUserData = prevState.userData;
         const prevSourceCode = prevState.sourceCode;
@@ -849,7 +850,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     }
 
-    render() {
+    render(): JSX.Element {
         const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, userData } = this.state;
         const { hexagony } = this;
         const mainContent = hexagony !== null ?

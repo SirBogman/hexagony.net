@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-export function updateNavigationLinks(element: HTMLElement) {
+export function updateNavigationLinks(element: HTMLElement): void {
     ReactDOM.render(
         <React.StrictMode><NavigationLinks/></React.StrictMode>,
         element);

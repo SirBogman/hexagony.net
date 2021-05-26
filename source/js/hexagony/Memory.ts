@@ -1,8 +1,15 @@
 import { Direction, east, northEast, southEast } from './Direction';
 import { PointAxial } from './PointAxial';
 
+interface IDataValue {
+    dir: Direction;
+    value: bigint;
+    x: number;
+    y: number;
+}
+
 export class Memory {
-    data: Record<string, { dir: Direction; value: bigint; x: number; y: number; }>;
+    data: Record<string, IDataValue>;
     mp: PointAxial;
     dir: Direction;
     cw: boolean;
@@ -25,44 +32,44 @@ export class Memory {
         this.memoryPointerVersion = 0;
     }
 
-    reverse() {
+    reverse(): void {
         this.cw = !this.cw;
         this.memoryPointerVersion++;
     }
 
-    moveLeft() {
+    moveLeft(): void {
         [this.mp, this.dir, this.cw] = this.leftIndex;
         this.memoryPointerVersion++;
     }
 
-    moveRight() {
+    moveRight(): void {
         [this.mp, this.dir, this.cw] = this.rightIndex;
         this.memoryPointerVersion++;
     }
 
-    getValueAt(mp: PointAxial, dir: Direction) {
+    getValueAt(mp: PointAxial, dir: Direction): bigint {
         return this.data[`${mp},${dir}`]?.value ?? 0n;
     }
 
-    tryGetValueAt(mp: PointAxial, dir: Direction) {
+    tryGetValueAt(mp: PointAxial, dir: Direction): bigint {
         return this.data[`${mp},${dir}`]?.value;
     }
 
-    getValue() {
+    getValue(): bigint {
         return this.getValueAt(this.mp, this.dir);
     }
 
-    getLeft() {
+    getLeft(): bigint {
         const [mp, dir] = this.leftIndex;
         return this.getValueAt(mp, dir);
     }
 
-    getRight() {
+    getRight(): bigint {
         const [mp, dir] = this.rightIndex;
         return this.getValueAt(mp, dir);
     }
 
-    setValue(value: bigint | number) {
+    setValue(value: bigint | number): void {
         const x = this.getX();
         const y = this.getY();
         this.data[`${this.mp},${this.dir}`] = {
@@ -79,12 +86,12 @@ export class Memory {
     }
 
     // Get the x coordinate of the current position for the memory view.
-    getX() {
+    getX(): number {
         return 4 * this.mp.q + 2 * this.mp.r + (this.dir === east ? 1 : 0);
     }
 
     // Get the y coordinate of the current position for the memory view.
-    getY() {
+    getY(): number {
         return 2 * this.mp.r + (this.dir === northEast ? 0 : this.dir === east ? 1 : 2);
     }
 
@@ -124,7 +131,7 @@ export class Memory {
         return [mp, dir, cw];
     }
 
-    get debugString() {
+    get debugString(): string {
         let text = `${this.mp},${this.dir},${this.cw}`;
         for (const key in this.data) {
             text += `\n${key},${this.data[key].value}`;
@@ -132,7 +139,7 @@ export class Memory {
         return text;
     }
 
-    getDataArray() {
+    getDataArray(): IDataValue[] {
         return Object.values(this.data);
     }
 }

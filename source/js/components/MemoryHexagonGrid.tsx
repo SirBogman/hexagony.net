@@ -10,7 +10,7 @@ const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
 export const xFactor = 0.5 * cellOffsetX;
 export const yFactor = 0.5 * cellOffsetY;
 
-export function getMPCoordinates(memory: Memory) {
+export function getMPCoordinates(memory: Memory): [number, number] {
     return [memory.getX() * xFactor, memory.getY() * yFactor];
 }
 
@@ -26,7 +26,7 @@ interface IMemoryHexagonGrid {
  * @component
  */
 export class MemoryHexagonGrid extends React.PureComponent<IMemoryHexagonGrid> {
-    render() {
+    render(): JSX.Element {
         const { x, y, rows, columns } = this.props;
         let path = '';
         const startX = (2 * x - 1.5 + y % 2) * cellOffsetX;

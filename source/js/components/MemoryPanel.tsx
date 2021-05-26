@@ -26,7 +26,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         this.memoryPanZoom = null;
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         this.memoryPanZoom = panzoom(this.getSvg(), {
             // Don't pan when clicking on text elements. This allows text selection.
             beforeMouseDown: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
@@ -43,7 +43,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         }
     }
 
-    componentDidUpdate(prevProps: IMemoryPanelProps) {
+    componentDidUpdate(prevProps: IMemoryPanelProps): void {
         if (!this.props.memory) {
             return;
         }
@@ -61,20 +61,20 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         this.memoryPanZoom!.dispose();
     }
 
-    getContainerSize() {
+    getContainerSize(): [number, number] {
         const containerStyle = getComputedStyle(this.getSvg().parentElement!);
         return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)];
     }
 
-    getMPCoordinates() {
+    getMPCoordinates(): [number, number] {
         return getMPCoordinates(this.props.memory);
     }
 
-    getNormalizedMPCoordinates() {
+    getNormalizedMPCoordinates(): [number, number] {
         const [x, y] = this.getMPCoordinates();
         const t = this.memoryPanZoom!.getTransform();
         const [width, height] = this.getContainerSize();
@@ -83,21 +83,21 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
 
     // Gets the required offset to center the memory pointer in the container at the given scale.
     // This is essentially the inverse calculation of getNormalizedMPCoordinates.
-    getMPOffset(scale = 1.0) {
+    getMPOffset(scale = 1.0): [number, number] {
         const [x, y] = this.getMPCoordinates();
         const [width, height] = this.getContainerSize();
         return [0.5 * width - scale * x, 0.5 * height - scale * y];
     }
 
-    getScale() {
+    getScale(): number {
         return this.memoryPanZoom!.getTransform().scale;
     }
 
-    getSvg() {
+    getSvg(): SVGSVGElement {
         return this.viewRef.current!.getSvg();
     }
 
-    render() {
+    render(): JSX.Element {
         const { delay, memory } = this.props;
         return (
             <div id="memoryPanel">
@@ -113,12 +113,12 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         );
     }
 
-    recenterView() {
+    recenterView(): void {
         const [x, y] = this.getMPOffset();
         this.memoryPanZoom!.moveTo(x, y);
     }
 
-    resetView() {
+    resetView(): void {
         const [x, y] = this.getMPOffset();
         // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting (inertia).
         // if that method were used.
@@ -126,7 +126,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         this.memoryPanZoom!.moveTo(x, y);
     }
 
-    shouldComponentUpdate(nextProps: IMemoryPanelProps) {
+    shouldComponentUpdate(nextProps: IMemoryPanelProps): boolean {
         // It slows down the app too much to render the memory panel when executing at maximum speed.
         // Don't render until the execution stops, or the execution speed is reduced.
         return !nextProps.isPlayingAtHighSpeed;

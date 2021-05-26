@@ -35,7 +35,7 @@ interface ArrowSVGElement extends SVGElement {
 
 type ConnectorDictionary = Record<string, SVGElement[]>;
 
-export function initializeGridColors(colorMode: string, offset: number) {
+export function initializeGridColors(colorMode: string, offset: number): void {
     cellExecuted = arrayInitialize(6, (index: number) => `cellExecuted${(index + offset) % 6}${colorMode}`);
     cellActive = arrayInitialize(6, (index: number) => `cellActive${(index + offset) % 6}${colorMode}`);
     cellInactive = arrayInitialize(6, (index: number) => `cellInactive${(index + offset) % 6}${colorMode}`);
@@ -151,7 +151,7 @@ export class GridView {
     }
 
     // Public API for updating source code.
-    setSourceCode(sourceCode: ISourceCode) {
+    setSourceCode(sourceCode: ISourceCode): void {
         this.sourceCode = sourceCode;
         if (sourceCode.size !== this.size) {
             this._createGrid(sourceCode.size);
@@ -162,13 +162,13 @@ export class GridView {
         }
     }
 
-    setBreakpoints(breakpoints: Iterable<number[]>) {
+    setBreakpoints(breakpoints: Iterable<number[]>): void {
         for (const [i, j] of breakpoints) {
             this.setBreakpointState(i, j, true);
         }
     }
 
-    setBreakpointState(i: number, j: number, state: boolean) {
+    setBreakpointState(i: number, j: number, state: boolean): void {
         for (let k = 0; k < this.cellPaths.length; k++) {
             if (i >= this.cellPaths[k].length || j >= this.cellPaths[k][i].length) {
                 return;
@@ -198,7 +198,7 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(executedState: Direction[][][][] | null) {
+    recreateGrid(executedState: Direction[][][][] | null): void {
         this.creatingGrid = true;
         this._createGrid(this.size);
 
@@ -219,7 +219,7 @@ export class GridView {
         [i, j, dir] : [number, number, Direction],
         k: number,
         allowCreate: boolean,
-        callback: (element: ArrowSVGElement) => void) {
+        callback: (element: ArrowSVGElement) => void): void {
         let create = false;
         const cell = this.cellPaths[k][i][j];
         if (!cell.directions.includes(dir)) {
@@ -254,21 +254,21 @@ export class GridView {
         }
     }
 
-    _addExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0) {
+    _addExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0): void {
         this._foreachExecutionArrow(indices, k, true, arrow => {
             arrow.classList.add(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    _removeExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0) {
+    _removeExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0): void {
         this._foreachExecutionArrow(indices, k, false, arrow => {
             arrow.classList.remove(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    _addCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false) {
+    _addCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false): void {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -282,7 +282,7 @@ export class GridView {
         }
     }
 
-    _removeCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false) {
+    _removeCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false): void {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -296,7 +296,7 @@ export class GridView {
         }
     }
 
-    setExecutedState(executedState: Direction[][][][]) {
+    setExecutedState(executedState: Direction[][][][]): void {
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
             const directions = executedState[this.selectedIp][i][j];
             if (directions.length) {
@@ -312,7 +312,7 @@ export class GridView {
         }));
     }
 
-    clearCellExecutionColors() {
+    clearCellExecutionColors(): void {
         if (!this.cellPaths.length) {
             return;
         }
@@ -334,7 +334,7 @@ export class GridView {
         }));
     }
 
-    _removeExecutionHistoryColors() {
+    _removeExecutionHistoryColors(): void {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
@@ -349,7 +349,7 @@ export class GridView {
         });
     }
 
-    _updateExecutionHistoryColors() {
+    _updateExecutionHistoryColors(): void {
         this.executionHistory.forEach((array, ip) => {
             if (ip === this.selectedIp) {
                 array.forEach((indices, i) => {
@@ -378,20 +378,20 @@ export class GridView {
         }
     }
 
-    setDelay(value: string) {
+    setDelay(value: string): void {
         this.delay = value;
     }
 
-    setDirectionalTyping(value: boolean) {
+    setDirectionalTyping(value: boolean): void {
         this.directionalTyping = value;
     }
 
-    setShowArrows(value: boolean) {
+    setShowArrows(value: boolean): void {
         this.clearCellExecutionColors();
         this.showArrows = value;
     }
 
-    setShowIPs(value: boolean) {
+    setShowIPs(value: boolean): void {
         this._removeExecutionHistoryColors();
         this.showIPs = value;
         this._updateExecutionHistoryColors();
@@ -402,7 +402,7 @@ export class GridView {
         selectedIp: number,
         executedState: Direction[][][][],
         forceReset: boolean,
-        forceUpdateExecutionState: boolean) {
+        forceUpdateExecutionState: boolean): void {
         const reset = forceReset || selectedIp !== this.selectedIp;
         if (reset) {
             this.clearCellExecutionColors();
@@ -419,7 +419,7 @@ export class GridView {
         }
     }
 
-    updateHexagonWithCode(index: number) {
+    updateHexagonWithCode(index: number): void {
         const { grid } = this.sourceCode;
         for (let i = 0; i < this.cellPaths[index].length; i++) {
             const row = grid[i];
@@ -432,13 +432,13 @@ export class GridView {
                     input.select();
                 }
                 else {
-                    this._setSvgText(cell.querySelector('text')!, char);
+                    GridView.setSvgText(cell.querySelector('text')!, char);
                 }
             }
         }
     }
 
-    onKeyDown(i: number, j: number, k: number, elem: HTMLInputElement, event: KeyboardEvent) {
+    onKeyDown(i: number, j: number, k: number, elem: HTMLInputElement, event: KeyboardEvent): void {
         if (elem.selectionStart == elem.selectionEnd &&
             (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Backspace')) {
             // No text is selected. Let the text input element handle it.
@@ -562,7 +562,7 @@ export class GridView {
         }
     }
 
-    navigateTo(i: number, j: number, k: number) {
+    navigateTo(i: number, j: number, k: number): void {
         // Hide the text in the SVG cell, create an input element, and select it.
         const svgCell = this.cellPaths[k][i][j];
         const svgText = svgCell.querySelector('text')!;
@@ -615,11 +615,11 @@ export class GridView {
             this._clearTypingDirectionArrow(i, j, k);
             svgCell.removeChild(container);
             const newText = removeWhitespaceAndDebug(input.value) || '.';
-            this._setSvgText(svgText, newText);
+            GridView.setSvgText(svgText, newText);
         });
     }
 
-    _startEdgeAnimation(connectors: SVGElement[], name: string) {
+    _startEdgeAnimation(connectors: SVGElement[], name: string): void {
         if (connectors) {
             connectors.forEach(x => {
                 x.classList.add(name);
@@ -628,7 +628,7 @@ export class GridView {
         }
     }
 
-    playEdgeAnimation(edgeName: string, isBranch: boolean) {
+    playEdgeAnimation(edgeName: string, isBranch: boolean): void {
         if (this.edgeTransitionMode) {
             const name = isBranch ? 'connectorFlash' : 'connectorNeutralFlash';
             this._startEdgeAnimation(this.edgeConnectors[edgeName], name);
@@ -636,7 +636,7 @@ export class GridView {
         }
     }
 
-    _advanceCursor(i: number, j: number, k: number, reverse = false) {
+    _advanceCursor(i: number, j: number, k: number, reverse = false): void {
         // When following an edge transition, go back to the center hexagon to ensure the cursor
         // remains on screen.
         const oldDirection = this.typingDirection;
@@ -660,22 +660,22 @@ export class GridView {
         }
     }
 
-    _clearTypingDirectionArrow(i: number, j: number, k: number, direction: Direction | null = null) {
+    _clearTypingDirectionArrow(i: number, j: number, k: number, direction: Direction | null = null): void {
         this._removeExecutionAngleClass([i, j, direction ?? this.typingDirection], 'typingDirectionArrow', k);
     }
 
-    _setTypingDirection(i: number, j: number, k: number, dir: Direction) {
+    _setTypingDirection(i: number, j: number, k: number, dir: Direction): void {
         this._clearTypingDirectionArrow(i, j, k);
         this.typingDirection = dir;
         this._addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
     }
 
-    _setSvgText(textElement: Element, text: string) {
+    static setSvgText(textElement: Element, text: string): void {
         textElement.textContent = text;
         textElement.classList.toggle('noop', text === '.');
     }
 
-    _addEdgeConnector(key: string, connector: SVGElement, isSecondary: boolean) {
+    _addEdgeConnector(key: string, connector: SVGElement, isSecondary: boolean): void {
         if (connector.nodeName !== 'path') {
             connector = connector.firstElementChild as SVGElement;
         }
@@ -693,7 +693,7 @@ export class GridView {
     /**
      * Re-create the hexagon grid using the given hexagon edge length.
      */
-    _createGrid(size: number) {
+    _createGrid(size: number): void {
         this.size = size;
         this.rowCount = getRowCount(size);
 

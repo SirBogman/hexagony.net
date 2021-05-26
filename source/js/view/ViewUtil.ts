@@ -1,24 +1,24 @@
-export function createSvgElement(name: string) {
+export function createSvgElement(name: string): SVGElement {
     return document.createElementNS('http://www.w3.org/2000/svg', name);
 }
 
-export function emptyElement(element: Node) {
+export function emptyElement(element: Node): void {
     while (element.firstChild) {
         element.removeChild(element.firstChild);
     }
 }
 
-export function getControlKey(keyboardEvent: KeyboardEvent) {
+export function getControlKey(keyboardEvent: KeyboardEvent): boolean {
     // Allow the use of the meta key (cmd on macOS) wherever ctrl is used.
     return keyboardEvent.ctrlKey || keyboardEvent.metaKey;
 }
 
-export function unicodeStringToBase64(value: string) {
+export function unicodeStringToBase64(value: string): string {
     const utf8 = String.fromCharCode(...new TextEncoder().encode(value));
     return btoa(utf8);
 }
 
-export function base64ToUnicodeString(value: string) {
+export function base64ToUnicodeString(value: string): string {
     const decoded = atob(value);
     const array = new Uint8Array(decoded.length);
     for (let i = 0; i < decoded.length; i++) {
@@ -27,15 +27,16 @@ export function base64ToUnicodeString(value: string) {
     return new TextDecoder().decode(array);
 }
 
-export function prefersDarkColorScheme() {
+export function prefersDarkColorScheme(): boolean {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-export function applyColorMode(colorMode: string) {
+export function applyColorMode(colorMode: string): void {
     document.documentElement.classList.toggle('darkMode', colorMode == darkColorMode);
 }
 
-export function parseStorage(storage: string | undefined) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseStorage(storage: string | undefined): any | null {
     if (!storage) {
         return null;
     }

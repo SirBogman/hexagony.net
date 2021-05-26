@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 export const inputModeArguments = 'arg';
 export const inputModeRaw = 'raw';
 
-export function isValidInputMode(inputMode: string) {
+export function isValidInputMode(inputMode: string): boolean {
     return inputMode === inputModeArguments || inputMode === inputModeRaw;
 }
 
@@ -15,7 +15,7 @@ interface IInputPanelProps {
     onInputModeChanged: (value: string) => void;
 }
 
-export function InputPanel(props: IInputPanelProps) {
+export function InputPanel(props: IInputPanelProps): JSX.Element {
     const { input, inputMode, onInputChanged, onInputModeChanged } = props;
 
     return (

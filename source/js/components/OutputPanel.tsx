@@ -17,12 +17,12 @@ export class OutputPanel extends React.Component<IOutputPanelProps> {
         this.outputBoxRef = React.createRef();
     }
 
-    shouldComponentUpdate(nextProps: IOutputPanelProps) {
+    shouldComponentUpdate(nextProps: IOutputPanelProps): boolean {
         return nextProps.outputBytes.length !== this.lastOutputLength ||
             nextProps.utf8Output !== this.props.utf8Output;
     }
 
-    render() {
+    render(): JSX.Element {
         const { outputBytes, utf8Output, onUtf8OutputChanged } = this.props;
         this.lastOutputLength = outputBytes.length;
         let output;
@@ -63,15 +63,15 @@ export class OutputPanel extends React.Component<IOutputPanelProps> {
         );
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         this.scrollToEnd();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(): void {
         this.scrollToEnd();
     }
 
-    scrollToEnd() {
+    scrollToEnd(): void {
         const outputBox = this.outputBoxRef.current!;
         outputBox.scrollTop = outputBox.scrollHeight;
     }

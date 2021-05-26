@@ -18,7 +18,7 @@ export class Grid {
     }
 
     // This should only be called if the new source code uses the same size hexagon.
-    setSourceCode(sourceCode: ISourceCode) {
+    setSourceCode(sourceCode: ISourceCode): void {
         if (this.size && this.size !== sourceCode.size) {
             throw new Error('Unexpected hexagon size change.');
         }
@@ -26,14 +26,14 @@ export class Grid {
         this.grid = sourceCode.grid;
     }
 
-    getExecutedGrid() {
+    getExecutedGrid(): Direction[][][][] {
         return this.executed;
     }
 
     getInstruction(
         coords: PointAxial,
         setExecutedDirection: Direction | null = null,
-        activeIp: number | null = null) {
+        activeIp: number | null = null): string {
         const index = this.axialToIndex(coords);
         if (!index) {
             return '.';
@@ -49,7 +49,7 @@ export class Grid {
         return this.grid[index[0]][index[1]];
     }
 
-    axialToIndex(coords: PointAxial) {
+    axialToIndex(coords: PointAxial): [number, number] {
         const x = coords.q;
         const z = coords.r;
         const y = -x - z;

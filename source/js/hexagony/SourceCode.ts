@@ -24,12 +24,12 @@ export class SourceCode {
         this.prefixGrid = prefixGrid;
     }
 
-    static fromObject(object: ISourceCode) {
+    static fromObject(object: ISourceCode): SourceCode {
         const { size, grid, prefixGrid } = object;
         return new SourceCode(size, grid, prefixGrid);
     }
 
-    static fromString(code: string) {
+    static fromString(code: string): SourceCode {
         const size = getHexagonSize(countCodepoints(removeWhitespaceAndDebug(code)));
         const rowCount = getRowCount(size);
         const grid = [];
@@ -57,7 +57,7 @@ export class SourceCode {
         return new SourceCode(size, grid, prefixGrid);
     }
 
-    containsWhitespace() {
+    containsWhitespace(): boolean {
         for (const row of this.prefixGrid) {
             for (const cell of row) {
                 if (cell && containsWhitespace(cell)) {
@@ -70,7 +70,7 @@ export class SourceCode {
 
     // Only works when changing the size by one, which is currently the only use case,
     // due to code involved in shifting the bottom half of the hexagon horizontally.
-    resizeCode(newSize: number) {
+    resizeCode(newSize: number): string {
         const { size, grid, prefixGrid } = this;
         const newRowCount = getRowCount(newSize);
         const result = {
@@ -122,7 +122,7 @@ export class SourceCode {
             newSourceCode.minifyCode();
     }
 
-    resetCode() {
+    resetCode(): string {
         const newCode = '.'.repeat(getCodeLength(this.size));
         const newSourceCode = SourceCode.fromString(newCode);
         return this.containsWhitespace() ?
@@ -130,7 +130,7 @@ export class SourceCode {
             newSourceCode.minifyCode();
     }
 
-    minifyCode() {
+    minifyCode(): string {
         const minimumLength = getCodeLength(this.size - 1) + 1;
         let result = removeWhitespace(this._toStringInternal()).replace(/\.+$/, '');
         const newLength = countCodepoints(result) - countDebug(result);
@@ -140,7 +140,7 @@ export class SourceCode {
         return result;
     }
 
-    layoutCode() {
+    layoutCode(): string {
         let result = '';
         const rowCount = getRowCount(this.size);
         for (let i = 0; i < rowCount; i++) {
@@ -179,7 +179,7 @@ export class SourceCode {
         return result;
     }
 
-    toString() {
+    toString(): string {
         const result = this._toStringInternal();
         return containsWhitespace(result) ? result : this.minifyCode();
     }

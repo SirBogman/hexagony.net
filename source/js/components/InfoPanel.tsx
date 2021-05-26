@@ -9,7 +9,7 @@ export interface IInfoPanelProps {
     operators: number;
 }
 
-export function getInfoContent(props: IInfoPanelProps) {
+export function getInfoContent(props: IInfoPanelProps): JSX.Element {
     const { breakpoints, size, chars, bytes, operators } = props;
     return (
         <>
@@ -27,7 +27,7 @@ export function getInfoContent(props: IInfoPanelProps) {
     );
 }
 
-export function InfoPanel(props: IInfoPanelProps) {
+export function InfoPanel(props: IInfoPanelProps): JSX.Element {
     return (
         <div id="infoPanel">
             <h1>Info</h1>
