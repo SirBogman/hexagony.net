@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Memory } from '../hexagony/Memory';
 
 export const edgeLength = 46.24 * 1.4;
@@ -70,11 +69,4 @@ export class MemoryHexagonGrid extends React.PureComponent<IMemoryHexagonGrid> {
 
         return <path className="memoryCell" d={path}/>;
     }
-
-    static propTypes = {
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        rows: PropTypes.number.isRequired,
-        columns: PropTypes.number.isRequired,
-    };
 }

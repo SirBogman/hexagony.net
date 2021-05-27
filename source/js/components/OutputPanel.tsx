@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 interface IOutputPanelProps {
     outputBytes: number[];
@@ -75,10 +74,4 @@ export class OutputPanel extends React.Component<IOutputPanelProps> {
         const outputBox = this.outputBoxRef.current!;
         outputBox.scrollTop = outputBox.scrollHeight;
     }
-
-    static propTypes = {
-        outputBytes: PropTypes.arrayOf(PropTypes.number).isRequired,
-        utf8Output: PropTypes.bool.isRequired,
-        onUtf8OutputChanged: PropTypes.func.isRequired,
-    };
 }

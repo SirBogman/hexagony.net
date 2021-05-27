@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { getInfoContent, IInfoPanelProps } from './InfoPanel';
 import { Direction } from '../hexagony/Direction';
 import { PointAxial } from '../hexagony/PointAxial';
@@ -91,36 +90,3 @@ export function StatePanel(props: IStatePanelProps): JSX.Element {
         </div>
     );
 }
-
-StatePanel.propTypes = {
-    colorMode: PropTypes.string.isRequired,
-    colorOffset: PropTypes.number.isRequired,
-    cycleColorOffset: PropTypes.func.isRequired,
-    ipStates: PropTypes.arrayOf(PropTypes.shape({
-        number: PropTypes.number.isRequired,
-        active: PropTypes.bool.isRequired,
-        selected: PropTypes.bool.isRequired,
-        dir: PropTypes.object.isRequired,
-        coords: PropTypes.shape({
-            q: PropTypes.number.isRequired,
-            r: PropTypes.number.isRequired,
-        }).isRequired,
-    })).isRequired,
-    terminationReason: PropTypes.string,
-    ticks: PropTypes.number.isRequired,
-    memoryCw: PropTypes.bool.isRequired,
-    memoryDir: PropTypes.object.isRequired,
-    memoryEdges: PropTypes.number.isRequired,
-    memoryPointer: PropTypes.shape({
-        q: PropTypes.number.isRequired,
-        r: PropTypes.number.isRequired,
-    }).isRequired,
-    info: PropTypes.shape({
-        breakpoints: PropTypes.number.isRequired,
-        size: PropTypes.number.isRequired,
-        bytes: PropTypes.number.isRequired,
-        chars: PropTypes.number.isRequired,
-        operators: PropTypes.number.isRequired,
-    }).isRequired,
-    onSelectedIPChanged: PropTypes.func.isRequired,
-};

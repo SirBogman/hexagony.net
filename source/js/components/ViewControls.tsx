@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 interface IViewControlsProps {
     edgeTransitionModeEnabled: boolean;
@@ -62,14 +61,3 @@ export function ViewControls(props: IViewControlsProps): JSX.Element {
         </div>
     );
 }
-
-ViewControls.propTypes = {
-    edgeTransitionModeEnabled: PropTypes.bool.isRequired,
-    arrowsEnabled: PropTypes.bool.isRequired,
-    ipsEnabled: PropTypes.bool.isRequired,
-    darkModeEnabled: PropTypes.bool.isRequired,
-    toggleEdgeTransitionMode: PropTypes.func.isRequired,
-    toggleArrows: PropTypes.func.isRequired,
-    toggleIPs: PropTypes.func.isRequired,
-    toggleDarkMode: PropTypes.func.isRequired,
-};

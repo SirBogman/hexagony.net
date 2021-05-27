@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 interface IHotkeysPanelProps {
     directionalTyping: boolean;
@@ -30,9 +29,5 @@ function HotkeysPanelFunction({ directionalTyping }: IHotkeysPanelProps) {
         </div>
     );
 }
-
-HotkeysPanelFunction.propTypes = {
-    directionalTyping: PropTypes.bool.isRequired,
-};
 
 export const HotkeysPanel = React.memo(HotkeysPanelFunction);

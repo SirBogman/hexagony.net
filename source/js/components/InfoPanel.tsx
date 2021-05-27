@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 export interface IInfoPanelProps {
     breakpoints: number;
@@ -37,11 +36,3 @@ export function InfoPanel(props: IInfoPanelProps): JSX.Element {
         </div>
     );
 }
-
-InfoPanel.propTypes = {
-    breakpoints: PropTypes.number.isRequired,
-    size: PropTypes.number.isRequired,
-    bytes: PropTypes.number.isRequired,
-    chars: PropTypes.number.isRequired,
-    operators: PropTypes.number.isRequired,
-};

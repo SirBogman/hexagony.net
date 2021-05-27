@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import panzoom, { PanZoom } from 'panzoom';
 import { getMPCoordinates } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
@@ -131,10 +130,4 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         // Don't render until the execution stops, or the execution speed is reduced.
         return !nextProps.isPlayingAtHighSpeed;
     }
-
-    static propTypes = {
-        delay: PropTypes.string.isRequired,
-        isPlayingAtHighSpeed: PropTypes.bool.isRequired,
-        memory: PropTypes.object.isRequired,
-    };
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 export const inputModeArguments = 'arg';
 export const inputModeRaw = 'raw';
@@ -52,10 +51,3 @@ export function InputPanel(props: IInputPanelProps): JSX.Element {
         </div>
     );
 }
-
-InputPanel.propTypes = {
-    input: PropTypes.string.isRequired,
-    inputMode: PropTypes.string.isRequired,
-    onInputChanged: PropTypes.func.isRequired,
-    onInputModeChanged: PropTypes.func.isRequired,
-};

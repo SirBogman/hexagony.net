@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { edgeLength } from './MemoryHexagonGrid';
 
 const fatEndWidth = 6 * edgeLength / 46.24;
@@ -43,11 +42,4 @@ export class MemoryPointer extends React.PureComponent<IMemoryPointerProps> {
             }}
         />;
     }
-
-    static propTypes = {
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        angle: PropTypes.number.isRequired,
-        delay: PropTypes.string.isRequired,
-    };
 }

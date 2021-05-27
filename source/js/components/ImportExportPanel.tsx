@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 interface IImportExportPanelProps {
     isGeneratedLinkUpToDate: boolean,
@@ -62,14 +61,3 @@ export function ImportExportPanel(props: IImportExportPanelProps): JSX.Element {
         </div>
     );
 }
-
-ImportExportPanel.propTypes = {
-    isGeneratedLinkUpToDate: PropTypes.bool.isRequired,
-    link: PropTypes.string,
-    sourceCode: PropTypes.string.isRequired,
-    onGenerateLink: PropTypes.func.isRequired,
-    onGenerateAndCopyLink: PropTypes.func.isRequired,
-    onImportSourceCode: PropTypes.func.isRequired,
-    onLayoutCode: PropTypes.func.isRequired,
-    onMinifyCode: PropTypes.func.isRequired,
-};

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 interface IEditControlProps {
     canDeleteBreakpoints: boolean;
@@ -108,19 +107,3 @@ export function EditControls(props: IEditControlProps): JSX.Element {
         </div>
     );
 }
-
-EditControls.propTypes = {
-    canDeleteBreakpoints: PropTypes.bool.isRequired,
-    canEdit: PropTypes.bool.isRequired,
-    canRedo: PropTypes.bool.isRequired,
-    canUndo: PropTypes.bool.isRequired,
-    directionalTyping: PropTypes.bool.isRequired,
-    onBigger: PropTypes.func.isRequired,
-    onDeleteBreakpoints: PropTypes.func.isRequired,
-    onRedo: PropTypes.func.isRequired,
-    onReset: PropTypes.func.isRequired,
-    onReverseMemoryMovement: PropTypes.func.isRequired,
-    onSmaller: PropTypes.func.isRequired,
-    onUndo: PropTypes.func.isRequired,
-    toggleDirectionalTyping: PropTypes.func.isRequired,
-};

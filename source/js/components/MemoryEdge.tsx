@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { edgeLength, xFactor, yFactor } from './MemoryHexagonGrid';
 
 const path = `M${-edgeLength / 2} 0h${edgeLength}`;
@@ -47,12 +46,4 @@ export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
             </g>
         );
     }
-
-    static propTypes = {
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        angle: PropTypes.number.isRequired,
-        // value should be a BigInt but that doesn't seem to be supported.
-        value: PropTypes.any.isRequired,
-    };
 }

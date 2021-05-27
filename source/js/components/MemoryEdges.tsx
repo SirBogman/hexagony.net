@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { northEast, southEast } from '../hexagony/Direction';
 import { Memory } from '../hexagony/Memory';
 import { MemoryEdge } from './MemoryEdge';
@@ -37,8 +36,4 @@ export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
     shouldComponentUpdate(nextProps: IMemoryEdgesProps): boolean {
         return nextProps.memory.dataVersion !== this.lastDataVersion;
     }
-
-    static propTypes = {
-        memory: PropTypes.object.isRequired,
-    };
 }

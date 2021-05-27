@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { MemoryEdges } from './MemoryEdges';
 import { getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
@@ -81,9 +80,4 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         // Render the background as a single path. If rendered as more than one path, you can sometimes see seams between the parts.
         return <MemoryHexagonGrid x={x1} y={y1} columns={x2 - x1 + 1} rows={y2 - y1 + 1}/>;
     }
-
-    static propTypes = {
-        memory: PropTypes.object,
-        delay: PropTypes.string.isRequired,
-    };
 }

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 
 interface IPlayControlsProps {
     canPlayPause: boolean;
@@ -66,15 +65,3 @@ export function PlayControls(props: IPlayControlsProps): JSX.Element {
         </div>
     );
 }
-
-PlayControls.propTypes = {
-    canPlayPause: PropTypes.bool.isRequired,
-    canStep: PropTypes.bool.isRequired,
-    canStop: PropTypes.bool.isRequired,
-    delay: PropTypes.number.isRequired,
-    isPlaying: PropTypes.bool.isRequired,
-    onPlayPause: PropTypes.func.isRequired,
-    onSpeedSliderChanged: PropTypes.func.isRequired,
-    onStep: PropTypes.func.isRequired,
-    onStop: PropTypes.func.isRequired,
-};
