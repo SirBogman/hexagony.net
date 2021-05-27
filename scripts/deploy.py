@@ -16,7 +16,7 @@ BUILD_DIR = os.path.join(ROOT, 'build')
 
 def runNpmScript(name):
     try:
-        subprocess.run(['npm', 'run', name], cwd=ROOT, shell=True, check=True)
+        subprocess.run(f'npm run {name}', cwd=ROOT, shell=True, check=True)
     except subprocess.CalledProcessError:
         print(f'{name}: failed. Exiting.')
         sys.exit(1)
