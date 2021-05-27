@@ -18,7 +18,7 @@ export class Hexagony {
     output: number[];
     input: string[];
     firstStepNoop: boolean;
-    ignoreDivideByZero: boolean;
+    isDirectionalTypingSimulation: boolean;
     reverse: boolean;
     generator: Generator;
     terminationReason: string | null;
@@ -46,7 +46,7 @@ export class Hexagony {
         this.ticks = 0;
         this.output = [];
         this.firstStepNoop = false;
-        this.ignoreDivideByZero = false;
+        this.isDirectionalTypingSimulation = false;
         this.reverse = false;
         this.generator = this.execute();
         this.terminationReason = null;
@@ -73,10 +73,10 @@ export class Hexagony {
     }
 
     /**
-     * Do nothing when attempting to divide by zero. This is useful for implementing directional typing.
+     * Indicate that code is being simulated to support directional typing.
      */
-    setIgnoreDivideByZero(): void {
-        this.ignoreDivideByZero = true;
+    setDirectionalTypingSimulation(): void {
+        this.isDirectionalTypingSimulation = true;
     }
 
     /**
@@ -174,7 +174,7 @@ export class Hexagony {
                 const rightVal = this.memory.getRight();
                 let execute = true;
                 if (rightVal === 0n) {
-                    if (this.ignoreDivideByZero) {
+                    if (this.isDirectionalTypingSimulation) {
                         execute = false;
                     }
                     else {
@@ -231,17 +231,36 @@ export class Hexagony {
                 break;
 
             // Control flow
-            case '_': this.ipDirs[this.activeIp] = this.dir.reflectAtUnderscore; break;
-            case '|': this.ipDirs[this.activeIp] = this.dir.reflectAtPipe; break;
-            case '/': this.ipDirs[this.activeIp] = this.dir.reflectAtSlash; break;
-            case '\\': this.ipDirs[this.activeIp] = this.dir.reflectAtBackslash; break;
-            case '<': this.ipDirs[this.activeIp] = this.dir.reflectAtLessThan(this.memory.getValue() > 0); break;
-            case '>': this.ipDirs[this.activeIp] = this.dir.reflectAtGreaterThan(this.memory.getValue() > 0); break;
-            case ']': newIp = (this.activeIp + 1) % 6; break;
-            case '[': newIp = (this.activeIp + 5) % 6; break;
-            case '#': newIp = (Number(this.memory.getValue() % 6n) + 6) % 6; break;
+            case '_': this.dir = this.dir.reflectAtUnderscore; break;
+            case '|': this.dir = this.dir.reflectAtPipe; break;
+            case '/': this.dir = this.dir.reflectAtSlash; break;
+            case '\\': this.dir = this.dir.reflectAtBackslash; break;
+            case '<': this.dir = this.dir.reflectAtLessThan(this.memory.getValue() > 0); break;
+            case '>': this.dir = this.dir.reflectAtGreaterThan(this.memory.getValue() > 0); break;
+
+            case ']':
+                if (!this.isDirectionalTypingSimulation) {
+                    newIp = (this.activeIp + 1) % 6;
+                }
+                break;
+
+            case '[':
+                if (!this.isDirectionalTypingSimulation) {
+                    newIp = (this.activeIp + 5) % 6;
+                }
+                break;
+
+            case '#':
+                if (!this.isDirectionalTypingSimulation) {
+                    newIp = (Number(this.memory.getValue() % 6n) + 6) % 6;
+                }
+                break;
+
             case '$':
-                this.handleMovement();
+                // When reversing for directional typing, ignore $, because not doing so would make it more confusing.
+                if (!this.reverse) {
+                    this.handleMovement();
+                }
                 break;
 
             // Digits, letters, and other characters.

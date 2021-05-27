@@ -659,7 +659,7 @@ export class GridView {
         const hexagony = new Hexagony(this.sourceCode, '', edgeEventHandler);
         // Follow positive branches.
         hexagony.setMemoryValue(1);
-        hexagony.setIgnoreDivideByZero();
+        hexagony.setDirectionalTypingSimulation();
         hexagony.coords = hexagony.indexToAxial(i, j);
         hexagony.dir = this.typingDirection;
         hexagony.step(reverse);
