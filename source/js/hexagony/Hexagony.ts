@@ -6,22 +6,23 @@ import { ISourceCode } from './SourceCode';
 import { indexToAxial, rubyStyleDivide, rubyStyleRemainder } from './Util';
 
 export class Hexagony {
-    grid: Grid;
-    size: number;
-    memory: Memory;
-    inputPosition = 0;
-    edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null;
-    ips: PointAxial[];
-    ipDirs: Direction[];
-    activeIp = 0;
-    ticks = 0;
-    output: number[] = [];
-    input: string[];
-    firstStepNoop = false;
-    isDirectionalTypingSimulation = false;
-    reverse = false;
-    generator: Generator;
-    terminationReason: string | null = null;
+    public memory: Memory;
+    public activeIp = 0;
+    public ticks = 0;
+    public output: number[] = [];
+
+    private grid: Grid;
+    private size: number;
+    private inputPosition = 0;
+    private edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null;
+    private ips: PointAxial[];
+    private ipDirs: Direction[];
+    private input: string[];
+    private firstStepNoop = false;
+    private isDirectionalTypingSimulation = false;
+    private reverse = false;
+    private generator: Generator;
+    private terminationReason: string | null = null;
 
     constructor(
         sourceCode: ISourceCode,
@@ -123,7 +124,7 @@ export class Hexagony {
         }
     }
 
-    * execute(): Generator {
+    private * execute(): Generator {
         while (!this.terminationReason) {
             if (this.firstStepNoop || this.ticks) {
                 yield;
@@ -138,7 +139,7 @@ export class Hexagony {
         }
     }
 
-    executeOpcode(opcode: string): void {
+    private executeOpcode(opcode: string): void {
         // Execute the current instruction
         let newIp = this.activeIp;
 
@@ -276,13 +277,13 @@ export class Hexagony {
         this.ticks++;
     }
 
-    followEdge(edgeType = '0', isBranch = false): void {
+    private followEdge(edgeType = '0', isBranch = false): void {
         if (this.edgeEventHandler) {
             this.edgeEventHandler(`${this.coords},${this.dir},${edgeType}`, isBranch);
         }
     }
 
-    handleMovement(): void {
+    private handleMovement(): void {
         this.coords = this.coords.add(this.dir.vector);
 
         if (this.size == 1) {
@@ -337,7 +338,7 @@ export class Hexagony {
         }
     }
 
-    findInteger(): bigint {
+    private findInteger(): bigint {
         let value = 0n;
         let positive = true;
 
@@ -384,11 +385,11 @@ export class Hexagony {
         return positive ? value : -value;
     }
 
-    peekByte(): string | undefined {
+    private peekByte(): string | undefined {
         return this.inputPosition < this.input.length ? this.input[this.inputPosition] : undefined;
     }
 
-    readByte(): string | undefined {
+    private readByte(): string | undefined {
         return this.inputPosition < this.input.length ? this.input[this.inputPosition++] : undefined;
     }
 }

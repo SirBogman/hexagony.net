@@ -17,7 +17,7 @@ export class SourceCode {
     grid: string[][];
     prefixGrid: string[][];
 
-    constructor(size: number, grid: string[][], prefixGrid: string[][]) {
+    private constructor(size: number, grid: string[][], prefixGrid: string[][]) {
         this.size = size;
         this.grid = grid;
         // The prefix grid preserves whitespace and debug characters.
@@ -132,7 +132,7 @@ export class SourceCode {
 
     minifyCode(): string {
         const minimumLength = getCodeLength(this.size - 1) + 1;
-        let result = removeWhitespace(this._toStringInternal()).replace(/\.+$/, '');
+        let result = removeWhitespace(this.toStringInternal()).replace(/\.+$/, '');
         const newLength = countCodepoints(result) - countDebug(result);
         if (newLength < minimumLength) {
             result += '.'.repeat(minimumLength - newLength);
@@ -168,7 +168,7 @@ export class SourceCode {
         };
     }
 
-    _toStringInternal(): string {
+    private toStringInternal(): string {
         let result = '';
         for (let i = 0; i < this.grid.length; i++) {
             const row = this.grid[i];
@@ -180,7 +180,7 @@ export class SourceCode {
     }
 
     toString(): string {
-        const result = this._toStringInternal();
+        const result = this.toStringInternal();
         return containsWhitespace(result) ? result : this.minifyCode();
     }
 }

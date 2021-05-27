@@ -9,7 +9,6 @@ interface IDataValue {
 }
 
 export class Memory {
-    data: Record<string, IDataValue> = {};
     mp = new PointAxial(0, 0);
     dir: Direction = east;
     cw = false;
@@ -20,6 +19,7 @@ export class Memory {
     // data version is incremented whenever this.data changes.
     dataVersion = 0;
     memoryPointerVersion = 0;
+    private data: Record<string, IDataValue> = {};
 
     reverse(): void {
         this.cw = !this.cw;
@@ -42,6 +42,10 @@ export class Memory {
 
     tryGetValueAt(mp: PointAxial, dir: Direction): bigint {
         return this.data[`${mp},${dir}`]?.value;
+    }
+
+    getMemoryEdges(): number {
+        return Object.keys(this.data).length;
     }
 
     getValue(): bigint {

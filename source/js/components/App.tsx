@@ -172,10 +172,10 @@ interface IAppState {
 }
 
 export class App extends React.Component<IAppProps, IAppState> {
-    hexagony: Hexagony | null = null;
-    gridViewReference: GridView | null = null;
-    executionHistory: [number, number, Direction][][] = [];
-    startingToPlay = false;
+    private hexagony: Hexagony | null = null;
+    private gridViewReference: GridView | null = null;
+    private executionHistory: [number, number, Direction][][] = [];
+    private startingToPlay = false;
 
     constructor(props: IAppProps) {
         super(props);
@@ -212,52 +212,52 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.updateColorMode();
     }
 
-    get gridView(): GridView {
+    private get gridView(): GridView {
         return assertNotNull(this.gridViewReference, 'gridViewReference');
     }
 
-    static saveUserData(userData: IUserData): void {
+    private static saveUserData(userData: IUserData): void {
         const serializedData = JSON.stringify(userData);
         sessionStorage.userData = serializedData;
         localStorage.userData = serializedData;
     }
 
-    static canUndo(state: IAppState): boolean {
+    private static canUndo(state: IAppState): boolean {
         const { isRunning, undoStack } = state;
         return undoStack.length !== 0 &&
             (!isRunning || !undoStack[undoStack.length - 1].isSizeChange);
     }
 
-    static canRedo(state: IAppState): boolean {
+    private static canRedo(state: IAppState): boolean {
         const { isRunning, redoStack } = state;
         return redoStack.length !== 0 &&
             (!isRunning || !redoStack[redoStack.length - 1].isSizeChange);
     }
 
-    updateCodeCallback = (i: number, j: number, char: string): void =>
+    private updateCodeCallback = (i: number, j: number, char: string): void =>
         this.setState(produce(state => App.applyCodeChangeToState(state, char, i, j)));
 
-    setSourceCode = (newCode: string): void =>
+    private setSourceCode = (newCode: string): void =>
         this.setState(produce(state => App.applyCodeChangeToState(state, newCode)));
 
-    applySourceCodeChange = (sourceCodeToNewCode: (sourceCode: SourceCode) => string): void =>
+    private applySourceCodeChange = (sourceCodeToNewCode: (sourceCode: SourceCode) => string): void =>
         this.setState(produce(state =>
             App.applyCodeChangeToState(state,
                 sourceCodeToNewCode(SourceCode.fromObject(state.sourceCode)))));
 
-    onLayoutCode = (): void =>
+    private onLayoutCode = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.layoutCode());
 
-    onMinifyCode = (): void =>
+    private onMinifyCode = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.minifyCode());
 
-    onBigger = (): void =>
+    private onBigger = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.resizeCode(sourceCode.size + 1));
 
-    onReset = (): void =>
+    private onReset = (): void =>
         this.applySourceCodeChange(sourceCode => sourceCode.resetCode());
 
-    onReverseMemoryMovement = (): void => {
+    private onReverseMemoryMovement = (): void => {
         const { state } = this;
         const oldCode = SourceCode.fromObject(state.sourceCode).toString();
         const newCode = oldCode.replace(/\{|}|'|"/g, (match: string) => {
@@ -287,7 +287,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onSmaller = (): void => {
+    private onSmaller = (): void => {
         const { state } = this;
         const { size } = state.sourceCode;
         const newSize = Math.max(1, size - 1);
@@ -300,7 +300,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onUndo = (): void =>
+    private onUndo = (): void =>
         this.setState(produce(state => {
             if (App.canUndo(state)) {
                 const undoItem = state.undoStack.pop();
@@ -316,7 +316,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             }
         }));
 
-    onRedo = (): void =>
+    private onRedo = (): void =>
         this.setState(produce(state => {
             if (App.canRedo(state)) {
                 const undoItem = state.redoStack.pop();
@@ -332,7 +332,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             }
         }));
 
-    static applyCodeChangeToState(
+    private static applyCodeChangeToState(
         state: IAppState,
         newCode: string,
         i: number | null = null,
@@ -399,19 +399,19 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     }
 
-    onInputChanged = (value: string): void =>
+    private onInputChanged = (value: string): void =>
         this.setState(produce(state => {
             state.userData.input = value;
             state.isGeneratedLinkUpToDate = false;
         }));
 
-    onInputModeChanged = (value: string): void =>
+    private onInputModeChanged = (value: string): void =>
         this.setState(produce(state => {
             state.userData.inputMode = value;
             state.isGeneratedLinkUpToDate = false;
         }));
 
-    onSpeedSliderChanged = (rawValue: number): void => {
+    private onSpeedSliderChanged = (rawValue: number): void => {
         const value = Math.floor(10 ** -3 * (1000 - rawValue) ** 2);
         this.setState(produce(state => {
             state.userData.delay = value;
@@ -419,18 +419,18 @@ export class App extends React.Component<IAppProps, IAppState> {
         }));
     };
 
-    breakpointExistsAt(i: number, j: number): boolean {
+    private breakpointExistsAt(i: number, j: number): boolean {
         const id = `${i},${j}`;
         return this.state.userData.breakpoints.indexOf(id) > -1;
     }
 
-    * getBreakpoints(): Generator<number[]> {
+    private * getBreakpoints(): Generator<number[]> {
         for (const id of this.state.userData.breakpoints) {
             yield id.split(',').map(Number);
         }
     }
 
-    onDeleteBreakpoints = (): void => {
+    private onDeleteBreakpoints = (): void => {
         for (const [i, j] of this.getBreakpoints()) {
             this.gridView.setBreakpointState(i, j, false);
         }
@@ -438,7 +438,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.setState(produce(state => { state.userData.breakpoints = []; }));
     };
 
-    toggleBreakpointCallback = (i: number, j: number): void => {
+    private toggleBreakpointCallback = (i: number, j: number): void => {
         const id = `${i},${j}`;
 
         this.setState(produce(state => {
@@ -454,7 +454,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }));
     };
 
-    static applyHashDataToState(state: IAppState, hashData: IHashData): void {
+    private static applyHashDataToState(state: IAppState, hashData: IHashData): void {
         state.userData.code = hashData.code;
 
         if (hashData.inputMode && isValidInputMode(hashData.inputMode)) {
@@ -469,7 +469,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         state.isGeneratedLinkUpToDate = true;
     }
 
-    loadDataFromURL = (): void => {
+    private loadDataFromURL = (): void => {
         const hashData = loadHashData();
         if (hashData) {
             // Stop execution first, as the hexagon size may change.
@@ -482,7 +482,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onGenerateLink = (): string => {
+    private onGenerateLink = (): string => {
         const { userData } = this.state;
         const urlData = { code: userData.code, input: userData.input, inputMode: userData.inputMode };
         const json = JSON.stringify(urlData);
@@ -494,10 +494,10 @@ export class App extends React.Component<IAppProps, IAppState> {
         return link;
     };
 
-    onGenerateAndCopyLink = (): Promise<void> =>
+    private onGenerateAndCopyLink = (): Promise<void> =>
         navigator.clipboard.writeText(this.onGenerateLink());
 
-    onPlayPause = (): void => {
+    private onPlayPause = (): void => {
         if (this.isPlaying()) {
             this.onPause();
         }
@@ -506,14 +506,14 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    onStart = (): void => this.stepHelper(true);
+    private onStart = (): void => this.stepHelper(true);
 
-    onStep = (): void => {
+    private onStep = (): void => {
         this.stepHelper();
         this.onPause();
     };
 
-    static getInput(state: IAppState): string {
+    private static getInput(state: IAppState): string {
         const { userData } = state;
         let { input } = userData;
         if (userData.inputMode === inputModeArguments) {
@@ -522,7 +522,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         return input;
     }
 
-    edgeEventHandler = (edgeName: string, isBranch: boolean): void => {
+    private edgeEventHandler = (edgeName: string, isBranch: boolean): void => {
         // Don't show edge transition animations when running at high speed.
         const { userData } = this.state;
         if (userData.delay || !this.isPlaying()) {
@@ -530,7 +530,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    stepHelper(play = false): void {
+    private stepHelper(play = false): void {
         if (this.isTerminated()) {
             return;
         }
@@ -609,7 +609,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         });
     }
 
-    getInfoPanelProps(): IInfoPanelProps {
+    private getInfoPanelProps(): IInfoPanelProps {
         const { userData } = this.state;
         const filteredCode = removeWhitespaceAndDebug(userData.code);
         const filteredCodepoints = countCodepoints(filteredCode);
@@ -622,7 +622,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         };
     }
 
-    getStatePanelProps(): IStatePanelProps {
+    private getStatePanelProps(): IStatePanelProps {
         const hexagony = assertNotNull(this.hexagony, 'hexagony');
         const { terminationReason, userData, selectedIp } = this.state;
 
@@ -645,15 +645,15 @@ export class App extends React.Component<IAppProps, IAppState> {
             memoryPointer: hexagony.memory.mp,
             memoryDir: hexagony.memory.dir,
             memoryCw: hexagony.memory.cw,
-            memoryEdges: Object.keys(hexagony.memory.data).length,
+            memoryEdges: hexagony.memory.getMemoryEdges(),
             info: this.getInfoPanelProps(),
             onSelectedIPChanged: this.onSelectedIPChanged,
         };
     }
 
-    onPause = (): void => this.setState(produce(state => App.pause(state)));
+    private onPause = (): void => this.setState(produce(state => App.pause(state)));
 
-    static pause(state: IAppState): void {
+    private static pause(state: IAppState): void {
         const { timeoutID } = state;
         if (timeoutID !== null) {
             window.clearTimeout(timeoutID);
@@ -661,7 +661,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     }
 
-    onStop = (): void => {
+    private onStop = (): void => {
         this.hexagony = null;
         this.executionHistory = [];
         this.gridView.clearCellExecutionColors();
@@ -672,25 +672,23 @@ export class App extends React.Component<IAppProps, IAppState> {
         }));
     };
 
-    resetCellColors(): void {
+    private resetCellColors(): void {
         if (this.hexagony != null) {
             const { selectedIp } = this.state;
             this.gridView.updateActiveCell(this.executionHistory, selectedIp, this.hexagony.getExecutedGrid(), true, false);
         }
     }
 
-    onSelectedIPChanged = (ip: number): void =>
+    private onSelectedIPChanged = (ip: number): void =>
         this.setState({ selectedIp: ip });
 
-    isPlaying(): boolean {
-        return this.startingToPlay || this.state.timeoutID !== null;
-    }
+    private isPlaying = (): boolean =>
+        this.startingToPlay || this.state.timeoutID !== null;
 
-    isTerminated(): boolean {
-        return this.hexagony != null && this.hexagony.getTerminationReason() != null;
-    }
+    private isTerminated = (): boolean =>
+        this.hexagony != null && this.hexagony.getTerminationReason() != null;
 
-    onKeyDown = (e: KeyboardEvent): void => {
+    private onKeyDown = (e: KeyboardEvent): void => {
         if (getControlKey(e)) {
             if (e.key === '.') {
                 this.onStep();
@@ -720,45 +718,45 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    updateColorMode(): void {
+    private updateColorMode(): void {
         const { userData } = this.state;
         applyColorMode(this.state.userData.colorMode);
         initializeGridColors(userData.colorMode, userData.colorOffset);
     }
 
-    onColorPropertyChanged(): void {
+    private onColorPropertyChanged(): void {
         this.updateColorMode();
         // It's easier to recreate the grid than to update all color-related class names.
         this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
         this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
-    onEdgeTransitionModeChanged(): void {
+    private onEdgeTransitionModeChanged(): void {
         const { userData } = this.state;
         this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
         this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
         this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
-    toggleEdgeTransitionMode = (): void =>
+    private toggleEdgeTransitionMode = (): void =>
         this.setState(produce(state => { state.userData.edgeTransitionMode = !state.userData.edgeTransitionMode; }));
 
-    toggleArrows = (): void =>
+    private toggleArrows = (): void =>
         this.setState(produce(state => { state.userData.showArrows = !state.userData.showArrows; }));
 
-    toggleDirectionalTyping = (): void =>
+    private toggleDirectionalTyping = (): void =>
         this.setState(produce(state => { state.userData.directionalTyping = !state.userData.directionalTyping; }));
 
-    toggleIPs = (): void =>
+    private toggleIPs = (): void =>
         this.setState(produce(state => { state.userData.showIPs = !state.userData.showIPs; }));
 
-    toggleDarkMode = (): void =>
+    private toggleDarkMode = (): void =>
         this.setState(produce(state => { state.userData.colorMode = colorModes[1 - colorModes.indexOf(state.userData.colorMode)]; }));
 
-    cycleColorOffset = (): void =>
+    private cycleColorOffset = (): void =>
         this.setState(produce(state => { state.userData.colorOffset = (state.userData.colorOffset + 1) % 6; }));
 
-    onUtf8OutputChanged = (value: boolean): void =>
+    private onUtf8OutputChanged = (value: boolean): void =>
         this.setState(produce(state => { state.userData.utf8Output = value; }));
 
     componentDidMount(): void {
