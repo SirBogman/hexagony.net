@@ -1,4 +1,5 @@
 import React from 'react';
+import { assertNotNull } from '../view/ViewUtil';
 
 interface IOutputPanelProps {
     outputBytes: number[];
@@ -71,7 +72,7 @@ export class OutputPanel extends React.Component<IOutputPanelProps> {
     }
 
     scrollToEnd(): void {
-        const outputBox = this.outputBoxRef.current!;
+        const outputBox = assertNotNull(this.outputBoxRef.current, 'outputBoxRef');
         outputBox.scrollTop = outputBox.scrollHeight;
     }
 }

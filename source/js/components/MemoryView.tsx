@@ -3,6 +3,7 @@ import { MemoryEdges } from './MemoryEdges';
 import { getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
 import { MemoryPointer } from './MemoryPointer';
+import { assertNotNull } from '../view/ViewUtil';
 
 function roundGridValueLowerBound(value: number) {
     // Testing: [...Array(30)].fill(null).map((x,i) => i).map(x => roundGridValueUpperBound(x) - x);
@@ -34,7 +35,7 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
     }
 
     getSvg(): SVGSVGElement {
-        return this.viewRef.current!;
+        return assertNotNull(this.viewRef.current, 'MemoryView.viewRef');
     }
 
     render(): JSX.Element {

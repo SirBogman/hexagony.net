@@ -8,7 +8,7 @@ import { Hexagony } from '../hexagony/Hexagony';
 import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
 import { GridView, initializeGridColors } from '../view/GridView';
-import { applyColorMode, colorModes, darkColorMode, getControlKey, parseStorage, prefersDarkColorScheme } from '../view/ViewUtil';
+import { applyColorMode, assertNotNull, colorModes, darkColorMode, getControlKey, parseStorage, prefersDarkColorScheme } from '../view/ViewUtil';
 
 import { CodePanel } from './CodePanel';
 import { HotkeysPanel } from './HotkeysPanel';
@@ -50,7 +50,8 @@ function loadHashData() : IHashData | null {
     if (location.hash.startsWith('#lz')) {
         try {
             if (location.hash) {
-                const data = JSON.parse(LZString.decompressFromBase64(location.hash.slice(3))!);
+                const decompressed = LZString.decompressFromBase64(location.hash.slice(3));
+                const data = JSON.parse(assertNotNull(decompressed, 'decompressed'));
                 if (data && data.code) {
                     return {
                         code: data.code,
@@ -172,7 +173,7 @@ interface IAppState {
 
 export class App extends React.Component<IAppProps, IAppState> {
     hexagony: Hexagony | null;
-    gridView: GridView | null;
+    gridViewReference: GridView | null;
     executionHistory: [number, number, Direction][][];
     startingToPlay: boolean;
 
@@ -209,11 +210,15 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         this.state = state;
         this.hexagony = null;
-        this.gridView = null;
+        this.gridViewReference = null;
         this.executionHistory = [];
         this.startingToPlay = false;
 
         this.updateColorMode();
+    }
+
+    get gridView(): GridView {
+        return assertNotNull(this.gridViewReference, 'gridViewReference');
     }
 
     static saveUserData(userData: IUserData): void {
@@ -432,7 +437,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     onDeleteBreakpoints = (): void => {
         for (const [i, j] of this.getBreakpoints()) {
-            this.gridView!.setBreakpointState(i, j, false);
+            this.gridView.setBreakpointState(i, j, false);
         }
 
         this.setState(produce(state => { state.userData.breakpoints = []; }));
@@ -445,11 +450,11 @@ export class App extends React.Component<IAppProps, IAppState> {
             const index = state.userData.breakpoints.indexOf(id);
             if (index > -1) {
                 state.userData.breakpoints.splice(index, 1);
-                this.gridView!.setBreakpointState(i, j, false);
+                this.gridView.setBreakpointState(i, j, false);
             }
             else {
                 state.userData.breakpoints.push(id);
-                this.gridView!.setBreakpointState(i, j, true);
+                this.gridView.setBreakpointState(i, j, true);
             }
         }));
     };
@@ -526,7 +531,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         // Don't show edge transition animations when running at high speed.
         const { userData } = this.state;
         if (userData.delay || !this.isPlaying()) {
-            this.gridView!.playEdgeAnimation(edgeName, isBranch);
+            this.gridView.playEdgeAnimation(edgeName, isBranch);
         }
     };
 
@@ -593,7 +598,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         const selectedIp = hexagony.activeIp;
         const forceUpdateExecutionState = stepCount > 1;
-        this.gridView!.updateActiveCell(this.executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
+        this.gridView.updateActiveCell(this.executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
         this.startingToPlay = false;
 
         const timeoutID = play && !breakpoint && !this.isTerminated() ?
@@ -623,7 +628,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
 
     getStatePanelProps(): IStatePanelProps {
-        const hexagony = this.hexagony!;
+        const hexagony = assertNotNull(this.hexagony, 'hexagony');
         const { terminationReason, userData, selectedIp } = this.state;
 
         return {
@@ -664,7 +669,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     onStop = (): void => {
         this.hexagony = null;
         this.executionHistory = [];
-        this.gridView!.clearCellExecutionColors();
+        this.gridView.clearCellExecutionColors();
         this.setState(produce(state => {
             App.pause(state);
             state.ticks = 0;
@@ -675,7 +680,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     resetCellColors(): void {
         if (this.hexagony != null) {
             const { selectedIp } = this.state;
-            this.gridView!.updateActiveCell(this.executionHistory, selectedIp, this.hexagony.getExecutedGrid(), true, false);
+            this.gridView.updateActiveCell(this.executionHistory, selectedIp, this.hexagony.getExecutedGrid(), true, false);
         }
     }
 
@@ -729,17 +734,15 @@ export class App extends React.Component<IAppProps, IAppState> {
     onColorPropertyChanged(): void {
         this.updateColorMode();
         // It's easier to recreate the grid than to update all color-related class names.
-        const gridView = this.gridView!;
-        gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
-        gridView.setBreakpoints(this.getBreakpoints());
+        this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
+        this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
     onEdgeTransitionModeChanged(): void {
         const { userData } = this.state;
-        const gridView = this.gridView!;
-        gridView.edgeTransitionMode = userData.edgeTransitionMode;
-        gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
-        gridView.setBreakpoints(this.getBreakpoints());
+        this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
+        this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
+        this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
     toggleEdgeTransitionMode = (): void =>
@@ -766,13 +769,14 @@ export class App extends React.Component<IAppProps, IAppState> {
     componentDidMount(): void {
         const { animationDelay, sourceCode, userData } = this.state;
 
-        this.gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback, sourceCode, animationDelay);
-        this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
-        this.gridView.setDirectionalTyping(userData.directionalTyping);
-        this.gridView.setShowArrows(userData.showArrows);
-        this.gridView.setShowIPs(userData.showIPs);
-        this.gridView.setSourceCode(sourceCode);
-        this.gridView.setBreakpoints(this.getBreakpoints());
+        const gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback, sourceCode, animationDelay);
+        this.gridViewReference = gridView;
+        gridView.edgeTransitionMode = userData.edgeTransitionMode;
+        gridView.setDirectionalTyping(userData.directionalTyping);
+        gridView.setShowArrows(userData.showArrows);
+        gridView.setShowIPs(userData.showIPs);
+        gridView.setSourceCode(sourceCode);
+        gridView.setBreakpoints(this.getBreakpoints());
 
         document.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('hashchange', this.loadDataFromURL);
@@ -784,10 +788,10 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
 
     componentDidUpdate(prevProps: IAppProps, prevState: IAppState): void {
-        const { animationDelay, selectedIp, sourceCode, userData } = this.state;
+        const { gridView, state } = this;
+        const { animationDelay, selectedIp, sourceCode, userData } = state;
         const prevUserData = prevState.userData;
         const prevSourceCode = prevState.sourceCode;
-        const gridView = this.gridView!;
 
         if (userData !== prevUserData) {
             if (prevState) {
@@ -837,7 +841,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             if (this.hexagony !== null &&
                 (userData.input !== prevUserData.input ||
                 userData.inputMode !== prevUserData.inputMode)) {
-                this.hexagony.setInput(App.getInput(this.state));
+                this.hexagony.setInput(App.getInput(state));
             }
         }
 

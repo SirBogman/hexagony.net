@@ -3,7 +3,7 @@ import { Direction, east, northEast, northWest, southEast, southWest, west } fro
 import { Hexagony } from '../hexagony/Hexagony';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
-import { createSvgElement, emptyElement, getControlKey } from './ViewUtil';
+import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 const edgeTransitionSizeLimit = 25;
 
@@ -49,7 +49,7 @@ export function initializeGridColors(colorMode: string, offset: number): void {
 }
 
 function getIndices(elem: Element) {
-    return elem.id.match(/\d+/g)!.map(x => parseInt(x));
+    return assertNotNull(elem.id.match(/\d+/g), 'match').map(x => parseInt(x));
 }
 
 const outlineHelper = (x1: number, y1: number, x2: number, y2: number, size: number) =>
@@ -119,16 +119,24 @@ export class GridView {
         this.showArrows = false;
         this.showIPs = false;
         this.typingDirection = east;
-        this.codeSvgContainer = document.getElementById('codeSvgContainer')!;
-        this.codeSvgParent = document.getElementById('codeSvgParent')!;
-        this.svg = document.getElementById('codeSvg') as unknown as SVGSVGElement;
+
+        const getElementById = (id: string) =>
+            assertNotNull(document.getElementById(id), id);
+
+        this.codeSvgContainer = getElementById('codeSvgContainer');
+        this.codeSvgParent = getElementById('codeSvgParent');
+        this.svg = getElementById('codeSvg') as unknown as SVGSVGElement;
         this.cellContainer = this.svg.appendChild(createSvgElement('g'));
-        this.cellTemplate = this.svg.querySelector('defs [class~=cell]')!;
-        this.cellExecutedArrowTemplate = this.svg.querySelector('defs [class~=cellExecutedArrow]')!;
-        this.cellBreakpointTemplate = this.svg.querySelector('defs [class~=cellBreakpoint]')!;
-        this.neutralConnectorTemplate = this.svg.querySelector('defs [class~=neutralConnector]')!;
-        this.positiveConnectorTemplate = this.svg.querySelector('defs [class~=positiveConnector]')!;
-        this.negativeConnectorTemplate = this.svg.querySelector('defs [class~=negativeConnector]')!;
+
+        const querySelector = (selector: string) =>
+            assertNotNull(this.svg.querySelector(selector), selector) as SVGElement;
+
+        this.cellTemplate = querySelector('defs [class~=cell]');
+        this.cellExecutedArrowTemplate = querySelector('defs [class~=cellExecutedArrow]');
+        this.cellBreakpointTemplate = querySelector('defs [class~=cellBreakpoint]');
+        this.neutralConnectorTemplate = querySelector('defs [class~=neutralConnector]');
+        this.positiveConnectorTemplate = querySelector('defs [class~=positiveConnector]');
+        this.negativeConnectorTemplate = querySelector('defs [class~=negativeConnector]');
 
         this.svg.addEventListener('animationend', event => {
             if (event.animationName.startsWith('connector')) {
@@ -182,7 +190,8 @@ export class GridView {
             if (state) {
                 // Append breakpoints so that they appear higher in the Z-order.
                 const breakpoint = this.cellBreakpointTemplate.cloneNode() as SVGElement;
-                breakpoint.setAttribute('transform', cell.getAttribute('transform')!);
+                const transform = assertNotNull(cell.getAttribute('transform'), 'transform');
+                breakpoint.setAttribute('transform', transform);
                 breakpoint.id = `breakpoint${cell.id}`;
                 this.cellContainer.appendChild(breakpoint);
                 cell.hasBreakpoint = true;
@@ -190,7 +199,8 @@ export class GridView {
             else {
                 const breakpoint = this.svg.querySelector(`#breakpoint${cell.id}`);
                 if (breakpoint) {
-                    breakpoint.parentNode!.removeChild(breakpoint);
+                    const node = assertNotNull(breakpoint.parentNode, 'breakpoint.parentNode');
+                    node.removeChild(breakpoint);
                 }
                 cell.hasBreakpoint = false;
             }
@@ -432,7 +442,8 @@ export class GridView {
                     input.select();
                 }
                 else {
-                    GridView.setSvgText(cell.querySelector('text')!, char);
+                    const text = assertNotNull(cell.querySelector('text'), 'cell text');
+                    GridView.setSvgText(text, char);
                 }
             }
         }
@@ -453,7 +464,7 @@ export class GridView {
             return;
         }
         if (event.key === 'Escape') {
-            document.getElementById('speedSlider')!.focus();
+            assertNotNull(document.getElementById('speedSlider'), 'speedSlider').focus();
             event.preventDefault();
             return;
         }
@@ -565,8 +576,8 @@ export class GridView {
     navigateTo(i: number, j: number, k: number): void {
         // Hide the text in the SVG cell, create an input element, and select it.
         const svgCell = this.cellPaths[k][i][j];
-        const svgText = svgCell.querySelector('text')!;
-        const originalText = svgText.textContent!;
+        const svgText = assertNotNull(svgCell.querySelector('text'), 'svgCell text');
+        const originalText = assertNotNull(svgText.textContent, 'svgText.textContent');
 
         const input = document.createElement('input');
         input.type = 'text';
@@ -789,7 +800,8 @@ export class GridView {
                     const cellY = getY(i, k);
                     cell.id = `path_${i}_${j}_${k}`;
                     cell.setAttribute('transform', `translate(${cellX},${cellY})`);
-                    cell.querySelector('title')!.textContent = tooltip;
+                    const title = assertNotNull(cell.querySelector('title'), 'cell title');
+                    title.textContent = tooltip;
                     hexagonParents[k].appendChild(cell);
                 }
                 pathGrid.push(pathRow);

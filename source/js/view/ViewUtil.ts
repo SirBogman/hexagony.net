@@ -1,3 +1,11 @@
+export function assertNotNull<T>(value: T | null, name: string): T {
+    if (value === null) {
+        throw new Error(`internal error: unexpected null value: ${name}`);
+    }
+
+    return value;
+}
+
 export function createSvgElement(name: string): SVGElement {
     return document.createElementNS('http://www.w3.org/2000/svg', name);
 }

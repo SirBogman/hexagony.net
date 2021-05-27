@@ -1,4 +1,5 @@
 import { updateAppHelper } from './components/App';
 import '../css/index.scss';
+import { assertNotNull } from './view/ViewUtil';
 
-updateAppHelper(document.getElementById('app')!);
+updateAppHelper(assertNotNull(document.getElementById('app'), 'app'));

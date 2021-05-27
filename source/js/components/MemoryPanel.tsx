@@ -3,6 +3,7 @@ import panzoom, { PanZoom } from 'panzoom';
 import { getMPCoordinates } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
 import { MemoryView } from './MemoryView';
+import { assertNotNull } from '../view/ViewUtil';
 
 // If the memory pointer is within this normalized distance of an the edge of the container,
 // then it will be recentered.
@@ -17,16 +18,20 @@ interface IMemoryPanelProps {
 
 export class MemoryPanel extends React.Component<IMemoryPanelProps> {
     viewRef: React.RefObject<MemoryView>;
-    memoryPanZoom: PanZoom | null;
+    memoryPanZoomReference: PanZoom | null;
 
     constructor(props: IMemoryPanelProps) {
         super(props);
         this.viewRef = React.createRef();
-        this.memoryPanZoom = null;
+        this.memoryPanZoomReference = null;
+    }
+
+    get memoryPanZoom(): PanZoom {
+        return assertNotNull(this.memoryPanZoomReference, 'memoryPanZoomReference');
     }
 
     componentDidMount(): void {
-        this.memoryPanZoom = panzoom(this.getSvg(), {
+        this.memoryPanZoomReference = panzoom(this.getSvg(), {
             // Don't pan when clicking on text elements. This allows text selection.
             beforeMouseDown: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
             beforeDoubleClick: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
@@ -55,17 +60,17 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
             // Recenter the memory pointer when it gets too close to the edges.
             if (a < recenteringThreshold || a > recenteringMax || b < recenteringThreshold || b > recenteringMax) {
                 const [x, y] = this.getMPOffset(this.getScale());
-                this.memoryPanZoom!.smoothMoveTo(x, y);
+                this.memoryPanZoom.smoothMoveTo(x, y);
             }
         }
     }
 
     componentWillUnmount(): void {
-        this.memoryPanZoom!.dispose();
+        this.memoryPanZoom.dispose();
     }
 
     getContainerSize(): [number, number] {
-        const containerStyle = getComputedStyle(this.getSvg().parentElement!);
+        const containerStyle = getComputedStyle(assertNotNull(this.getSvg().parentElement, 'svg parentElement'));
         return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)];
     }
 
@@ -75,7 +80,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
 
     getNormalizedMPCoordinates(): [number, number] {
         const [x, y] = this.getMPCoordinates();
-        const t = this.memoryPanZoom!.getTransform();
+        const t = this.memoryPanZoom.getTransform();
         const [width, height] = this.getContainerSize();
         return [(t.scale * x + t.x) / width, (t.scale * y + t.y) / height];
     }
@@ -89,11 +94,11 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
     }
 
     getScale(): number {
-        return this.memoryPanZoom!.getTransform().scale;
+        return this.memoryPanZoom.getTransform().scale;
     }
 
     getSvg(): SVGSVGElement {
-        return this.viewRef.current!.getSvg();
+        return assertNotNull(this.viewRef.current, 'MemoryPanel.viewRef').getSvg();
     }
 
     render(): JSX.Element {
@@ -114,15 +119,15 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
 
     recenterView(): void {
         const [x, y] = this.getMPOffset();
-        this.memoryPanZoom!.moveTo(x, y);
+        this.memoryPanZoom.moveTo(x, y);
     }
 
     resetView(): void {
         const [x, y] = this.getMPOffset();
         // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting (inertia).
         // if that method were used.
-        this.memoryPanZoom!.zoomTo(x, y, 1.0 / this.getScale());
-        this.memoryPanZoom!.moveTo(x, y);
+        this.memoryPanZoom.zoomTo(x, y, 1.0 / this.getScale());
+        this.memoryPanZoom.moveTo(x, y);
     }
 
     shouldComponentUpdate(nextProps: IMemoryPanelProps): boolean {
