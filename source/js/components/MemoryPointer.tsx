@@ -24,12 +24,7 @@ interface IMemoryPointerProps {
 }
 
 export class MemoryPointer extends React.PureComponent<IMemoryPointerProps> {
-    rotation: number;
-
-    constructor(props: IMemoryPointerProps) {
-        super(props);
-        this.rotation = 0;
-    }
+    rotation = 0;
 
     render(): JSX.Element {
         const { x, y, angle, delay } = this.props;

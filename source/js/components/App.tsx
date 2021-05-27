@@ -172,10 +172,10 @@ interface IAppState {
 }
 
 export class App extends React.Component<IAppProps, IAppState> {
-    hexagony: Hexagony | null;
-    gridViewReference: GridView | null;
-    executionHistory: [number, number, Direction][][];
-    startingToPlay: boolean;
+    hexagony: Hexagony | null = null;
+    gridViewReference: GridView | null = null;
+    executionHistory: [number, number, Direction][][] = [];
+    startingToPlay = false;
 
     constructor(props: IAppProps) {
         super(props);
@@ -209,11 +209,6 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
 
         this.state = state;
-        this.hexagony = null;
-        this.gridViewReference = null;
-        this.executionHistory = [];
-        this.startingToPlay = false;
-
         this.updateColorMode();
     }
 

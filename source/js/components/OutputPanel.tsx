@@ -8,14 +8,8 @@ interface IOutputPanelProps {
 }
 
 export class OutputPanel extends React.Component<IOutputPanelProps> {
-    outputBoxRef: React.RefObject<HTMLDivElement>;
-    lastOutputLength: number;
-
-    constructor(props: IOutputPanelProps) {
-        super(props);
-        this.lastOutputLength = 0;
-        this.outputBoxRef = React.createRef();
-    }
+    outputBoxRef: React.RefObject<HTMLDivElement> = React.createRef();
+    lastOutputLength = 0;
 
     shouldComponentUpdate(nextProps: IOutputPanelProps): boolean {
         return nextProps.outputBytes.length !== this.lastOutputLength ||

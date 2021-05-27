@@ -18,10 +18,9 @@ plugins:
 rules:
   # https://eslint.org/docs/rules/
   # eqeqeq: warn
-  '@typescript-eslint/no-unused-vars':
-    - warn
-  '@typescript-eslint/no-extra-parens':
-    - warn
+  '@typescript-eslint/no-unused-vars': warn
+  '@typescript-eslint/no-extra-parens': warn
+  '@typescript-eslint/no-useless-constructor': warn
   array-bracket-spacing:
     - warn
     - never

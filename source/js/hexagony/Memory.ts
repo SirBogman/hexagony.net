@@ -9,28 +9,17 @@ interface IDataValue {
 }
 
 export class Memory {
-    data: Record<string, IDataValue>;
-    mp: PointAxial;
-    dir: Direction;
-    cw: boolean;
+    data: Record<string, IDataValue> = {};
+    mp = new PointAxial(0, 0);
+    dir: Direction = east;
+    cw = false;
     maxX: number | undefined;
     minX: number | undefined;
     maxY: number | undefined;
     minY: number | undefined;
-    dataVersion: number;
-    memoryPointerVersion: number;
-
-    constructor() {
-        this.data = {};
-        this.mp = new PointAxial(0, 0);
-        this.dir = east;
-        this.cw = false;
-        this.maxX = this.minX = undefined;
-        this.maxY = this.minY = undefined;
-        // data version is incremented whenever this.data changes.
-        this.dataVersion = 0;
-        this.memoryPointerVersion = 0;
-    }
+    // data version is incremented whenever this.data changes.
+    dataVersion = 0;
+    memoryPointerVersion = 0;
 
     reverse(): void {
         this.cw = !this.cw;

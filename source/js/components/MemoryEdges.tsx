@@ -14,12 +14,7 @@ interface IMemoryEdgesProps {
  * @component
  */
 export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
-    lastDataVersion: number;
-
-    constructor(props: IMemoryEdgesProps) {
-        super(props);
-        this.lastDataVersion = -1;
-    }
+    lastDataVersion = -1;
 
     render(): JSX.Element {
         const { memory } = this.props;

@@ -17,14 +17,8 @@ interface IMemoryPanelProps {
 }
 
 export class MemoryPanel extends React.Component<IMemoryPanelProps> {
-    viewRef: React.RefObject<MemoryView>;
-    memoryPanZoomReference: PanZoom | null;
-
-    constructor(props: IMemoryPanelProps) {
-        super(props);
-        this.viewRef = React.createRef();
-        this.memoryPanZoomReference = null;
-    }
+    viewRef: React.RefObject<MemoryView> = React.createRef();
+    memoryPanZoomReference: PanZoom | null = null;
 
     get memoryPanZoom(): PanZoom {
         return assertNotNull(this.memoryPanZoomReference, 'memoryPanZoomReference');

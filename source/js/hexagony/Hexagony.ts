@@ -9,19 +9,19 @@ export class Hexagony {
     grid: Grid;
     size: number;
     memory: Memory;
-    inputPosition: number;
+    inputPosition = 0;
     edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null;
     ips: PointAxial[];
     ipDirs: Direction[];
-    activeIp: number;
-    ticks: number;
-    output: number[];
+    activeIp = 0;
+    ticks = 0;
+    output: number[] = [];
     input: string[];
-    firstStepNoop: boolean;
-    isDirectionalTypingSimulation: boolean;
-    reverse: boolean;
+    firstStepNoop = false;
+    isDirectionalTypingSimulation = false;
+    reverse = false;
     generator: Generator;
-    terminationReason: string | null;
+    terminationReason: string | null = null;
 
     constructor(
         sourceCode: ISourceCode,
@@ -31,7 +31,6 @@ export class Hexagony {
         this.size = this.grid.size;
         this.memory = new Memory();
         this.input = [...inputString];
-        this.inputPosition = 0;
         this.edgeEventHandler = edgeEventHandler;
         this.ips = [
             new PointAxial(0, -this.size + 1),
@@ -42,14 +41,7 @@ export class Hexagony {
             new PointAxial(-this.size + 1, 0),
         ];
         this.ipDirs = [east, southEast, southWest, west, northWest, northEast];
-        this.activeIp = 0;
-        this.ticks = 0;
-        this.output = [];
-        this.firstStepNoop = false;
-        this.isDirectionalTypingSimulation = false;
-        this.reverse = false;
         this.generator = this.execute();
-        this.terminationReason = null;
     }
 
     axialToIndex(coords: PointAxial): [number, number] {
