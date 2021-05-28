@@ -8,6 +8,18 @@ export abstract class Direction {
     abstract get reverse(): Direction;
     abstract get angle(): number;
     abstract get vector(): [number, number];
+
+    static fromString(value: string): Direction {
+        switch (value) {
+            case 'NE': return northEast;
+            case 'NW': return northWest;
+            case 'W': return west;
+            case 'SW': return southWest;
+            case 'SE': return southEast;
+            case 'E': return east;
+        }
+        throw new Error(`Failed to parse direction: ${value}`);
+    }
 }
 
 class NorthEast extends Direction {

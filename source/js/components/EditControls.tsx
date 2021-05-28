@@ -1,4 +1,5 @@
 import React from 'react';
+import { Direction } from '../hexagony/Direction';
 
 interface IEditControlProps {
     canDeleteBreakpoints: boolean;
@@ -14,11 +15,13 @@ interface IEditControlProps {
     onSmaller: () => void;
     onUndo: () => void;
     toggleDirectionalTyping: () => void;
+    typingDirection: Direction;
 }
 
 export function EditControls(props: IEditControlProps): JSX.Element {
     const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
-        onReset, onReverseMemoryMovement, onSmaller, onUndo, toggleDirectionalTyping } = props;
+        onReset, onReverseMemoryMovement, onSmaller, onUndo, toggleDirectionalTyping, typingDirection } = props;
+    const { angle } = typingDirection;
 
     return (
         <div id="editControls" className="group">
@@ -30,8 +33,8 @@ export function EditControls(props: IEditControlProps): JSX.Element {
                 title="Toggle directional typing mode.">
                 <svg viewBox="0 0 42 50">
                     <polygon fill="none" stroke="currentColor" strokeWidth="3px" points="2 14.03 2 35.97 21 46.94 40 35.97 40 14.03 21 3.06 2 14.03"/>
-                    <polygon fill="currentColor" points="11 25 3 14.9 3 35.1 11 25"/>
-                    <path fill="currentColor" d="M23,18V35.21H19V18H13.44v-3.2H28.56V18Z"/>
+                    <polygon fill="currentColor" points="11 25 3 14.9 3 35.1 11 25" transform={`rotate(${angle},21,25)`}/>
+                    <path fill="currentColor" d="M22.48,21.24V34.16h-3V21.24H15.33v-2.4H26.67v2.4Z"/>
                 </svg>
             </button>
             <button

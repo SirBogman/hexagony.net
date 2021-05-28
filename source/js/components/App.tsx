@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { produce } from 'immer';
 
-import { Direction } from '../hexagony/Direction';
+import { Direction, east } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
 import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
@@ -59,6 +59,7 @@ interface IAppState {
     terminationReason: string | null;
     ticks: number;
     timeoutID: number | null;
+    typingDirection: string;
     undoStack: IUndoItem[];
     userData: IUserData;
 }
@@ -85,6 +86,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             terminationReason: null,
             ticks: 0,
             timeoutID: null,
+            typingDirection: east.toString(),
             undoStack: [],
             redoStack: [],
             sourceCode: SourceCode.fromString(userData.code).toObject(),
@@ -643,10 +645,14 @@ export class App extends React.Component<IAppProps, IAppState> {
     private onUtf8OutputChanged = (value: boolean): void =>
         this.setState(produce(state => { state.userData.utf8Output = value; }));
 
+    private onTypingDirectionChanged = (value: Direction): void =>
+        this.setState(produce((state: IAppState) => { state.typingDirection = value.toString(); }));
+
     componentDidMount(): void {
         const { animationDelay, sourceCode, userData } = this.state;
 
-        const gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback, sourceCode, animationDelay);
+        const gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback,
+            this.onTypingDirectionChanged, sourceCode, animationDelay);
         this.gridViewReference = gridView;
         gridView.edgeTransitionMode = userData.edgeTransitionMode;
         gridView.setDirectionalTyping(userData.directionalTyping);
@@ -734,6 +740,8 @@ export class App extends React.Component<IAppProps, IAppState> {
     render(): JSX.Element {
         const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, userData } = this.state;
         const { hexagony } = this;
+        const typingDirection = Direction.fromString(this.state.typingDirection);
+
         const mainContent = hexagony !== null ?
             <>
                 <OutputPanel
@@ -789,7 +797,8 @@ export class App extends React.Component<IAppProps, IAppState> {
                                 onReverseMemoryMovement={this.onReverseMemoryMovement}
                                 onSmaller={this.onSmaller}
                                 onUndo={this.onUndo}
-                                toggleDirectionalTyping={this.toggleDirectionalTyping}/>
+                                toggleDirectionalTyping={this.toggleDirectionalTyping}
+                                typingDirection={typingDirection}/>
                             <PlayControls
                                 canPlayPause={!this.isTerminated()}
                                 canStep={!this.isTerminated() && !this.isPlaying()}

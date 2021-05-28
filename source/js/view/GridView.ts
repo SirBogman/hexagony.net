@@ -69,6 +69,7 @@ export class GridView {
     private sourceCode: ISourceCode;
     private updateCodeCallback: (i: number, j: number, char: string) => void;
     private toggleBreakpointCallback: (i: number, j: number) => void;
+    private onTypingDirectionChanged: (value: Direction) => void;
     private cellPaths: CellSVGElement[][][] = [];
     private edgeConnectors: ConnectorDictionary = {};
     private edgeConnectors2: ConnectorDictionary = {};
@@ -98,11 +99,13 @@ export class GridView {
     constructor(
         updateCodeCallback: (i: number, j: number, char: string) => void,
         toggleBreakpointCallback: (i: number, j: number) => void,
+        onTypingDirectionChanged: (value: Direction) => void,
         sourceCode: ISourceCode,
         delay: string) {
         this.sourceCode = sourceCode;
         this.updateCodeCallback = updateCodeCallback;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
+        this.onTypingDirectionChanged = onTypingDirectionChanged;
         this.delay = delay;
         this.executionHistory = arrayInitialize(6, () => [] as [number, number, Direction][]);
 
@@ -649,7 +652,7 @@ export class GridView {
         hexagony.coords = hexagony.indexToAxial(i, j);
         hexagony.dir = this.typingDirection;
         hexagony.step(reverse);
-        this.typingDirection = hexagony.dir;
+        this.setTypingDirectionInternal(hexagony.dir);
         const [newI, newJ] = hexagony.axialToIndex(hexagony.coords);
         if (newI !== i || newJ !== j) {
             this.clearTypingDirectionArrow(i, j, k, oldDirection);
@@ -663,8 +666,15 @@ export class GridView {
 
     private setTypingDirection(i: number, j: number, k: number, dir: Direction): void {
         this.clearTypingDirectionArrow(i, j, k);
-        this.typingDirection = dir;
+        this.setTypingDirectionInternal(dir);
         this.addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+    }
+
+    private setTypingDirectionInternal(dir: Direction) {
+        if (this.typingDirection !== dir) {
+            this.typingDirection = dir;
+            this.onTypingDirectionChanged(dir);
+        }
     }
 
     private static setSvgText(textElement: Element, text: string): void {
