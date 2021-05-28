@@ -495,12 +495,12 @@ export class App extends React.Component<IAppProps, IAppState> {
             window.setTimeout(this.onStart, userData.delay) :
             null;
 
-        this.setState({
-            isRunning: true,
-            selectedIp,
-            terminationReason: hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null),
-            ticks: hexagony.ticks,
-            timeoutID,
+        this.updateState(state => {
+            state.isRunning = true;
+            state.selectedIp = selectedIp;
+            state.terminationReason = hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
+            state.ticks = hexagony.ticks;
+            state.timeoutID = timeoutID;
         });
     }
 
@@ -575,7 +575,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
 
     private onSelectedIPChanged = (ip: number): void =>
-        this.setState({ selectedIp: ip });
+        this.updateState(state => { state.selectedIp = ip; });
 
     private isPlaying = (): boolean =>
         this.startingToPlay || this.state.timeoutID !== null;
