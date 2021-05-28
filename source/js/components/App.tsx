@@ -1,20 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { produce } from 'immer';
-import LZString from 'lz-string';
 
 import { Direction } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
 import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
+
 import { GridView, initializeGridColors } from '../view/GridView';
-import { applyColorMode, assertNotNull, colorModes, darkColorMode, getControlKey, parseStorage, prefersDarkColorScheme } from '../view/ViewUtil';
+import { applyColorMode, assertNotNull, colorModes, darkColorMode, getControlKey } from '../view/ViewUtil';
+import { clearLocationHash, generateLink, IHashData, IUserData, loadHashData, loadUserData, saveUserData } from '../view/UserData';
 
 import { CodePanel } from './CodePanel';
 import { HotkeysPanel } from './HotkeysPanel';
 import { ImportExportPanel } from './ImportExportPanel';
 import { IInfoPanelProps, InfoPanel } from './InfoPanel';
-import { InputPanel, inputModeArguments, isValidInputMode } from './InputPanel';
+import { InputPanel, inputModeArguments } from './InputPanel';
 import { MemoryPanel } from './MemoryPanel';
 import { OutputPanel } from './OutputPanel';
 import { IStatePanelProps, StatePanel } from './StatePanel';
@@ -23,8 +24,6 @@ import { ViewControls } from './ViewControls';
 import { EditControls } from './EditControls';
 import { PlayControls } from './PlayControls';
 
-const fibonacciExample = ')="/}.!+/M8;';
-const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 const maxSpeedIterations = 10000;
 const executionHistoryCount = 20;
 
@@ -37,98 +36,6 @@ function getAnimationDelay(value: number) {
     return `${value || 250}ms`;
 }
 
-interface IHashData {
-    code: string;
-    link: string;
-    input: string | undefined;
-    inputMode: string | undefined;
-}
-
-function loadHashData() : IHashData | null {
-    const link = location.href;
-
-    if (location.hash.startsWith('#lz')) {
-        try {
-            if (location.hash) {
-                const decompressed = LZString.decompressFromBase64(location.hash.slice(3));
-                const data = JSON.parse(assertNotNull(decompressed, 'decompressed'));
-                if (data && data.code) {
-                    return {
-                        code: data.code,
-                        inputMode: data.inputMode,
-                        input: data.input,
-                        link,
-                    };
-                }
-            }
-        }
-        // eslint-disable-next-line no-empty
-        catch (e) {
-        }
-    }
-    else if (location.hash === '#fibonacci') {
-        return {
-            code: fibonacciExample,
-            input: undefined,
-            inputMode: undefined,
-            link,
-        };
-    }
-    else if (location.hash === '#helloworld') {
-        return {
-            code: SourceCode.fromString(helloWorldExample).layoutCode(),
-            input: undefined,
-            inputMode: undefined,
-            link,
-        };
-    }
-
-    return null;
-}
-
-function sanitizeBool(value: unknown, defaultValue: boolean): boolean {
-    return typeof value === 'boolean' ? value : defaultValue;
-}
-
-function loadUserData() : IUserData {
-    let userData = parseStorage(sessionStorage.userData);
-
-    if (!userData?.code) {
-        userData = parseStorage(localStorage.userData);
-        // This is a new tab. Copy its state to sessionStorage so that it will be
-        // independent of existing tabs.
-        sessionStorage.userData = localStorage.userData;
-    }
-
-    if (!userData?.code || typeof userData.code !== 'string') {
-        userData = { code: SourceCode.fromString(helloWorldExample).layoutCode() };
-    }
-
-    const defaultColorMode = colorModes[Number(prefersDarkColorScheme())];
-    return {
-        code: userData.code,
-        delay: userData.delay ?? 250,
-        directionalTyping: sanitizeBool(userData.directionalTyping, false),
-        breakpoints: userData.breakpoints ?? [],
-        colorMode: colorModes.includes(userData.colorMode) ? userData.colorMode : defaultColorMode,
-        colorOffset: userData.colorOffset ?? 0,
-        input: userData.input ?? '',
-        inputMode: isValidInputMode(userData.inputMode) ? userData.inputMode : inputModeArguments,
-        utf8Output: sanitizeBool(userData.utf8Output, true),
-        edgeTransitionMode: sanitizeBool(userData.edgeTransitionMode, true),
-        showArrows: sanitizeBool(userData.showArrows, false),
-        showIPs: sanitizeBool(userData.showIPs, false),
-    };
-}
-
-function clearLocationHash() {
-    // After consuming the hash, move the URL to the export box and remove it from the location.
-    // Otherwise, changes in localStorage would be overwritten when reloading the page.
-    // For some reason, calling replaceState while in the constructor of a React component
-    // can cause the page to reload, so delay it until the next event cycle.
-    window.setTimeout(() => history.replaceState(null, '', '/'));
-}
-
 // Props aren't used for the App component. The type indicates an empty object.
 type IAppProps = Record<string, never>;
 
@@ -138,21 +45,6 @@ interface IUndoItem {
     isSizeChange: boolean;
     oldCode: string;
     newCode: string;
-}
-
-interface IUserData {
-    breakpoints: string[];
-    code: string;
-    colorMode: string;
-    colorOffset: number;
-    delay: number;
-    directionalTyping: boolean;
-    edgeTransitionMode: boolean;
-    input: string;
-    inputMode: string; // TODO: enum?
-    showArrows: boolean;
-    showIPs: boolean;
-    utf8Output: boolean;
 }
 
 interface IAppState {
@@ -203,7 +95,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             App.applyHashDataToState(state, hashData);
             // This is a new tab. Copy its state to sessionStorage so that it will be
             // independent of existing tabs.
-            App.saveUserData(state.userData);
+            saveUserData(state.userData);
             clearLocationHash();
             state.sourceCode = SourceCode.fromString(state.userData.code).toObject();
         }
@@ -214,12 +106,6 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     private get gridView(): GridView {
         return assertNotNull(this.gridViewReference, 'gridViewReference');
-    }
-
-    private static saveUserData(userData: IUserData): void {
-        const serializedData = JSON.stringify(userData);
-        sessionStorage.userData = serializedData;
-        localStorage.userData = serializedData;
     }
 
     private static canUndo(state: IAppState): boolean {
@@ -457,7 +343,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     private static applyHashDataToState(state: IAppState, hashData: IHashData): void {
         state.userData.code = hashData.code;
 
-        if (hashData.inputMode && isValidInputMode(hashData.inputMode)) {
+        if (hashData.inputMode) {
             state.userData.inputMode = hashData.inputMode;
         }
 
@@ -484,9 +370,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     private onGenerateLink = (): string => {
         const { userData } = this.state;
-        const urlData = { code: userData.code, input: userData.input, inputMode: userData.inputMode };
-        const json = JSON.stringify(urlData);
-        const link = `${location.origin}/#lz${LZString.compressToBase64(json)}`;
+        const link = generateLink(userData.code, userData.input, userData.inputMode);
         this.setState(produce(state => {
             state.isGeneratedLinkUpToDate = true;
             state.link = link;
@@ -788,7 +672,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         if (userData !== prevUserData) {
             if (prevState) {
-                App.saveUserData(userData);
+                saveUserData(userData);
             }
 
             if (userData.code !== prevUserData.code) {
