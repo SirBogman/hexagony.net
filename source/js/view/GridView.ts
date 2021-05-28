@@ -114,7 +114,7 @@ export class GridView {
 
         this.codeSvgContainer = getElementById('codeSvgContainer');
         this.codeSvgParent = getElementById('codeSvgParent');
-        this.svg = getElementById('codeSvg') as unknown as SVGSVGElement;
+        this.svg = getElementById('codeSvg') as Element as SVGSVGElement;
         this.cellContainer = this.svg.appendChild(createSvgElement('g'));
 
         const querySelector = (selector: string) =>
