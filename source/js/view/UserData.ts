@@ -10,8 +10,8 @@ const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 export interface IHashData {
     code: string;
     link: string;
-    input?: string | undefined;
-    inputMode?: string | undefined;
+    input?: string;
+    inputMode?: string;
 }
 
 export interface IUserData {

@@ -12,10 +12,10 @@ export class Memory {
     mp = new PointAxial(0, 0);
     dir: Direction = east;
     cw = false;
-    maxX: number | undefined;
-    minX: number | undefined;
-    maxY: number | undefined;
-    minY: number | undefined;
+    maxX?: number;
+    minX?: number;
+    maxY?: number;
+    minY?: number;
     // data version is incremented whenever this.data changes.
     dataVersion = 0;
     memoryPointerVersion = 0;
