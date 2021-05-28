@@ -1,3 +1,11 @@
+export function assertDefined<T>(value: T | undefined, name: string): T {
+    if (value === undefined) {
+        throw new Error(`internal error: unexpected undefined value: ${name}`);
+    }
+
+    return value;
+}
+
 export function assertNotNull<T>(value: T | null, name: string): T {
     if (value === null) {
         throw new Error(`internal error: unexpected null value: ${name}`);
