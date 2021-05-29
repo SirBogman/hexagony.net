@@ -18,8 +18,8 @@ export const PlayControls: React.FC<IPlayControlsProps> = props => {
         onStep, onStop } = props;
 
     const playPause = isPlaying ?
-        <svg viewBox="0 -2 12 20"><path fill="currentColor" d="M0 0h4v16H0zM8 0h4v16H8z"/></svg> :
-        <svg viewBox="0 0 16 16"><path fill="currentColor" d="M0 0v16l16-8z"/></svg>;
+        <svg className="buttonSvg" viewBox="0 -2 12 20"><path fill="currentColor" d="M0 0h4v16H0zM8 0h4v16H8z"/></svg> :
+        <svg className="buttonSvg" viewBox="0 0 16 16"><path fill="currentColor" d="M0 0v16l16-8z"/></svg>;
 
     return (
         <div id="playControls" className="group">
@@ -35,7 +35,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = props => {
                 disabled={!canStep}
                 onClick={onStep}
                 title="Execute next instruction (Ctrl + .).">
-                <svg viewBox="0 0 16 16">
+                <svg className="buttonSvg" viewBox="0 0 16 16">
                     <path fill="none" stroke="currentColor" strokeWidth="1.5px" d="M.75.75v14.5L15.25 8z"/>
                 </svg>
             </button>
@@ -44,7 +44,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = props => {
                 disabled={!canStop}
                 onClick={onStop}
                 title="Stop execution (Ctrl + Shift + Enter).">
-                <svg viewBox="-2 -2 20 20">
+                <svg className="buttonSvg" viewBox="-2 -2 20 20">
                     <path fill="currentColor" d="M0 0v16h16V0z"/>
                 </svg>
             </button>
