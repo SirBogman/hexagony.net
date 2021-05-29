@@ -36,6 +36,7 @@ export const ViewControls: React.FC<IViewControlsProps> = props => {
                 <svg viewBox="0 0 42 50">
                     <path fill="none" stroke="currentColor" strokeWidth="3px" d="M2 14.03v21.94l19 10.97 19-10.97V14.03L21 3.06 2 14.03z"/>
                     <path fill="currentColor" d="M11 25L3 14.9v20.2L11 25z"/>
+                    <path fill="currentColor" d="M11 25L3 14.9v20.2L11 25z" transform="rotate(240,21,25)"/>
                 </svg>
             </button>
             <button
