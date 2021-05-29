@@ -14,7 +14,7 @@ interface IInputPanelProps {
     onInputModeChanged: (value: string) => void;
 }
 
-export function InputPanel(props: IInputPanelProps): JSX.Element {
+export const InputPanel: React.FC<IInputPanelProps> = props => {
     const { input, inputMode, onInputChanged, onInputModeChanged } = props;
 
     return (
@@ -50,4 +50,4 @@ export function InputPanel(props: IInputPanelProps): JSX.Element {
                 onInput={e => onInputChanged((e.target as HTMLTextAreaElement).value)}/>
         </div>
     );
-}
+};

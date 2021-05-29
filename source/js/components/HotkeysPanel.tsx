@@ -4,7 +4,7 @@ interface IHotkeysPanelProps {
     directionalTyping: boolean;
 }
 
-function HotkeysPanelFunction({ directionalTyping }: IHotkeysPanelProps) {
+const HotkeysPanelFunction: React.FC<IHotkeysPanelProps> = ({ directionalTyping }) => {
     const prefix = directionalTyping ? 'Set the typing direction' : 'Navigate';
     const suffix = directionalTyping ? '' : ' (with wrapping)';
     return (
@@ -28,6 +28,6 @@ function HotkeysPanelFunction({ directionalTyping }: IHotkeysPanelProps) {
             </div>
         </div>
     );
-}
+};
 
 export const HotkeysPanel = React.memo(HotkeysPanelFunction);

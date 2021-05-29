@@ -79,6 +79,8 @@ rules:
     - avoidEscape: true
   react/jsx-indent: warn
   react/no-typos: warn
+  # Disable react/prop-types, because it complains about types that could be inferred when using React.FC<Props>.
+  react/prop-types: off
   semi: warn
   template-curly-spacing: warn
   unicode-bom: warn

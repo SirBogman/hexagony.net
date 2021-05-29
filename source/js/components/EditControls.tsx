@@ -18,7 +18,7 @@ interface IEditControlProps {
     typingDirection: Direction;
 }
 
-export function EditControls(props: IEditControlProps): JSX.Element {
+export const EditControls: React.FC<IEditControlProps> = props => {
     const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
         onReset, onReverseMemoryMovement, onSmaller, onUndo, toggleDirectionalTyping, typingDirection } = props;
     const { angle } = typingDirection;
@@ -109,4 +109,4 @@ export function EditControls(props: IEditControlProps): JSX.Element {
             </button>
         </div>
     );
-}
+};

@@ -12,7 +12,7 @@ interface IPlayControlsProps {
     onStop: () => void;
 }
 
-export function PlayControls(props: IPlayControlsProps): JSX.Element {
+export const PlayControls: React.FC<IPlayControlsProps> = props => {
     const [speedSliderFocused, setSpeedSliderFocused] = useState(false);
     const { canPlayPause, canStep, canStop, delay, isPlaying, onPlayPause, onSpeedSliderChanged,
         onStep, onStop } = props;
@@ -64,4 +64,4 @@ export function PlayControls(props: IPlayControlsProps): JSX.Element {
             </div>
         </div>
     );
-}
+};

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getInfoContent, IInfoPanelProps } from './InfoPanel';
+import { InfoContent, IInfoPanelProps } from './InfoPanel';
 import { Direction } from '../hexagony/Direction';
 import { PointAxial } from '../hexagony/PointAxial';
 
@@ -59,7 +59,7 @@ function getExecutionInfo(ticks: number, memoryEdges: number) {
     );
 }
 
-export function StatePanel(props: IStatePanelProps): JSX.Element {
+export const StatePanel: React.FC<IStatePanelProps> = props => {
     const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
         memoryCw, memoryEdges, ticks, info, ipStates, onSelectedIPChanged } = props;
     return (
@@ -81,12 +81,12 @@ export function StatePanel(props: IStatePanelProps): JSX.Element {
                 <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
                     {memoryCw ? 'CW' : 'CCW'}</p>
                 {getExecutionInfo(ticks, memoryEdges)}
-                {getInfoContent(info)}
+                <InfoContent {...info}/>
             </div>
             <div id="stateGrid2">
                 {getExecutionInfo(ticks, memoryEdges)}
-                {getInfoContent(info)}
+                <InfoContent {...info}/>
             </div>
         </div>
     );
-}
+};

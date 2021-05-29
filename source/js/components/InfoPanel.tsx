@@ -8,7 +8,7 @@ export interface IInfoPanelProps {
     operators: number;
 }
 
-export function getInfoContent(props: IInfoPanelProps): JSX.Element {
+export const InfoContent: React.FC<IInfoPanelProps> = props => {
     const { breakpoints, size, chars, bytes, operators } = props;
     return (
         <>
@@ -24,15 +24,12 @@ export function getInfoContent(props: IInfoPanelProps): JSX.Element {
             <p key="o2" title="The number of instructions that aren't no-ops" className="extraState col2 right">{operators}</p>
         </>
     );
-}
+};
 
-export function InfoPanel(props: IInfoPanelProps): JSX.Element {
-    return (
-        <div id="infoPanel">
-            <h1>Info</h1>
-            <div id="infoInfo">
-                {getInfoContent(props)}
-            </div>
+export const InfoPanel: React.FC<IInfoPanelProps> = props =>
+    <div id="infoPanel">
+        <h1>Info</h1>
+        <div id="infoInfo">
+            <InfoContent {...props}/>
         </div>
-    );
-}
+    </div>;

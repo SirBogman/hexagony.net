@@ -11,7 +11,7 @@ interface IViewControlsProps {
     toggleDarkMode: () => void;
 }
 
-export function ViewControls(props: IViewControlsProps): JSX.Element {
+export const ViewControls: React.FC<IViewControlsProps> = props => {
     const { edgeTransitionModeEnabled, arrowsEnabled, ipsEnabled, darkModeEnabled,
         toggleEdgeTransitionMode, toggleArrows, toggleIPs, toggleDarkMode } = props;
 
@@ -60,4 +60,4 @@ export function ViewControls(props: IViewControlsProps): JSX.Element {
             </button>
         </div>
     );
-}
+};
