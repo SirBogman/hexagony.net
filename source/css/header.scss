@@ -24,35 +24,6 @@ header nav {
         "navigation spacer1 viewControls spacer2 editControls spacer3 playControls";
 }
 
-// Use two-row toolbar for small widths.
-// window.innerWidth values:
-// Portrait:
-// iPhone 8: 375
-// iPhone 12: 390
-// iPhone 12 Pro: 390
-// iPhone 12 Pro Max: 428
-// Landscape:
-// iPhone 8: 667
-// iPhone 12: 750
-// iPhone 12 Pro: 750
-// iPhone 12 Pro Max: 832
-$two-row-width: ($buttonCount + $sliderButtonWidth + $narrowWidthPadding) * $narrowButtonOuterWidth;
-@debug 'Two Row Width' $two-row-width;
-
-@media (max-width: $two-row-width) {
-    header nav {
-        grid-template-columns: auto 1fr auto;
-        grid-template-rows: auto auto;
-        grid-template-areas:
-        "navigation spacer1 editControls"
-        "viewControls spacer1 playControls";
-    }
-
-    .largeToolbarOnly {
-        display: none;
-    }
-}
-
 nav > #navigation {
     grid-area: navigation;
 }
@@ -80,7 +51,6 @@ svg.buttonSvg {
 #speedSliderContainer {
     height: $buttonOuterWidth;
     width: $buttonOuterWidth;
-    display: inline-block;
     align-items: center;
     display: flex;
     justify-content: center;
@@ -180,5 +150,34 @@ input[type=range]::-moz-range-thumb {
 
     #speedSlider {
         width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
+    }
+}
+
+// Use two-row toolbar for small widths.
+// window.innerWidth values:
+// Portrait:
+// iPhone 8: 375
+// iPhone 12: 390
+// iPhone 12 Pro: 390
+// iPhone 12 Pro Max: 428
+// Landscape:
+// iPhone 8: 667
+// iPhone 12: 750
+// iPhone 12 Pro: 750
+// iPhone 12 Pro Max: 832
+$two-row-width: ($buttonCount + $sliderButtonWidth + $narrowWidthPadding) * $narrowButtonOuterWidth;
+@debug 'Two Row Width' $two-row-width;
+
+@media (max-width: $two-row-width) {
+    header nav {
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+        "navigation spacer1 editControls"
+        "viewControls spacer1 playControls";
+    }
+
+    .largeToolbarOnly {
+        display: none;
     }
 }
