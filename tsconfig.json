@@ -23,6 +23,7 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "source/js"
+    "source/js",
+    "webpack.config.ts"
   ]
 }
