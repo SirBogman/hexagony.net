@@ -5,6 +5,7 @@ env:
 extends:
   - eslint:recommended
   - plugin:react/recommended
+  - plugin:react-hooks/recommended
   - plugin:@typescript-eslint/recommended
   # - plugin:@typescript-eslint/recommended-requiring-type-checking
 parser: '@typescript-eslint/parser'
@@ -13,8 +14,6 @@ parserOptions:
   sourceType: module
   ecmaFeatures:
     jsx: true
-plugins:
-  - '@typescript-eslint/eslint-plugin'
 rules:
   # https://eslint.org/docs/rules/
   # eqeqeq: warn
