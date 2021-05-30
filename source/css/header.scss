@@ -59,7 +59,7 @@ svg.buttonSvg {
 }
 
 .toolbarButton {
-    transition: background $transitionTime ease-out, color $transitionTime ease-out;
+    transition: background-color $transitionTime ease-out, color $transitionTime ease-out;
 }
 
 header > nav .group {
