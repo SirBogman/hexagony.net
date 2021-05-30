@@ -10,7 +10,7 @@ $monospace: Consolas, Menlo, monospace;
     --active-button: hsl(0, 0%, 99%);
     --hexagon-stroke: hsl(0, 0%, 50%);
     --hexagon-fill: white;
-    --disabled-color: hsl(0, 0%, 44%);
+    --disabled-color: hsl(210, 5%, 44%);
     --red: hsl(358, 85%, 52%);
     --blue: hsl(207, 74%, 42%);
     --orange: hsl(33, 93%, 54%);
@@ -33,7 +33,7 @@ $monospace: Consolas, Menlo, monospace;
     --active-button: hsl(0, 0%, 10%);
     --hexagon-stroke: hsl(0, 0%, 50%);
     --hexagon-fill: hsl(210, 10%, 10%);
-    --disabled-color: hsl(0, 0%, 44%);
+    --disabled-color: hsl(210, 5%, 44%);
     --red: hsl(358, 85%, 60%);
     --blue: hsl(207, 74%, 60%);
     --orange: hsl(33, 93%, 60%);
@@ -49,8 +49,9 @@ $monospace: Consolas, Menlo, monospace;
 header {
     --header-color: hsl(210, 10%, 23%);
     --header-background: hsl(0, 0%, 99%);
-    --hover: hsl(0, 0%, 40%);
+    --hover: hsl(210, 5%, 40%);
     --hover-active: hsl(0, 0%, 90%);
+    --disabled-color: hsl(210, 5%, 44%);
 }
 
 body {
