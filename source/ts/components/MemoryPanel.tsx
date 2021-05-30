@@ -5,6 +5,8 @@ import { Memory } from '../hexagony/Memory';
 import { MemoryView } from './MemoryView';
 import { assertNotNull } from '../view/ViewUtil';
 
+import '../../styles/MemoryPanel.scss';
+
 // If the memory pointer is within this normalized distance of an the edge of the container,
 // then it will be recentered.
 const recenteringThreshold = 0.1;
