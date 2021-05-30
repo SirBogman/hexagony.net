@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Dropdown, useDropdownToggle } from 'react-overlays';
+
 import { Direction } from '../hexagony/Direction';
+
+import { DirectionPickerPopup } from './DirectionPickerPopup';
 
 interface IEditControlProps {
     canDeleteBreakpoints: boolean;
@@ -13,31 +17,61 @@ interface IEditControlProps {
     onReset: () => void;
     onReverseMemoryMovement: () => void;
     onSmaller: () => void;
+    onTypingDirectionChanged: (value: Direction) => void;
     onUndo: () => void;
     toggleDirectionalTyping: () => void;
     typingDirection: Direction;
 }
 
-export const EditControls: React.FC<IEditControlProps> = props => {
-    const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
-        onReset, onReverseMemoryMovement, onSmaller, onUndo, toggleDirectionalTyping, typingDirection } = props;
+interface IDirectionPickerToggle {
+    directionalTyping: boolean;
+    typingDirection: Direction;
+}
+
+const DirectionPickerToggle: React.FC<IDirectionPickerToggle> = ({ directionalTyping, typingDirection }) => {
+    // props may include: ref,onClick,aria-haspopup,aria-expanded.
+    const [props] = useDropdownToggle();
     const { angle } = typingDirection;
 
     return (
+        <button
+            role="menu"
+            aria-label="Directional Typing"
+            aria-checked={directionalTyping}
+            className="toolbarButton"
+            title="Toggle directional typing mode."
+            {...props}>
+            <svg className="buttonSvg directionalTypingButton" viewBox="0 0 64 56">
+                <polygon fill="none" stroke="currentColor" strokeWidth="3px" points="13 17.03 13 38.97 32 49.94 51 38.97 51 17.03 32 6.06 13 17.03"/>
+                <polygon fill="currentColor" points="64 28 56 17.9 56 38.1 64 28" transform={`rotate(${angle},32,28)`}/>
+                {/* The letter T */}
+                <path fill="currentColor" d="M34,21V38.21H30V21H24.44v-3.2H39.56V21Z"/>
+            </svg>
+        </button>
+    );
+};
+
+export const EditControls: React.FC<IEditControlProps> = props => {
+    const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
+        onReset, onReverseMemoryMovement, onSmaller, onTypingDirectionChanged, onUndo, toggleDirectionalTyping,
+        typingDirection } = props;
+
+    const [showDirectionPicker, setShowDirectionPicker] = useState(false);
+
+    return (
         <div id="editControls" className="group">
-            <button
-                role="switch"
-                aria-label="Directional Typing"
-                aria-checked={directionalTyping}
-                className="toolbarButton"
-                onClick={toggleDirectionalTyping}
-                title="Toggle directional typing mode.">
-                <svg className="buttonSvg" viewBox="0 0 42 50">
-                    <polygon fill="none" stroke="currentColor" strokeWidth="3px" points="2 14.03 2 35.97 21 46.94 40 35.97 40 14.03 21 3.06 2 14.03"/>
-                    <polygon fill="currentColor" points="11 25 3 14.9 3 35.1 11 25" transform={`rotate(${angle},21,25)`}/>
-                    <path fill="currentColor" d="M22.48,21.24V34.16h-3V21.24H15.33v-2.4H26.67v2.4Z"/>
-                </svg>
-            </button>
+            <Dropdown
+                show={showDirectionPicker}
+                onToggle={setShowDirectionPicker}>
+                <DirectionPickerToggle
+                    directionalTyping={directionalTyping}
+                    typingDirection={typingDirection}/>
+                <DirectionPickerPopup
+                    direction={directionalTyping ? typingDirection : null}
+                    directionalTyping={directionalTyping}
+                    onTypingDirectionChanged={onTypingDirectionChanged}
+                    toggleDirectionalTyping={toggleDirectionalTyping}/>
+            </Dropdown>
             <button
                 aria-label="Decrease Size"
                 className="toolbarButton"

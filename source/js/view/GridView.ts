@@ -473,22 +473,22 @@ export class GridView {
                 return;
             }
             if (event.key === 'ArrowLeft') {
-                this.setTypingDirection(i, j, k, west);
+                this.setActiveTypingDirection(i, j, k, west);
                 event.preventDefault();
                 return;
             }
             else if (event.key === 'ArrowRight') {
-                this.setTypingDirection(i, j, k, east);
+                this.setActiveTypingDirection(i, j, k, east);
                 event.preventDefault();
                 return;
             }
             else if (event.key === 'ArrowDown') {
-                this.setTypingDirection(i, j, k, event.shiftKey ? southEast : southWest);
+                this.setActiveTypingDirection(i, j, k, event.shiftKey ? southEast : southWest);
                 event.preventDefault();
                 return;
             }
             else if (event.key === 'ArrowUp') {
-                this.setTypingDirection(i, j, k, event.shiftKey ? northWest : northEast);
+                this.setActiveTypingDirection(i, j, k, event.shiftKey ? northWest : northEast);
                 event.preventDefault();
                 return;
             }
@@ -664,10 +664,14 @@ export class GridView {
         this.removeExecutionAngleClass([i, j, direction ?? this.typingDirection], 'typingDirectionArrow', k);
     }
 
-    private setTypingDirection(i: number, j: number, k: number, dir: Direction): void {
+    private setActiveTypingDirection(i: number, j: number, k: number, dir: Direction): void {
         this.clearTypingDirectionArrow(i, j, k);
         this.setTypingDirectionInternal(dir);
         this.addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
+    }
+
+    public setTypingDirection(dir: Direction): void {
+        this.typingDirection = dir;
     }
 
     private setTypingDirectionInternal(dir: Direction) {

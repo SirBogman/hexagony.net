@@ -1,4 +1,6 @@
 $buttonInnerWidth: 1.5rem;
+$buttonInnerHeight: 1.5rem;
+$buttonSvgHeight: 50;
 $buttonOuterWidth: 2.75rem;
 $narrowButtonOuterWidth: 2.35rem;
 // $sliderButtonWidth is the width of the slider in button widths.
@@ -44,7 +46,6 @@ nav > #playControls {
 
 svg.buttonSvg {
     height: $buttonInnerWidth;
-    width: $buttonInnerWidth;
 }
 
 .toolbarButton,
@@ -80,12 +81,14 @@ button.toolbarButton[aria-checked=true] {
 
 @media (hover: hover) {
     a.toolbarButton:hover,
-    button.toolbarButton:enabled:hover {
+    button.toolbarButton:enabled:hover,
+    button.toolbarButton[aria-expanded=true] {
         background: var(--hover);
     }
 
     a.toolbarButton.active:hover,
-    button.toolbarButton[aria-checked=true]:enabled:hover {
+    button.toolbarButton[aria-checked=true]:enabled:hover,
+    button.toolbarButton[aria-checked=true][aria-expanded=true] {
         background: var(--hover-active);
     }
 }
@@ -117,12 +120,12 @@ input[type=range]::-webkit-slider-thumb {
     appearance: none;
     background: var(--header-background);
     width: 10px;
-    height: 1.5rem;
+    height: $buttonInnerHeight;
 }
 
 input[type=range]::-moz-range-thumb {
     width: 10px;
-    height: 1.5rem;
+    height: $buttonInnerHeight;
     background: var(--header-background);
     border-radius: 0;
     border: none;

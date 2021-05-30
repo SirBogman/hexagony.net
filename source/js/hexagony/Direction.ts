@@ -1,3 +1,7 @@
+import { assertNotNull } from '../view/ViewUtil';
+
+export type DirectionString = 'NW' | 'NE' | 'W' | 'E' | 'SW' | 'SE';
+
 export abstract class Direction {
     abstract get reflectAtSlash(): Direction;
     abstract get reflectAtBackslash(): Direction;
@@ -9,7 +13,9 @@ export abstract class Direction {
     abstract get angle(): number;
     abstract get vector(): [number, number];
 
-    static fromString(value: string): Direction {
+    abstract toString(): DirectionString;
+
+    static tryParse(value: string): Direction | null {
         switch (value) {
             case 'NE': return northEast;
             case 'NW': return northWest;
@@ -18,7 +24,11 @@ export abstract class Direction {
             case 'SE': return southEast;
             case 'E': return east;
         }
-        throw new Error(`Failed to parse direction: ${value}`);
+        return null;
+    }
+
+    static fromString(value: DirectionString): Direction {
+        return assertNotNull(Direction.tryParse(value), 'Direction.fromString');
     }
 }
 
@@ -32,7 +42,7 @@ class NorthEast extends Direction {
     get reverse() { return southWest; }
     get angle() { return 300; }
     get vector(): [number, number] { return [1, -1]; }
-    toString() { return 'NE'; }
+    toString(): 'NE' { return 'NE'; }
 }
 
 class NorthWest extends Direction {
@@ -45,7 +55,7 @@ class NorthWest extends Direction {
     get reverse() { return southEast; }
     get angle() { return 240; }
     get vector(): [number, number] { return [0, -1]; }
-    toString() { return 'NW'; }
+    toString(): 'NW' { return 'NW'; }
 }
 
 class West extends Direction {
@@ -58,7 +68,7 @@ class West extends Direction {
     get reverse() { return east; }
     get angle() { return 180; }
     get vector(): [number, number] { return [-1, 0]; }
-    toString() { return 'W'; }
+    toString(): 'W' { return 'W'; }
 }
 
 class SouthWest extends Direction {
@@ -71,7 +81,7 @@ class SouthWest extends Direction {
     get reverse() { return northEast; }
     get angle() { return 120; }
     get vector(): [number, number] { return [-1, 1]; }
-    toString() { return 'SW'; }
+    toString(): 'SW' { return 'SW'; }
 }
 
 class SouthEast extends Direction {
@@ -84,7 +94,7 @@ class SouthEast extends Direction {
     get reverse() { return northWest; }
     get angle() { return 60; }
     get vector(): [number, number] { return [0, 1]; }
-    toString() { return 'SE'; }
+    toString(): 'SE' { return 'SE'; }
 }
 
 class East extends Direction {
@@ -97,7 +107,7 @@ class East extends Direction {
     get reverse() { return west; }
     get angle() { return 0; }
     get vector(): [number, number] { return [1, 0]; }
-    toString() { return 'E'; }
+    toString(): 'E' { return 'E'; }
 }
 
 export const east = new East();

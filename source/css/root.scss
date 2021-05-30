@@ -52,6 +52,12 @@ header {
     --hover: hsl(210, 5%, 40%);
     --hover-active: hsl(0, 0%, 90%);
     --disabled-color: hsl(210, 5%, 44%);
+
+    --direction-picker-inactive: hsl(210, 10%, 25%);
+    --direction-picker-background: hsl(210, 10%, 13%);
+    --direction-picker-hover: hsl(210, 5%, 40%);
+    --direction-picker-foreground: hsl(0, 0%, 99%);
+    --direction-picker-border: var(--color);
 }
 
 body {

@@ -24,7 +24,7 @@ export const ViewControls: React.FC<IViewControlsProps> = props => {
                 className="toolbarButton"
                 onClick={toggleEdgeTransitionMode}
                 title="Toggle edge transition visualization.">
-                <svg className="buttonSvg" viewBox="0 0 22.99 29.5">
+                <svg className="buttonSvg" viewBox="-2 0 26.99 29.5">
                     <path fill="none" stroke="currentColor" strokeWidth="2px" d="M20.04.25l1.82 3.15c1.18 2.05.71 5.06-1.34 6.24L2.82 19.86c-2.05 1.18-3 3.41-1.79 5.46l2.27 3.93m16.74 0l1.82-3.15c1.18-2.05.71-5.06-1.34-6.24L2.82 9.64c-2.05-1.18-3-3.41-1.79-5.46L3.3.25"/>
                 </svg>
             </button>

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { produce } from 'immer';
 
-import { Direction, east } from '../hexagony/Direction';
+import { Direction, DirectionString, east } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
 import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
@@ -59,7 +59,7 @@ interface IAppState {
     terminationReason: string | null;
     ticks: number;
     timeoutID: number | null;
-    typingDirection: string;
+    typingDirection: DirectionString;
     undoStack: IUndoItem[];
     userData: IUserData;
 }
@@ -501,6 +501,8 @@ export class App extends React.Component<IAppProps, IAppState> {
             state.terminationReason = hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
             state.ticks = hexagony.ticks;
             state.timeoutID = timeoutID;
+            // Synchronize typing direction with execution direction.
+            state.typingDirection = hexagony.dir.toString();
         });
     }
 
@@ -564,6 +566,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             App.pause(state);
             state.ticks = 0;
             state.isRunning = false;
+            state.typingDirection = east.toString();
         });
     };
 
@@ -658,7 +661,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.updateState((state: IAppState) => { state.typingDirection = value.toString(); });
 
     componentDidMount(): void {
-        const { animationDelay, sourceCode, userData } = this.state;
+        const { animationDelay, sourceCode, typingDirection, userData } = this.state;
 
         const gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback,
             this.onTypingDirectionChanged, sourceCode, animationDelay);
@@ -669,6 +672,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         gridView.setShowIPs(userData.showIPs);
         gridView.setSourceCode(sourceCode);
         gridView.setBreakpoints(this.getBreakpoints());
+        gridView.setTypingDirection(Direction.fromString(typingDirection));
 
         document.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('hashchange', this.loadDataFromURL);
@@ -681,7 +685,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     componentDidUpdate(prevProps: IAppProps, prevState: IAppState): void {
         const { gridView, state } = this;
-        const { animationDelay, selectedIp, sourceCode, userData } = state;
+        const { animationDelay, selectedIp, sourceCode, typingDirection, userData } = state;
         const prevUserData = prevState.userData;
         const prevSourceCode = prevState.sourceCode;
 
@@ -741,15 +745,18 @@ export class App extends React.Component<IAppProps, IAppState> {
             this.resetCellColors();
         }
 
+        if (typingDirection !== prevState.typingDirection) {
+            gridView.setTypingDirection(Direction.fromString(typingDirection));
+        }
+
         if (animationDelay !== prevState.animationDelay) {
             gridView.setDelay(animationDelay);
         }
     }
 
     render(): JSX.Element {
-        const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, userData } = this.state;
+        const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, typingDirection, userData } = this.state;
         const { hexagony } = this;
-        const typingDirection = Direction.fromString(this.state.typingDirection);
 
         const mainContent = hexagony !== null ?
             <>
@@ -805,9 +812,10 @@ export class App extends React.Component<IAppProps, IAppState> {
                                 onReset={this.onReset}
                                 onReverseMemoryMovement={this.onReverseMemoryMovement}
                                 onSmaller={this.onSmaller}
+                                onTypingDirectionChanged={this.onTypingDirectionChanged}
                                 onUndo={this.onUndo}
                                 toggleDirectionalTyping={this.toggleDirectionalTyping}
-                                typingDirection={typingDirection}/>
+                                typingDirection={Direction.fromString(typingDirection)}/>
                             <PlayControls
                                 canPlayPause={!this.isTerminated()}
                                 canStep={!this.isTerminated() && !this.isPlaying()}
