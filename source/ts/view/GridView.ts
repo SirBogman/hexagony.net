@@ -5,6 +5,8 @@ import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
+import '../../styles/GridView.scss';
+
 const edgeTransitionSizeLimit = 25;
 
 const edgeLength = 20;

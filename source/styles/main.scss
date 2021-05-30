@@ -244,6 +244,10 @@ div #memoryPanel > h1 {
     }
 }
 
+.activeIp {
+    font-weight: bold;
+}
+
 #terminationReasonText {
     animation: fadeIn 0.25s ease-out;
     align-self: center;
