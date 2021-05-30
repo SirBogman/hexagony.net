@@ -29,6 +29,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
                 role="switch"
                 aria-label="Directional Typing"
                 aria-checked={directionalTyping}
+                className="toolbarButton"
                 onClick={toggleDirectionalTyping}
                 title="Toggle directional typing mode.">
                 <svg className="buttonSvg" viewBox="0 0 42 50">
@@ -39,6 +40,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
             </button>
             <button
                 aria-label="Decrease Size"
+                className="toolbarButton"
                 disabled={!canEdit}
                 onClick={onSmaller}
                 title="Make the hexagon smaller.">
@@ -49,6 +51,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
             </button>
             <button
                 aria-label="Increase Size"
+                className="toolbarButton"
                 disabled={!canEdit}
                 onClick={onBigger}
                 title="Make the hexagon larger.">
@@ -59,6 +62,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
             </button>
             <button
                 aria-label="Reset Instructions"
+                className="toolbarButton"
                 disabled={!canEdit}
                 onClick={onReset}
                 title="Reset the hexagon by replacing instructions with no-ops.">
@@ -69,7 +73,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
             </button>
             <button
                 aria-label="Delete Breakpoints"
-                className="largeToolbarOnly"
+                className="largeToolbarOnly toolbarButton"
                 disabled={!canDeleteBreakpoints}
                 onClick={onDeleteBreakpoints}
                 title="Delete all breakpoints. Select an instruction and press Ctrl + B to set a breakpoint.">
@@ -79,7 +83,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
             </button>
             <button
                 aria-label="Reverse Memory Movement"
-                className="largeToolbarOnly"
+                className="largeToolbarOnly toolbarButton"
                 onClick={onReverseMemoryMovement}
                 title="Reverse the direction of all memory movement commands.">
                 <svg className="buttonSvg" viewBox="0 0 42 50">
@@ -89,6 +93,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
             </button>
             <button
                 aria-label="Undo"
+                className="toolbarButton"
                 disabled={!canUndo}
                 onClick={onUndo}
                 title="Undo (Ctrl + Z)">
@@ -99,6 +104,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
             </button>
             <button
                 aria-label="Redo"
+                className="toolbarButton"
                 disabled={!canRedo}
                 onClick={onRedo}
                 title="Redo (Ctrl + Y)">

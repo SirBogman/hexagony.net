@@ -25,6 +25,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = props => {
         <div id="playControls" className="group">
             <button
                 aria-label="Start/Pause"
+                className="toolbarButton"
                 disabled={!canPlayPause}
                 onClick={onPlayPause}
                 title="Start/pause execution (Ctrl + Enter).">
@@ -32,6 +33,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = props => {
             </button>
             <button
                 aria-label="Step"
+                className="toolbarButton"
                 disabled={!canStep}
                 onClick={onStep}
                 title="Execute next instruction (Ctrl + .).">
@@ -41,6 +43,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = props => {
             </button>
             <button
                 aria-label="Stop"
+                className="toolbarButton"
                 disabled={!canStop}
                 onClick={onStop}
                 title="Stop execution (Ctrl + Shift + Enter).">

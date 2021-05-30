@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import classNames from 'classnames';
 
 export function updateNavigationLinks(element: HTMLElement): void {
     ReactDOM.render(
@@ -8,8 +9,8 @@ export function updateNavigationLinks(element: HTMLElement): void {
 }
 
 const NavigationLinksFunction: React.FC = () => {
-    const homeClass = window.location.pathname === '/' ? 'active' : undefined;
-    const aboutClass = window.location.pathname === '/about.html' ? 'active' : undefined;
+    const homeClass = classNames('toolbarButton', { active: location.pathname === '/' });
+    const aboutClass = classNames('toolbarButton', { active: location.pathname === '/about.html' });
 
     return (
         <div id="navigation" className="group">

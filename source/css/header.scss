@@ -8,7 +8,7 @@ $narrowWidthPadding: 0.5;
 $transitionTime: 0.2s;
 
 body header {
-    background: var(--color);
+    background: var(--header-color);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -76,8 +76,7 @@ svg.buttonSvg {
     width: $buttonInnerWidth;
 }
 
-header a,
-header > nav button,
+.toolbarButton,
 #speedSliderContainer {
     height: $buttonOuterWidth;
     width: $buttonOuterWidth;
@@ -85,12 +84,11 @@ header > nav button,
     align-items: center;
     display: flex;
     justify-content: center;
-    color: var(--background);
-    fill: var(--background);
+    color: var(--header-background);
+    fill: var(--header-background);
 }
 
-header a,
-header > nav button {
+.toolbarButton {
     transition: background $transitionTime ease-out, color $transitionTime ease-out;
 }
 
@@ -98,37 +96,36 @@ header > nav .group {
     display: flex;
 }
 
-header > nav button {
-    background: var(--color);
-    color: var(--background);
+button.toolbarButton {
+    background: var(--header-color);
     border: none;
     padding: 0;
 }
 
-header a.active,
-header > nav button[aria-checked=true] {
-    background: var(--background);
-    color: var(--color);
+a.toolbarButton.active,
+button.toolbarButton[aria-checked=true] {
+    background: var(--header-background);
+    color: var(--header-color);
 }
 
 @media (hover: hover) {
-    header a:hover,
-    header > nav button:enabled:hover {
+    a.toolbarButton:hover,
+    button.toolbarButton:enabled:hover {
         background: var(--hover);
     }
 
-    header a.active:hover,
-    header > nav button[aria-checked=true]:enabled:hover {
+    a.toolbarButton.active:hover,
+    button.toolbarButton[aria-checked=true]:enabled:hover {
         background: var(--hover-active);
     }
 }
 
-header > nav button:disabled {
+button.toolbarButton:disabled {
     color: var(--disabled-color);
 }
 
 #speedSliderContainer.focused {
-    border: 1px dotted var(--background);
+    border: 1px dotted var(--header-background);
 }
 
 input[type=range] {
@@ -148,7 +145,7 @@ input[type=range]:focus {
 input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    background: var(--background);
+    background: var(--header-background);
     width: 10px;
     height: 1.5rem;
 }
@@ -156,7 +153,7 @@ input[type=range]::-webkit-slider-thumb {
 input[type=range]::-moz-range-thumb {
     width: 10px;
     height: 1.5rem;
-    background: var(--background);
+    background: var(--header-background);
     border-radius: 0;
     border: none;
 }
@@ -173,8 +170,7 @@ input[type=range]::-moz-range-thumb {
     // Reduce the outer width of buttons a bit, before changing to the one column layout.
     $buttonOuterWidth: $narrowButtonOuterWidth;
 
-    header a,
-    header > nav button {
+    .toolbarButton {
         width: $buttonOuterWidth;
     }
 

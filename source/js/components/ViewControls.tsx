@@ -21,6 +21,7 @@ export const ViewControls: React.FC<IViewControlsProps> = props => {
                 role="switch"
                 aria-label="Edge Transition Mode"
                 aria-checked={edgeTransitionModeEnabled}
+                className="toolbarButton"
                 onClick={toggleEdgeTransitionMode}
                 title="Toggle edge transition visualization.">
                 <svg className="buttonSvg" viewBox="0 0 22.99 29.5">
@@ -31,6 +32,7 @@ export const ViewControls: React.FC<IViewControlsProps> = props => {
                 role="switch"
                 aria-label="Show Arrows"
                 aria-checked={arrowsEnabled}
+                className="toolbarButton"
                 onClick={toggleArrows}
                 title="Toggle whether execution direction arrows are shown when running.">
                 <svg className="buttonSvg" viewBox="0 0 42 50">
@@ -43,6 +45,7 @@ export const ViewControls: React.FC<IViewControlsProps> = props => {
                 role="switch"
                 aria-label="Show Instruction Pointers"
                 aria-checked={ipsEnabled}
+                className="toolbarButton"
                 onClick={toggleIPs}
                 title="Toggle whether all 6 instruction pointers are shown.">
                 <svg className="buttonSvg" viewBox="0 0 42 50">
@@ -53,6 +56,7 @@ export const ViewControls: React.FC<IViewControlsProps> = props => {
                 role="switch"
                 aria-label="Toggle Dark Mode"
                 aria-checked={darkModeEnabled}
+                className="toolbarButton"
                 onClick={toggleDarkMode}
                 title="Toggle whether dark mode is enabled.">
                 <svg className="buttonSvg" viewBox="0 0 42 50">

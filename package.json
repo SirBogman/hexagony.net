@@ -4,6 +4,7 @@
   "description": "",
   "private": true,
   "dependencies": {
+    "classnames": "^2.3.1",
     "immer": "^9.0.1",
     "lz-string": "^1.4.4",
     "memoize-one": "^5.2.1",
