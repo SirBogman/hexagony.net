@@ -5,8 +5,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: {
-        main: './source/js/main.ts',
-        secondary: './source/js/secondary.ts',
+        main: './source/ts/main.ts',
+        secondary: './source/ts/secondary.ts',
     },
     output: {
         filename: '[name].mjs',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDropdownMenu } from 'react-overlays';
 
-import '../../css/DirectionPickerPopup.scss';
+import '../../styles/DirectionPickerPopup.scss';
 
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 

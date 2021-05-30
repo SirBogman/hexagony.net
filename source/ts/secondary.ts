@@ -1,4 +1,4 @@
-import '../css/secondary.scss';
+import '../styles/secondary.scss';
 import { applyColorMode, assertNotNull, colorModes, parseStorage, prefersDarkColorScheme } from './view/ViewUtil';
 import { updateNavigationLinks } from './components/NavigationLinks';
 
