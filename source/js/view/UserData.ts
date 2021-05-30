@@ -114,7 +114,7 @@ export function loadUserData() : IUserData {
     return {
         code: userData.code,
         delay: sanitizeNumber(userData.delay, 250),
-        directionalTyping: sanitizeBool(userData.directionalTyping, false),
+        directionalTyping: sanitizeBool(userData.directionalTyping, true),
         breakpoints: userData.breakpoints ?? [],
         colorMode: colorModes.includes(userData.colorMode) ? userData.colorMode : defaultColorMode,
         colorOffset: sanitizeNumber(userData.colorOffset, 0),
