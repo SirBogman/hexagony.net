@@ -1,4 +1,6 @@
 import React from 'react';
+import classNames from 'classnames';
+
 import { InfoContent, IInfoPanelProps } from './InfoPanel';
 import { Direction } from '../hexagony/Direction';
 import { PointAxial } from '../hexagony/PointAxial';
@@ -31,12 +33,12 @@ function getIPState(
     colorMode: string,
     colorOffset: number,
     onSelectedIPChanged: (ip: number) => void) {
-    const active = state.active ? 'activeIp' : '';
+    const className = classNames('col1', { activeIp: state.active });
     const titleExtra = state.active ? '. This is the currently active IP' : '';
     const i = state.number;
     return (
         <React.Fragment key={`IP${i}`}>
-            <label className={`col1 ${active}`} title={`Select to show the execution path for instruction pointer ${i}${titleExtra}.`}>
+            <label className={className} title={`Select to show the execution path for instruction pointer ${i}${titleExtra}.`}>
                 <input type="radio" name="selectIp" value={i} checked={state.selected} onChange={() => onSelectedIPChanged(i)}/>
                 <span className={`colorSwatch${(i + colorOffset) % 6}${colorMode}`}></span>
                 IP {i}

@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { useState } from 'react';
 
 interface IPlayControlsProps {
@@ -52,7 +53,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = props => {
                 </svg>
             </button>
             <div id="speedSliderContainer" title="Adjust the execution speed."
-                className={speedSliderFocused ? 'focused' : ''}>
+                className={classNames({ focused: speedSliderFocused })}>
                 <input
                     type="range"
                     aria-label="Execution Speed"
