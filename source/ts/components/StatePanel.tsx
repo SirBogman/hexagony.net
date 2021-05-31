@@ -63,34 +63,42 @@ function getExecutionInfo(ticks: number, memoryEdges: number) {
     );
 }
 
-export const StatePanel: React.FC<IStatePanelProps> = props => {
-    const { colorMode, colorOffset, cycleColorOffset, terminationReason, memoryPointer, memoryDir,
-        memoryCw, memoryEdges, ticks, info, ipStates, onSelectedIPChanged } = props;
-    return (
-        <div id="statePanel">
-            <div id='statePanelTop'>
-                <h1>State</h1>
-                <div id='terminationReasonText'>{terminationReason}</div>
-                <button id="cycleColorsButton" className="bodyButton" onClick={cycleColorOffset}
-                    title="Cycle the colors of the instruction pointers.">
-                    Cycle Colors
-                </button>
-            </div>
-            <div id="stateGrid1">
-                {ipStates.map(x => getIPState(x, colorMode, colorOffset, onSelectedIPChanged))}
-                <p key="mp" className="col1" title="Information about the memory pointer">MP</p>
-                <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{memoryPointer.q}</p>
-                <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{memoryPointer.r}</p>
-                <p key="dir" className="col4" title="Direction of memory pointer">{memoryDir.toString()}</p>
-                <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
-                    {memoryCw ? 'CW' : 'CCW'}</p>
-                {getExecutionInfo(ticks, memoryEdges)}
-                <InfoContent {...info}/>
-            </div>
-            <div id="stateGrid2">
-                {getExecutionInfo(ticks, memoryEdges)}
-                <InfoContent {...info}/>
-            </div>
+export const StatePanel: React.FC<IStatePanelProps> = ({
+    colorMode,
+    colorOffset,
+    cycleColorOffset,
+    terminationReason,
+    memoryPointer,
+    memoryDir,
+    memoryCw,
+    memoryEdges,
+    ticks,
+    info,
+    ipStates,
+    onSelectedIPChanged
+}) =>
+    <div id="statePanel">
+        <div id='statePanelTop'>
+            <h1>State</h1>
+            <div id='terminationReasonText'>{terminationReason}</div>
+            <button id="cycleColorsButton" className="bodyButton" onClick={cycleColorOffset}
+                title="Cycle the colors of the instruction pointers.">
+                Cycle Colors
+            </button>
         </div>
-    );
-};
+        <div id="stateGrid1">
+            {ipStates.map(x => getIPState(x, colorMode, colorOffset, onSelectedIPChanged))}
+            <p key="mp" className="col1" title="Information about the memory pointer">MP</p>
+            <p key="mp1" className="col2 right" title="Coordinates of the memory pointer">{memoryPointer.q}</p>
+            <p key="mp2" className="col3 right" title="Coordinates of the memory pointer">{memoryPointer.r}</p>
+            <p key="dir" className="col4" title="Direction of memory pointer">{memoryDir.toString()}</p>
+            <p key="cw" className="col5" title="Memory pointer direction (clockwise/counterclockwise)">
+                {memoryCw ? 'CW' : 'CCW'}</p>
+            {getExecutionInfo(ticks, memoryEdges)}
+            <InfoContent {...info}/>
+        </div>
+        <div id="stateGrid2">
+            {getExecutionInfo(ticks, memoryEdges)}
+            <InfoContent {...info}/>
+        </div>
+    </div>;

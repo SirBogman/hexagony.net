@@ -13,10 +13,18 @@ interface IPlayControlsProps {
     onStop: () => void;
 }
 
-export const PlayControls: React.FC<IPlayControlsProps> = props => {
+export const PlayControls: React.FC<IPlayControlsProps> = ({
+    canPlayPause,
+    canStep,
+    canStop,
+    delay,
+    isPlaying,
+    onPlayPause,
+    onSpeedSliderChanged,
+    onStep,
+    onStop
+}) => {
     const [speedSliderFocused, setSpeedSliderFocused] = useState(false);
-    const { canPlayPause, canStep, canStop, delay, isPlaying, onPlayPause, onSpeedSliderChanged,
-        onStep, onStop } = props;
 
     const playPause = isPlaying ?
         <svg className="buttonSvg" viewBox="0 -2 12 20"><path fill="currentColor" d="M0 0h4v16H0zM8 0h4v16H8z"/></svg> :

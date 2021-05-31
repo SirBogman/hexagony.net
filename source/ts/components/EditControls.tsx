@@ -50,11 +50,23 @@ const DirectionPickerToggle: React.FC<IDirectionPickerToggle> = ({ directionalTy
     );
 };
 
-export const EditControls: React.FC<IEditControlProps> = props => {
-    const { canDeleteBreakpoints, canEdit, canRedo, canUndo, directionalTyping, onBigger, onDeleteBreakpoints, onRedo,
-        onReset, onReverseMemoryMovement, onSmaller, onTypingDirectionChanged, onUndo, toggleDirectionalTyping,
-        typingDirection } = props;
-
+export const EditControls: React.FC<IEditControlProps> = ({
+    canDeleteBreakpoints,
+    canEdit,
+    canRedo,
+    canUndo,
+    directionalTyping,
+    onBigger,
+    onDeleteBreakpoints,
+    onRedo,
+    onReset,
+    onReverseMemoryMovement,
+    onSmaller,
+    onTypingDirectionChanged,
+    onUndo,
+    toggleDirectionalTyping,
+    typingDirection
+}) => {
     const [showDirectionPicker, setShowDirectionPicker] = useState(false);
 
     return (
