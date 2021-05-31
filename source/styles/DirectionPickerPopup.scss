@@ -29,6 +29,10 @@ button[aria-checked=true].directionPickerButton {
     z-index: 2;
 }
 
+.directionPickerContainer.hidden {
+    display: none;
+}
+
 .directionPickerHexagon {
     position: absolute;
     left: 0px;

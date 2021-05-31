@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 import { useDropdownMenu } from 'react-overlays';
 
@@ -44,7 +45,7 @@ export const DirectionPickerPopup: React.FC<IDirectionPickerProps> = ({
     toggleDirectionalTyping
 }) => {
     // menuProps may include: ref,aria-labelledby,data-popper-reference-hidden,data-popper-escaped,data-popper-placement,style.
-    const [menuProps, { toggle }] = useDropdownMenu({
+    const [menuProps, { show, toggle }] = useDropdownMenu({
         flip: true,
         offset: [0, 0],
     });
@@ -65,7 +66,10 @@ export const DirectionPickerPopup: React.FC<IDirectionPickerProps> = ({
     };
 
     return (
-        <div className="directionPickerContainer" role="menu" {...menuProps}>
+        <div
+            className={classNames('directionPickerContainer', { hidden: !show })}
+            role="menu"
+            {...menuProps}>
             <svg className="directionPickerHexagon" viewBox="0 0 100 78">
                 <polygon
                     fill="none"
