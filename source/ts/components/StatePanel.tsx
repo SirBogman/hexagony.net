@@ -5,6 +5,8 @@ import { InfoContent, IInfoPanelProps } from './InfoPanel';
 import { Direction } from '../hexagony/Direction';
 import { PointAxial } from '../hexagony/PointAxial';
 
+import '../../styles/StatePanel.scss';
+
 interface IIPState {
     number: number;
     active: boolean;
