@@ -35,7 +35,6 @@ const DirectionPickerToggle: React.FC<IDirectionPickerToggle> = ({ directionalTy
 
     return (
         <button
-            role="menu"
             aria-label="Directional Typing"
             aria-checked={directionalTyping}
             className="toolbarButton"
@@ -62,6 +61,7 @@ export const EditControls: React.FC<IEditControlProps> = props => {
         <div id="editControls" className="group">
             <Dropdown
                 show={showDirectionPicker}
+                itemSelector=".directionPickerButton"
                 onToggle={setShowDirectionPicker}>
                 <DirectionPickerToggle
                     directionalTyping={directionalTyping}

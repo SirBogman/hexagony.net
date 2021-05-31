@@ -26,7 +26,6 @@ const DirectionPickerButton: React.FC<IDirectionPickerButtonProps> = ({
     polygonPoints
 }) =>
     <button
-        role="switch"
         aria-label={`${direction} Typing Direction`}
         aria-checked={activeDirection === direction}
         className="directionPickerButton"
@@ -66,7 +65,7 @@ export const DirectionPickerPopup: React.FC<IDirectionPickerProps> = ({
     };
 
     return (
-        <div className="directionPickerContainer" {...menuProps}>
+        <div className="directionPickerContainer" role="menu" {...menuProps}>
             <svg className="directionPickerHexagon" viewBox="0 0 100 78">
                 <polygon
                     fill="none"
