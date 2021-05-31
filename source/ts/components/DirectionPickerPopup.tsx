@@ -8,7 +8,7 @@ import { Direction, east, northEast, northWest, southEast, southWest, west } fro
 interface IDirectionPickerButtonProps {
     activeDirection: Direction | null;
     direction: Direction;
-    onClick: (value: Direction) => void;
+    onClick: (value: Direction, event: React.SyntheticEvent) => void;
     polygonPoints: string;
 }
 
@@ -29,7 +29,7 @@ const DirectionPickerButton: React.FC<IDirectionPickerButtonProps> = ({
         aria-label={`${direction} Typing Direction`}
         aria-checked={activeDirection === direction}
         className="directionPickerButton"
-        onClick={() => onClick(direction)}
+        onClick={event => onClick(direction, event)}
         title={`Set typing direction to ${direction}`}>
         <svg viewBox="0 0 50 26" width="100" height="52">
             <rect fill="transparent" height="26" width="50"/>
@@ -49,19 +49,19 @@ export const DirectionPickerPopup: React.FC<IDirectionPickerProps> = ({
         offset: [0, 0],
     });
 
-    const closeMenu = () => toggle?.(false);
+    const closeMenu = (event: React.SyntheticEvent) => toggle?.(false, event);
 
-    const onClick = (direction: Direction) => {
+    const onClick = (direction: Direction, event: React.SyntheticEvent) => {
         onTypingDirectionChanged(direction);
         if (!directionalTyping) {
             toggleDirectionalTyping();
         }
-        closeMenu();
+        closeMenu(event);
     };
 
-    const disableDirectionalTyping = () => {
+    const disableDirectionalTyping = (event: React.SyntheticEvent) => {
         toggleDirectionalTyping();
-        closeMenu();
+        closeMenu(event);
     };
 
     return (
