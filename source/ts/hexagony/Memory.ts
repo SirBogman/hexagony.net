@@ -1,3 +1,4 @@
+import { immerable } from 'immer';
 import { Direction, east, northEast, southEast } from './Direction';
 import { PointAxial } from './PointAxial';
 
@@ -9,6 +10,8 @@ interface IDataValue {
 }
 
 export class Memory {
+    static [immerable] = true;
+
     mp = new PointAxial(0, 0);
     dir: Direction = east;
     cw = false;

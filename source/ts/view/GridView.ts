@@ -1,6 +1,7 @@
 import memoizeOne from 'memoize-one';
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
-import { Hexagony } from '../hexagony/Hexagony';
+import { HexagonyContext } from '../hexagony/HexagonyContext';
+import { HexagonyState } from '../hexagony/HexagonyState';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
@@ -647,15 +648,21 @@ export class GridView {
             newK = 0;
             this.playEdgeAnimation(edgeName, isBranch);
         };
-        const hexagony = new Hexagony(this.sourceCode, '', edgeEventHandler);
+
+        const state = new HexagonyState(this.size);
         // Follow positive branches.
-        hexagony.setMemoryValue(1);
-        hexagony.setDirectionalTypingSimulation();
-        hexagony.coords = hexagony.indexToAxial(i, j);
-        hexagony.dir = this.typingDirection;
-        hexagony.step(reverse);
-        this.setTypingDirectionInternal(hexagony.dir);
-        const [newI, newJ] = hexagony.axialToIndex(hexagony.coords);
+        state.setMemoryValue(1);
+        state.coords = state.indexToAxial(i, j);
+        state.dir = oldDirection;
+
+        const context = new HexagonyContext(this.sourceCode, '', edgeEventHandler);
+        context.isDirectionalTypingSimulation = true;
+        context.reverse = reverse;
+
+        state.step(context);
+
+        this.setTypingDirectionInternal(state.dir);
+        const [newI, newJ] = state.axialToIndex(state.coords);
         if (newI !== i || newJ !== j) {
             this.clearTypingDirectionArrow(i, j, k, oldDirection);
             this.navigateTo(newI, newJ, newK);

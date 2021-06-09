@@ -25,7 +25,6 @@ import { EditControls } from './EditControls';
 import { PlayControls } from './PlayControls';
 
 const maxSpeedIterations = 10000;
-const executionHistoryCount = 20;
 
 export function updateAppHelper(element: HTMLElement): void {
     ReactDOM.render(<React.StrictMode><App/></React.StrictMode>, element);
@@ -67,7 +66,6 @@ interface IAppState {
 export class App extends React.Component<IAppProps, IAppState> {
     private hexagony: Hexagony | null = null;
     private gridViewReference: GridView | null = null;
-    private executionHistory: [number, number, Direction][][] = [];
     private startingToPlay = false;
 
     constructor(props: IAppProps) {
@@ -431,17 +429,11 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
 
         const { sourceCode, userData } = this.state;
+        let firstStep = false;
 
         if (this.hexagony === null) {
-            const hexagony = new Hexagony(sourceCode, App.getInput(this.state), this.edgeEventHandler);
-            this.hexagony = hexagony;
-            hexagony.setFirstStepNoop();
-            this.executionHistory = arrayInitialize(6, index => {
-                const [coords, dir] = hexagony.getIPState(index);
-                const [i, j] = hexagony.axialToIndex(coords);
-                return [[i, j, dir]];
-            });
-
+            firstStep = true;
+            this.hexagony = new Hexagony(sourceCode, App.getInput(this.state), this.edgeEventHandler);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (window as any).totalTime = 0;
         }
@@ -453,10 +445,12 @@ export class App extends React.Component<IAppProps, IAppState> {
         const { hexagony } = this;
         let breakpoint = false;
 
-        let maximumSteps = 1;
+        // Prevent the initial call to step from executing an instruction.
+        // This allows the first instruction to be highlighted in the UI before it's executed.
+        let maximumSteps = firstStep ? 0 : 1;
+
         if (play && userData.delay === 0) {
-            // Move one extra step, if execution hasn't started yet.
-            maximumSteps = maxSpeedIterations + Number(!hexagony.ticks);
+            maximumSteps = maxSpeedIterations;
         }
 
         let stepCount = 0;
@@ -466,17 +460,8 @@ export class App extends React.Component<IAppProps, IAppState> {
         while (stepCount < maximumSteps && !breakpoint && !this.isTerminated()) {
             stepCount++;
             hexagony.step();
-            const { activeIp, coords, dir } = hexagony;
+            const { coords } = hexagony;
             const [i, j] = hexagony.axialToIndex(coords);
-
-            // The active coordinates don't change when the program terminates.
-            if (!this.isTerminated()) {
-                const previous = this.executionHistory[activeIp];
-                if (i !== previous[0][0] || j !== previous[0][1] || dir !== previous[0][2]) {
-                    this.executionHistory[activeIp] = [[i, j, dir], ...previous.slice(0, executionHistoryCount)];
-                }
-            }
-
             if (this.breakpointExistsAt(i, j)) {
                 breakpoint = true;
             }
@@ -488,7 +473,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         const selectedIp = hexagony.activeIp;
         const forceUpdateExecutionState = stepCount > 1;
-        this.gridView.updateActiveCell(this.executionHistory, selectedIp, hexagony.getExecutedGrid(), false, forceUpdateExecutionState);
+        this.gridView.updateActiveCell(hexagony.executionHistory, selectedIp, hexagony.executedGrid, false, forceUpdateExecutionState);
         this.startingToPlay = false;
 
         const timeoutID = play && !breakpoint && !this.isTerminated() ?
@@ -498,7 +483,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.updateState(state => {
             state.isRunning = true;
             state.selectedIp = selectedIp;
-            state.terminationReason = hexagony.getTerminationReason() ?? (breakpoint ? 'Stopped at breakpoint.' : null);
+            state.terminationReason = hexagony.terminationReason ?? (breakpoint ? 'Stopped at breakpoint.' : null);
             state.ticks = hexagony.ticks;
             state.timeoutID = timeoutID;
             // Synchronize typing direction with execution direction.
@@ -560,7 +545,6 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     private onStop = (): void => {
         this.hexagony = null;
-        this.executionHistory = [];
         this.gridView.clearCellExecutionColors();
         this.updateState(state => {
             App.pause(state);
@@ -571,9 +555,10 @@ export class App extends React.Component<IAppProps, IAppState> {
     };
 
     private resetCellColors(): void {
-        if (this.hexagony != null) {
+        const { gridView, hexagony } = this;
+        if (hexagony !== null) {
             const { selectedIp } = this.state;
-            this.gridView.updateActiveCell(this.executionHistory, selectedIp, this.hexagony.getExecutedGrid(), true, false);
+            gridView.updateActiveCell(hexagony.executionHistory, selectedIp, hexagony.executedGrid, true, false);
         }
     }
 
@@ -584,7 +569,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.startingToPlay || this.state.timeoutID !== null;
 
     private isTerminated = (): boolean =>
-        this.hexagony != null && this.hexagony.getTerminationReason() != null;
+        this.hexagony !== null && this.hexagony.terminationReason !== null;
 
     private onKeyDown = (e: KeyboardEvent): void => {
         if (getControlKey(e)) {
@@ -625,14 +610,14 @@ export class App extends React.Component<IAppProps, IAppState> {
     private onColorPropertyChanged(): void {
         this.updateColorMode();
         // It's easier to recreate the grid than to update all color-related class names.
-        this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
+        this.gridView.recreateGrid(this.hexagony ? this.hexagony.executedGrid : null);
         this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
     private onEdgeTransitionModeChanged(): void {
         const { userData } = this.state;
         this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
-        this.gridView.recreateGrid(this.hexagony ? this.hexagony.getExecutedGrid() : null);
+        this.gridView.recreateGrid(this.hexagony ? this.hexagony.executedGrid : null);
         this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
