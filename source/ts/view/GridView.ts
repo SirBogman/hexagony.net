@@ -36,8 +36,6 @@ interface ArrowSVGElement extends SVGElement {
     dir: Direction;
 }
 
-type ConnectorDictionary = Record<string, SVGElement[]>;
-
 export function initializeGridColors(colorMode: string, offset: number): void {
     cellExecuted = arrayInitialize(6, (index: number) => `cellExecuted${(index + offset) % 6}${colorMode}`);
     cellActive = arrayInitialize(6, (index: number) => `cellActive${(index + offset) % 6}${colorMode}`);
@@ -74,8 +72,8 @@ export class GridView {
     private toggleBreakpointCallback: (i: number, j: number) => void;
     private onTypingDirectionChanged: (value: Direction) => void;
     private cellPaths: CellSVGElement[][][] = [];
-    private edgeConnectors: ConnectorDictionary = {};
-    private edgeConnectors2: ConnectorDictionary = {};
+    private edgeConnectors = new Map<string, SVGElement[]>();
+    private edgeConnectors2 = new Map<string, SVGElement[]>();
     private delay: string;
     private directionalTyping = false;
     private executionHistory: [number, number, Direction][][];
@@ -622,7 +620,7 @@ export class GridView {
         });
     }
 
-    private startEdgeAnimation(connectors: SVGElement[], name: string): void {
+    private startEdgeAnimation(connectors: SVGElement[] | undefined, name: string): void {
         if (connectors) {
             connectors.forEach(x => {
                 x.classList.add(name);
@@ -634,8 +632,8 @@ export class GridView {
     playEdgeAnimation(edgeName: string, isBranch: boolean): void {
         if (this.edgeTransitionMode) {
             const name = isBranch ? 'connectorFlash' : 'connectorNeutralFlash';
-            this.startEdgeAnimation(this.edgeConnectors[edgeName], name);
-            this.startEdgeAnimation(this.edgeConnectors2[edgeName], `${name}Secondary`);
+            this.startEdgeAnimation(this.edgeConnectors.get(edgeName), name);
+            this.startEdgeAnimation(this.edgeConnectors2.get(edgeName), `${name}Secondary`);
         }
     }
 
@@ -701,12 +699,12 @@ export class GridView {
         }
 
         const collection = isSecondary ? this.edgeConnectors2 : this.edgeConnectors;
-        const current = collection[key];
+        const current = collection.get(key);
         if (current !== undefined) {
             current.push(connector);
         }
         else {
-            collection[key] = [connector];
+            collection.set(key, [connector]);
         }
     }
 
@@ -746,7 +744,8 @@ export class GridView {
         this.svg.setAttribute('height', this.fullHeight.toString());
         const parent = createSvgElement('g');
         this.cellPaths = [];
-        this.edgeConnectors = {};
+        this.edgeConnectors.clear();
+        this.edgeConnectors2.clear();
 
         const largeGridTwoColumnOffset = size * 3;
         const largeGridTwoRowOffset = size * 2;
