@@ -22,7 +22,7 @@ export class Memory {
     // data version is incremented whenever this.data changes.
     dataVersion = 0;
     memoryPointerVersion = 0;
-    private data: Record<string, IDataValue> = {};
+    private data = new Map<string, IDataValue>();
 
     reverse(): void {
         this.cw = !this.cw;
@@ -40,15 +40,11 @@ export class Memory {
     }
 
     getValueAt(mp: PointAxial, dir: Direction): bigint {
-        return this.data[`${mp},${dir}`]?.value ?? 0n;
-    }
-
-    tryGetValueAt(mp: PointAxial, dir: Direction): bigint {
-        return this.data[`${mp},${dir}`]?.value;
+        return this.data.get(`${mp},${dir}`)?.value ?? 0n;
     }
 
     getMemoryEdges(): number {
-        return Object.keys(this.data).length;
+        return this.data.size;
     }
 
     getValue(): bigint {
@@ -68,16 +64,16 @@ export class Memory {
     setValue(value: bigint | number): void {
         const x = this.getX();
         const y = this.getY();
-        this.data[`${this.mp},${this.dir}`] = {
+        this.data.set(`${this.mp},${this.dir}`, {
             x,
             y,
             dir: this.dir,
             value: BigInt(value),
-        };
-        if (this.dataVersion === 0 || this.maxX === undefined || x > this.maxX) { this.maxX = x; }
-        if (this.dataVersion === 0 || this.minX === undefined || x < this.minX) { this.minX = x; }
-        if (this.dataVersion === 0 || this.maxY === undefined || y > this.maxY) { this.maxY = y; }
-        if (this.dataVersion === 0 || this.minY === undefined || y < this.minY) { this.minY = y; }
+        });
+        if (this.maxX === undefined || x > this.maxX) { this.maxX = x; }
+        if (this.minX === undefined || x < this.minX) { this.minX = x; }
+        if (this.maxY === undefined || y > this.maxY) { this.maxY = y; }
+        if (this.minY === undefined || y < this.minY) { this.minY = y; }
         this.dataVersion++;
     }
 
@@ -129,13 +125,13 @@ export class Memory {
 
     get debugString(): string {
         let text = `${this.mp},${this.dir},${this.cw}`;
-        for (const key in this.data) {
-            text += `\n${key},${this.data[key].value}`;
+        for (const [key, value] of this.data) {
+            text += `\n${key},${value.value}`;
         }
         return text;
     }
 
-    getDataArray(): IDataValue[] {
-        return Object.values(this.data);
+    iterateData(): IterableIterator<IDataValue> {
+        return this.data.values();
     }
 }

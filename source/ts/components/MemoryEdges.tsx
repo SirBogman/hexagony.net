@@ -19,12 +19,11 @@ export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
     render(): JSX.Element {
         const { memory } = this.props;
         this.lastDataVersion = memory.dataVersion;
-        const cells = memory.getDataArray().map(entry => {
-            const { x, y, dir, value } = entry;
+        const cells = [];
+        for (const { x, y, dir, value } of memory.iterateData()) {
             const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
-            return <MemoryEdge key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>;
-        });
-
+            cells.push(<MemoryEdge key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>);
+        }
         return <g>{cells}</g>;
     }
 
