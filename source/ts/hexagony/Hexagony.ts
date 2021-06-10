@@ -2,7 +2,7 @@
 
 import { Direction } from './Direction';
 import { HexagonyContext } from './HexagonyContext';
-import { HexagonyState } from './HexagonyState';
+import { EdgeTraversal, HexagonyState } from './HexagonyState';
 import { Memory } from './Memory';
 import { PointAxial } from './PointAxial';
 import { ISourceCode } from './SourceCode';
@@ -16,10 +16,9 @@ export class Hexagony {
 
     constructor(
         sourceCode: ISourceCode,
-        inputString = '',
-        edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null = null) {
+        inputString = '') {
         this.state = new HexagonyState(sourceCode.size);
-        this.context = new HexagonyContext(sourceCode, inputString, edgeEventHandler);
+        this.context = new HexagonyContext(sourceCode, inputString);
     }
 
     axialToIndex(coords: PointAxial): [number, number] {
@@ -32,6 +31,10 @@ export class Hexagony {
 
     setInput(inputString: string): void {
         this.context.setInput(inputString);
+    }
+
+    get edgeTraversals(): EdgeTraversal[] {
+        return this.state.edgeTraversals;
     }
 
     get executionHistory(): [number, number, Direction][][] {
@@ -83,7 +86,7 @@ export class Hexagony {
     }
 
     step(): void {
-        //this.previousStates = [this.state, ...this.previousStates.slice(0, maximumHistory)];
+        //this.previousStates = [...this.previousStates.slice(0, maximumHistory), this.state];
         // TODO: calling the edge transition callback inside of produce may lead to duplicate calls.
         // most likely that doesn't matter though, because nothing different will happen when triggering
         // the animation twice in a row.

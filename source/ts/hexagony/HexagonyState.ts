@@ -8,6 +8,11 @@ import { arrayInitialize, getRowCount, getRowSize, indexToAxial, rubyStyleDivide
 
 const executionHistoryCount = 20;
 
+export interface EdgeTraversal {
+    edgeName: string;
+    isBranch: boolean;
+}
+
 /**
  * Represents the state of Hexagony execution that evolves over time independently of other things. This may eventually
  * be used to implement step-back to undo a step of execution. Consider the case where you pause execution, modify some
@@ -32,6 +37,7 @@ export class HexagonyState {
     public terminationReason: string | null = null;
     public executedGrid: Direction[][][][];
     public executionHistory: [number, number, Direction][][];
+    public edgeTraversals: EdgeTraversal[] = [];
 
     constructor(size: number) {
         this.size = size;
@@ -107,9 +113,11 @@ export class HexagonyState {
             return;
         }
 
+        this.edgeTraversals = [];
+
         if (context.reverse) {
             this.dir = this.dir.reverse;
-            this.handleMovement(context);
+            this.handleMovement();
         }
 
         const [i, j] = this.axialToIndex(this.coords);
@@ -252,7 +260,7 @@ export class HexagonyState {
             case '$':
                 // When reversing for directional typing, ignore $, because not doing so would make it more confusing.
                 if (!context.reverse) {
-                    this.handleMovement(context);
+                    this.handleMovement();
                 }
                 break;
 
@@ -271,19 +279,20 @@ export class HexagonyState {
         }
 
         if (!context.reverse) {
-            this.handleMovement(context);
+            this.handleMovement();
         }
         this.activeIp = newIp;
         this.ticks++;
     }
 
-    private followEdge(context: HexagonyContext, edgeType = '0', isBranch = false): void {
-        if (context.edgeEventHandler) {
-            context.edgeEventHandler(`${this.coords},${this.dir},${edgeType}`, isBranch);
-        }
+    private followEdge(edgeType = '0', isBranch = false): void {
+        this.edgeTraversals.push({
+            edgeName: `${this.coords},${this.dir},${edgeType}`,
+            isBranch,
+        });
     }
 
-    private handleMovement(context: HexagonyContext): void {
+    private handleMovement(): void {
         this.coords = this.coords.add(this.dir.vector);
 
         if (this.size == 1) {
@@ -309,22 +318,22 @@ export class HexagonyState {
 
         // If two values are still in range, we are wrapping around an edge (not a corner).
         if (!xBigger && !yBigger) {
-            this.followEdge(context);
+            this.followEdge();
             this.coords = new PointAxial(coords.q + coords.r, -coords.r);
         }
         else if (!yBigger && !zBigger) {
-            this.followEdge(context);
+            this.followEdge();
             this.coords = new PointAxial(-coords.q, coords.q + coords.r);
         }
         else if (!zBigger && !xBigger) {
-            this.followEdge(context);
+            this.followEdge();
             this.coords = new PointAxial(-coords.r, -coords.q);
         }
         else {
             // If two values are out of range, we navigated into a corner.
             // We teleport to a location that depends on the current memory value.
             const isPositive = this.memory.getValue() > 0;
-            this.followEdge(context, isPositive ? '+' : '-', true);
+            this.followEdge(isPositive ? '+' : '-', true);
 
             if (!xBigger && !isPositive || !yBigger && isPositive) {
                 this.coords = new PointAxial(coords.q + coords.r, -coords.r);

@@ -415,14 +415,6 @@ export class App extends React.Component<IAppProps, IAppState> {
         return input;
     }
 
-    private edgeEventHandler = (edgeName: string, isBranch: boolean): void => {
-        // Don't show edge transition animations when running at high speed.
-        const { userData } = this.state;
-        if (userData.delay || !this.isPlaying()) {
-            this.gridView.playEdgeAnimation(edgeName, isBranch);
-        }
-    };
-
     private stepHelper(play = false): void {
         if (this.isTerminated()) {
             return;
@@ -433,7 +425,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         if (this.hexagony === null) {
             firstStep = true;
-            this.hexagony = new Hexagony(sourceCode, App.getInput(this.state), this.edgeEventHandler);
+            this.hexagony = new Hexagony(sourceCode, App.getInput(this.state));
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (window as any).totalTime = 0;
         }
@@ -470,6 +462,11 @@ export class App extends React.Component<IAppProps, IAppState> {
         const p2 = performance.now();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).totalTime += p2 - p1;
+
+        // Don't show edge transition animations when running at high speed.
+        if (userData.delay || !this.isPlaying()) {
+            hexagony.edgeTraversals.forEach(this.gridView.playEdgeAnimation);
+        }
 
         const selectedIp = hexagony.activeIp;
         const forceUpdateExecutionState = stepCount > 1;

@@ -8,7 +8,6 @@ import { ISourceCode } from './SourceCode';
  */
 export class HexagonyContext {
     public sourceCode: ISourceCode;
-    public edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null;
     public input: string[];
     public reverse = false;
 
@@ -19,11 +18,9 @@ export class HexagonyContext {
 
     constructor(
         sourceCode: ISourceCode,
-        inputString = '',
-        edgeEventHandler: ((edgeName: string, isBranch: boolean) => void) | null = null) {
+        inputString = '') {
         this.sourceCode = sourceCode;
         this.input = [...inputString];
-        this.edgeEventHandler = edgeEventHandler;
     }
 
     setSourceCode(sourceCode: ISourceCode): void {

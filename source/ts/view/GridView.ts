@@ -1,7 +1,7 @@
 import memoizeOne from 'memoize-one';
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 import { HexagonyContext } from '../hexagony/HexagonyContext';
-import { HexagonyState } from '../hexagony/HexagonyState';
+import { EdgeTraversal, HexagonyState } from '../hexagony/HexagonyState';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
@@ -629,7 +629,7 @@ export class GridView {
         }
     }
 
-    playEdgeAnimation(edgeName: string, isBranch: boolean): void {
+    public playEdgeAnimation = ({ edgeName, isBranch }: EdgeTraversal): void => {
         if (this.edgeTransitionMode) {
             const name = isBranch ? 'connectorFlash' : 'connectorNeutralFlash';
             this.startEdgeAnimation(this.edgeConnectors.get(edgeName), name);
@@ -638,14 +638,7 @@ export class GridView {
     }
 
     private advanceCursor(i: number, j: number, k: number, reverse = false): void {
-        // When following an edge transition, go back to the center hexagon to ensure the cursor
-        // remains on screen.
         const oldDirection = this.typingDirection;
-        let newK = k;
-        const edgeEventHandler = (edgeName: string, isBranch: boolean) => {
-            newK = 0;
-            this.playEdgeAnimation(edgeName, isBranch);
-        };
 
         const state = new HexagonyState(this.size);
         // Follow positive branches.
@@ -653,11 +646,18 @@ export class GridView {
         state.coords = state.indexToAxial(i, j);
         state.dir = oldDirection;
 
-        const context = new HexagonyContext(this.sourceCode, '', edgeEventHandler);
+        const context = new HexagonyContext(this.sourceCode, '');
         context.isDirectionalTypingSimulation = true;
         context.reverse = reverse;
 
         state.step(context);
+
+        let newK = k;
+        if (state.edgeTraversals.length) {
+            // When following an edge transition, go back to the center hexagon to ensure the cursor remains on screen.
+            newK = 0;
+            state.edgeTraversals.forEach(this.playEdgeAnimation);
+        }
 
         this.setTypingDirectionInternal(state.dir);
         const [newI, newJ] = state.axialToIndex(state.coords);
