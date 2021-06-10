@@ -27,8 +27,11 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
     const [speedSliderFocused, setSpeedSliderFocused] = useState(false);
 
     const playPause = isPlaying ?
-        <svg className="buttonSvg" viewBox="0 -2 12 20"><path fill="currentColor" d="M0 0h4v16H0zM8 0h4v16H8z"/></svg> :
-        <svg className="buttonSvg" viewBox="0 0 16 16"><path fill="currentColor" d="M0 0v16l16-8z"/></svg>;
+        <svg className="buttonSvg" viewBox="0 0 50 50">
+            <rect fill="currentColor" x="5" width="13.33" height="50"/>
+            <rect fill="currentColor" x="31.67" width="13.33" height="50"/>
+        </svg> :
+        <svg className="buttonSvg" viewBox="0 0 50 50"><path fill="currentColor" d="M5,0V50L45,25Z"/></svg>;
 
     return (
         <div id="playControls" className="group">
@@ -46,8 +49,9 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
                 disabled={!canStep}
                 onClick={onStep}
                 title="Execute next instruction (Ctrl + .).">
-                <svg className="buttonSvg" viewBox="0 0 16 16">
-                    <path fill="none" stroke="currentColor" strokeWidth="1.5px" d="M.75.75v14.5L15.25 8z"/>
+                <svg className="buttonSvg" viewBox="0 0 50 50">
+                    <rect fill="currentColor" x="37.98" y="7" width="7" height="36"/>
+                    <path fill="currentColor" d="M5,7V43L33,25Z"/>
                 </svg>
             </button>
             <button
@@ -56,8 +60,8 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
                 disabled={!canStop}
                 onClick={onStop}
                 title="Stop execution (Ctrl + Shift + Enter).">
-                <svg className="buttonSvg" viewBox="-2 -2 20 20">
-                    <path fill="currentColor" d="M0 0v16h16V0z"/>
+                <svg className="buttonSvg" viewBox="0 0 50 50">
+                    <path fill="currentColor" d="M5,5V45H45V5Z"/>
                 </svg>
             </button>
             <div id="speedSliderContainer" title="Adjust the execution speed."
