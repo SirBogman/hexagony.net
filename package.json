@@ -44,7 +44,7 @@
   },
   "scripts": {
     "build": "webpack --mode=production",
-    "check": "npm run eslint && npm run tsc",
+    "check": "npm run tsc && npm run eslint",
     "eslint": "eslint --ext .ts,.tsx,.js --ignore-path .gitignore --max-warnings=0 .",
     "eslint-fix": "eslint --ext .ts,.tsx,.js --ignore-path .gitignore --max-warnings=0 --fix .",
     "jsdoc": "jsdoc -c jsdoc.config.json",
