@@ -5,7 +5,7 @@ import { Memory } from './Memory';
 import { MemoryPointer } from './MemoryPointer';
 import { PointAxial } from './PointAxial';
 import { HexagonyContext } from './HexagonyContext';
-import { arrayInitialize, getRowCount, getRowSize, indexToAxial, rubyStyleDivide, rubyStyleRemainder } from './Util';
+import { arrayInitialize, getRowCount, getRowSize, rubyStyleDivide, rubyStyleRemainder } from './Util';
 
 const executionHistoryCount = 20;
 
@@ -32,7 +32,6 @@ export class HexagonyState {
     public ticks = 0;
     public output: number[] = [];
 
-    public size: number;
     public ips: PointAxial[];
     public ipDirs: Direction[];
     public inputPosition = 0;
@@ -41,15 +40,15 @@ export class HexagonyState {
     public executionHistory: [number, number, Direction][][];
     public edgeTraversals: EdgeTraversal[] = [];
 
-    constructor(size: number) {
-        this.size = size;
+    constructor(context: HexagonyContext) {
+        const { size } = context;
         this.ips = [
-            new PointAxial(0, -this.size + 1),
-            new PointAxial(this.size - 1, -this.size + 1),
-            new PointAxial(this.size - 1, 0),
-            new PointAxial(0, this.size - 1),
-            new PointAxial(-this.size + 1, this.size - 1),
-            new PointAxial(-this.size + 1, 0),
+            new PointAxial(0, -size + 1),
+            new PointAxial(size - 1, -size + 1),
+            new PointAxial(size - 1, 0),
+            new PointAxial(0, size - 1),
+            new PointAxial(-size + 1, size - 1),
+            new PointAxial(-size + 1, 0),
         ];
         this.ipDirs = [east, southEast, southWest, west, northWest, northEast];
 
@@ -61,26 +60,9 @@ export class HexagonyState {
 
         this.executionHistory = arrayInitialize(6, index => {
             const [coords, dir] = this.getIPState(index);
-            const [i, j] = this.axialToIndex(coords);
+            const [i, j] = context.axialToIndex(coords);
             return [[i, j, dir]];
         });
-    }
-
-    axialToIndex(coords: PointAxial): [number, number] {
-        const x = coords.q;
-        const z = coords.r;
-        const y = -x - z;
-        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) >= this.size) {
-            throw new Error('Coordinates out of bounds.');
-        }
-
-        const i = z + this.size - 1;
-        const j = x + Math.min(i, this.size - 1);
-        return [i, j];
-    }
-
-    indexToAxial(i: number, j: number): PointAxial {
-        return indexToAxial(this.size, i, j);
     }
 
     /**
@@ -119,10 +101,10 @@ export class HexagonyState {
 
         if (context.reverse) {
             this.dir = this.dir.reverse;
-            this.handleMovement();
+            this.handleMovement(context.size);
         }
 
-        const [i, j] = this.axialToIndex(this.coords);
+        const [i, j] = context.axialToIndex(this.coords);
 
         const cellExecutedState = this.executedGrid[this.activeIp][i][j];
         if (!cellExecutedState.includes(this.dir)) {
@@ -139,7 +121,7 @@ export class HexagonyState {
         // The active coordinates don't change when the program terminates.
         if (this.terminationReason === null) {
             const { activeIp, coords, dir } = this;
-            const [i, j] = this.axialToIndex(coords);
+            const [i, j] = context.axialToIndex(coords);
             const previous = this.executionHistory[activeIp];
             if (i !== previous[0][0] || j !== previous[0][1] || dir !== previous[0][2]) {
                 this.executionHistory[activeIp] = [[i, j, dir], ...previous.slice(0, executionHistoryCount)];
@@ -273,7 +255,7 @@ export class HexagonyState {
             case '$':
                 // When reversing for directional typing, ignore $, because not doing so would make it more confusing.
                 if (!context.reverse) {
-                    this.handleMovement();
+                    this.handleMovement(context.size);
                 }
                 break;
 
@@ -292,7 +274,7 @@ export class HexagonyState {
         }
 
         if (!context.reverse) {
-            this.handleMovement();
+            this.handleMovement(context.size);
         }
         this.activeIp = newIp;
         this.ticks++;
@@ -305,10 +287,10 @@ export class HexagonyState {
         });
     }
 
-    private handleMovement(): void {
+    private handleMovement(size: number): void {
         this.coords = this.coords.add(this.dir.vector);
 
-        if (this.size == 1) {
+        if (size === 1) {
             this.coords = new PointAxial(0, 0);
             return;
         }
@@ -317,13 +299,13 @@ export class HexagonyState {
         const z = this.coords.r;
         const y = -x - z;
 
-        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < this.size) {
+        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < size) {
             return;
         }
 
-        const xBigger = Math.abs(x) >= this.size;
-        const yBigger = Math.abs(y) >= this.size;
-        const zBigger = Math.abs(z) >= this.size;
+        const xBigger = Math.abs(x) >= size;
+        const yBigger = Math.abs(y) >= size;
+        const zBigger = Math.abs(z) >= size;
 
         // Move the pointer back to the hex near the edge
         this.coords = this.coords.subtract(this.dir.vector);

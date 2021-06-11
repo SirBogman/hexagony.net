@@ -42,6 +42,19 @@ export function getHexagonSize(codeLength: number): number {
         1;
 }
 
+export function axialToIndex(size: number, coords: PointAxial): [number, number] {
+    const x = coords.q;
+    const z = coords.r;
+    const y = -x - z;
+    if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) >= size) {
+        throw new Error('Coordinates out of bounds.');
+    }
+
+    const i = z + size - 1;
+    const j = x + Math.min(i, size - 1);
+    return [i, j];
+}
+
 export function indexToAxial(size: number, rowIndex: number, columnIndex: number): PointAxial {
     return new PointAxial(Math.max(1 - size, -rowIndex) + columnIndex, rowIndex - size + 1);
 }

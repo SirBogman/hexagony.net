@@ -1,4 +1,6 @@
+import { PointAxial } from './PointAxial';
 import { ISourceCode } from './SourceCode';
+import { axialToIndex, indexToAxial } from './Util';
 
 /**
  * Represents the context of Hexagony execution that's independent of the execution
@@ -21,6 +23,18 @@ export class HexagonyContext {
         inputString = '') {
         this.sourceCode = sourceCode;
         this.input = [...inputString];
+    }
+
+    public get size(): number {
+        return this.sourceCode.size;
+    }
+
+    axialToIndex(coords: PointAxial): [number, number] {
+        return axialToIndex(this.size, coords);
+    }
+
+    indexToAxial(i: number, j: number): PointAxial {
+        return indexToAxial(this.size, i, j);
     }
 
     setSourceCode(sourceCode: ISourceCode): void {

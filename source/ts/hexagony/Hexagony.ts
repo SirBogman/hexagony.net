@@ -1,5 +1,3 @@
-//import { produce } from 'immer';
-
 import { Direction } from './Direction';
 import { HexagonyContext } from './HexagonyContext';
 import { EdgeTraversal, HexagonyState } from './HexagonyState';
@@ -17,12 +15,12 @@ export class Hexagony {
     constructor(
         sourceCode: ISourceCode,
         inputString = '') {
-        this.state = new HexagonyState(sourceCode.size);
         this.context = new HexagonyContext(sourceCode, inputString);
+        this.state = new HexagonyState(this.context);
     }
 
     axialToIndex(coords: PointAxial): [number, number] {
-        return this.state.axialToIndex(coords);
+        return this.context.axialToIndex(coords);
     }
 
     setSourceCode(sourceCode: ISourceCode): void {
@@ -86,11 +84,8 @@ export class Hexagony {
     }
 
     step(): void {
-        //this.previousStates = [...this.previousStates.slice(0, maximumHistory), this.state];
-        // TODO: calling the edge transition callback inside of produce may lead to duplicate calls.
-        // most likely that doesn't matter though, because nothing different will happen when triggering
-        // the animation twice in a row.
-        //this.state = produce(this.state, (state: HexagonyState) => { state.step(this.context); });
+        // this.previousStates = [...this.previousStates.slice(0, maximumHistory), this.state];
+        // this.state = produce(this.state, (state: HexagonyState) => { state.step(this.context); });
         this.state.step(this.context);
     }
 }

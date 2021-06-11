@@ -640,15 +640,15 @@ export class GridView {
     private advanceCursor(i: number, j: number, k: number, reverse = false): void {
         const oldDirection = this.typingDirection;
 
-        const state = new HexagonyState(this.size);
-        // Follow positive branches.
-        state.setMemoryValue(1);
-        state.coords = state.indexToAxial(i, j);
-        state.dir = oldDirection;
-
         const context = new HexagonyContext(this.sourceCode, '');
         context.isDirectionalTypingSimulation = true;
         context.reverse = reverse;
+
+        const state = new HexagonyState(context);
+        // Follow positive branches.
+        state.setMemoryValue(1);
+        state.coords = context.indexToAxial(i, j);
+        state.dir = oldDirection;
 
         state.step(context);
 
@@ -660,7 +660,7 @@ export class GridView {
         }
 
         this.setTypingDirectionInternal(state.dir);
-        const [newI, newJ] = state.axialToIndex(state.coords);
+        const [newI, newJ] = context.axialToIndex(state.coords);
         if (newI !== i || newJ !== j) {
             this.clearTypingDirectionArrow(i, j, k, oldDirection);
             this.navigateTo(newI, newJ, newK);
