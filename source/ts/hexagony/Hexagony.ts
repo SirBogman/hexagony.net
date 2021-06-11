@@ -1,14 +1,17 @@
+import { List } from 'immutable';
+
 import { Direction } from './Direction';
 import { HexagonyContext } from './HexagonyContext';
 import { EdgeTraversal, HexagonyState } from './HexagonyState';
+import { InstructionPointer } from './InstructionPointer';
 import { Memory } from './Memory';
 import { PointAxial } from './PointAxial';
 import { ISourceCode } from './SourceCode';
 
-//const maximumHistory = 100;
+const maximumHistory = 100;
 
 export class Hexagony {
-    private previousStates: HexagonyState[] = [];
+    private previousStates = List<HexagonyState>();
     public state: HexagonyState;
     private context: HexagonyContext;
 
@@ -16,7 +19,7 @@ export class Hexagony {
         sourceCode: ISourceCode,
         inputString = '') {
         this.context = new HexagonyContext(sourceCode, inputString);
-        this.state = new HexagonyState(this.context);
+        this.state = HexagonyState.fromContext(this.context);
     }
 
     axialToIndex(coords: PointAxial): [number, number] {
@@ -31,39 +34,27 @@ export class Hexagony {
         this.context.setInput(inputString);
     }
 
-    get edgeTraversals(): EdgeTraversal[] {
+    get edgeTraversals(): List<EdgeTraversal> {
         return this.state.edgeTraversals;
-    }
-
-    get executionHistory(): [number, number, Direction][][] {
-        return this.state.executionHistory;
-    }
-
-    get executedGrid(): Direction[][][][] {
-        return this.state.executedGrid;
-    }
-
-    getIPState(ipIndex: number): [PointAxial, Direction] {
-        return [this.ips[ipIndex], this.ipDirs[ipIndex]];
     }
 
     get activeIp(): number {
         return this.state.activeIp;
     }
 
+    get activeIpState(): InstructionPointer {
+        return this.state.activeIpState;
+    }
+
     get dir(): Direction {
-        return this.state.dir;
+        return this.activeIpState.dir;
     }
 
     get coords(): PointAxial {
-        return this.state.coords;
+        return this.activeIpState.coords;
     }
 
-    get ipDirs(): Direction[] {
-        return this.state.ipDirs;
-    }
-
-    get ips(): PointAxial[] {
+    get ips(): List<InstructionPointer> {
         return this.state.ips;
     }
 
@@ -71,7 +62,7 @@ export class Hexagony {
         return this.state.memory;
     }
 
-    get output(): number[] {
+    get output(): List<number> {
         return this.state.output;
     }
 
@@ -84,8 +75,19 @@ export class Hexagony {
     }
 
     step(): void {
-        // this.previousStates = [...this.previousStates.slice(0, maximumHistory), this.state];
-        // this.state = produce(this.state, (state: HexagonyState) => { state.step(this.context); });
-        this.state.step(this.context);
+        if (this.previousStates.size === maximumHistory) {
+            this.previousStates = this.previousStates.shift();
+        }
+
+        this.previousStates = this.previousStates.push(this.state);
+        this.state = this.state.step(this.context);
+    }
+
+    stepBack(): void {
+        const previousState = this.previousStates.last(undefined);
+        if (previousState !== undefined) {
+            this.previousStates = this.previousStates.pop();
+            this.state = previousState;
+        }
     }
 }

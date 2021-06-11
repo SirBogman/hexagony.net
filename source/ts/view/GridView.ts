@@ -1,10 +1,13 @@
+import { List, Repeat } from 'immutable';
 import memoizeOne from 'memoize-one';
+
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 import { HexagonyContext } from '../hexagony/HexagonyContext';
 import { EdgeTraversal, HexagonyState } from '../hexagony/HexagonyState';
+import { InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
-import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
+import { assertDefined, assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 import '../../styles/GridView.scss';
 
@@ -65,6 +68,8 @@ const getOutlinePath = memoizeOne(size =>
     outlineHelper(0, -edgeLength, -cellOffsetX, -edgeLength / 2, size) +
     outlineHelper(cellOffsetX, -edgeLength/2, 0, -edgeLength, size));
 
+const emptyExecutionHistory = List(Repeat(List<[number, number, Direction]>(), 6));
+
 export class GridView {
     public edgeTransitionMode = false;
     private sourceCode: ISourceCode;
@@ -76,7 +81,7 @@ export class GridView {
     private edgeConnectors2 = new Map<string, SVGElement[]>();
     private delay: string;
     private directionalTyping = false;
-    private executionHistory: [number, number, Direction][][];
+    private executionHistory: List<List<[number, number, Direction]>>;
     private creatingGrid = false;
     private selectedIp = 0;
     private size = -1;
@@ -108,7 +113,7 @@ export class GridView {
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.onTypingDirectionChanged = onTypingDirectionChanged;
         this.delay = delay;
-        this.executionHistory = arrayInitialize(6, () => [] as [number, number, Direction][]);
+        this.executionHistory = emptyExecutionHistory;
 
         const getElementById = (id: string) =>
             assertNotNull(document.getElementById(id), id);
@@ -198,7 +203,7 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(executedState: Direction[][][][] | null): void {
+    recreateGrid(ips: List<InstructionPointer> | null): void {
         this.creatingGrid = true;
         this.createGrid(this.size);
 
@@ -208,8 +213,8 @@ export class GridView {
 
         this.updateExecutionHistoryColors();
 
-        if (executedState) {
-            this.setExecutedState(executedState);
+        if (ips) {
+            this.setExecutedState(ips);
         }
 
         this.creatingGrid = false;
@@ -296,10 +301,11 @@ export class GridView {
         }
     }
 
-    setExecutedState(executedState: Direction[][][][]): void {
+    setExecutedState(ips: List<InstructionPointer>): void {
+        const { executedGrid } = assertDefined(ips.get(this.selectedIp), 'selectedIp');
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
-            const directions = executedState[this.selectedIp][i][j];
-            if (directions.length) {
+            const directions = assertDefined(executedGrid.get(i)?.get(j), 'executedState');
+            if (directions.size) {
                 const path = cell.firstElementChild as SVGElement;
                 path.classList.add(cellExecuted[this.selectedIp]);
                 path.style.transitionDuration = this.delay;
@@ -318,7 +324,7 @@ export class GridView {
         }
 
         this.removeExecutionHistoryColors();
-        this.executionHistory = arrayInitialize(6, () => []);
+        this.executionHistory = emptyExecutionHistory;
 
         this.cellPaths[0].forEach(rows => rows.forEach(cell => {
             const path = cell.firstElementChild as SVGElement;
@@ -342,9 +348,10 @@ export class GridView {
                     this.removeExecutionAngleClass(indices, i ? arrowExecutedArray[ip][i - 1] : arrowActive[ip]);
                 });
             }
-            else if (this.showIPs && array.length) {
-                this.removeCellClass(array[0], cellInactive[ip], true);
-                this.removeExecutionAngleClass(array[0], arrowInactive[ip]);
+            else if (this.showIPs && array.size) {
+                const state = assertDefined(array.get(0));
+                this.removeCellClass(state, cellInactive[ip], true);
+                this.removeExecutionAngleClass(state, arrowInactive[ip]);
             }
         });
     }
@@ -362,18 +369,20 @@ export class GridView {
                     }
                 });
             }
-            else if (this.showIPs && array.length) {
-                this.addCellClass(array[0], cellInactive[ip], true);
-                this.addExecutionAngleClass(array[0], arrowInactive[ip]);
+            else if (this.showIPs && array.size) {
+                const state = assertDefined(array.get(0));
+                this.addCellClass(state, cellInactive[ip], true);
+                this.addExecutionAngleClass(state, arrowInactive[ip]);
             }
         });
 
         // Show all executed cells for the selected IP.
-        const array = this.executionHistory[this.selectedIp];
-        if (array.length) {
-            this.addCellClass(array[0], cellExecuted[this.selectedIp], true);
+        const array = assertDefined(this.executionHistory.get(this.selectedIp));
+        if (array.size) {
+            const state = assertDefined(array.get(0));
+            this.addCellClass(state, cellExecuted[this.selectedIp], true);
             if (this.showArrows) {
-                this.addExecutionAngleClass(array[0], arrowExecuted[this.selectedIp]);
+                this.addExecutionAngleClass(state, arrowExecuted[this.selectedIp]);
             }
         }
     }
@@ -398,9 +407,8 @@ export class GridView {
     }
 
     updateActiveCell(
-        executionHistory: [number, number, Direction][][],
+        ips: List<InstructionPointer>,
         selectedIp: number,
-        executedState: Direction[][][][],
         forceReset: boolean,
         forceUpdateExecutionState: boolean): void {
         const reset = forceReset || selectedIp !== this.selectedIp;
@@ -410,12 +418,12 @@ export class GridView {
 
         this.removeExecutionHistoryColors();
         // Add one for the active cell.
-        this.executionHistory = executionHistory.map(array => array.slice(0, executedColorCount + 1));
+        this.executionHistory = ips.map(ip => ip.executionHistory.take(executedColorCount + 1));
         this.selectedIp = selectedIp;
         this.updateExecutionHistoryColors();
 
         if (reset || forceUpdateExecutionState) {
-            this.setExecutedState(executedState);
+            this.setExecutedState(ips);
         }
     }
 
@@ -644,23 +652,23 @@ export class GridView {
         context.isDirectionalTypingSimulation = true;
         context.reverse = reverse;
 
-        const state = new HexagonyState(context);
+        let state = HexagonyState.fromContext(context);
         // Follow positive branches.
-        state.setMemoryValue(1);
-        state.coords = context.indexToAxial(i, j);
-        state.dir = oldDirection;
+        state = state.setMemoryValue(1);
+        state = state.setIpLocation(context.indexToAxial(i, j), oldDirection);
 
-        state.step(context);
+        state = state.step(context);
 
         let newK = k;
-        if (state.edgeTraversals.length) {
+        if (state.edgeTraversals.size) {
             // When following an edge transition, go back to the center hexagon to ensure the cursor remains on screen.
             newK = 0;
             state.edgeTraversals.forEach(this.playEdgeAnimation);
         }
 
-        this.setTypingDirectionInternal(state.dir);
-        const [newI, newJ] = context.axialToIndex(state.coords);
+        const { coords, dir } = state.activeIpState;
+        this.setTypingDirectionInternal(dir);
+        const [newI, newJ] = context.axialToIndex(coords);
         if (newI !== i || newJ !== j) {
             this.clearTypingDirectionArrow(i, j, k, oldDirection);
             this.navigateTo(newI, newJ, newK);

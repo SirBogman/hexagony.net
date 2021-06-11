@@ -1,4 +1,4 @@
-export function assertDefined<T>(value: T | undefined, name: string): T {
+export function assertDefined<T>(value: T | undefined, name?: string): T {
     if (value === undefined) {
         throw new Error(`internal error: unexpected undefined value: ${name}`);
     }

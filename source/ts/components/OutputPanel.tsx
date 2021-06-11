@@ -1,24 +1,23 @@
+import { List } from 'immutable';
 import React from 'react';
 import { assertNotNull } from '../view/ViewUtil';
 
 interface IOutputPanelProps {
-    outputBytes: number[];
+    outputBytes: List<number>;
     utf8Output: boolean;
     onUtf8OutputChanged: (value: boolean) => void;
 }
 
 export class OutputPanel extends React.Component<IOutputPanelProps> {
     outputBoxRef: React.RefObject<HTMLDivElement> = React.createRef();
-    lastOutputLength = 0;
 
     shouldComponentUpdate(nextProps: IOutputPanelProps): boolean {
-        return nextProps.outputBytes.length !== this.lastOutputLength ||
+        return nextProps.outputBytes !== this.props.outputBytes ||
             nextProps.utf8Output !== this.props.utf8Output;
     }
 
     render(): JSX.Element {
         const { outputBytes, utf8Output, onUtf8OutputChanged } = this.props;
-        this.lastOutputLength = outputBytes.length;
         let output;
         if (utf8Output) {
             output = new TextDecoder().decode(new Uint8Array(outputBytes));

@@ -5,7 +5,7 @@ import { produce } from 'immer';
 import { Direction, DirectionString, east } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
 import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
-import { arrayInitialize, countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
+import { countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
 
 import { GridView, initializeGridColors } from '../view/GridView';
 import { applyColorMode, assertDefined, assertNotNull, colorModes, darkColorMode, getControlKey } from '../view/ViewUtil';
@@ -470,7 +470,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         const selectedIp = hexagony.activeIp;
         const forceUpdateExecutionState = stepCount > 1;
-        this.gridView.updateActiveCell(hexagony.executionHistory, selectedIp, hexagony.executedGrid, false, forceUpdateExecutionState);
+        this.gridView.updateActiveCell(hexagony.ips, selectedIp, false, forceUpdateExecutionState);
         this.startingToPlay = false;
 
         const timeoutID = play && !breakpoint && !this.isTerminated() ?
@@ -510,8 +510,8 @@ export class App extends React.Component<IAppProps, IAppState> {
             colorOffset: userData.colorOffset,
             cycleColorOffset: this.cycleColorOffset,
             terminationReason,
-            ipStates: arrayInitialize(6, i => {
-                const [coords, dir] = hexagony.getIPState(i);
+            ipStates: hexagony.ips.map((ip, i) => {
+                const { coords, dir } = ip;
                 return {
                     coords,
                     dir,
@@ -555,7 +555,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         const { gridView, hexagony } = this;
         if (hexagony !== null) {
             const { selectedIp } = this.state;
-            gridView.updateActiveCell(hexagony.executionHistory, selectedIp, hexagony.executedGrid, true, false);
+            gridView.updateActiveCell(hexagony.ips, selectedIp, true, false);
         }
     }
 
@@ -607,14 +607,14 @@ export class App extends React.Component<IAppProps, IAppState> {
     private onColorPropertyChanged(): void {
         this.updateColorMode();
         // It's easier to recreate the grid than to update all color-related class names.
-        this.gridView.recreateGrid(this.hexagony ? this.hexagony.executedGrid : null);
+        this.gridView.recreateGrid(this.hexagony ? this.hexagony.ips : null);
         this.gridView.setBreakpoints(this.getBreakpoints());
     }
 
     private onEdgeTransitionModeChanged(): void {
         const { userData } = this.state;
         this.gridView.edgeTransitionMode = userData.edgeTransitionMode;
-        this.gridView.recreateGrid(this.hexagony ? this.hexagony.executedGrid : null);
+        this.gridView.recreateGrid(this.hexagony ? this.hexagony.ips : null);
         this.gridView.setBreakpoints(this.getBreakpoints());
     }
 

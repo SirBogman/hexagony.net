@@ -1,3 +1,4 @@
+import { List } from 'immutable';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -19,7 +20,7 @@ export interface IStatePanelProps {
     colorMode: string;
     colorOffset: number;
     cycleColorOffset: () => void;
-    ipStates: IIPState[];
+    ipStates: List<IIPState>;
     terminationReason: string | null;
     ticks: number;
     memoryCw: boolean;
