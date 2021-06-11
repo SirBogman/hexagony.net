@@ -19,18 +19,6 @@ type MovementResult = {
     edgeTraversal?: EdgeTraversal;
 }
 
-type ExecuteResult = {
-    activeIp: number;
-    coords: PointAxial;
-    dir: Direction;
-    edgeTraversal?: EdgeTraversal;
-    inputPosition: number;
-    memory: Memory;
-    mp: MemoryPointer;
-    output: List<number>;
-    terminationReason: string | null;
-};
-
 /**
  * Represents the state of Hexagony execution that evolves over time independently of other things. This may eventually
  * be used to implement step-back to undo a step of execution. Consider the case where you pause execution, modify some
@@ -53,141 +41,72 @@ export type HexagonyState = {
 };
 
 export class HexagonyStateUtils {
-    public static fromContext(context: HexagonyContext): HexagonyState {
-        const { size } = context;
-        const ips = List([
+    public static fromContext = ({ size }: HexagonyContext): HexagonyState => ({
+        activeIp: 0,
+        edgeTraversals: List<EdgeTraversal>(),
+        inputPosition: 0,
+        ips: List([
             createInstuctionPointer(size, new PointAxial(0, -size + 1), east),
             createInstuctionPointer(size, new PointAxial(size - 1, -size + 1), southEast),
             createInstuctionPointer(size, new PointAxial(size - 1, 0), southWest),
             createInstuctionPointer(size, new PointAxial(0, size - 1), west),
             createInstuctionPointer(size, new PointAxial(-size + 1, size - 1), northWest),
             createInstuctionPointer(size, new PointAxial(-size + 1, 0), northEast),
-        ]);
+        ]),
+        memory: Memory.initialState,
+        mp: MemoryPointer.initialState,
+        output: List(),
+        terminationReason: null,
+        ticks: 0,
+    });
 
-        return {
-            activeIp: 0,
-            edgeTraversals: List<EdgeTraversal>(),
-            inputPosition: 0,
-            ips,
-            memory: Memory.initialState,
-            mp: MemoryPointer.initialState,
-            output: List(),
-            terminationReason: null,
-            ticks: 0,
-        };
-    }
-
-    public static activeIpState(state: HexagonyState): InstructionPointer {
-        return assertDefined(state.ips.get(state.activeIp));
-    }
+    public static activeIpState = (state: HexagonyState): InstructionPointer =>
+        assertDefined(state.ips.get(state.activeIp));
 
     /**
      * Set the value of the current memory edge. Used to determine whether branches are followed for directional typing.
      */
-    public static setMemoryValue(state: HexagonyState, value: bigint | number): HexagonyState {
-        return {
-            ...state,
-            memory: state.memory.setValue(state.mp, value),
-        };
-    }
+    public static setMemoryValue = (state: HexagonyState, value: bigint | number): HexagonyState => ({
+        ...state,
+        memory: state.memory.setValue(state.mp, value),
+    });
 
-    public static setIpLocation(state: HexagonyState, coords: PointAxial, dir: Direction): HexagonyState {
-        return {
-            ...state,
-            ips: state.ips.update(state.activeIp, ip => ({
-                coords,
-                dir,
-                executedGrid: ip.executedGrid,
-                // This isn't strictly correct, but it doesn't matter, since it's only used for directional typing.
-                executionHistory: ip.executionHistory,
-            })),
-        };
-    }
+    public static setIpLocation = (state: HexagonyState, coords: PointAxial, dir: Direction): HexagonyState => ({
+        ...state,
+        ips: state.ips.update(state.activeIp, ip => ({
+            coords,
+            dir,
+            executedGrid: ip.executedGrid,
+            // Technically, executionHistory should be updated, but it doesn't matter,
+            // since this method is only used for directional typing.
+            executionHistory: ip.executionHistory,
+        })),
+    });
 
     public static step(state: HexagonyState, context: HexagonyContext): HexagonyState {
         if (state.terminationReason) {
             return state;
         }
 
-        let ip = assertDefined(state.ips.get(state.activeIp));
+        let { activeIp, inputPosition, memory, mp, output } = state;
+        let ip = assertDefined(state.ips.get(activeIp));
         let { coords, dir } = ip;
         let edgeTraversals = List<EdgeTraversal>();
 
         if (context.reverse) {
             dir = dir.reverse;
-            const result = HexagonyStateUtils.handleMovement(context.size, coords, dir, state.memory, state.mp);
+            const result = HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp);
             ({ coords } = result);
             if (result.edgeTraversal) {
                 edgeTraversals = edgeTraversals.push(result.edgeTraversal);
             }
         }
 
-        const [i, j] = context.axialToIndex(coords);
+        let [i, j] = context.axialToIndex(coords);
         ip = updateExecutedGrid(i, j, ip);
         const opcode = context.getInstruction(i, j);
-        const executeResult = HexagonyStateUtils.executeOpcode(
-            opcode,
-            context,
-            state.activeIp,
-            coords,
-            dir,
-            state.inputPosition,
-            state.memory,
-            state.mp,
-            state.output);
 
-        ({ coords, dir } = executeResult);
-        const { activeIp, inputPosition, memory, mp, output, terminationReason } = executeResult;
-
-        if (executeResult.edgeTraversal) {
-            edgeTraversals = edgeTraversals.push(executeResult.edgeTraversal);
-        }
-
-        if (context.reverse) {
-            dir = dir.reverse;
-        }
-
-        // The active coordinates don't change when the program terminates.
-        if (terminationReason === null) {
-            if (!context.reverse) {
-                const result = HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp);
-                ({ coords } = result);
-                if (result.edgeTraversal) {
-                    edgeTraversals = edgeTraversals.push(result.edgeTraversal);
-                }
-            }
-
-            const [i, j] = context.axialToIndex(coords);
-            ip = updateInstructionPointer(coords, dir, i, j, ip);
-        }
-
-        return {
-            activeIp,
-            edgeTraversals,
-            inputPosition,
-            ips: state.ips.set(state.activeIp, ip),
-            memory,
-            mp,
-            output,
-            terminationReason,
-            ticks: state.ticks + 1,
-        };
-    }
-
-    private static executeOpcode(
-        opcode: string,
-        context: HexagonyContext,
-        activeIp: number,
-        coords: PointAxial,
-        dir: Direction,
-        inputPosition: number,
-        memory: Memory,
-        mp: MemoryPointer,
-        output: List<number>): ExecuteResult {
         // Execute the current instruction
-        let newIp = activeIp;
-        let edgeTraversal: EdgeTraversal | undefined = undefined;
-
         switch (opcode) {
             // NOP
             case '.': break;
@@ -195,13 +114,7 @@ export class HexagonyStateUtils {
             // Terminate
             case '@':
                 return {
-                    activeIp,
-                    coords,
-                    dir,
-                    inputPosition,
-                    memory,
-                    mp,
-                    output,
+                    ...state,
                     terminationReason: 'Program terminated at @.',
                 };
 
@@ -236,13 +149,7 @@ export class HexagonyStateUtils {
                     }
                     else {
                         return {
-                            activeIp,
-                            coords,
-                            dir,
-                            inputPosition,
-                            memory,
-                            mp,
-                            output,
+                            ...state,
                             terminationReason: 'Error: Program terminated due to division by zero.',
                         };
                     }
@@ -304,27 +211,30 @@ export class HexagonyStateUtils {
 
             case ']':
                 if (!context.isDirectionalTypingSimulation) {
-                    newIp = (activeIp + 1) % 6;
+                    activeIp = (activeIp + 1) % 6;
                 }
                 break;
 
             case '[':
                 if (!context.isDirectionalTypingSimulation) {
-                    newIp = (activeIp + 5) % 6;
+                    activeIp = (activeIp + 5) % 6;
                 }
                 break;
 
             case '#':
                 if (!context.isDirectionalTypingSimulation) {
-                    newIp = (Number(memory.getValue(mp) % 6n) + 6) % 6;
+                    activeIp = (Number(memory.getValue(mp) % 6n) + 6) % 6;
                 }
                 break;
 
             case '$':
                 // When reversing for directional typing, ignore $, because not doing so would make it more confusing.
                 if (!context.reverse) {
-                    ({ coords, edgeTraversal } =
-                        HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp));
+                    const result = HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp);
+                    ({ coords } = result);
+                    if (result.edgeTraversal) {
+                        edgeTraversals = edgeTraversals.push(result.edgeTraversal);
+                    }
                 }
                 break;
 
@@ -342,25 +252,37 @@ export class HexagonyStateUtils {
             }
         }
 
+        if (context.reverse) {
+            dir = dir.reverse;
+        }
+        else {
+            const result = HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp);
+            ({ coords } = result);
+            if (result.edgeTraversal) {
+                edgeTraversals = edgeTraversals.push(result.edgeTraversal);
+            }
+        }
+
+        [i, j] = context.axialToIndex(coords);
+        ip = updateInstructionPointer(coords, dir, i, j, ip);
+
         return {
-            activeIp: newIp,
-            coords,
-            dir,
-            edgeTraversal,
+            activeIp,
+            edgeTraversals,
             inputPosition,
+            ips: state.ips.set(state.activeIp, ip),
             memory,
             mp,
             output,
             terminationReason: null,
+            ticks: state.ticks + 1,
         };
     }
 
-    private static edgeTraversal(coords: PointAxial, dir: Direction, edgeType = '0', isBranch = false): EdgeTraversal {
-        return {
-            edgeName: `${coords},${dir},${edgeType}`,
-            isBranch,
-        };
-    }
+    private static edgeTraversal = (coords: PointAxial, dir: Direction, edgeType = '0', isBranch = false): EdgeTraversal => ({
+        edgeName: `${coords},${dir},${edgeType}`,
+        isBranch,
+    });
 
     private static handleMovement(
         size: number,
