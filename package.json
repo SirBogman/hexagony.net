@@ -6,6 +6,7 @@
   "dependencies": {
     "classnames": "^2.3.1",
     "immer": "^9.0.1",
+    "immutable": "*",
     "lz-string": "^1.4.4",
     "memoize-one": "^5.2.1",
     "panzoom": "github:SirBogman/panzoom#bd0fc1a",
