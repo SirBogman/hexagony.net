@@ -114,6 +114,8 @@ export class HexagonyState {
         const opcode = context.getInstruction(i, j);
         this.executeOpcode(opcode, context);
 
+        this.ticks++;
+
         if (context.reverse) {
             this.dir = this.dir.reverse;
         }
@@ -141,7 +143,6 @@ export class HexagonyState {
             // Terminate
             case '@':
                 this.terminationReason = 'Program terminated at @.';
-                this.ticks++;
                 return;
 
             // Arithmetic
@@ -175,7 +176,6 @@ export class HexagonyState {
                     }
                     else {
                         this.terminationReason = 'Error: Program terminated due to division by zero.';
-                        this.ticks++;
                         return;
                     }
                 }
@@ -277,7 +277,6 @@ export class HexagonyState {
             this.handleMovement(context.size);
         }
         this.activeIp = newIp;
-        this.ticks++;
     }
 
     private followEdge(edgeType = '0', isBranch = false): void {
