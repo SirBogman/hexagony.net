@@ -1,4 +1,5 @@
-import { immerable } from 'immer';
+import { Map } from 'immutable';
+
 import { Direction, east, northEast, southEast } from './Direction';
 import { PointAxial } from './PointAxial';
 
@@ -9,34 +10,73 @@ interface IDataValue {
     y: number;
 }
 
-export class Memory {
-    static [immerable] = true;
-
-    mp = new PointAxial(0, 0);
-    dir: Direction = east;
-    cw = false;
+interface MemoryData {
+    cw: boolean
+    data: Map<string, IDataValue>;
+    dataVersion: number;
+    dir: Direction;
     maxX?: number;
-    minX?: number;
     maxY?: number;
+    minX?: number;
     minY?: number;
+    mp: PointAxial;
+}
+
+export class Memory {
+    readonly mp: PointAxial;
+
+    // dir may only be east, northEast, or southEast.
+    readonly dir: Direction;
+    readonly cw: boolean;
+    readonly maxX?: number;
+    readonly maxY?: number;
+    readonly minX?: number;
+    readonly minY?: number;
     // data version is incremented whenever this.data changes.
-    dataVersion = 0;
-    memoryPointerVersion = 0;
-    private data = new Map<string, IDataValue>();
+    readonly dataVersion: number;
+    readonly data: Map<string, IDataValue>;
 
-    reverse(): void {
-        this.cw = !this.cw;
-        this.memoryPointerVersion++;
+    public static get initialState(): Memory {
+        return new Memory({
+            mp: new PointAxial(0, 0),
+            dir: east,
+            cw: false,
+            dataVersion: 0,
+            data: Map<string, IDataValue>(),
+        });
     }
 
-    moveLeft(): void {
-        [this.mp, this.dir, this.cw] = this.leftIndex;
-        this.memoryPointerVersion++;
+    private constructor(source: MemoryData) {
+        this.mp = source.mp;
+        this.dir = source.dir;
+        this.cw = source.cw;
+        this.maxX = source.maxX;
+        this.maxY = source.maxY;
+        this.minX = source.minX;
+        this.minY = source.minY;
+        this.data = source.data;
+        this.dataVersion = source.dataVersion;
     }
 
-    moveRight(): void {
-        [this.mp, this.dir, this.cw] = this.rightIndex;
-        this.memoryPointerVersion++;
+    reverse(): Memory {
+        return new Memory({
+            ...this,
+            cw: !this.cw,
+        });
+    }
+
+    moveLeft(reverse = false): Memory {
+        return new Memory({
+            ...this,
+            ...this.leftIndex(reverse)
+        });
+    }
+
+    moveRight(reverse = false): Memory {
+        return new Memory({
+            ...this,
+            ...this.rightIndex(reverse)
+        });
     }
 
     getValueAt(mp: PointAxial, dir: Direction): bigint {
@@ -52,29 +92,32 @@ export class Memory {
     }
 
     getLeft(): bigint {
-        const [mp, dir] = this.leftIndex;
+        const { mp, dir } = this.leftIndex();
         return this.getValueAt(mp, dir);
     }
 
     getRight(): bigint {
-        const [mp, dir] = this.rightIndex;
+        const { mp, dir } = this.rightIndex();
         return this.getValueAt(mp, dir);
     }
 
-    setValue(value: bigint | number): void {
+    setValue(value: bigint | number): Memory {
         const x = this.getX();
         const y = this.getY();
-        this.data.set(`${this.mp},${this.dir}`, {
-            x,
-            y,
-            dir: this.dir,
-            value: BigInt(value),
+        return new Memory({
+            ...this,
+            data: this.data.set(`${this.mp},${this.dir}`, {
+                x,
+                y,
+                dir: this.dir,
+                value: BigInt(value),
+            }),
+            dataVersion: this.dataVersion + 1,
+            maxX: this.maxX === undefined ? x : Math.max(this.maxX, x),
+            maxY: this.maxY === undefined ? y : Math.max(this.maxY, y),
+            minX: this.minX === undefined ? x : Math.min(this.minX, x),
+            minY: this.minY === undefined ? y : Math.min(this.minY, y),
         });
-        if (this.maxX === undefined || x > this.maxX) { this.maxX = x; }
-        if (this.minX === undefined || x < this.minX) { this.minX = x; }
-        if (this.maxY === undefined || y > this.maxY) { this.maxY = y; }
-        if (this.minY === undefined || y < this.minY) { this.minY = y; }
-        this.dataVersion++;
     }
 
     // Get the x coordinate of the current position for the memory view.
@@ -87,40 +130,60 @@ export class Memory {
         return 2 * this.mp.r + (this.dir === northEast ? 0 : this.dir === east ? 1 : 2);
     }
 
-    get leftIndex(): [PointAxial, Direction, boolean] {
-        let { mp, dir, cw } = this;
-        if (dir == northEast) {
-            mp = cw ? new PointAxial(mp.q + 1, mp.r - 1) : new PointAxial(mp.q, mp.r - 1);
-            dir = southEast;
-            cw = !cw;
-        }
-        else if (dir == east) {
-            mp = cw ? new PointAxial(mp.q, mp.r + 1) : mp;
-            dir = northEast;
-        }
-        else if (dir == southEast) {
-            mp = cw ? new PointAxial(mp.q - 1, mp.r + 1) : mp;
-            dir = east;
-        }
-        return [mp, dir, cw];
+    static flipClockwise(cw: boolean, flip: boolean): boolean {
+        return flip ? !cw : cw;
     }
 
-    get rightIndex(): [PointAxial, Direction, boolean] {
-        let { mp, dir, cw } = this;
+    leftIndex(reverse = false): { mp: PointAxial, dir: Direction, cw: boolean } {
+        const { mp, dir } = this;
+        const cw = Memory.flipClockwise(this.cw, reverse);
         if (dir == northEast) {
-            mp = cw ? mp : new PointAxial(mp.q, mp.r - 1);
-            dir = east;
+            return {
+                mp: cw ? new PointAxial(mp.q + 1, mp.r - 1) : new PointAxial(mp.q, mp.r - 1),
+                dir: southEast,
+                cw: Memory.flipClockwise(!cw, reverse),
+            };
         }
         else if (dir == east) {
-            mp = cw ? mp : new PointAxial(mp.q + 1, mp.r - 1);
-            dir = southEast;
+            return {
+                mp: cw ? new PointAxial(mp.q, mp.r + 1) : mp,
+                dir: northEast,
+                cw: Memory.flipClockwise(cw, reverse),
+            };
         }
-        else if (dir == southEast) {
-            mp = cw ? new PointAxial(mp.q - 1, mp.r + 1) : new PointAxial(mp.q, mp.r + 1);
-            dir = northEast;
-            cw = !cw;
+
+        // southEast
+        return {
+            mp: cw ? new PointAxial(mp.q - 1, mp.r + 1) : mp,
+            dir: east,
+            cw: Memory.flipClockwise(cw, reverse),
+        };
+    }
+
+    rightIndex(reverse = false): { mp: PointAxial, dir: Direction, cw: boolean } {
+        const { mp, dir } = this;
+        const cw = Memory.flipClockwise(this.cw, reverse);
+        if (dir == northEast) {
+            return {
+                mp: cw ? mp : new PointAxial(mp.q, mp.r - 1),
+                dir: east,
+                cw: Memory.flipClockwise(cw, reverse),
+            };
         }
-        return [mp, dir, cw];
+        else if (dir == east) {
+            return {
+                mp: cw ? mp : new PointAxial(mp.q + 1, mp.r - 1),
+                dir: southEast,
+                cw: Memory.flipClockwise(cw, reverse),
+            };
+        }
+
+        // southEast
+        return {
+            mp: cw ? new PointAxial(mp.q - 1, mp.r + 1) : new PointAxial(mp.q, mp.r + 1),
+            dir: northEast,
+            cw: Memory.flipClockwise(!cw, reverse),
+        };
     }
 
     get debugString(): string {

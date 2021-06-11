@@ -25,7 +25,7 @@ export interface EdgeTraversal {
 export class HexagonyState {
     static [immerable] = true;
 
-    public memory = new Memory();
+    public memory = Memory.initialState;
     public activeIp = 0;
     public ticks = 0;
     public output: number[] = [];
@@ -85,7 +85,7 @@ export class HexagonyState {
      * Set the value of the current memory edge. Used to determine whether branches are followed for directional typing.
      */
     setMemoryValue(value: bigint | number): void {
-        this.memory.setValue(value);
+        this.memory = this.memory.setValue(value);
     }
 
     getIPState(ipIndex: number): [PointAxial, Direction] {
@@ -160,12 +160,12 @@ export class HexagonyState {
                 return;
 
             // Arithmetic
-            case ')': this.memory.setValue(this.memory.getValue() + 1n); break;
-            case '(': this.memory.setValue(this.memory.getValue() - 1n); break;
-            case '+': this.memory.setValue(this.memory.getLeft() + this.memory.getRight()); break;
-            case '-': this.memory.setValue(this.memory.getLeft() - this.memory.getRight()); break;
-            case '*': this.memory.setValue(this.memory.getLeft() * this.memory.getRight()); break;
-            case '~': this.memory.setValue(-this.memory.getValue()); break;
+            case ')': this.memory = this.memory.setValue(this.memory.getValue() + 1n); break;
+            case '(': this.memory = this.memory.setValue(this.memory.getValue() - 1n); break;
+            case '+': this.memory = this.memory.setValue(this.memory.getLeft() + this.memory.getRight()); break;
+            case '-': this.memory = this.memory.setValue(this.memory.getLeft() - this.memory.getRight()); break;
+            case '*': this.memory = this.memory.setValue(this.memory.getLeft() * this.memory.getRight()); break;
+            case '~': this.memory = this.memory.setValue(-this.memory.getValue()); break;
 
             case ':':
             case '%': {
@@ -183,38 +183,35 @@ export class HexagonyState {
                     }
                 }
                 if (execute) {
-                    this.memory.setValue(opcode === ':' ?
+                    this.memory = this.memory.setValue(opcode === ':' ?
                         rubyStyleDivide(leftVal, rightVal) :
                         rubyStyleRemainder(leftVal, rightVal));
                 }
                 break;
             }
             // Memory manipulation
-            case '{': this.memory.moveLeft(); break;
-            case '}': this.memory.moveRight(); break;
-            case '=': this.memory.reverse(); break;
-            case '"': this.memory.reverse(); this.memory.moveRight(); this.memory.reverse(); break;
-            case '\'': this.memory.reverse(); this.memory.moveLeft(); this.memory.reverse(); break;
+            case '{': this.memory = this.memory.moveLeft(); break;
+            case '}': this.memory = this.memory.moveRight(); break;
+            case '=': this.memory = this.memory.reverse(); break;
+            case '"': this.memory = this.memory.moveRight(true); break;
+            case '\'': this.memory = this.memory.moveLeft(true); break;
             case '^':
-                if (this.memory.getValue() > 0) {
-                    this.memory.moveRight();
-                }
-                else {
+                this.memory = this.memory.getValue() > 0 ?
+                    this.memory.moveRight() :
                     this.memory.moveLeft();
-                }
                 break;
             case '&':
                 if (this.memory.getValue() > 0) {
-                    this.memory.setValue(this.memory.getRight());
+                    this.memory = this.memory.setValue(this.memory.getRight());
                 }
                 else {
-                    this.memory.setValue(this.memory.getLeft());
+                    this.memory = this.memory.setValue(this.memory.getLeft());
                 }
                 break;
 
             case ',': {
                 const byteValue = context.getInputByte(this.inputPosition++);
-                this.memory.setValue(byteValue !== undefined ? byteValue.codePointAt(0) as number : -1);
+                this.memory = this.memory.setValue(byteValue !== undefined ? byteValue.codePointAt(0) as number : -1);
                 break;
             }
             case ';':
@@ -224,7 +221,7 @@ export class HexagonyState {
             case '?': {
                 const { value, inputPosition } = context.findInteger(this.inputPosition);
                 this.inputPosition = inputPosition;
-                this.memory.setValue(value);
+                this.memory = this.memory.setValue(value);
                 break;
             }
             case '!':
@@ -269,10 +266,10 @@ export class HexagonyState {
                 const value = opcode.codePointAt(0) as number;
                 if (value >= 48 && value <= 57) {
                     const memVal = this.memory.getValue();
-                    this.memory.setValue(memVal * 10n + (memVal < 0 ? -BigInt(opcode) : BigInt(opcode)));
+                    this.memory = this.memory.setValue(memVal * 10n + (memVal < 0 ? -BigInt(opcode) : BigInt(opcode)));
                 }
                 else {
-                    this.memory.setValue(value);
+                    this.memory = this.memory.setValue(value);
                 }
                 break;
             }
