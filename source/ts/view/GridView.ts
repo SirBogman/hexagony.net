@@ -3,7 +3,7 @@ import memoizeOne from 'memoize-one';
 
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 import { HexagonyContext } from '../hexagony/HexagonyContext';
-import { EdgeTraversal, HexagonyState } from '../hexagony/HexagonyState';
+import { EdgeTraversal, HexagonyStateUtils } from '../hexagony/HexagonyState';
 import { InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
@@ -652,12 +652,12 @@ export class GridView {
         context.isDirectionalTypingSimulation = true;
         context.reverse = reverse;
 
-        let state = HexagonyState.fromContext(context);
+        let state = HexagonyStateUtils.fromContext(context);
         // Follow positive branches.
-        state = state.setMemoryValue(1);
-        state = state.setIpLocation(context.indexToAxial(i, j), oldDirection);
+        state = HexagonyStateUtils.setMemoryValue(state, 1);
+        state = HexagonyStateUtils.setIpLocation(state, context.indexToAxial(i, j), oldDirection);
 
-        state = state.step(context);
+        state = HexagonyStateUtils.step(state, context);
 
         let newK = k;
         if (state.edgeTraversals.size) {
@@ -666,7 +666,7 @@ export class GridView {
             state.edgeTraversals.forEach(this.playEdgeAnimation);
         }
 
-        const { coords, dir } = state.activeIpState;
+        const { coords, dir } = HexagonyStateUtils.activeIpState(state);
         this.setTypingDirectionInternal(dir);
         const [newI, newJ] = context.axialToIndex(coords);
         if (newI !== i || newJ !== j) {

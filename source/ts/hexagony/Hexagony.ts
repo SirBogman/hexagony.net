@@ -2,7 +2,7 @@ import { List } from 'immutable';
 
 import { Direction } from './Direction';
 import { HexagonyContext } from './HexagonyContext';
-import { EdgeTraversal, HexagonyState } from './HexagonyState';
+import { EdgeTraversal, HexagonyState, HexagonyStateUtils } from './HexagonyState';
 import { InstructionPointer } from './InstructionPointer';
 import { Memory } from './Memory';
 import { PointAxial } from './PointAxial';
@@ -19,7 +19,7 @@ export class Hexagony {
         sourceCode: ISourceCode,
         inputString = '') {
         this.context = new HexagonyContext(sourceCode, inputString);
-        this.state = HexagonyState.fromContext(this.context);
+        this.state = HexagonyStateUtils.fromContext(this.context);
     }
 
     axialToIndex(coords: PointAxial): [number, number] {
@@ -43,7 +43,7 @@ export class Hexagony {
     }
 
     get activeIpState(): InstructionPointer {
-        return this.state.activeIpState;
+        return HexagonyStateUtils.activeIpState(this.state);
     }
 
     get dir(): Direction {
@@ -80,7 +80,7 @@ export class Hexagony {
         }
 
         this.previousStates = this.previousStates.push(this.state);
-        this.state = this.state.step(this.context);
+        this.state = HexagonyStateUtils.step(this.state, this.context);
     }
 
     stepBack(): void {
