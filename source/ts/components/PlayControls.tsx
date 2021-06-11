@@ -4,24 +4,28 @@ import React, { useState } from 'react';
 interface IPlayControlsProps {
     canPlayPause: boolean;
     canStep: boolean;
+    canStepBack: boolean;
     canStop: boolean;
     delay: number;
     isPlaying: boolean;
     onPlayPause: () => void;
     onSpeedSliderChanged: (rawValue: number) => void,
     onStep: () => void;
+    onStepBack: () => void;
     onStop: () => void;
 }
 
 export const PlayControls: React.FC<IPlayControlsProps> = ({
     canPlayPause,
     canStep,
+    canStepBack,
     canStop,
     delay,
     isPlaying,
     onPlayPause,
     onSpeedSliderChanged,
     onStep,
+    onStepBack,
     onStop
 }) => {
     const [speedSliderFocused, setSpeedSliderFocused] = useState(false);
@@ -42,6 +46,17 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
                 onClick={onPlayPause}
                 title="Start/pause execution (Ctrl + Enter).">
                 {playPause}
+            </button>
+            <button
+                aria-label="Step Back"
+                className="toolbarButton"
+                disabled={!canStepBack}
+                onClick={onStepBack}
+                title="Step back (Ctrl + Backspace).">
+                <svg className="buttonSvg" viewBox="0 0 50 50">
+                    <rect fill="currentColor" x="5.02" y="7" width="7" height="36"/>
+                    <path fill="currentColor" d="M45,43V7L17,25Z"/>
+                </svg>
             </button>
             <button
                 aria-label="Step"

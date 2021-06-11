@@ -22,6 +22,7 @@ const HotkeysPanelFunction: React.FC<IHotkeysPanelProps> = ({ directionalTyping 
                 <p className="col1">Enter</p><p className="col2">Move to next operator (with wrapping)</p>
                 <p className="col1">Backspace/Delete</p><p className="col2">Remove operator</p>
                 <p className="col1">Ctrl + B</p><p className="col2">Set breakpoint</p>
+                <p className="col1">Ctrl + Backspace</p><p className="col2">Step back execution</p>
                 <p className="col1">Ctrl + Enter</p><p className="col2">Start/pause execution</p>
                 <p className="col1">Ctrl + Shift + Enter</p><p className="col2">Stop Execution</p>
                 <p className="col1">Ctrl + .</p><p className="col2">Step (execute next instruction)</p>

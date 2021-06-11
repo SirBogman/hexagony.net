@@ -401,9 +401,35 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     private onStart = (): void => this.stepHelper(true);
 
+    private canStep = (): boolean =>
+        !this.isTerminated() && !this.isPlaying();
+
+    private canStepBack = (): boolean =>
+        !this.isPlaying() && this.hexagony !== null && this.hexagony.ticks !== 0;
+
     private onStep = (): void => {
         this.stepHelper();
-        this.onPause();
+    };
+
+    private onStepBack = (): void => {
+        const hexagony = assertNotNull(this.hexagony, 'onStepBack hexagony');
+
+        hexagony.edgeTraversals.forEach(this.gridView.playEdgeAnimation);
+
+        hexagony.stepBack();
+
+        const selectedIp = hexagony.activeIp;
+        const forceUpdateExecutionState = true;
+        this.gridView.updateActiveCell(hexagony.ips, selectedIp, true, forceUpdateExecutionState);
+
+        this.updateState(state => {
+            state.isRunning = true;
+            state.selectedIp = selectedIp;
+            state.terminationReason = hexagony.terminationReason;
+            state.ticks = hexagony.ticks;
+            // Synchronize typing direction with execution direction.
+            state.typingDirection = hexagony.dir.toString();
+        });
     };
 
     private static getInput(state: IAppState): string {
@@ -571,7 +597,15 @@ export class App extends React.Component<IAppProps, IAppState> {
     private onKeyDown = (e: KeyboardEvent): void => {
         if (getControlKey(e)) {
             if (e.key === '.') {
-                this.onStep();
+                if (this.canStep()) {
+                    this.onStep();
+                }
+                e.preventDefault();
+            }
+            else if (e.key === 'Backspace') {
+                if (this.canStepBack()) {
+                    this.onStepBack();
+                }
                 e.preventDefault();
             }
             else if (e.key === 'Enter') {
@@ -801,13 +835,15 @@ export class App extends React.Component<IAppProps, IAppState> {
                                 typingDirection={Direction.fromString(typingDirection)}/>
                             <PlayControls
                                 canPlayPause={!this.isTerminated()}
-                                canStep={!this.isTerminated() && !this.isPlaying()}
+                                canStep={this.canStep()}
+                                canStepBack={this.canStepBack()}
                                 canStop={isRunning}
                                 delay={userData.delay}
                                 isPlaying={this.isPlaying()}
                                 onPlayPause={this.onPlayPause}
                                 onSpeedSliderChanged={this.onSpeedSliderChanged}
                                 onStep={this.onStep}
+                                onStepBack={this.onStepBack}
                                 onStop={this.onStop}/>
                         </nav>
                     </header>

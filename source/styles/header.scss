@@ -5,7 +5,8 @@ $buttonOuterWidth: 2.75rem;
 $narrowButtonOuterWidth: 2.35rem;
 // $sliderButtonWidth is the width of the slider in button widths.
 $sliderButtonWidth: 3;
-$buttonCount: 17;
+$narrowSliderButtonWidth: 2;
+$buttonCount: 18;
 $narrowWidthPadding: 0.5;
 $transitionTime: 0.2s;
 
@@ -139,9 +140,10 @@ input[type=range]::-moz-range-thumb {
     width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
 }
 
-@media (max-width: 950px) {
+@media (max-width: 1000px) {
     // Reduce the outer width of buttons a bit, before changing to the one column layout.
     $buttonOuterWidth: $narrowButtonOuterWidth;
+    $sliderButtonWidth: $narrowSliderButtonWidth;
 
     .toolbarButton {
         width: $buttonOuterWidth;
@@ -168,7 +170,7 @@ input[type=range]::-moz-range-thumb {
 // iPhone 12: 750
 // iPhone 12 Pro: 750
 // iPhone 12 Pro Max: 832
-$two-row-width: ($buttonCount + $sliderButtonWidth + $narrowWidthPadding) * $narrowButtonOuterWidth;
+$two-row-width: ($buttonCount + $narrowSliderButtonWidth + $narrowWidthPadding) * $narrowButtonOuterWidth;
 @debug 'Two Row Width' $two-row-width;
 
 @media (max-width: $two-row-width) {
