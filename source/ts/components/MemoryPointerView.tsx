@@ -16,14 +16,14 @@ function smoothRotation(oldRotation: number, newRotation: number) {
     return oldRotation + delta;
 }
 
-interface IMemoryPointerProps {
+interface IMemoryPointerViewProps {
     x: number;
     y: number;
     angle: number;
     delay: string;
 }
 
-export class MemoryPointer extends React.PureComponent<IMemoryPointerProps> {
+export class MemoryPointerView extends React.PureComponent<IMemoryPointerViewProps> {
     rotation = 0;
 
     render(): JSX.Element {

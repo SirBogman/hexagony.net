@@ -2,6 +2,7 @@ import { immerable } from 'immer';
 
 import { Direction, east, northEast, northWest, southEast, southWest, west } from './Direction';
 import { Memory } from './Memory';
+import { MemoryPointer } from './MemoryPointer';
 import { PointAxial } from './PointAxial';
 import { HexagonyContext } from './HexagonyContext';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, rubyStyleDivide, rubyStyleRemainder } from './Util';
@@ -26,6 +27,7 @@ export class HexagonyState {
     static [immerable] = true;
 
     public memory = Memory.initialState;
+    public mp = MemoryPointer.initialState;
     public activeIp = 0;
     public ticks = 0;
     public output: number[] = [];
@@ -85,7 +87,7 @@ export class HexagonyState {
      * Set the value of the current memory edge. Used to determine whether branches are followed for directional typing.
      */
     setMemoryValue(value: bigint | number): void {
-        this.memory = this.memory.setValue(value);
+        this.memory = this.memory.setValue(this.mp, value);
     }
 
     getIPState(ipIndex: number): [PointAxial, Direction] {
@@ -148,6 +150,7 @@ export class HexagonyState {
     private executeOpcode(opcode: string, context: HexagonyContext): void {
         // Execute the current instruction
         let newIp = this.activeIp;
+        const { memory, mp } = this;
 
         switch (opcode) {
             // NOP
@@ -160,17 +163,29 @@ export class HexagonyState {
                 return;
 
             // Arithmetic
-            case ')': this.memory = this.memory.setValue(this.memory.getValue() + 1n); break;
-            case '(': this.memory = this.memory.setValue(this.memory.getValue() - 1n); break;
-            case '+': this.memory = this.memory.setValue(this.memory.getLeft() + this.memory.getRight()); break;
-            case '-': this.memory = this.memory.setValue(this.memory.getLeft() - this.memory.getRight()); break;
-            case '*': this.memory = this.memory.setValue(this.memory.getLeft() * this.memory.getRight()); break;
-            case '~': this.memory = this.memory.setValue(-this.memory.getValue()); break;
+            case ')':
+                this.memory = memory.setValue(mp, memory.getValue(mp) + 1n);
+                break;
+            case '(':
+                this.memory = memory.setValue(mp, memory.getValue(mp) - 1n);
+                break;
+            case '+':
+                this.memory = memory.setValue(mp, memory.getValue(mp.moveLeft()) + memory.getValue(mp.moveRight()));
+                break;
+            case '-':
+                this.memory = memory.setValue(mp, memory.getValue(mp.moveLeft()) - memory.getValue(mp.moveRight()));
+                break;
+            case '*':
+                this.memory = memory.setValue(mp, memory.getValue(mp.moveLeft()) * memory.getValue(mp.moveRight()));
+                break;
+            case '~':
+                this.memory = memory.setValue(mp, -memory.getValue(mp));
+                break;
 
             case ':':
             case '%': {
-                const leftVal = this.memory.getLeft();
-                const rightVal = this.memory.getRight();
+                const leftVal = memory.getValue(mp.moveLeft());
+                const rightVal = memory.getValue(mp.moveRight());
                 let execute = true;
                 if (rightVal === 0n) {
                     if (context.isDirectionalTypingSimulation) {
@@ -183,49 +198,50 @@ export class HexagonyState {
                     }
                 }
                 if (execute) {
-                    this.memory = this.memory.setValue(opcode === ':' ?
-                        rubyStyleDivide(leftVal, rightVal) :
-                        rubyStyleRemainder(leftVal, rightVal));
+                    this.memory = memory.setValue(
+                        mp,
+                        opcode === ':' ?
+                            rubyStyleDivide(leftVal, rightVal) :
+                            rubyStyleRemainder(leftVal, rightVal));
                 }
                 break;
             }
             // Memory manipulation
-            case '{': this.memory = this.memory.moveLeft(); break;
-            case '}': this.memory = this.memory.moveRight(); break;
-            case '=': this.memory = this.memory.reverse(); break;
-            case '"': this.memory = this.memory.moveRight(true); break;
-            case '\'': this.memory = this.memory.moveLeft(true); break;
+            case '{': this.mp = mp.moveLeft(); break;
+            case '}': this.mp = mp.moveRight(); break;
+            case '=': this.mp = mp.reverse(); break;
+            case '"': this.mp = mp.moveRight(true); break;
+            case '\'': this.mp = mp.moveLeft(true); break;
             case '^':
-                this.memory = this.memory.getValue() > 0 ?
-                    this.memory.moveRight() :
-                    this.memory.moveLeft();
+                this.mp = memory.getValue(mp) > 0 ?
+                    mp.moveRight() :
+                    mp.moveLeft();
                 break;
             case '&':
-                if (this.memory.getValue() > 0) {
-                    this.memory = this.memory.setValue(this.memory.getRight());
-                }
-                else {
-                    this.memory = this.memory.setValue(this.memory.getLeft());
-                }
+                this.memory = memory.setValue(
+                    mp,
+                    memory.getValue(mp) > 0 ?
+                        memory.getValue(mp.moveRight()) :
+                        memory.getValue(mp.moveLeft()));
                 break;
 
             case ',': {
                 const byteValue = context.getInputByte(this.inputPosition++);
-                this.memory = this.memory.setValue(byteValue !== undefined ? byteValue.codePointAt(0) as number : -1);
+                this.memory = memory.setValue(mp, byteValue !== undefined ? byteValue.codePointAt(0) as number : -1);
                 break;
             }
             case ';':
-                this.output.push((Number(this.memory.getValue() % 256n) + 256) % 256);
+                this.output.push((Number(memory.getValue(mp) % 256n) + 256) % 256);
                 break;
 
             case '?': {
                 const { value, inputPosition } = context.findInteger(this.inputPosition);
                 this.inputPosition = inputPosition;
-                this.memory = this.memory.setValue(value);
+                this.memory = memory.setValue(mp, value);
                 break;
             }
             case '!':
-                this.output.push(...new TextEncoder().encode(this.memory.getValue().toString()));
+                this.output.push(...new TextEncoder().encode(memory.getValue(mp).toString()));
                 break;
 
             // Control flow
@@ -233,8 +249,8 @@ export class HexagonyState {
             case '|': this.dir = this.dir.reflectAtPipe; break;
             case '/': this.dir = this.dir.reflectAtSlash; break;
             case '\\': this.dir = this.dir.reflectAtBackslash; break;
-            case '<': this.dir = this.dir.reflectAtLessThan(this.memory.getValue() > 0); break;
-            case '>': this.dir = this.dir.reflectAtGreaterThan(this.memory.getValue() > 0); break;
+            case '<': this.dir = this.dir.reflectAtLessThan(memory.getValue(mp) > 0); break;
+            case '>': this.dir = this.dir.reflectAtGreaterThan(memory.getValue(mp) > 0); break;
 
             case ']':
                 if (!context.isDirectionalTypingSimulation) {
@@ -250,7 +266,7 @@ export class HexagonyState {
 
             case '#':
                 if (!context.isDirectionalTypingSimulation) {
-                    newIp = (Number(this.memory.getValue() % 6n) + 6) % 6;
+                    newIp = (Number(memory.getValue(mp) % 6n) + 6) % 6;
                 }
                 break;
 
@@ -265,11 +281,11 @@ export class HexagonyState {
             default: {
                 const value = opcode.codePointAt(0) as number;
                 if (value >= 48 && value <= 57) {
-                    const memVal = this.memory.getValue();
-                    this.memory = this.memory.setValue(memVal * 10n + (memVal < 0 ? -BigInt(opcode) : BigInt(opcode)));
+                    const memVal = memory.getValue(mp);
+                    this.memory = memory.setValue(mp, memVal * 10n + (memVal < 0 ? -BigInt(opcode) : BigInt(opcode)));
                 }
                 else {
-                    this.memory = this.memory.setValue(value);
+                    this.memory = memory.setValue(mp, value);
                 }
                 break;
             }
@@ -329,7 +345,7 @@ export class HexagonyState {
         else {
             // If two values are out of range, we navigated into a corner.
             // We teleport to a location that depends on the current memory value.
-            const isPositive = this.memory.getValue() > 0;
+            const isPositive = this.memory.getValue(this.mp) > 0;
             this.followEdge(isPositive ? '+' : '-', true);
 
             if (!xBigger && !isPositive || !yBigger && isPositive) {

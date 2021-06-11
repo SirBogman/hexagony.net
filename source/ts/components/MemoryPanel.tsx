@@ -2,6 +2,7 @@ import React from 'react';
 import panzoom, { PanZoom } from 'panzoom';
 import { getMPCoordinates } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
+import { MemoryPointer } from '../hexagony/MemoryPointer';
 import { MemoryView } from './MemoryView';
 import { assertNotNull } from '../view/ViewUtil';
 
@@ -16,6 +17,7 @@ interface IMemoryPanelProps {
     delay: string;
     isPlayingAtHighSpeed: boolean;
     memory: Memory;
+    mp: MemoryPointer;
 }
 
 export class MemoryPanel extends React.Component<IMemoryPanelProps> {
@@ -71,7 +73,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
     }
 
     getMPCoordinates(): [number, number] {
-        return getMPCoordinates(this.props.memory);
+        return getMPCoordinates(this.props.mp);
     }
 
     getNormalizedMPCoordinates(): [number, number] {
@@ -98,7 +100,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
     }
 
     render(): JSX.Element {
-        const { delay, memory } = this.props;
+        const { delay, memory, mp } = this.props;
         return (
             <div id="memoryPanel">
                 <h1>Memory</h1>
@@ -107,7 +109,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
                     Reset View
                 </button>
                 <div id="memoryContainer">
-                    <MemoryView memory={memory} delay={delay} ref={this.viewRef}/>
+                    <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
                 </div>
             </div>
         );

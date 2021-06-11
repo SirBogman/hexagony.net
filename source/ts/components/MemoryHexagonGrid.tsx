@@ -1,5 +1,5 @@
 import React from 'react';
-import { Memory } from '../hexagony/Memory';
+import { MemoryPointer } from '../hexagony/MemoryPointer';
 
 export const edgeLength = 46.24 * 1.4;
 const cellHeight = 2 * edgeLength;
@@ -9,8 +9,8 @@ const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
 export const xFactor = 0.5 * cellOffsetX;
 export const yFactor = 0.5 * cellOffsetY;
 
-export function getMPCoordinates(memory: Memory): [number, number] {
-    return [memory.getX() * xFactor, memory.getY() * yFactor];
+export function getMPCoordinates(mp: MemoryPointer): [number, number] {
+    return [mp.x * xFactor, mp.y * yFactor];
 }
 
 interface IMemoryHexagonGrid {

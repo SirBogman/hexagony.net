@@ -11,7 +11,7 @@ import { ISourceCode } from './SourceCode';
 
 export class Hexagony {
     private previousStates: HexagonyState[] = [];
-    private state: HexagonyState;
+    public state: HexagonyState;
     private context: HexagonyContext;
 
     constructor(

@@ -2,7 +2,8 @@ import React from 'react';
 import { MemoryEdges } from './MemoryEdges';
 import { getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
-import { MemoryPointer } from './MemoryPointer';
+import { MemoryPointer } from '../hexagony/MemoryPointer';
+import { MemoryPointerView } from './MemoryPointerView';
 import { assertNotNull } from '../view/ViewUtil';
 
 function roundGridValueLowerBound(value: number) {
@@ -19,6 +20,7 @@ function roundGridValueUpperBound(value: number) {
 
 interface IMemoryViewProps {
     memory: Memory;
+    mp: MemoryPointer;
     delay: string;
 }
 
@@ -34,27 +36,27 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
     }
 
     render(): JSX.Element {
-        const { delay, memory } = this.props;
+        const { delay, memory, mp } = this.props;
         if (!memory) {
             return <svg ref={this.viewRef}/>;
         }
 
-        const [x, y] = getMPCoordinates(memory);
-        const angle = memory.dir.angle + (memory.cw ? 180 : 0);
+        const [x, y] = getMPCoordinates(mp);
+        const angle = mp.dir.angle + (mp.cw ? 180 : 0);
 
         return (
             <svg overflow="visible" ref={this.viewRef}>
                 {this.renderHexagonGrid()}
                 <MemoryEdges memory={memory}/>
-                <MemoryPointer x={x} y={y} angle={angle} delay={delay}/>
+                <MemoryPointerView x={x} y={y} angle={angle} delay={delay}/>
             </svg>
         );
     }
 
     renderHexagonGrid(): JSX.Element {
-        const { memory } = this.props;
-        const currentX = memory.getX();
-        const currentY = memory.getY();
+        const { memory, mp } = this.props;
+        const currentX = mp.x;
+        const currentY = mp.y;
         const minX = memory.minX !== undefined ? Math.min(memory.minX, currentX) : currentX;
         const minY = memory.minY !== undefined ? Math.min(memory.minY, currentY) : currentY;
         const maxX = memory.maxX !== undefined ? Math.max(memory.maxX, currentX) : currentX;

@@ -521,9 +521,9 @@ export class App extends React.Component<IAppProps, IAppState> {
                 };
             }),
             ticks: hexagony.ticks,
-            memoryPointer: hexagony.memory.mp,
-            memoryDir: hexagony.memory.dir,
-            memoryCw: hexagony.memory.cw,
+            memoryPointer: hexagony.state.mp.mp,
+            memoryDir: hexagony.state.mp.dir,
+            memoryCw: hexagony.state.mp.cw,
             memoryEdges: hexagony.memory.getMemoryEdges(),
             info: this.getInfoPanelProps(),
             onSelectedIPChanged: this.onSelectedIPChanged,
@@ -749,7 +749,8 @@ export class App extends React.Component<IAppProps, IAppState> {
                 <MemoryPanel
                     delay={animationDelay}
                     isPlayingAtHighSpeed={this.isPlaying() && userData.delay === 0}
-                    memory={hexagony.memory}/>
+                    memory={hexagony.state.memory}
+                    mp={hexagony.state.mp}/>
                 <StatePanel {...this.getStatePanelProps()}/>
             </> :
             <>
