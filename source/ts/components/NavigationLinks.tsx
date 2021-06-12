@@ -9,8 +9,9 @@ export function updateNavigationLinks(element: HTMLElement): void {
 }
 
 const NavigationLinksFunction: React.FC = () => {
-    const homeClass = classNames('toolbarButton', { active: location.pathname === '/' });
-    const aboutClass = classNames('toolbarButton', { active: location.pathname === '/about.html' });
+    const path = location.pathname;
+    const homeClass = classNames('toolbarButton', { active: path === '/' || path === '/index.html' });
+    const aboutClass = classNames('toolbarButton', { active: path === '/about.html' });
 
     return (
         <div id="navigation" className="group">
