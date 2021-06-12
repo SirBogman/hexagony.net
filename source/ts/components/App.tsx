@@ -24,7 +24,7 @@ import { ViewControls } from './ViewControls';
 import { EditControls } from './EditControls';
 import { PlayControls } from './PlayControls';
 
-const maxSpeedIterations = 10000;
+const maxSpeedIterations = 100_000;
 
 export function updateAppHelper(element: HTMLElement): void {
     ReactDOM.render(<React.StrictMode><App/></React.StrictMode>, element);
