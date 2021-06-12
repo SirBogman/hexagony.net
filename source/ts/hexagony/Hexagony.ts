@@ -11,7 +11,7 @@ import { ISourceCode } from './SourceCode';
 const maximumHistory = 100;
 
 export class Hexagony {
-    private previousStates = List<HexagonyState>();
+    private previousStates: HexagonyState[] = [];
     public state: HexagonyState;
     private context: HexagonyContext;
 
@@ -34,7 +34,7 @@ export class Hexagony {
         this.context.setInput(inputString);
     }
 
-    get edgeTraversals(): List<EdgeTraversal> {
+    get edgeTraversals(): EdgeTraversal[] {
         return this.state.edgeTraversals;
     }
 
@@ -54,7 +54,7 @@ export class Hexagony {
         return this.activeIpState.coords;
     }
 
-    get ips(): List<InstructionPointer> {
+    get ips(): InstructionPointer[] {
         return this.state.ips;
     }
 
@@ -75,18 +75,17 @@ export class Hexagony {
     }
 
     step(): void {
-        if (this.previousStates.size === maximumHistory) {
-            this.previousStates = this.previousStates.shift();
+        if (this.previousStates.length === maximumHistory) {
+            this.previousStates.shift();
         }
 
-        this.previousStates = this.previousStates.push(this.state);
+        this.previousStates.push(this.state);
         this.state = HexagonyStateUtils.step(this.state, this.context);
     }
 
     stepBack(): void {
-        const previousState = this.previousStates.last(undefined);
+        const previousState = this.previousStates.pop();
         if (previousState !== undefined) {
-            this.previousStates = this.previousStates.pop();
             this.state = previousState;
         }
     }

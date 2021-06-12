@@ -1,4 +1,3 @@
-import { List, Repeat } from 'immutable';
 import memoizeOne from 'memoize-one';
 
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
@@ -7,7 +6,7 @@ import { EdgeTraversal, HexagonyStateUtils } from '../hexagony/HexagonyState';
 import { InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
-import { assertDefined, assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
+import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 import '../../styles/GridView.scss';
 
@@ -68,7 +67,7 @@ const getOutlinePath = memoizeOne(size =>
     outlineHelper(0, -edgeLength, -cellOffsetX, -edgeLength / 2, size) +
     outlineHelper(cellOffsetX, -edgeLength/2, 0, -edgeLength, size));
 
-const emptyExecutionHistory = List(Repeat(List<[number, number, Direction]>(), 6));
+const emptyExecutionHistory = arrayInitialize(6, () => [] as [number, number, Direction][]);
 
 export class GridView {
     public edgeTransitionMode = false;
@@ -81,7 +80,7 @@ export class GridView {
     private edgeConnectors2 = new Map<string, SVGElement[]>();
     private delay: string;
     private directionalTyping = false;
-    private executionHistory: List<List<[number, number, Direction]>>;
+    private executionHistory: [number, number, Direction][][] = emptyExecutionHistory;
     private creatingGrid = false;
     private selectedIp = 0;
     private size = -1;
@@ -113,7 +112,6 @@ export class GridView {
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.onTypingDirectionChanged = onTypingDirectionChanged;
         this.delay = delay;
-        this.executionHistory = emptyExecutionHistory;
 
         const getElementById = (id: string) =>
             assertNotNull(document.getElementById(id), id);
@@ -203,7 +201,7 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(ips: List<InstructionPointer> | null): void {
+    recreateGrid(ips: InstructionPointer[] | null): void {
         this.creatingGrid = true;
         this.createGrid(this.size);
 
@@ -301,11 +299,11 @@ export class GridView {
         }
     }
 
-    setExecutedState(ips: List<InstructionPointer>): void {
-        const { executedGrid } = assertDefined(ips.get(this.selectedIp), 'selectedIp');
+    setExecutedState(ips: InstructionPointer[]): void {
+        const { executedGrid } = ips[this.selectedIp];
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
-            const directions = assertDefined(executedGrid.get(i)?.get(j), 'executedState');
-            if (directions.size) {
+            const directions = executedGrid[i][j];
+            if (directions.length) {
                 const path = cell.firstElementChild as SVGElement;
                 path.classList.add(cellExecuted[this.selectedIp]);
                 path.style.transitionDuration = this.delay;
@@ -348,10 +346,9 @@ export class GridView {
                     this.removeExecutionAngleClass(indices, i ? arrowExecutedArray[ip][i - 1] : arrowActive[ip]);
                 });
             }
-            else if (this.showIPs && array.size) {
-                const state = assertDefined(array.get(0));
-                this.removeCellClass(state, cellInactive[ip], true);
-                this.removeExecutionAngleClass(state, arrowInactive[ip]);
+            else if (this.showIPs && array.length) {
+                this.removeCellClass(array[0], cellInactive[ip], true);
+                this.removeExecutionAngleClass(array[0], arrowInactive[ip]);
             }
         });
     }
@@ -369,20 +366,18 @@ export class GridView {
                     }
                 });
             }
-            else if (this.showIPs && array.size) {
-                const state = assertDefined(array.get(0));
-                this.addCellClass(state, cellInactive[ip], true);
-                this.addExecutionAngleClass(state, arrowInactive[ip]);
+            else if (this.showIPs && array.length) {
+                this.addCellClass(array[0], cellInactive[ip], true);
+                this.addExecutionAngleClass(array[0], arrowInactive[ip]);
             }
         });
 
         // Show all executed cells for the selected IP.
-        const array = assertDefined(this.executionHistory.get(this.selectedIp));
-        if (array.size) {
-            const state = assertDefined(array.get(0));
-            this.addCellClass(state, cellExecuted[this.selectedIp], true);
+        const array = this.executionHistory[this.selectedIp];
+        if (array.length) {
+            this.addCellClass(array[0], cellExecuted[this.selectedIp], true);
             if (this.showArrows) {
-                this.addExecutionAngleClass(state, arrowExecuted[this.selectedIp]);
+                this.addExecutionAngleClass(array[0], arrowExecuted[this.selectedIp]);
             }
         }
     }
@@ -407,7 +402,7 @@ export class GridView {
     }
 
     updateActiveCell(
-        ips: List<InstructionPointer>,
+        ips: InstructionPointer[],
         selectedIp: number,
         forceReset: boolean,
         forceUpdateExecutionState: boolean): void {
@@ -418,7 +413,7 @@ export class GridView {
 
         this.removeExecutionHistoryColors();
         // Add one for the active cell.
-        this.executionHistory = ips.map(ip => ip.executionHistory.take(executedColorCount + 1));
+        this.executionHistory = ips.map(ip => ip.executionHistory.slice(0, executedColorCount + 1));
         this.selectedIp = selectedIp;
         this.updateExecutionHistoryColors();
 
@@ -660,7 +655,7 @@ export class GridView {
         state = HexagonyStateUtils.step(state, context);
 
         let newK = k;
-        if (state.edgeTraversals.size) {
+        if (state.edgeTraversals.length) {
             // When following an edge transition, go back to the center hexagon to ensure the cursor remains on screen.
             newK = 0;
             state.edgeTraversals.forEach(this.playEdgeAnimation);
