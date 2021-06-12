@@ -39,11 +39,11 @@ function getAnimationDelay(value: number) {
 type IAppProps = Record<string, never>;
 
 interface IUndoItem {
-    i: number | null;
-    j: number | null;
-    isSizeChange: boolean;
-    oldCode: string;
-    newCode: string;
+    readonly i: number | null;
+    readonly j: number | null;
+    readonly isSizeChange: boolean;
+    readonly oldCode: string;
+    readonly newCode: string;
 }
 
 interface IAppState {

@@ -3,10 +3,10 @@ import { Map } from 'immutable';
 import { MemoryPointer, MemoryPointerDirection } from './MemoryPointer';
 
 interface IDataValue {
-    dir: MemoryPointerDirection;
-    value: bigint;
-    x: number;
-    y: number;
+    readonly dir: MemoryPointerDirection;
+    readonly value: bigint;
+    readonly x: number;
+    readonly y: number;
 }
 
 interface MemoryData {
@@ -19,13 +19,12 @@ interface MemoryData {
 }
 
 export class Memory {
+    readonly data: Map<string, IDataValue>;
+    readonly dataVersion: number;
     readonly maxX?: number;
     readonly maxY?: number;
     readonly minX?: number;
     readonly minY?: number;
-    // data version is incremented whenever this.data changes.
-    readonly dataVersion: number;
-    readonly data: Map<string, IDataValue>;
 
     public static get initialState(): Memory {
         return new Memory({

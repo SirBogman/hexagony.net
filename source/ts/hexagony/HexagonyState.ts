@@ -8,10 +8,10 @@ import { PointAxial } from './PointAxial';
 import { HexagonyContext } from './HexagonyContext';
 import { rubyStyleDivide, rubyStyleRemainder } from './Util';
 
-export interface EdgeTraversal {
-    edgeName: string;
-    isBranch: boolean;
-}
+export type EdgeTraversal = {
+    readonly edgeName: string;
+    readonly isBranch: boolean;
+};
 
 /**
  * Represents the state of Hexagony execution that evolves over time independently of other things. This may eventually
@@ -28,10 +28,10 @@ export type HexagonyState = {
     readonly activeIp: number;
     readonly ticks: number;
     readonly output: List<number>;
-    readonly ips: InstructionPointer[];
+    readonly ips: readonly InstructionPointer[];
     readonly inputPosition: number;
     readonly terminationReason: string | null;
-    readonly edgeTraversals: EdgeTraversal[];
+    readonly edgeTraversals: readonly EdgeTraversal[];
 };
 
 export class HexagonyStateUtils {

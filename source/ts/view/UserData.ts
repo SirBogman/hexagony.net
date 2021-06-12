@@ -8,10 +8,10 @@ const fibonacciExample = ')="/}.!+/M8;';
 const helloWorldExample = 'H;e;/;o;W@>r;l;l;;o;Q\\;0P;2<d;P1;';
 
 export interface IHashData {
-    code: string;
-    link: string;
-    input?: string;
-    inputMode?: string;
+    readonly code: string;
+    readonly link: string;
+    readonly input?: string;
+    readonly inputMode?: string;
 }
 
 export interface IUserData {

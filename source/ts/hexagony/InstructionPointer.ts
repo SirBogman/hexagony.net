@@ -6,11 +6,13 @@ import { arrayInitialize, axialToIndex, getRowCount, getRowSize } from './Util';
 
 const executionHistoryCount = 20;
 
+export type ExecutionHistoryArray = ReadonlyArray<readonly [number, number, Direction]>;
+
 export type InstructionPointer = {
-    coords: PointAxial;
-    dir: Direction;
-    executedGrid: Direction[][][];
-    executionHistory: [number, number, Direction][];
+    readonly coords: PointAxial;
+    readonly dir: Direction;
+    readonly executedGrid: ReadonlyArray<ReadonlyArray<ReadonlyArray<Direction>>>;
+    readonly executionHistory: ExecutionHistoryArray;
 };
 
 export function createInstuctionPointer(size: number, coords: PointAxial, dir: Direction): InstructionPointer {

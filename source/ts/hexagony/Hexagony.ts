@@ -34,7 +34,7 @@ export class Hexagony {
         this.context.setInput(inputString);
     }
 
-    get edgeTraversals(): EdgeTraversal[] {
+    get edgeTraversals(): readonly EdgeTraversal[] {
         return this.state.edgeTraversals;
     }
 
@@ -54,7 +54,7 @@ export class Hexagony {
         return this.activeIpState.coords;
     }
 
-    get ips(): InstructionPointer[] {
+    get ips(): readonly InstructionPointer[] {
         return this.state.ips;
     }
 

@@ -3,7 +3,7 @@ import memoizeOne from 'memoize-one';
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 import { HexagonyContext } from '../hexagony/HexagonyContext';
 import { EdgeTraversal, HexagonyStateUtils } from '../hexagony/HexagonyState';
-import { InstructionPointer } from '../hexagony/InstructionPointer';
+import { ExecutionHistoryArray, InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
@@ -58,7 +58,7 @@ function getIndices(elem: Element) {
 const outlineHelper = (x1: number, y1: number, x2: number, y2: number, size: number) =>
     `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
 
-const getOutlinePath = memoizeOne(size =>
+const getOutlinePath = memoizeOne((size: number) =>
     `m ${-cellOffsetX} ${-edgeLength/2}` +
     `l ${cellOffsetX} ${-edgeLength / 2} l ${cellOffsetX} ${edgeLength / 2}`.repeat(size) +
     outlineHelper(0, edgeLength, cellOffsetX, edgeLength / 2, size) +
@@ -80,7 +80,7 @@ export class GridView {
     private edgeConnectors2 = new Map<string, SVGElement[]>();
     private delay: string;
     private directionalTyping = false;
-    private executionHistory: [number, number, Direction][][] = emptyExecutionHistory;
+    private executionHistory: readonly ExecutionHistoryArray[] = emptyExecutionHistory;
     private creatingGrid = false;
     private selectedIp = 0;
     private size = -1;
@@ -201,7 +201,7 @@ export class GridView {
     }
 
     // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(ips: InstructionPointer[] | null): void {
+    recreateGrid(ips: readonly InstructionPointer[] | null): void {
         this.creatingGrid = true;
         this.createGrid(this.size);
 
@@ -219,7 +219,7 @@ export class GridView {
     }
 
     private foreachExecutionArrow(
-        [i, j, dir] : [number, number, Direction],
+        [i, j, dir] : readonly [number, number, Direction],
         k: number,
         allowCreate: boolean,
         callback: (element: ArrowSVGElement) => void): void {
@@ -257,21 +257,21 @@ export class GridView {
         }
     }
 
-    private addExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0): void {
+    private addExecutionAngleClass(indices: readonly [number, number, Direction], className: string, k = 0): void {
         this.foreachExecutionArrow(indices, k, true, arrow => {
             arrow.classList.add(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    private removeExecutionAngleClass(indices: [number, number, Direction], className: string, k = 0): void {
+    private removeExecutionAngleClass(indices: readonly [number, number, Direction], className: string, k = 0): void {
         this.foreachExecutionArrow(indices, k, false, arrow => {
             arrow.classList.remove(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    private addCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false): void {
+    private addCellClass(indices: readonly [number, number, Direction], className: string, centerHexagonOnly = false): void {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -285,7 +285,7 @@ export class GridView {
         }
     }
 
-    private removeCellClass(indices: [number, number, Direction], className: string, centerHexagonOnly = false): void {
+    private removeCellClass(indices: readonly [number, number, Direction], className: string, centerHexagonOnly = false): void {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -299,7 +299,7 @@ export class GridView {
         }
     }
 
-    setExecutedState(ips: InstructionPointer[]): void {
+    setExecutedState(ips: readonly InstructionPointer[]): void {
         const { executedGrid } = ips[this.selectedIp];
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
             const directions = executedGrid[i][j];
@@ -402,7 +402,7 @@ export class GridView {
     }
 
     updateActiveCell(
-        ips: InstructionPointer[],
+        ips: readonly InstructionPointer[],
         selectedIp: number,
         forceReset: boolean,
         forceUpdateExecutionState: boolean): void {

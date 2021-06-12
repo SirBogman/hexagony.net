@@ -1,6 +1,6 @@
 export class PointAxial {
-    q: number;
-    r: number;
+    readonly q: number;
+    readonly r: number;
 
     constructor(q: number, r: number) {
         this.q = q;
