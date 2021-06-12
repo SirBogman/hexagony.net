@@ -1,3 +1,4 @@
+@use 'sass:math';
 @use 'header.scss';
 
 $directionalTypingButtonSvgHeight: 56;
@@ -5,7 +6,7 @@ $directionalTypingButtonSvgHeight: 56;
 svg.buttonSvg.directionalTypingButton {
     // This is kind of hacky, because this is the tallest button.
     // I could update the other buttons to use the same size viewport. It might have a very subtle effect on stroke thickness.
-    height: header.$buttonInnerHeight * $directionalTypingButtonSvgHeight / header.$buttonSvgHeight;
+    height: math.div(header.$buttonInnerHeight * $directionalTypingButtonSvgHeight, header.$buttonSvgHeight);
 }
 
 button.directionPickerButton {
