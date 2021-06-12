@@ -2,6 +2,7 @@ import React from 'react';
 import { MemoryPointer } from '../hexagony/MemoryPointer';
 
 export const edgeLength = 46.24 * 1.4;
+const halfEdgeLength = 0.5 * edgeLength;
 const cellHeight = 2 * edgeLength;
 const cellOffsetY = 3 / 4 * cellHeight;
 const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
@@ -26,12 +27,17 @@ interface IMemoryHexagonGrid {
  */
 export class MemoryHexagonGrid extends React.PureComponent<IMemoryHexagonGrid> {
     render(): JSX.Element {
-        const { x, y, rows, columns } = this.props;
+        const { rows, columns } = this.props;
         let path = '';
-        const startX = (2 * x - 1.5 + y % 2) * cellOffsetX;
-        const startY = (y + 0.5) * cellOffsetY - 0.5 * edgeLength;
-        const nwEdge = `l${cellOffsetX.toFixed(2)} ${(-0.5 * edgeLength).toFixed(2)}`;
-        const neEdge = `l${cellOffsetX.toFixed(2)} ${(0.5 * edgeLength).toFixed(2)}`;
+        const startX = (2 * this.props.x - 1.5 + this.props.y % 2) * cellOffsetX;
+        const startY = (this.props.y + 0.5) * cellOffsetY - halfEdgeLength;
+        let x = 0;
+        let y = 0;
+        const makeEdge = (isNorthWest: boolean) => {
+            x += cellOffsetX;
+            y += isNorthWest ? -halfEdgeLength : halfEdgeLength;
+            return `L${x.toFixed(2)} ${y.toFixed(2)}`;
+        };
 
         for (let i = 0; i < rows + 1; i++) {
             const rowY = startY + cellOffsetY * i;
@@ -39,24 +45,26 @@ export class MemoryHexagonGrid extends React.PureComponent<IMemoryHexagonGrid> {
             // NW and NE edges
             const isLastEvenRow = i === rows && i % 2 === 0;
             const isLastOddRow = i === rows && i % 2 !== 0;
-            path += `M${(startX + (isLastEvenRow ? cellOffsetX : 0)).toFixed(2)} ${(rowY - (i % 2 + Number(isLastEvenRow)) * 0.5 * edgeLength).toFixed(2)}`;
+            x = startX + (isLastEvenRow ? cellOffsetX : 0);
+            y = rowY - (i % 2 + Number(isLastEvenRow)) * halfEdgeLength;
+            path += `M${x.toFixed(2)} ${y.toFixed(2)}`;
             if (i % 2) {
-                path += neEdge;
+                path += makeEdge(false);
             }
             for (let j = 0; j < columns; j++) {
                 // Don't draw an extra line segment in the bottom left, if there's an even number of rows.
                 if (j || !isLastEvenRow) {
-                    path += nwEdge;
+                    path += makeEdge(true);
                 }
 
                 // Don't draw an extra line segment in the bottom right, if there's an odd number of rows.
                 if (j < columns - 1 || !isLastOddRow) {
-                    path += neEdge;
+                    path += makeEdge(false);
                 }
             }
 
             if (i !== 0 && i % 2 === 0) {
-                path += nwEdge;
+                path += makeEdge(true);
             }
 
             // Vertical lines
