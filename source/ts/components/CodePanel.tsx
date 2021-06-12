@@ -6,7 +6,6 @@ export class CodePanel extends React.PureComponent {
         return (
             <div id="codePanel">
                 <div id="codeSvgContainer">
-                    <noscript>You need to enable JavaScript to run this app.</noscript>
                     <div id="codeSvgParent">
                         <svg id="codeSvg">
                             <defs>
