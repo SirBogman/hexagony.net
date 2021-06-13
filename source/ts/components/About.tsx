@@ -48,10 +48,10 @@ export const About: React.FC = () =>
                 As you type each character, the cursor advances in the same way that the instruction pointer would
                 during program execution. It interacts with mirrors and wraps around edges. For branches, the positive
                 branch is followed. You can access the direction picker by clicking on its toolbar icon, or set the
-                typing direction using the arrow keys on the keyboard. Pressing either tab or space will move the cursor
-                along the typing direction axis, without changing the code. Holding shift and pressing tab or space will
-                move the cursor backwards along the typing axis, without changing the code. Backspace moves backwards
-                along the typing axis and replaces instructions with no-ops.
+                typing direction using the arrow keys on the keyboard. Pressing the space key will move the cursor
+                along the typing direction axis, without changing the code. Holding shift and pressing space will move
+                the cursor backwards along the typing axis, without changing the code. Backspace moves backwards along
+                the typing axis and replaces instructions with no-ops.
             </p>
             <h3>Edge Transition Mode</h3>
             <p>

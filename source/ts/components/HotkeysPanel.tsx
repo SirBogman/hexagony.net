@@ -7,15 +7,18 @@ interface IHotkeysPanelProps {
 const HotkeysPanelFunction: React.FC<IHotkeysPanelProps> = ({ directionalTyping }) => {
     const prefix = directionalTyping ? 'Set the typing direction' : 'Navigate';
     const suffix = directionalTyping ? '' : ' (with wrapping)';
+
+    const space = directionalTyping ?
+        <>
+            <p className="col1">(Shift) Space</p>
+            <p className="col2">Navigate on the typing direction axis</p>
+        </> : null;
+
     return (
         <div id="hotkeysPanel">
             <h1>Hotkeys</h1>
             <div id="hotkeysGrid">
-                <p className="col1">(Shift) Tab/Space</p><p className="col2">{
-                    directionalTyping ?
-                        'Navigate on the typing direction axis' :
-                        'Navigate on the W-E axis (with wrapping)'
-                }</p>
+                {space}
                 <p className="col1">Left/Right Arrow</p><p className="col2">{prefix} on the W-E axis{suffix}</p>
                 <p className="col1">Up/Down Arrow</p><p className="col2">{prefix} on the NE-SW axis</p>
                 <p className="col1">Shift + Up/Down Arrow</p><p className="col2">{prefix} on the NW-SE axis</p>
