@@ -11,7 +11,7 @@ $narrowWidthPadding: 0.5;
 $transitionTime: 0.2s;
 
 body header {
-    background: var(--header-color);
+    background: var(--header-background);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -56,8 +56,8 @@ svg.buttonSvg {
     align-items: center;
     display: flex;
     justify-content: center;
-    color: var(--header-background);
-    fill: var(--header-background);
+    color: var(--header-foreground);
+    fill: var(--header-foreground);
 }
 
 .toolbarButton {
@@ -69,15 +69,15 @@ header > nav .group {
 }
 
 button.toolbarButton {
-    background: var(--header-color);
+    background: var(--header-background);
     border: none;
     padding: 0;
 }
 
 a.toolbarButton.active,
 button.toolbarButton[aria-checked=true] {
-    background: var(--header-background);
-    color: var(--header-color);
+    background: var(--header-foreground);
+    color: var(--header-background);
 }
 
 @media (hover: hover) {
@@ -99,7 +99,7 @@ button.toolbarButton:disabled {
 }
 
 #speedSliderContainer.focused {
-    border: 1px dotted var(--header-background);
+    border: 1px dotted var(--header-foreground);
 }
 
 input[type=range] {
@@ -119,7 +119,7 @@ input[type=range]:focus {
 input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    background: var(--header-background);
+    background: var(--header-foreground);
     width: 10px;
     height: $buttonInnerHeight;
 }
@@ -127,7 +127,7 @@ input[type=range]::-webkit-slider-thumb {
 input[type=range]::-moz-range-thumb {
     width: 10px;
     height: $buttonInnerHeight;
-    background: var(--header-background);
+    background: var(--header-foreground);
     border-radius: 0;
     border: none;
 }
