@@ -37,9 +37,6 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
 
     render(): JSX.Element {
         const { delay, memory, mp } = this.props;
-        if (!memory) {
-            return <svg ref={this.viewRef}/>;
-        }
 
         const [x, y] = getMPCoordinates(mp);
         const angle = mp.dir.angle + (mp.cw ? 180 : 0);

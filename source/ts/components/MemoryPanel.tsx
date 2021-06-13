@@ -45,21 +45,12 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         }
     }
 
-    componentDidUpdate(prevProps: IMemoryPanelProps): void {
-        if (!this.props.memory) {
-            return;
-        }
-
-        if (this.props.memory !== prevProps.memory) {
-            this.recenterView();
-        }
-        else {
-            const [a, b] = this.getNormalizedMPCoordinates();
-            // Recenter the memory pointer when it gets too close to the edges.
-            if (a < recenteringThreshold || a > recenteringMax || b < recenteringThreshold || b > recenteringMax) {
-                const [x, y] = this.getMPOffset(this.getScale());
-                this.memoryPanZoom.smoothMoveTo(x, y);
-            }
+    componentDidUpdate(): void {
+        const [a, b] = this.getNormalizedMPCoordinates();
+        // Recenter the memory pointer when it gets too close to the edges.
+        if (a < recenteringThreshold || a > recenteringMax || b < recenteringThreshold || b > recenteringMax) {
+            const [x, y] = this.getMPOffset(this.getScale());
+            this.memoryPanZoom.smoothMoveTo(x, y);
         }
     }
 
