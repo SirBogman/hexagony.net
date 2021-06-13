@@ -32,8 +32,6 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
             zoomDoubleClickSpeed: 1.5,
             // 6.5% zoom per mouse wheel event:
             zoomSpeed: 0.065,
-            // Don't listen for keyboard events.
-            filterKey: () => true,
         });
 
         this.recenterView();
@@ -96,13 +94,13 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         return (
             <div id="memoryPanel">
                 <h1>Memory</h1>
+                <div id="memoryContainer">
+                    <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
+                </div>
                 <button id="resetViewButton" className="bodyButton" onClick={() => this.resetView()}
                     title="Reset the position and zoom level of the view.">
                     Reset View
                 </button>
-                <div id="memoryContainer">
-                    <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
-                </div>
             </div>
         );
     }

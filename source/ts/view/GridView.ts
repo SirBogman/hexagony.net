@@ -93,9 +93,12 @@ export class GridView {
     private fullHeight = 0;
     private showArrows = false;
     private showIPs = false;
+    private hasFocus = false;
+    private lastFocused: readonly [number, number, number] | null = null;
     private typingDirection: Direction = east;
     private codeSvgContainer: HTMLElement;
     private codeSvgParent: HTMLElement;
+    private focusProxy: HTMLElement;
     private svg: SVGSVGElement;
     private cellContainer: SVGElement;
     private cellTemplate: SVGElement;
@@ -126,6 +129,7 @@ export class GridView {
 
         this.codeSvgContainer = getElementById('codeSvgContainer');
         this.codeSvgParent = getElementById('codeSvgParent');
+        this.focusProxy = getElementById('focusProxy');
         this.svg = getElementById('codeSvg') as Element as SVGSVGElement;
         this.cellContainer = this.svg.appendChild(createSvgElement('g'));
 
@@ -157,12 +161,17 @@ export class GridView {
                 this.navigateTo(i, j, k);
             }
         });
+
+        this.focusProxy.addEventListener('focusin', () => {
+            this.focus();
+        });
     }
 
     // Public API for updating source code.
     setSourceCode(sourceCode: ISourceCode): void {
         this.sourceCode = sourceCode;
         if (sourceCode.size !== this.size) {
+            this.lastFocused = null;
             this.createGrid(sourceCode.size);
         }
 
@@ -423,6 +432,13 @@ export class GridView {
         // Add one for the active cell.
         this.executionHistory = ips.map(ip => ip.executionHistory.slice(0, executedColorCount + 1));
         this.selectedIp = selectedIp;
+
+        if (!this.hasFocus) {
+            // Use the last executed coordinates when the code panel gets focus.
+            const [[i, j]] = ips[selectedIp].executionHistory;
+            this.lastFocused = [i, j, 0];
+        }
+
         this.updateExecutionHistoryColors();
 
         if (reset || forceUpdateExecutionState) {
@@ -517,7 +533,7 @@ export class GridView {
         }
 
         if (this.directionalTyping) {
-            if (event.key === 'Tab' || event.key === ' ') {
+            if (event.key === ' ') {
                 this.advanceCursor(i, j, k, null, event.shiftKey);
                 event.preventDefault();
                 return;
@@ -545,7 +561,7 @@ export class GridView {
         }
 
         let di = 0, dj = 0;
-        if (event.key === 'ArrowLeft' || event.key === 'Tab' && event.shiftKey) {
+        if (event.key === 'ArrowLeft') {
             if (j > 0) {
                 dj = -1;
             }
@@ -559,7 +575,7 @@ export class GridView {
                 return;
             }
         }
-        else if (event.key === 'ArrowRight' || event.key === 'Tab' && !event.shiftKey ||
+        else if (event.key === 'ArrowRight' ||
                  event.key === 'Enter' && !getControlKey(event)) {
             if (j < this.cellPaths[0][i].length - 1) {
                 dj = 1;
@@ -612,6 +628,19 @@ export class GridView {
         }
     }
 
+    public focus(): void {
+        if (this.lastFocused !== null) {
+            const [i, j, k] = this.lastFocused;
+            if (k < this.cellPaths.length &&
+                i < this.cellPaths[k].length &&
+                j < this.cellPaths[k][i].length) {
+                this.navigateTo(i, j, k);
+                return;
+            }
+        }
+        this.navigateTo(0, 0, 0);
+    }
+
     private navigateTo(i: number, j: number, k: number): void {
         // Hide the text in the SVG cell, create an input element, and select it.
         const svgCell = this.cellPaths[k][i][j];
@@ -660,7 +689,14 @@ export class GridView {
             }
         });
 
+        // The cell has focus. Hide the focus proxy so that tab navigation can leave the code panel in both directions.
+        this.lastFocused = [i, j, k];
+        this.hasFocus = true;
+        this.focusProxy.style.display = 'none';
+
         input.addEventListener('focusout', () => {
+            this.hasFocus = false;
+            this.focusProxy.style.display = 'unset';
             this.clearTypingDirectionArrow(i, j, k);
             svgCell.removeChild(container);
             const newText = removeWhitespaceAndDebug(input.value) || '.';
