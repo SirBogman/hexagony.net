@@ -774,20 +774,29 @@ export class App extends React.Component<IAppProps, IAppState> {
         const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, typingDirection, userData } = this.state;
         const { hexagony } = this;
 
+        const inputPanel =
+            <InputPanel
+                input={userData.input}
+                inputMode={userData.inputMode}
+                onInputChanged={this.onInputChanged}
+                onInputModeChanged={this.onInputModeChanged}/>;
+
         const mainContent = hexagony !== null ?
             <>
-                <OutputPanel
-                    outputBytes={hexagony.output}
-                    utf8Output={this.state.userData.utf8Output}
-                    onUtf8OutputChanged={this.onUtf8OutputChanged}/>
                 <MemoryPanel
                     delay={animationDelay}
                     isPlayingAtHighSpeed={this.isPlaying() && userData.delay === 0}
                     memory={hexagony.state.memory}
                     mp={hexagony.state.mp}/>
+                {inputPanel}
+                <OutputPanel
+                    outputBytes={hexagony.output}
+                    utf8Output={this.state.userData.utf8Output}
+                    onUtf8OutputChanged={this.onUtf8OutputChanged}/>
                 <StatePanel {...this.getStatePanelProps()}/>
             </> :
             <>
+                {inputPanel}
                 <InfoPanel {...this.getInfoPanelProps()}/>
                 <ImportExportPanel
                     isGeneratedLinkUpToDate={isGeneratedLinkUpToDate}
@@ -848,11 +857,6 @@ export class App extends React.Component<IAppProps, IAppState> {
                         </nav>
                     </header>
                     <CodePanel/>
-                    <InputPanel
-                        input={userData.input}
-                        inputMode={userData.inputMode}
-                        onInputChanged={this.onInputChanged}
-                        onInputModeChanged={this.onInputModeChanged}/>
                     {mainContent}
                 </div>
             </>
