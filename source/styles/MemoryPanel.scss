@@ -28,6 +28,7 @@ div #memoryPanel > h1 {
 }
 
 .memoryValue {
+    fill: none;
     stroke: var(--set-memory);
     stroke-width: 1.0;
 }

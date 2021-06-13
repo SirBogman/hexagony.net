@@ -16,7 +16,6 @@ interface IMemoryEdgeProps {
  */
 export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
     render(): JSX.Element {
-        const key= `${this.props.x},${this.props.y}`;
         const transform = `translate(${(this.props.x * xFactor).toFixed(2)},${(this.props.y * yFactor).toFixed(2)})rotate(${this.props.angle})`;
 
         const string = this.props.value.toLocaleString('en');
@@ -39,8 +38,8 @@ export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
             fullString;
 
         return (
-            <g key={key} transform={transform}>
-                <path className="memoryCell memoryValue" d={path}/>
+            <g transform={transform}>
+                <path className="memoryValue" d={path}/>
                 <text fill="currentColor" fontSize="12px" transform="translate(0 14)" textAnchor="middle">{text}</text>
                 <title>{fullString}</title>
             </g>
