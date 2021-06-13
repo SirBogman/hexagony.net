@@ -16,11 +16,11 @@
     border-width: 0;
     background: none;
     font-family: root.$monospace;
-    color: var(--text-color);
+    color: var(--cell-text-color);
 }
 
 .cellText {
-    fill: var(--text-color);
+    fill: var(--cell-text-color);
     stroke: none;
     font-size: 20px;
     font-family: root.$monospace;
@@ -32,7 +32,7 @@
 
 .outline {
     fill: none;
-    stroke: var(--outline-color);
+    stroke: var(--cell-text-color);
     stroke-width: 1.5;
 }
 
@@ -104,7 +104,7 @@ $colorLists: $lightColors $darkColors;
         .colorSwatch#{$j}#{$colorMode} {
             display: inline-block;
             margin: 0 0.5rem;
-            border: 1px solid var(--color);
+            border: 1px solid var(--foreground-color);
             background: $color;
             width: 0.8rem;
             height: 0.8rem;

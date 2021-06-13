@@ -46,7 +46,7 @@ button.directionalTypingOffButton {
     padding: 0px;
     background: transparent;
     border: none;
-    color: var(--disabled-color);
+    color: var(--header-disabled-color);
     margin: 0.5rem;
 }
 
@@ -56,7 +56,7 @@ button.directionalTypingOffButton:enabled {
 
 @media (hover: hover) {
     button.directionalTypingOffButton:enabled:hover {
-        background: var(--hover);
+        background: var(--header-hover-inactive);
     }
 
     button[aria-checked=false].directionPickerButton:hover {

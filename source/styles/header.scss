@@ -84,18 +84,18 @@ button.toolbarButton[aria-checked=true] {
     a.toolbarButton:hover,
     button.toolbarButton:enabled:hover,
     button.toolbarButton[aria-expanded=true] {
-        background: var(--hover);
+        background: var(--header-hover-inactive);
     }
 
     a.toolbarButton.active:hover,
     button.toolbarButton[aria-checked=true]:enabled:hover,
     button.toolbarButton[aria-checked=true][aria-expanded=true] {
-        background: var(--hover-active);
+        background: var(--header-hover-active);
     }
 }
 
 button.toolbarButton:disabled {
-    color: var(--disabled-color);
+    color: var(--header-disabled-color);
 }
 
 #speedSliderContainer.focused {
