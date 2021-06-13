@@ -1,8 +1,21 @@
 import React from 'react';
-import { edgeLength } from './MemoryHexagonGrid';
+import { edgeLength, halfEdgeLength } from './MemoryHexagonGrid';
 
 const fatEndWidth = 6 * edgeLength / 46.24;
-const path = `M0${-edgeLength / 2}l${-fatEndWidth / 2} ${edgeLength}h${fatEndWidth}z`;
+
+// path is a vertical line
+const path = `M0${-halfEdgeLength}l${-fatEndWidth / 2} ${edgeLength}h${fatEndWidth}z`;
+
+export function getMPEndpoints(x: number, y: number, angle: number):
+    readonly [readonly [number, number], readonly [number, number]] {
+    const radians = angle * Math.PI / 180;
+    const dx = -Math.sin(radians) * halfEdgeLength;
+    const dy = Math.cos(radians) * halfEdgeLength;
+    return [
+        [x + dx, y + dy],
+        [x - dx, y - dy],
+    ];
+}
 
 // Calculate new rotation angle to avoid spinning when using CSS transition.
 function smoothRotation(oldRotation: number, newRotation: number) {

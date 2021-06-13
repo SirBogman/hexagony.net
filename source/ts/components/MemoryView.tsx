@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryEdges } from './MemoryEdges';
-import { getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid';
+import { getMPAngle, getMPCoordinates, MemoryHexagonGrid } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
 import { MemoryPointer } from '../hexagony/MemoryPointer';
 import { MemoryPointerView } from './MemoryPointerView';
@@ -39,7 +39,7 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         const { delay, memory, mp } = this.props;
 
         const [x, y] = getMPCoordinates(mp);
-        const angle = mp.dir.angle + (mp.cw ? 180 : 0);
+        const angle = getMPAngle(mp);
 
         return (
             <svg overflow="visible" ref={this.viewRef}>
@@ -72,7 +72,8 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         const y1 = roundGridValueLowerBound(Math.floor((minY - 1) / 2));
         const y2 = roundGridValueUpperBound(Math.floor((maxY - 1) / 2));
 
-        // Render the background as a single path. If rendered as more than one path, you can sometimes see seams between the parts.
+        // Render the background as a single path. If rendered as more than one path, you can sometimes see seams
+        // between the parts.
         return <MemoryHexagonGrid x={x1} y={y1} columns={x2 - x1 + 1} rows={y2 - y1 + 1}/>;
     }
 }

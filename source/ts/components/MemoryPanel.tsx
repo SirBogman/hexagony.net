@@ -1,17 +1,13 @@
 import React from 'react';
 import panzoom, { PanZoom } from 'panzoom';
-import { getMPCoordinates } from './MemoryHexagonGrid';
+import { getMPAngle, getMPCoordinates } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';
 import { MemoryPointer } from '../hexagony/MemoryPointer';
+import { getMPEndpoints } from './MemoryPointerView';
 import { MemoryView } from './MemoryView';
 import { assertNotNull } from '../view/ViewUtil';
 
 import '../../styles/MemoryPanel.scss';
-
-// If the memory pointer is within this normalized distance of an the edge of the container,
-// then it will be recentered.
-const recenteringThreshold = 0.1;
-const recenteringMax = 1.0 - recenteringThreshold;
 
 interface IMemoryPanelProps {
     delay: string;
@@ -40,15 +36,12 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
             filterKey: () => true,
         });
 
-        if (this.props.memory) {
-            this.recenterView();
-        }
+        this.recenterView();
     }
 
     componentDidUpdate(): void {
-        const [a, b] = this.getNormalizedMPCoordinates();
-        // Recenter the memory pointer when it gets too close to the edges.
-        if (a < recenteringThreshold || a > recenteringMax || b < recenteringThreshold || b > recenteringMax) {
+        // Recenter the memory pointer when it leaves the visible area.
+        if (this.isMPOffscreen()) {
             const [x, y] = this.getMPOffset(this.getScale());
             this.memoryPanZoom.smoothMoveTo(x, y);
         }
@@ -58,25 +51,33 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         this.memoryPanZoom.dispose();
     }
 
-    getContainerSize(): [number, number] {
+    getContainerSize(): readonly [number, number] {
         const containerStyle = getComputedStyle(assertNotNull(this.getSvg().parentElement, 'svg parentElement'));
         return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)];
     }
 
-    getMPCoordinates(): [number, number] {
+    getMPCoordinates(): readonly [number, number] {
         return getMPCoordinates(this.props.mp);
     }
 
-    getNormalizedMPCoordinates(): [number, number] {
+    isMPOffscreen(): boolean {
         const [x, y] = this.getMPCoordinates();
+        const [point1, point2] = getMPEndpoints(x, y, getMPAngle(this.props.mp));
+        const [x1, y1] = this.transformToNormalizeViewCoordinates(point1);
+        const [x2, y2] = this.transformToNormalizeViewCoordinates(point2);
+        return x1 < 0 || x1 > 1 || y1 < 0 || y1 > 1 ||
+               x2 < 0 || x2 > 1 || y2 < 0 || y2 > 1;
+    }
+
+    transformToNormalizeViewCoordinates([x, y]: readonly [number, number]): readonly [number, number] {
         const t = this.memoryPanZoom.getTransform();
         const [width, height] = this.getContainerSize();
         return [(t.scale * x + t.x) / width, (t.scale * y + t.y) / height];
     }
 
     // Gets the required offset to center the memory pointer in the container at the given scale.
-    // This is essentially the inverse calculation of getNormalizedMPCoordinates.
-    getMPOffset(scale = 1.0): [number, number] {
+    // This is essentially the inverse calculation of transformToNormalizeViewCoordinates.
+    getMPOffset(scale = 1.0): readonly [number, number] {
         const [x, y] = this.getMPCoordinates();
         const [width, height] = this.getContainerSize();
         return [0.5 * width - scale * x, 0.5 * height - scale * y];
@@ -113,8 +114,8 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
 
     resetView(): void {
         const [x, y] = this.getMPOffset();
-        // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting (inertia).
-        // if that method were used.
+        // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting
+        // (inertia), if that method were used.
         this.memoryPanZoom.zoomTo(x, y, 1.0 / this.getScale());
         this.memoryPanZoom.moveTo(x, y);
     }
