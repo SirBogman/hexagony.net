@@ -23,6 +23,7 @@ import { NavigationLinks } from './NavigationLinks';
 import { ViewControls } from './ViewControls';
 import { EditControls } from './EditControls';
 import { PlayControls } from './PlayControls';
+import { CodeChangeCallback, CodeChangeContext, IUndoItem } from '../view/UndoItem';
 
 const maxSpeedIterations = 100_000;
 
@@ -37,14 +38,6 @@ function getAnimationDelay(value: number) {
 
 // Props aren't used for the App component. The type indicates an empty object.
 type IAppProps = Record<string, never>;
-
-interface IUndoItem {
-    readonly i: number | null;
-    readonly j: number | null;
-    readonly isSizeChange: boolean;
-    readonly oldCode: string;
-    readonly newCode: string;
-}
 
 interface IAppState {
     animationDelay: string;
@@ -129,8 +122,8 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.setState(produce(update));
     }
 
-    private updateCodeCallback = (i: number, j: number, char: string): void =>
-        this.updateState(state => App.applyCodeChangeToState(state, char, i, j));
+    private updateCodeCallback: CodeChangeCallback = (char, codeChangeContext) =>
+        this.updateState(state => App.applyCodeChangeToState(state, char, codeChangeContext));
 
     private setSourceCode = (newCode: string): void =>
         this.updateState(state => App.applyCodeChangeToState(state, newCode));
@@ -195,15 +188,20 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    private onUndo = (): void =>
+    private onUndo = (): CodeChangeContext | null => {
+        let result: CodeChangeContext | null = null;
+        if (App.canUndo(this.state)) {
+            result = this.state.undoStack[this.state.undoStack.length - 1].codeChangeContext;
+        }
+
         this.updateState(state => {
             if (App.canUndo(state)) {
                 const undoItem = assertDefined(state.undoStack.pop(), 'undoStack.pop');
                 state.redoStack.push(undoItem);
-                const { i, j, oldCode } = undoItem;
+                const { codeChangeContext, oldCode } = undoItem;
                 state.isUndoRedoInProgress = true;
                 try {
-                    App.applyCodeChangeToState(state, oldCode, i, j);
+                    App.applyCodeChangeToState(state, oldCode, codeChangeContext);
                 }
                 finally {
                     state.isUndoRedoInProgress = false;
@@ -211,15 +209,23 @@ export class App extends React.Component<IAppProps, IAppState> {
             }
         });
 
-    private onRedo = (): void =>
+        return result;
+    };
+
+    private onRedo = (): CodeChangeContext | null => {
+        let result: CodeChangeContext | null = null;
+        if (App.canRedo(this.state)) {
+            result = this.state.redoStack[this.state.redoStack.length - 1].codeChangeContext;
+        }
+
         this.updateState(state => {
             if (App.canRedo(state)) {
                 const undoItem = assertDefined(state.redoStack.pop(), 'redoStack.pop');
                 state.undoStack.push(undoItem);
-                const { i, j, newCode } = undoItem;
+                const { codeChangeContext, newCode } = undoItem;
                 state.isUndoRedoInProgress = true;
                 try {
-                    App.applyCodeChangeToState(state, newCode, i, j);
+                    App.applyCodeChangeToState(state, newCode, codeChangeContext);
                 }
                 finally {
                     state.isUndoRedoInProgress = false;
@@ -227,15 +233,18 @@ export class App extends React.Component<IAppProps, IAppState> {
             }
         });
 
+        return result;
+    };
+
     private static applyCodeChangeToState(
         state: IAppState,
         newCode: string,
-        i: number | null = null,
-        j: number | null = null): void {
+        codeChangeContext: CodeChangeContext | null = null): void {
         const { isUndoRedoInProgress, sourceCode, userData } = state;
 
-        if (i !== null && j !== null) {
+        if (codeChangeContext !== null) {
             // It's a one character change.
+            const { i, j } = codeChangeContext;
             const oldCode = sourceCode.grid[i][j];
             if (newCode === oldCode) {
                 return;
@@ -246,8 +255,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
             if (!isUndoRedoInProgress) {
                 state.undoStack.push({
-                    i,
-                    j,
+                    codeChangeContext,
                     newCode,
                     oldCode,
                     isSizeChange: false,
@@ -275,8 +283,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         if (!isUndoRedoInProgress) {
             state.undoStack.push({
-                i: null,
-                j: null,
+                codeChangeContext: null,
                 newCode,
                 oldCode,
                 isSizeChange: newSize !== oldSize,
@@ -680,7 +687,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         const { animationDelay, sourceCode, typingDirection, userData } = this.state;
 
         const gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback,
-            this.onTypingDirectionChanged, sourceCode, animationDelay);
+            this.onTypingDirectionChanged, this.onUndo, this.onRedo, sourceCode, animationDelay);
         this.gridViewReference = gridView;
         gridView.edgeTransitionMode = userData.edgeTransitionMode;
         gridView.setDirectionalTyping(userData.directionalTyping);

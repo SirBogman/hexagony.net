@@ -1,3 +1,4 @@
+import { set, update } from 'immutable';
 import memoizeOne from 'memoize-one';
 
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
@@ -6,6 +7,7 @@ import { EdgeTraversal, HexagonyStateUtils } from '../hexagony/HexagonyState';
 import { ExecutionHistoryArray, InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
+import { CodeChangeContext, CodeChangeCallback } from './UndoItem';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 import '../../styles/GridView.scss';
@@ -72,9 +74,11 @@ const emptyExecutionHistory = arrayInitialize(6, () => [] as [number, number, Di
 export class GridView {
     public edgeTransitionMode = false;
     private sourceCode: ISourceCode;
-    private updateCodeCallback: (i: number, j: number, char: string) => void;
+    private updateCodeCallback: CodeChangeCallback;
     private toggleBreakpointCallback: (i: number, j: number) => void;
     private onTypingDirectionChanged: (value: Direction) => void;
+    private onUndo: () => CodeChangeContext | null;
+    private onRedo: () => CodeChangeContext | null;
     private cellPaths: CellSVGElement[][][] = [];
     private edgeConnectors = new Map<string, SVGElement[]>();
     private edgeConnectors2 = new Map<string, SVGElement[]>();
@@ -102,15 +106,19 @@ export class GridView {
     private negativeConnectorTemplate: SVGElement;
 
     constructor(
-        updateCodeCallback: (i: number, j: number, char: string) => void,
+        updateCodeCallback: CodeChangeCallback,
         toggleBreakpointCallback: (i: number, j: number) => void,
         onTypingDirectionChanged: (value: Direction) => void,
+        onUndo: () => CodeChangeContext | null,
+        onRedo: () => CodeChangeContext | null,
         sourceCode: ISourceCode,
         delay: string) {
         this.sourceCode = sourceCode;
         this.updateCodeCallback = updateCodeCallback;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.onTypingDirectionChanged = onTypingDirectionChanged;
+        this.onUndo = onUndo;
+        this.onRedo = onRedo;
         this.delay = delay;
 
         const getElementById = (id: string) =>
@@ -449,12 +457,48 @@ export class GridView {
             return;
         }
 
-        if (event.key === 'b' && getControlKey(event)) {
-            if (this.toggleBreakpointCallback) {
-                this.toggleBreakpointCallback(i, j);
+        if (getControlKey(event)) {
+            if (this.directionalTyping) {
+                if (event.key === 'z' && !event.shiftKey) {
+                    const result = this.onUndo();
+                    if (result !== null) {
+                        const newI = result.i;
+                        const newJ = result.j;
+                        const newDirection = result.direction;
+                        if (newDirection !== undefined) {
+                            this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
+                            if (result.edgeTraversal) {
+                                this.playEdgeAnimation(result.edgeTraversal);
+                            }
+                        }
+                    }
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                if (event.key === 'y' || event.key === 'z' && event.shiftKey) {
+                    const result = this.onRedo();
+                    if (result !== null) {
+                        const { newI, newJ, newDirection } = result;
+                        if (newI !== undefined && newJ !== undefined && newDirection !== undefined) {
+                            this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
+                            if (result.edgeTraversal) {
+                                this.playEdgeAnimation(result.edgeTraversal);
+                            }
+                        }
+                    }
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
             }
-            event.preventDefault();
-            return;
+            if (event.key === 'b') {
+                if (this.toggleBreakpointCallback) {
+                    this.toggleBreakpointCallback(i, j);
+                }
+                event.preventDefault();
+                return;
+            }
         }
         if (event.key === 'Escape') {
             assertNotNull(document.getElementById('speedSlider'), 'speedSlider').focus();
@@ -462,9 +506,11 @@ export class GridView {
             return;
         }
         if (event.key === 'Backspace' || event.key === 'Delete') {
-            this.updateCodeCallback(i, j, '.');
             if (this.directionalTyping && event.key === 'Backspace') {
-                this.advanceCursor(i, j, k, true);
+                this.advanceCursor(i, j, k, '.', true);
+            }
+            else {
+                this.updateCodeCallback('.', { i, j });
             }
             event.preventDefault();
             return;
@@ -472,7 +518,7 @@ export class GridView {
 
         if (this.directionalTyping) {
             if (event.key === 'Tab' || event.key === ' ') {
-                this.advanceCursor(i, j, k, event.shiftKey);
+                this.advanceCursor(i, j, k, null, event.shiftKey);
                 event.preventDefault();
                 return;
             }
@@ -604,12 +650,11 @@ export class GridView {
 
         input.addEventListener('input', () => {
             const newText = removeWhitespaceAndDebug(input.value) || '.';
-            this.updateCodeCallback(i, j, newText);
-
-            if (this.directionalTyping && newText != '@') {
-                this.advanceCursor(i, j, k);
+            if (this.directionalTyping && newText !== '@') {
+                this.advanceCursor(i, j, k, newText);
             }
             else {
+                this.updateCodeCallback(newText, { i, j });
                 // Reselect the text so that backspace can work normally.
                 input.select();
             }
@@ -640,10 +685,19 @@ export class GridView {
         }
     }
 
-    private advanceCursor(i: number, j: number, k: number, reverse = false): void {
+    private advanceCursor(i: number, j: number, k: number, newText: string | null = null, reverse = false): void {
+        if (!this.directionalTyping) {
+            throw new Error('internal error');
+        }
+
         const oldDirection = this.typingDirection;
 
-        const context = new HexagonyContext(this.sourceCode, '');
+        const sourceCode = { ...this.sourceCode };
+        if (newText !== null) {
+            sourceCode.grid = update(sourceCode.grid, i, row => set(row, j, newText));
+        }
+
+        const context = new HexagonyContext(sourceCode, '');
         context.isDirectionalTypingSimulation = true;
         context.reverse = reverse;
 
@@ -655,16 +709,36 @@ export class GridView {
         state = HexagonyStateUtils.step(state, context);
 
         let newK = k;
+        let edgeTraversal: EdgeTraversal | undefined = undefined;
         if (state.edgeTraversals.length) {
             // When following an edge transition, go back to the center hexagon to ensure the cursor remains on screen.
             newK = 0;
             state.edgeTraversals.forEach(this.playEdgeAnimation);
+            // There can only ever be one edge traversal at once.
+            [edgeTraversal] = state.edgeTraversals;
         }
 
         const { coords, dir } = HexagonyStateUtils.activeIpState(state);
-        this.setTypingDirectionInternal(dir);
         const [newI, newJ] = context.axialToIndex(coords);
-        if (newI !== i || newJ !== j) {
+        this.changeTypingDirection(i, j, k, oldDirection, newI, newJ, newK, dir);
+
+        if (newText !== null) {
+            this.updateCodeCallback(newText, {
+                edgeTraversal,
+                direction: oldDirection,
+                i,
+                j,
+                newI,
+                newJ,
+                newDirection: dir,
+            });
+        }
+    }
+
+    private changeTypingDirection(i: number, j: number, k: number, oldDirection: Direction,
+        newI: number, newJ: number, newK: number, newDirection: Direction): void {
+        this.setTypingDirectionInternal(newDirection);
+        if (newI !== i || newJ !== j || newK !== k) {
             this.clearTypingDirectionArrow(i, j, k, oldDirection);
             this.navigateTo(newI, newJ, newK);
         }
