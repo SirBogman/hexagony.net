@@ -757,7 +757,7 @@ export class GridView {
 
         const horizontalConnectorsLimit = largeGridOneRowOffset;
         const verticalConnectorsLimit = -largeGridOneRowOffset;
-        let offsets: [number, number, string][];
+        let offsets: (readonly [number, number, string])[];
 
         if (this.edgeTransitionMode) {
             // Layout with seven hexagons.

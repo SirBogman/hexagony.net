@@ -29,7 +29,7 @@ export class HexagonyContext {
         return this.sourceCode.size;
     }
 
-    axialToIndex(coords: PointAxial): [number, number] {
+    axialToIndex(coords: PointAxial): readonly [number, number] {
         return axialToIndex(this.size, coords);
     }
 

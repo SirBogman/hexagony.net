@@ -14,7 +14,7 @@ export function getMPAngle(mp: MemoryPointer): number {
     return mp.dir.angle + (mp.cw ? 180 : 0);
 }
 
-export function getMPCoordinates(mp: MemoryPointer): [number, number] {
+export function getMPCoordinates(mp: MemoryPointer): readonly [number, number] {
     return [mp.x * xFactor, mp.y * yFactor];
 }
 

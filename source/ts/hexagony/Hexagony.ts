@@ -22,7 +22,7 @@ export class Hexagony {
         this.state = HexagonyStateUtils.fromContext(this.context);
     }
 
-    axialToIndex(coords: PointAxial): [number, number] {
+    axialToIndex(coords: PointAxial): readonly [number, number] {
         return this.context.axialToIndex(coords);
     }
 

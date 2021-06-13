@@ -42,7 +42,7 @@ export function getHexagonSize(codeLength: number): number {
         1;
 }
 
-export function axialToIndex(size: number, coords: PointAxial): [number, number] {
+export function axialToIndex(size: number, coords: PointAxial): readonly [number, number] {
     const x = coords.q;
     const z = coords.r;
     const y = -x - z;

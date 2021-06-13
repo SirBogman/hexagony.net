@@ -7,11 +7,11 @@ export class PointAxial {
         this.r = r;
     }
 
-    add([q, r]: [number, number]): PointAxial {
+    add([q, r]: readonly [number, number]): PointAxial {
         return new PointAxial(this.q + q, this.r + r);
     }
 
-    subtract([q, r]: [number, number]): PointAxial {
+    subtract([q, r]: readonly [number, number]): PointAxial {
         return new PointAxial(this.q - q, this.r - r);
     }
 
