@@ -7,7 +7,7 @@ interface IMemoryEdgeProps {
     x: number;
     y: number;
     angle: number;
-    value: bigint;
+    value?: bigint;
 }
 
 /**
@@ -17,6 +17,10 @@ interface IMemoryEdgeProps {
 export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
     render(): JSX.Element {
         const transform = `translate(${(this.props.x * xFactor).toFixed(2)},${(this.props.y * yFactor).toFixed(2)})rotate(${this.props.angle})`;
+
+        if (this.props.value === undefined) {
+            return <path transform={transform} className="zoomedOutMemoryValue" d={path}/>;
+        }
 
         const string = this.props.value.toLocaleString('en');
         let extraString = '';

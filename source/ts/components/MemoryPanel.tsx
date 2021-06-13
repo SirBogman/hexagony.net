@@ -93,6 +93,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
 
     render(): JSX.Element {
         const { delay, memory, mp } = this.props;
+        const showValues = this.memoryPanZoomReference === null || this.getScale() > 0.1;
         return (
             <div id="memoryPanel">
                 <h1>Memory</h1>
@@ -101,7 +102,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
                     Reset View
                 </button>
                 <div id="memoryContainer">
-                    <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
+                    <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef} showValues={showValues}/>
                 </div>
             </div>
         );

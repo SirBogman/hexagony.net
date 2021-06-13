@@ -22,6 +22,7 @@ interface IMemoryViewProps {
     memory: Memory;
     mp: MemoryPointer;
     delay: string;
+    showValues: boolean;
 }
 
 /**
@@ -36,7 +37,7 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
     }
 
     render(): JSX.Element {
-        const { delay, memory, mp } = this.props;
+        const { delay, memory, mp, showValues } = this.props;
 
         const [x, y] = getMPCoordinates(mp);
         const angle = getMPAngle(mp);
@@ -44,7 +45,7 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         return (
             <svg overflow="visible" ref={this.viewRef}>
                 {this.renderHexagonGrid()}
-                <MemoryEdges memory={memory}/>
+                <MemoryEdges memory={memory} showValues={showValues}/>
                 <MemoryPointerView x={x} y={y} angle={angle} delay={delay}/>
             </svg>
         );

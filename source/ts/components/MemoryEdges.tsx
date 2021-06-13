@@ -5,6 +5,7 @@ import { MemoryEdge } from './MemoryEdge';
 
 interface IMemoryEdgesProps {
     memory: Memory;
+    showValues: boolean;
 }
 
 /**
@@ -17,12 +18,12 @@ export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
     lastDataVersion = -1;
 
     render(): JSX.Element {
-        const { memory } = this.props;
+        const { memory, showValues } = this.props;
         this.lastDataVersion = memory.dataVersion;
         const cells = [];
         for (const { x, y, dir, value } of memory.iterateData()) {
             const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
-            cells.push(<MemoryEdge key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>);
+            cells.push(<MemoryEdge key={`${x},${y}`} x={x} y={y} angle={angle} value={showValues ? value : undefined}/>);
         }
         return <g>{cells}</g>;
     }

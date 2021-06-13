@@ -33,6 +33,12 @@ div #memoryPanel > h1 {
     stroke-width: 1.0;
 }
 
+.zoomedOutMemoryValue {
+    fill: none;
+    stroke: var(--set-memory);
+    stroke-width: 10.0;
+}
+
 #resetViewButton {
     align-self: flex-end;
     justify-self: end;
