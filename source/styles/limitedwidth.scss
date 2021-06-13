@@ -1,3 +1,5 @@
+@use 'root.scss';
+
 body {
     margin: auto;
     display: flex;
@@ -43,4 +45,14 @@ dd {
 
 main.center {
     justify-items: center;
+}
+
+span.monospace {
+    font-family: root.$monospace;
+}
+
+.aboutButton {
+    background: var(--header-background);
+    float: left;
+    margin-right: 0.5rem;
 }

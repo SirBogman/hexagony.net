@@ -15,6 +15,34 @@ interface IPlayControlsProps {
     onStop: () => void;
 }
 
+const PauseIcon: React.FC = () =>
+    <svg className="buttonSvg" viewBox="0 0 50 50">
+        <rect fill="currentColor" x="5" width="13.33" height="50"/>
+        <rect fill="currentColor" x="31.67" width="13.33" height="50"/>
+    </svg>;
+
+export const PlayIcon: React.FC = () =>
+    <svg className="buttonSvg" viewBox="0 0 50 50">
+        <path fill="currentColor" d="M5,0V50L45,25Z"/>
+    </svg>;
+
+export const StepBackIcon: React.FC = () =>
+    <svg className="buttonSvg" viewBox="0 0 50 50">
+        <rect fill="currentColor" x="5.02" y="7" width="7" height="36"/>
+        <path fill="currentColor" d="M45,43V7L17,25Z"/>
+    </svg>;
+
+const StepIcon: React.FC = () =>
+    <svg className="buttonSvg" viewBox="0 0 50 50">
+        <rect fill="currentColor" x="37.98" y="7" width="7" height="36"/>
+        <path fill="currentColor" d="M5,7V43L33,25Z"/>
+    </svg>;
+
+const StopIcon: React.FC = () =>
+    <svg className="buttonSvg" viewBox="0 0 50 50">
+        <path fill="currentColor" d="M5,5V45H45V5Z"/>
+    </svg>;
+
 export const PlayControls: React.FC<IPlayControlsProps> = ({
     canPlayPause,
     canStep,
@@ -30,13 +58,6 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
 }) => {
     const [speedSliderFocused, setSpeedSliderFocused] = useState(false);
 
-    const playPause = isPlaying ?
-        <svg className="buttonSvg" viewBox="0 0 50 50">
-            <rect fill="currentColor" x="5" width="13.33" height="50"/>
-            <rect fill="currentColor" x="31.67" width="13.33" height="50"/>
-        </svg> :
-        <svg className="buttonSvg" viewBox="0 0 50 50"><path fill="currentColor" d="M5,0V50L45,25Z"/></svg>;
-
     return (
         <div id="playControls" className="group">
             <button
@@ -45,7 +66,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
                 disabled={!canPlayPause}
                 onClick={onPlayPause}
                 title="Start/pause execution (Ctrl + Enter).">
-                {playPause}
+                {isPlaying ? <PauseIcon/> : <PlayIcon/>}
             </button>
             <button
                 aria-label="Step Back"
@@ -53,10 +74,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
                 disabled={!canStepBack}
                 onClick={onStepBack}
                 title="Step back (Ctrl + Backspace).">
-                <svg className="buttonSvg" viewBox="0 0 50 50">
-                    <rect fill="currentColor" x="5.02" y="7" width="7" height="36"/>
-                    <path fill="currentColor" d="M45,43V7L17,25Z"/>
-                </svg>
+                <StepBackIcon/>
             </button>
             <button
                 aria-label="Step"
@@ -64,10 +82,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
                 disabled={!canStep}
                 onClick={onStep}
                 title="Execute next instruction (Ctrl + .).">
-                <svg className="buttonSvg" viewBox="0 0 50 50">
-                    <rect fill="currentColor" x="37.98" y="7" width="7" height="36"/>
-                    <path fill="currentColor" d="M5,7V43L33,25Z"/>
-                </svg>
+                <StepIcon/>
             </button>
             <button
                 aria-label="Stop"
@@ -75,9 +90,7 @@ export const PlayControls: React.FC<IPlayControlsProps> = ({
                 disabled={!canStop}
                 onClick={onStop}
                 title="Stop execution (Ctrl + Shift + Enter).">
-                <svg className="buttonSvg" viewBox="0 0 50 50">
-                    <path fill="currentColor" d="M5,5V45H45V5Z"/>
-                </svg>
+                <StopIcon/>
             </button>
             <div id="speedSliderContainer" title="Adjust the execution speed."
                 className={classNames({ focused: speedSliderFocused })}>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dropdown, useDropdownToggle } from 'react-overlays';
 
-import { Direction } from '../hexagony/Direction';
+import { Direction, east } from '../hexagony/Direction';
 
 import { DirectionPickerPopup } from './DirectionPickerPopup';
 
@@ -28,10 +28,17 @@ interface IDirectionPickerToggle {
     typingDirection: Direction;
 }
 
+export const DirectionalTypingIcon : React.FC<{ typingDirection?: Direction }> = ({ typingDirection }) =>
+    <svg className="buttonSvg directionalTypingButton" viewBox="0 0 64 56">
+        <polygon fill="none" stroke="currentColor" strokeWidth="3px" points="13 17.03 13 38.97 32 49.94 51 38.97 51 17.03 32 6.06 13 17.03"/>
+        <polygon fill="currentColor" points="64 28 56 17.9 56 38.1 64 28" transform={`rotate(${(typingDirection ?? east).angle},32,28)`}/>
+        {/* The letter T */}
+        <path fill="currentColor" d="M34,21V38.21H30V21H24.44v-3.2H39.56V21Z"/>
+    </svg>;
+
 const DirectionPickerToggle: React.FC<IDirectionPickerToggle> = ({ directionalTyping, typingDirection }) => {
     // props may include: ref,onClick,aria-haspopup,aria-expanded.
     const [props] = useDropdownToggle();
-    const { angle } = typingDirection;
 
     return (
         <button
@@ -40,12 +47,7 @@ const DirectionPickerToggle: React.FC<IDirectionPickerToggle> = ({ directionalTy
             className="toolbarButton"
             title="Toggle directional typing mode."
             {...props}>
-            <svg className="buttonSvg directionalTypingButton" viewBox="0 0 64 56">
-                <polygon fill="none" stroke="currentColor" strokeWidth="3px" points="13 17.03 13 38.97 32 49.94 51 38.97 51 17.03 32 6.06 13 17.03"/>
-                <polygon fill="currentColor" points="64 28 56 17.9 56 38.1 64 28" transform={`rotate(${angle},32,28)`}/>
-                {/* The letter T */}
-                <path fill="currentColor" d="M34,21V38.21H30V21H24.44v-3.2H39.56V21Z"/>
-            </svg>
+            <DirectionalTypingIcon typingDirection={typingDirection}/>
         </button>
     );
 };
