@@ -10,7 +10,7 @@ import { axialToIndex, indexToAxial } from './Util';
  */
 export class HexagonyContext {
     public sourceCode: ISourceCode;
-    public input: string[];
+    public input: readonly string[];
     public reverse = false;
 
     /**

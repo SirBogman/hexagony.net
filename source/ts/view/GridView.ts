@@ -20,14 +20,14 @@ const cellWidth = cellOffsetX * 2;
 const padding = 35;
 const executedColorCount = 10;
 
-let cellExecuted: string[];
-let cellActive: string[];
-let cellInactive: string[];
-let arrowExecuted: string[];
-let arrowActive: string[];
-let arrowInactive: string[];
-let cellExecutedArray: string[][];
-let arrowExecutedArray: string[][];
+let cellExecuted: readonly string[];
+let cellActive: readonly string[];
+let cellInactive: readonly string[];
+let arrowExecuted: readonly string[];
+let arrowActive: readonly string[];
+let arrowInactive: readonly string[];
+let cellExecutedArray: readonly (readonly string[])[];
+let arrowExecutedArray: readonly (readonly string[])[];
 
 interface CellSVGElement extends SVGElement {
     hasBreakpoint: boolean;
@@ -623,7 +623,7 @@ export class GridView {
         });
     }
 
-    private startEdgeAnimation(connectors: SVGElement[] | undefined, name: string): void {
+    private startEdgeAnimation(connectors: readonly SVGElement[] | undefined, name: string): void {
         if (connectors) {
             connectors.forEach(x => {
                 x.classList.add(name);

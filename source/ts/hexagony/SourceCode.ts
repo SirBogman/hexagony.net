@@ -3,9 +3,9 @@ import { arrayInitialize, containsWhitespace, countCodepoints, countDebug, getCo
 } from '../hexagony/Util';
 
 export interface ISourceCode {
-    size: number;
-    grid: string[][];
-    prefixGrid: string[][];
+    readonly size: number;
+    readonly grid: string[][];
+    readonly prefixGrid: string[][];
 }
 
 /**
@@ -13,9 +13,9 @@ export interface ISourceCode {
  * Intended to be used as an immutable object.
  */
 export class SourceCode {
-    size: number;
-    grid: string[][];
-    prefixGrid: string[][];
+    readonly size: number;
+    readonly grid: string[][];
+    readonly prefixGrid: string[][];
 
     private constructor(size: number, grid: string[][], prefixGrid: string[][]) {
         this.size = size;
