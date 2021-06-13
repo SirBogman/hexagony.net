@@ -1,9 +1,6 @@
 Eventually:
     About page:
         Share printable Hexagony stuff in SVG + PDF format.
-        Animated SVG showing edge connection mode.
-
-    Change step icon to have a vertical line at the right side.
 
     Context menu:
         set breakpoint in cell.

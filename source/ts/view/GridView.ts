@@ -96,6 +96,7 @@ export class GridView {
     private hasFocus = false;
     private lastFocused: readonly [number, number, number] | null = null;
     private typingDirection: Direction = east;
+    private codePanel: HTMLElement;
     private codeSvgContainer: HTMLElement;
     private codeSvgParent: HTMLElement;
     private focusProxy: HTMLElement;
@@ -127,6 +128,7 @@ export class GridView {
         const getElementById = (id: string) =>
             assertNotNull(document.getElementById(id), id);
 
+        this.codePanel = getElementById('codePanel');
         this.codeSvgContainer = getElementById('codeSvgContainer');
         this.codeSvgParent = getElementById('codeSvgParent');
         this.focusProxy = getElementById('focusProxy');
@@ -153,13 +155,17 @@ export class GridView {
             }
         });
 
-        this.svg.addEventListener('click', event => {
+        this.codePanel.addEventListener('click', event => {
             // Select text when clicking on the background or text of the cell.
-            const parent = (event.target as SVGElement).parentNode as SVGElement;
+            const parent = (event.target as Element).parentNode as Element;
             if (parent.classList.contains('cell')) {
                 const [i, j, k] = getIndices(parent);
                 this.navigateTo(i, j, k);
+                return;
             }
+
+            // Clicking anywhere else in the code panel will focus the last focused cell.
+            this.focus();
         });
 
         this.focusProxy.addEventListener('focusin', () => {
@@ -515,11 +521,6 @@ export class GridView {
                 event.preventDefault();
                 return;
             }
-        }
-        if (event.key === 'Escape') {
-            assertNotNull(document.getElementById('speedSlider'), 'speedSlider').focus();
-            event.preventDefault();
-            return;
         }
         if (event.key === 'Backspace' || event.key === 'Delete') {
             if (this.directionalTyping && event.key === 'Backspace') {
