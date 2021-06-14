@@ -3,7 +3,7 @@ import memoizeOne from 'memoize-one';
 
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 import { HexagonyContext } from '../hexagony/HexagonyContext';
-import { EdgeTraversal, HexagonyStateUtils } from '../hexagony/HexagonyState';
+import { EdgeTraversal, HexagonyState, HexagonyStateUtils } from '../hexagony/HexagonyState';
 import { ExecutionHistoryArray, InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
@@ -79,6 +79,11 @@ export class GridView {
     private onTypingDirectionChanged: (value: Direction) => void;
     private onUndo: () => CodeChangeContext | null;
     private onRedo: () => CodeChangeContext | null;
+    private onStep: () => void;
+    private onStepBack: () => void;
+    private getHexagonyInput: () => readonly string[] | null;
+    private getHexagonyState: () => HexagonyState | null;
+    private getLastHexagonyState: () => HexagonyState | null;
     private cellPaths: CellSVGElement[][][] = [];
     private edgeConnectors = new Map<string, SVGElement[]>();
     private edgeConnectors2 = new Map<string, SVGElement[]>();
@@ -115,14 +120,25 @@ export class GridView {
         onTypingDirectionChanged: (value: Direction) => void,
         onUndo: () => CodeChangeContext | null,
         onRedo: () => CodeChangeContext | null,
+        onStep: () => void,
+        onStepBack: () => void,
+        getHexagonyInput: () => readonly string[] | null,
+        getHexagonyState: () => HexagonyState | null,
+        getLastHexagonyState: () => HexagonyState | null,
         sourceCode: ISourceCode,
-        delay: string) {
+        delay: string,
+    ) {
         this.sourceCode = sourceCode;
         this.updateCodeCallback = updateCodeCallback;
         this.toggleBreakpointCallback = toggleBreakpointCallback;
         this.onTypingDirectionChanged = onTypingDirectionChanged;
         this.onUndo = onUndo;
         this.onRedo = onRedo;
+        this.onStep = onStep;
+        this.onStepBack = onStepBack;
+        this.getHexagonyInput = getHexagonyInput;
+        this.getHexagonyState = getHexagonyState;
+        this.getLastHexagonyState = getLastHexagonyState;
         this.delay = delay;
 
         const getElementById = (id: string) =>
@@ -472,6 +488,52 @@ export class GridView {
         }
     }
 
+    private handleDirectionalTypingUndo(i: number, j: number, k: number): void {
+        const result = this.onUndo();
+        if (result !== null) {
+            const newI = result.i;
+            const newJ = result.j;
+            const newDirection = result.direction;
+            if (newDirection !== undefined) {
+                this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
+                if (result.edgeTraversal) {
+                    this.playEdgeAnimation(result.edgeTraversal);
+                }
+            }
+
+            const state = this.getHexagonyState();
+            if (result.synchronizedExecutionTicks !== undefined &&
+                state !== null &&
+                state.ticks === result.synchronizedExecutionTicks) {
+                // We are undoing the change that caused execution to transition to it's current state.
+                // It's natural to undo the change in execution state as well by stepping back.
+                this.onStepBack();
+            }
+        }
+    }
+
+    private handleDirectionalTypingRedo(i: number, j: number, k: number): void {
+        const result = this.onRedo();
+        if (result !== null) {
+            const { newI, newJ, newDirection } = result;
+            if (newI !== undefined && newJ !== undefined && newDirection !== undefined) {
+                this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
+                if (result.edgeTraversal) {
+                    this.playEdgeAnimation(result.edgeTraversal);
+                }
+            }
+
+            const state = this.getHexagonyState();
+            if (result.synchronizedExecutionTicks !== undefined &&
+                state !== null &&
+                state.ticks === result.synchronizedExecutionTicks - 1) {
+                // We are redoing the change that caused execution to transition to the successor state.
+                // It's natural to redo the change in execution state as well by stepping forwards.
+                this.onStep();
+            }
+        }
+    }
+
     private onKeyDown(i: number, j: number, k: number, elem: HTMLInputElement, event: KeyboardEvent): void {
         if (elem.selectionStart == elem.selectionEnd &&
             (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Backspace')) {
@@ -482,35 +544,13 @@ export class GridView {
         if (getControlKey(event)) {
             if (this.directionalTyping) {
                 if (event.key === 'z' && !event.shiftKey) {
-                    const result = this.onUndo();
-                    if (result !== null) {
-                        const newI = result.i;
-                        const newJ = result.j;
-                        const newDirection = result.direction;
-                        if (newDirection !== undefined) {
-                            this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
-                            if (result.edgeTraversal) {
-                                this.playEdgeAnimation(result.edgeTraversal);
-                            }
-                        }
-                    }
+                    this.handleDirectionalTypingUndo(i, j, k);
                     event.preventDefault();
-                    event.stopPropagation();
                     return;
                 }
                 if (event.key === 'y' || event.key === 'z' && event.shiftKey) {
-                    const result = this.onRedo();
-                    if (result !== null) {
-                        const { newI, newJ, newDirection } = result;
-                        if (newI !== undefined && newJ !== undefined && newDirection !== undefined) {
-                            this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
-                            if (result.edgeTraversal) {
-                                this.playEdgeAnimation(result.edgeTraversal);
-                            }
-                        }
-                    }
+                    this.handleDirectionalTypingRedo(i, j, k);
                     event.preventDefault();
-                    event.stopPropagation();
                     return;
                 }
             }
@@ -728,53 +768,115 @@ export class GridView {
         }
     }
 
+    private isDirectionalTypingSynchronizedWithExecution(
+        i: number,
+        j: number,
+        direction: Direction,
+        context: HexagonyContext,
+    ): boolean {
+        const executionState = this.getHexagonyState();
+        if (executionState !== null) {
+            const coords = context.indexToAxial(i, j);
+            const instructionPointer = HexagonyStateUtils.activeIpState(executionState);
+            return coords.equals(instructionPointer.coords) && direction === instructionPointer.dir;
+        }
+
+        return false;
+    }
+
+    /**
+     * Move along the directional typing axis, optionally modifying the code.
+     * @param i The i-coordinate of the focused cell.
+     * @param j The j-coordinate of the focused cell.
+     * @param k The k-coordinate of the focused cell.
+     * @param newText The optional new content for the focused cell.
+     * @param reverse Whether to move in reverse.
+     */
     private advanceCursor(i: number, j: number, k: number, newText: string | null = null, reverse = false): void {
         if (!this.directionalTyping) {
             throw new Error('internal error');
         }
-
-        const oldDirection = this.typingDirection;
 
         const sourceCode = { ...this.sourceCode };
         if (newText !== null) {
             sourceCode.grid = update(sourceCode.grid, i, row => set(row, j, newText));
         }
 
+        const direction = this.typingDirection;
         const context = new HexagonyContext(sourceCode, '');
-        context.isDirectionalTypingSimulation = true;
         context.reverse = reverse;
 
-        let state = HexagonyStateUtils.fromContext(context);
-        // Follow positive branches.
-        state = HexagonyStateUtils.setMemoryValue(state, 1);
-        state = HexagonyStateUtils.setIpLocation(state, context.indexToAxial(i, j), oldDirection);
+        const synchronizedExecution = this.isDirectionalTypingSynchronizedWithExecution(i, j, direction, context);
+        let state2: HexagonyState;
 
-        state = HexagonyStateUtils.step(state, context);
+        if (synchronizedExecution) {
+            // Execution state is synchronized with directional typing. Use the actual state.
+            // If the active IP is changed, the cursor will be as well.
+            // If division by zero occurs, the cursor will not move.
+            context.input = assertNotNull(this.getHexagonyInput(), 'getHexagonyInput');
+            const state1 = assertNotNull(this.getHexagonyState(), 'getHexagonyState');
+
+            if (reverse) {
+                const lastState = this.getLastHexagonyState();
+                if (lastState === null) {
+                    // There's no more previous states. Can't continue without simulating.
+                    alert('Reached the end of execution history (100 steps). Please raise an issue on GitHub, ' +
+                        'if you need more.');
+                    return;
+                }
+                state2 = lastState;
+            }
+            else {
+                // Determine the exact next state.
+                state2 = HexagonyStateUtils.step(state1, context);
+            }
+        }
+        else {
+            context.isDirectionalTypingSimulation = true;
+            const coords = context.indexToAxial(i, j);
+            let state1 = HexagonyStateUtils.fromContext(context);
+            // Follow positive branches.
+            state1 = HexagonyStateUtils.setMemoryValue(state1, 1);
+            state1 = HexagonyStateUtils.setIpLocation(state1, coords, direction);
+            // Simulate stepping to the next state.
+            state2 = HexagonyStateUtils.step(state1, context);
+        }
 
         let newK = k;
         let edgeTraversal: EdgeTraversal | undefined = undefined;
-        if (state.edgeTraversals.length) {
+        if (state2.edgeTraversals.length) {
             // When following an edge transition, go back to the center hexagon to ensure the cursor remains on screen.
             newK = 0;
-            state.edgeTraversals.forEach(this.playEdgeAnimation);
             // There can only ever be one edge traversal at once.
-            [edgeTraversal] = state.edgeTraversals;
+            [edgeTraversal] = state2.edgeTraversals;
+            this.playEdgeAnimation(edgeTraversal);
         }
 
-        const { coords, dir } = HexagonyStateUtils.activeIpState(state);
-        const [newI, newJ] = context.axialToIndex(coords);
-        this.changeTypingDirection(i, j, k, oldDirection, newI, newJ, newK, dir);
+        const instructionPointer = HexagonyStateUtils.activeIpState(state2);
+        const newDirection = instructionPointer.dir;
+        const [newI, newJ] = context.axialToIndex(instructionPointer.coords);
+        this.changeTypingDirection(i, j, k, direction, newI, newJ, newK, newDirection);
 
         if (newText !== null) {
             this.updateCodeCallback(newText, {
                 edgeTraversal,
-                direction: oldDirection,
+                direction,
                 i,
                 j,
                 newI,
                 newJ,
-                newDirection: dir,
+                newDirection,
+                synchronizedExecutionTicks: synchronizedExecution ? state2.ticks : undefined,
             });
+        }
+
+        if (synchronizedExecution) {
+            if (reverse) {
+                this.onStepBack();
+            }
+            else {
+                this.onStep();
+            }
         }
     }
 

@@ -15,6 +15,10 @@ export class PointAxial {
         return new PointAxial(this.q - q, this.r - r);
     }
 
+    equals(other: PointAxial): boolean {
+        return this.q === other.q && this.r === other.r;
+    }
+
     toString(): string {
         return `${this.q},${this.r}`;
     }

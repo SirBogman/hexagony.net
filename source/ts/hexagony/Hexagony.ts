@@ -54,8 +54,18 @@ export class Hexagony {
         return this.activeIpState.coords;
     }
 
+    get input(): readonly string[] {
+        return this.context.input;
+    }
+
     get ips(): readonly InstructionPointer[] {
         return this.state.ips;
+    }
+
+    get lastState(): HexagonyState | null {
+        return this.previousStates.length ?
+            this.previousStates[this.previousStates.length - 1] :
+            null;
     }
 
     get memory(): Memory {

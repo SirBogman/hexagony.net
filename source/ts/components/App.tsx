@@ -4,6 +4,7 @@ import { produce } from 'immer';
 
 import { Direction, DirectionString, east } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
+import { HexagonyState } from '../hexagony/HexagonyState';
 import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
 import { countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
 
@@ -603,6 +604,10 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.hexagony !== null && this.hexagony.terminationReason !== null;
 
     private onKeyDown = (e: KeyboardEvent): void => {
+        if (e.defaultPrevented) {
+            return;
+        }
+
         if (getControlKey(e)) {
             if (e.key === '.') {
                 if (this.canStep()) {
@@ -684,11 +689,32 @@ export class App extends React.Component<IAppProps, IAppState> {
     private onTypingDirectionChanged = (value: Direction): void =>
         this.updateState((state: IAppState) => { state.typingDirection = value.toString(); });
 
+    private getHexagonyInput = (): readonly string[] | null =>
+        this.hexagony !== null ? this.hexagony.input : null;
+
+    private getHexagonyState = (): HexagonyState | null =>
+        this.hexagony !== null ? this.hexagony.state : null;
+
+    private getLastHexagonyState = (): HexagonyState | null =>
+        this.hexagony !== null ? this.hexagony.lastState : null;
+
     componentDidMount(): void {
         const { animationDelay, sourceCode, typingDirection, userData } = this.state;
 
-        const gridView = new GridView(this.updateCodeCallback, this.toggleBreakpointCallback,
-            this.onTypingDirectionChanged, this.onUndo, this.onRedo, sourceCode, animationDelay);
+        const gridView = new GridView(
+            this.updateCodeCallback,
+            this.toggleBreakpointCallback,
+            this.onTypingDirectionChanged,
+            this.onUndo,
+            this.onRedo,
+            this.onStep,
+            this.onStepBack,
+            this.getHexagonyInput,
+            this.getHexagonyState,
+            this.getLastHexagonyState,
+            sourceCode,
+            animationDelay);
+
         this.gridViewReference = gridView;
         gridView.edgeTransitionMode = userData.edgeTransitionMode;
         gridView.setDirectionalTyping(userData.directionalTyping);

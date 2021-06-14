@@ -9,13 +9,14 @@ export interface IUndoItem {
 }
 
 export type CodeChangeContext = {
+    readonly edgeTraversal?: EdgeTraversal;
+    readonly direction?: Direction;
     readonly i: number;
     readonly j: number;
-    readonly direction?: Direction;
+    readonly newDirection?: Direction;
     readonly newI?: number;
     readonly newJ?: number;
-    readonly newDirection?: Direction;
-    readonly edgeTraversal?: EdgeTraversal;
+    readonly synchronizedExecutionTicks?: number;
 };
 
 export type CodeChangeCallback = (char: string, codeChangeContext: CodeChangeContext) => void;
