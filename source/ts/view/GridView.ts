@@ -629,6 +629,12 @@ export class GridView {
         }
     }
 
+    public resetLastFocused(): void {
+        if (!this.hasFocus) {
+            this.lastFocused = null;
+        }
+    }
+
     public focus(): void {
         if (this.lastFocused !== null) {
             const [i, j, k] = this.lastFocused;

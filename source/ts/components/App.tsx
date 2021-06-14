@@ -575,6 +575,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     private onStop = (): void => {
         this.hexagony = null;
+        this.gridView.resetLastFocused();
         this.gridView.clearCellExecutionColors();
         this.updateState(state => {
             App.pause(state);
