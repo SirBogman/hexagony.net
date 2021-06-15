@@ -22,9 +22,10 @@ export const About: React.FC = () =>
             <h1>About</h1>
             <h2>General</h2>
             <h4>What is Hexagony.net?</h4>
-            <p>This is an online IDE for Hexagony, an esoteric programming language created by Martin Ender.</p>
-            <p>
-                See the <a href="//github.com/m-ender/hexagony">original Hexagony interpreter</a> for the language
+            <p>This is an online integrated development environment (IDE) for Hexagony, an esoteric programming language
+                created by Martin Ender.
+            </p>
+            <p>See the <a href="//github.com/m-ender/hexagony">original Hexagony interpreter</a> for the language
                 specification.
             </p>
             <h4>Is Hexagony.net open source?</h4>
