@@ -30,8 +30,23 @@ interface IDirectionPickerToggle {
 
 export const DirectionalTypingIcon : React.FC<{ typingDirection?: Direction }> = ({ typingDirection }) =>
     <svg className="buttonSvg directionalTypingButton" viewBox="0 0 64 56">
-        <polygon fill="none" stroke="currentColor" strokeWidth="3px" points="13 17.03 13 38.97 32 49.94 51 38.97 51 17.03 32 6.06 13 17.03"/>
-        <polygon fill="currentColor" points="64 28 56 17.9 56 38.1 64 28" transform={`rotate(${(typingDirection ?? east).angle},32,28)`}/>
+        <polygon fill="none" stroke="currentColor" strokeWidth="3px"
+            points="13 17.03 13 38.97 32 49.94 51 38.97 51 17.03 32 6.06 13 17.03"/>
+        <polygon
+            fill="currentColor"
+            points="64 28 56 17.9 56 38.1 64 28"
+            transform={`rotate(${(typingDirection ?? east).angle},32,28)`}/>
+        {/* The letter T */}
+        <path fill="currentColor" d="M34,21V38.21H30V21H24.44v-3.2H39.56V21Z"/>
+    </svg>;
+
+export const SixWayDirectionalTypingIcon : React.FC = () =>
+    <svg className="buttonSvg directionalTypingButton" viewBox="0 0 64 56">
+        <polygon fill="none" stroke="currentColor" strokeWidth="3px"
+            points="13 17.03 13 38.97 32 49.94 51 38.97 51 17.03 32 6.06 13 17.03"/>
+        {[0, 60, 120, 180, 240, 300].map(angle =>
+            <polygon key={angle} fill="currentColor" points="64 28 56 17.9 56 38.1 64 28"
+                transform={`rotate(${angle},32,28)`}/>)}
         {/* The letter T */}
         <path fill="currentColor" d="M34,21V38.21H30V21H24.44v-3.2H39.56V21Z"/>
     </svg>;

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { DirectionalTypingIcon } from './EditControls';
+import { SixWayDirectionalTypingIcon } from './EditControls';
 import { PlayIcon, StepBackIcon } from './PlayControls';
 import { EdgeTransitionModeIcon, ShowArrowsIcon, ShowInstructionPointersIcon } from './ViewControls';
 
@@ -44,55 +44,62 @@ export const About: React.FC = () =>
             <h3>Directional Typing</h3>
             <p>
                 <IconBorder>
-                    <DirectionalTypingIcon/>
+                    <SixWayDirectionalTypingIcon/>
                 </IconBorder>
-                Directional typing helps you to write a Hexagony program by allowing you to type the instructions, in
-                any of the six directions, in program execution order, without manually repositioning the cursor.
-                There are two primary use cases for directional typing.
-                When executing a program and typing from the active instruction pointer (IP) in its current direction,
-                directional typing is said to be synchronized with execution.
+                Directional typing helps you to write a Hexagony program by typing the instructions, in program
+                execution order, without manually repositioning the cursor, in any of the six directions.
+                There are two primary use cases for directional typing: synchronized and unsynchronized. Synchronized
+                directional typing is automatically activated under the following conditions.
             </p>
+            <h4>Synchronized Directional Typing</h4>
             <p>
-                When directional typing is synchronized with execution:
-                <ul>
-                    <li>Typing a character will execute that instruction and advance the instruction pointer.</li>
-                    <li>Undoing that change will step back the execution, as if you had pressed the step back button,
-                        except the cursor also follows and the change is undone.</li>
-                    <li>Redo does the reverse.</li>
-                    <li>Branches will be taken based on the current memory value.</li>
-                    <li>When moving backwards with directional typing (shift + space, or backspace), it works as if you
-                        had pressed the step back button, except that the cursor follows as well.</li>
-                    <li>An easy way to try this is to press the reset button to start with an empty program, press the
-                        step forward button to begin execution, then click the active cell (or anywhere in the
-                        background of the code panel) and type the first instruction.</li>
-                </ul>
+                The program is executing and the cursor is at the active instruction pointer (IP) and oriented in the
+                current execution direction.
             </p>
+            <ul>
+                <li>Directional typing is synchronized with program execution.</li>
+                <li>Typing a character will execute that instruction and advance the instruction pointer.</li>
+                <li>Undoing that change will step back the execution, as if you had pressed the step back button,
+                    except the cursor also follows and the change is undone.</li>
+                <li>Redo does the reverse.</li>
+                <li>Branches will be taken based on the current memory value.</li>
+                <li>When moving backwards with directional typing (shift + space, or backspace), it works as if you
+                    had pressed the step back button, except that the cursor follows as well.</li>
+                <li>An easy way to try this is to press the reset button to start with an empty program, press the
+                    step forward button to begin execution, then click the active cell (or anywhere in the
+                    background of the code panel) and type the first instruction.</li>
+            </ul>
+            <h4>Unsynchronized Directional Typing</h4>
             <p>
-                When directional typing is not synchronized with execution:
-                <ul>
-                    <li>The cursor advances in the same way that the instruction pointer would during program
-                        execution. It interacts with mirrors and wraps around edges.</li>
-                    <li>Positive branches are always followed when stepping either forward or backwards.</li>
-                    <li>Instructions that switch to different instruction pointers are ignored.</li>
-                </ul>
+                Either the program is not executing, the cursor is not at the active IP, or the cursor is not oriented
+                in the current execution direction.
             </p>
-
-            <p>
-                In all cases:
-                <ul>
-                    <li>You can access the direction picker by clicking on its toolbar icon, or set the typing direction
-                        using the arrow keys on the keyboard.</li>
-                    <li>Pressing the space key will move the cursor along the typing direction axis, without changing
-                        the code.</li>
-                    <li>Holding shift and pressing space will move the cursor backwards along the typing axis, without
-                        changing the code.</li>
-                    <li>Backspace moves backwards along the typing axis and replaces instructions with no-ops.</li>
-                    <li>Clicking on the background of the code panel will focus either the last active cell or, if the
-                        program is executing, the cell at the currently active instruction pointer. Using tab to focused
-                        the code panel with the keyboard will do the same.
-                    </li>
-                </ul>
-            </p>
+            <ul>
+                <li>The cursor advances in the same way that the instruction pointer would during program
+                    execution. It interacts with mirrors and wraps around edges.</li>
+                <li>Positive branches are always followed when stepping either forward or backwards.</li>
+                <li>Instructions that switch to different instruction pointers are ignored.</li>
+            </ul>
+            <h4>All Directional Typing</h4>
+            <ul>
+                <li>You can access the direction picker by clicking on its toolbar icon, or set the typing direction
+                    using the arrow keys on the keyboard.</li>
+                <li>Pressing the space key will move the cursor along the typing direction axis, without changing
+                    the code.</li>
+                <li>Holding shift and pressing space will move the cursor backwards along the typing axis, without
+                    changing the code.</li>
+                <li>Backspace moves backwards along the typing axis and replaces instructions with no-ops.</li>
+                <li>Clicking on the background of the code panel will focus either the last active cell or, if the
+                    program is executing, the cell at the currently active instruction pointer. Using tab to focus
+                    the code panel with the keyboard will do the same.
+                </li>
+                <li>While executing a program, the typing direction automatically changes to match the current execution
+                    direction. This makes it easier to use synchronized directional typing.
+                </li>
+                <li>Directional typing can be turned off, by clicking the toolbar icon and then
+                    &quot;Disable Directional Typing&quot;. When disabled, you can move the cursor with the mouse or the
+                    arrow keys.</li>
+            </ul>
             <h3>Step Back</h3>
             <p>
                 <IconBorder>
