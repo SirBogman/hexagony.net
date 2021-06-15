@@ -25,7 +25,7 @@ export function countDebug(code: string): number {
 export function countOperators(code: string): number {
     let count = 0;
     for (const char of removeWhitespaceAndDebug(code)) {
-        if (char != '.') {
+        if (char !== '.') {
             count++;
         }
     }
@@ -102,7 +102,7 @@ export function rubyStyleRemainder(leftVal: bigint, rightVal: bigint): bigint {
     // The semantics of integer division and modulo are different in Hexagony because the
     // reference interpreter was written in Ruby. Account for this discrepancy.
     const result = leftVal % rightVal;
-    return leftVal < 0 != rightVal < 0 && result !== 0n ? result + rightVal : result;
+    return leftVal < 0 !== rightVal < 0 && result !== 0n ? result + rightVal : result;
 }
 
 export function rubyStyleDivide(leftVal: bigint, rightVal: bigint): bigint {
@@ -115,5 +115,5 @@ export function rubyStyleDivide(leftVal: bigint, rightVal: bigint): bigint {
     // Example: 5 / 15 == 0
     // Example: 5 % 15 == 5
     const result = leftVal / rightVal;
-    return leftVal < 0 != rightVal < 0 && leftVal % rightVal !== 0n ? result - 1n : result;
+    return leftVal < 0 !== rightVal < 0 && leftVal % rightVal !== 0n ? result - 1n : result;
 }

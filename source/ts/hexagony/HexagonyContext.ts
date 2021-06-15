@@ -59,12 +59,12 @@ export class HexagonyContext {
         // eslint-disable-next-line no-constant-condition
         while (true) {
             const byteValue = this.getInputByte(inputPosition);
-            if (byteValue == '+' || byteValue === undefined) {
+            if (byteValue === '+' || byteValue === undefined) {
                 // Consume this character.
                 inputPosition++;
                 break;
             }
-            if (byteValue == '-') {
+            if (byteValue === '-') {
                 positive = false;
                 // Consume this character.
                 inputPosition++;

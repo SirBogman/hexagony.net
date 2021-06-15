@@ -151,7 +151,7 @@ export class SourceCode {
                 const char = row[j] || '.';
                 result += `${prefix}${char}`;
             }
-            if (i != rowCount - 1) {
+            if (i !== rowCount - 1) {
                 result += '\n';
             }
         }

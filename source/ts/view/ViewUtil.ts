@@ -48,7 +48,7 @@ export function prefersDarkColorScheme(): boolean {
 }
 
 export function applyColorMode(colorMode: string): void {
-    document.documentElement.classList.toggle('darkMode', colorMode == darkColorMode);
+    document.documentElement.classList.toggle('darkMode', colorMode === darkColorMode);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

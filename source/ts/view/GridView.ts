@@ -215,7 +215,7 @@ export class GridView {
             }
 
             const cell = this.cellPaths[k][i][j];
-            if (state == cell.hasBreakpoint) {
+            if (state === cell.hasBreakpoint) {
                 continue;
             }
 
@@ -650,7 +650,7 @@ export class GridView {
     }
 
     private onKeyDown(i: number, j: number, k: number, elem: HTMLInputElement, event: KeyboardEvent): void {
-        if (elem.selectionStart == elem.selectionEnd &&
+        if (elem.selectionStart === elem.selectionEnd &&
             (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Backspace')) {
             // No text is selected. Let the text input element handle it.
             return;
@@ -752,8 +752,8 @@ export class GridView {
         else if (event.key === 'ArrowDown') {
             di = 1;
         }
-        if (di != 0 || dj != 0) {
-            if (di != 0) {
+        if (di !== 0 || dj !== 0) {
+            if (di !== 0) {
                 if (event.shiftKey) {
                     // Move in a straight line with up and down arrows in the top and bottom half.
                     if (i < this.size && di < 0) {
@@ -1166,8 +1166,8 @@ export class GridView {
 
             if (edgeTransitionMode) {
                 for (let i = 0; i < size; i++) {
-                    const leftEnd = i == 0;
-                    const rightEnd = i == size - 1;
+                    const leftEnd = i === 0;
+                    const rightEnd = i === size - 1;
                     const isSpecial = leftEnd || rightEnd;
                     let connector, cellX, cellY, scaleX, scaleY;
 
@@ -1178,7 +1178,7 @@ export class GridView {
                         cellY = getY(0, k) - 0.75 * edgeLength;
                         scaleX = 1;
                         scaleY = -1;
-                        if (i == 0) {
+                        if (i === 0) {
                             // Move the symbol to the opposite end of the connector.
                             cellX -= cellOffsetX;
                             cellY -= cellOffsetY;
@@ -1188,7 +1188,7 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        const isSecondary = k !== 0 && offsets[k][2] != 'S';
+                        const isSecondary = k !== 0 && offsets[k][2] !== 'S';
                         this.addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this.addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
@@ -1196,7 +1196,7 @@ export class GridView {
                         cellX = getX(0, i, k) + 0.5 * cellOffsetX;
                         cellY = getY(0, k) - cellOffsetY - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
-                        if (i == 0) {
+                        if (i === 0) {
                             cellX -= cellOffsetX;
                             cellY += cellOffsetY;
                             scaleX = scaleY *= -1;
@@ -1215,7 +1215,7 @@ export class GridView {
                         cellY = getY(i, k);
                         scaleX = 1;
                         scaleY = -1;
-                        if (i == 0) {
+                        if (i === 0) {
                             cellX += cellOffsetX;
                             cellY -= cellOffsetY;
                             scaleX *= -1;
@@ -1224,7 +1224,7 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        const isSecondary = k !== 0 && offsets[k][2] != 'SW';
+                        const isSecondary = k !== 0 && offsets[k][2] !== 'SW';
                         this.addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this.addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
@@ -1232,7 +1232,7 @@ export class GridView {
                         cellX = getX(i, getRowSize(size, i) - 1, k) + cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(i, k) - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
-                        if (i == 0) {
+                        if (i === 0) {
                             cellX -= cellWidth;
                             scaleX = scaleY *= -1;
                         }
@@ -1251,7 +1251,7 @@ export class GridView {
                         cellY = getY(a, k) + 0.75 * edgeLength;
                         scaleX = 1;
                         scaleY = -1;
-                        if (i == 0) {
+                        if (i === 0) {
                             cellX += cellWidth;
                             scaleX *= -1;
                             scaleY *= -1;
@@ -1259,7 +1259,7 @@ export class GridView {
                         connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
-                        const isSecondary = k !== 0 && offsets[k][2] != 'NW';
+                        const isSecondary = k !== 0 && offsets[k][2] !== 'NW';
                         this.addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
                         this.addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
@@ -1267,7 +1267,7 @@ export class GridView {
                         cellX = getX(a, getRowSize(size, a) - 1, k) + cellWidth;
                         cellY = getY(a, k) + cellOffsetY;
                         scaleX = scaleY = -1;
-                        if (i == 0) {
+                        if (i === 0) {
                             cellX -= cellOffsetX;
                             cellY -= cellOffsetY;
                             scaleX = scaleY *= -1;

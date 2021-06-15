@@ -16,7 +16,6 @@ parserOptions:
     jsx: true
 rules:
   # https://eslint.org/docs/rules/
-  # eqeqeq: warn
   '@typescript-eslint/no-unused-vars': warn
   '@typescript-eslint/no-extra-parens': warn
   '@typescript-eslint/no-useless-constructor': warn
@@ -37,6 +36,7 @@ rules:
   curly: warn
   dot-notation: warn
   eol-last: warn
+  eqeqeq: warn
   func-call-spacing: warn
   indent:
     - warn

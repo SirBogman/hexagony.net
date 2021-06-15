@@ -183,7 +183,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         // Can't use applySourceCodeChange, because side effects (the confirm dialog)
         // aren't compatible with produce.
         const newCode = SourceCode.fromObject(state.sourceCode).resizeCode(newSize);
-        if (countOperators(this.state.userData.code) == countOperators(newCode) ||
+        if (countOperators(this.state.userData.code) === countOperators(newCode) ||
             confirm('Shrink the hexagon? Code will be lost, but this can be undone.')) {
             this.updateState(state => App.applyCodeChangeToState(state, newCode));
         }

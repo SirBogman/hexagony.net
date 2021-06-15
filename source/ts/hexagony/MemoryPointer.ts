@@ -43,13 +43,13 @@ export class MemoryPointer {
     moveLeft(reverse = false): MemoryPointer {
         const { mp, dir } = this;
         const cw = MemoryPointer.flipClockwise(this.cw, reverse);
-        if (dir == northEast) {
+        if (dir === northEast) {
             return new MemoryPointer(
                 cw ? new PointAxial(mp.q + 1, mp.r - 1) : new PointAxial(mp.q, mp.r - 1),
                 southEast,
                 MemoryPointer.flipClockwise(!cw, reverse));
         }
-        else if (dir == east) {
+        else if (dir === east) {
             return new MemoryPointer(
                 cw ? new PointAxial(mp.q, mp.r + 1) : mp,
                 northEast,
@@ -66,13 +66,13 @@ export class MemoryPointer {
     moveRight(reverse = false): MemoryPointer {
         const { mp, dir } = this;
         const cw = MemoryPointer.flipClockwise(this.cw, reverse);
-        if (dir == northEast) {
+        if (dir === northEast) {
             return new MemoryPointer(
                 cw ? mp : new PointAxial(mp.q, mp.r - 1),
                 east,
                 MemoryPointer.flipClockwise(cw, reverse));
         }
-        else if (dir == east) {
+        else if (dir === east) {
             return new MemoryPointer(
                 cw ? mp : new PointAxial(mp.q + 1, mp.r - 1),
                 southEast,
