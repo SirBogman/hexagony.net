@@ -57,6 +57,7 @@ rules:
   no-new-wrappers: warn
   no-trailing-spaces: warn
   no-unneeded-ternary: warn
+  no-useless-return: warn
   no-var: warn
   no-whitespace-before-property: warn
   object-shorthand: warn

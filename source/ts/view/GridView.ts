@@ -6,8 +6,8 @@ import { HexagonyContext } from '../hexagony/HexagonyContext';
 import { EdgeTraversal, HexagonyState, HexagonyStateUtils } from '../hexagony/HexagonyState';
 import { ExecutionHistoryArray, InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
-import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
-import { CodeChangeCallback, UndoFunction } from './UndoItem';
+import { arrayInitialize, axialToIndex, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
+import { CodeChangeCallback, CodeChangeContext, UndoFunction } from './UndoItem';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 import '../../styles/GridView.scss';
@@ -488,54 +488,165 @@ export class GridView {
         }
     }
 
-    private handleDirectionalTypingUndo(i: number, j: number, k: number): boolean {
-        const result = this.onUndo();
-        if (result !== null) {
-            const newI = result.i;
-            const newJ = result.j;
-            const newDirection = result.direction;
-            if (newDirection !== undefined) {
-                this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
-                if (result.edgeTraversal) {
-                    this.playEdgeAnimation(result.edgeTraversal);
-                }
-            }
+    private handleDirectionalTypingUndo(i: number, j: number, k: number): void {
+        // Preview the undo operation.
+        const result = this.onUndo(true);
+        const synchronized = this.isSynchronizedDirectionalTypingActive(i, j, this.typingDirection);
 
-            const state = this.getHexagonyState();
-            if (result.executionStateId !== undefined &&
-                state !== null &&
-                state.id === result.executionStateId) {
-                // We are undoing the change that caused execution to transition to it's current state.
-                // It's natural to undo the change in execution state as well by stepping back.
+        if (result === null) {
+            if (synchronized) {
+                // There's nothing to undo. Just step back and move the cursor back.
                 this.onStepBack();
+                this.updateCursorForCurrentState(i, j, k);
             }
+            return;
         }
 
-        return true;
+        if (synchronized) {
+            if (result.executionStateId === undefined) {
+                // The current undo item is not associated with an execution state.
+                // To keep directional typing synchronized with execution, undo the code change without stepping
+                // back or moving the cursor.
+                // To test this case, stop execution, make a code change (not at the initial IP location), start
+                // execution, enter synchronized directional typing, then undo.
+                this.onUndo();
+            }
+            else {
+                const state = assertNotNull(this.getHexagonyState(), 'getHexagonyState');
+                if (result.executionStateId < state.id) {
+                    // After the last undoable code change was made, execution stepped forwards without making any
+                    // changes. To keep directional typing synchronized with execution, take a step back and move the
+                    // cursor, without undoing the code change.
+                    // To test this case, enter synchronized directional typing, type an instruction different from
+                    // the one at the active IP, step forward with space (doesn't make a change), then undo.
+                    this.onStepBack();
+                    this.updateCursorForCurrentState(i, j, k);
+                }
+                else if (result.executionStateId === state.id) {
+                    // We are undoing the change that caused execution to transition to it's current state.
+                    // It's natural to undo the change in execution state as well by stepping back.
+                    // To test this case, enter synchronized directional typing, type an instruction different from
+                    // the one at the active IP, then undo.
+                    this.onUndo();
+                    this.updateCursorForUndo(i, j, k, result);
+                    this.onStepBack();
+                }
+                else {
+                    // The step back function was used after the code change associated with the current undo item
+                    // was performed. To keep directional typing synchronized with execution, undo the code
+                    // change without stepping back or moving the cursor.
+                    // To test this case, in synchronized directional typing, type an instruction different from the
+                    // one at the active IP, then use the step back button, then re-enter synchronized directional
+                    // typing by clicking the active IP, then undo.
+                    this.onUndo();
+                }
+            }
+        }
+        else {
+            this.onUndo();
+            this.updateCursorForUndo(i, j, k, result);
+        }
     }
 
-    private handleDirectionalTypingRedo(i: number, j: number, k: number): boolean {
-        const result = this.onRedo();
-        if (result !== null) {
-            const { newI, newJ, newDirection } = result;
-            if (newI !== undefined && newJ !== undefined && newDirection !== undefined) {
-                this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
-                if (result.edgeTraversal) {
-                    this.playEdgeAnimation(result.edgeTraversal);
-                }
-            }
+    private handleDirectionalTypingRedo(i: number, j: number, k: number): void {
+        // Preview the redo operation.
+        const result = this.onRedo(true);
+        const synchronized = this.isSynchronizedDirectionalTypingActive(i, j, this.typingDirection);
 
-            const state = this.getHexagonyState();
-            if (result.executionStateId !== undefined &&
-                state !== null &&
-                state.id === result.executionStateId - 1) {
-                // We are redoing the change that caused execution to transition to the successor state.
-                // It's natural to redo the change in execution state as well by stepping forwards.
+        if (result === null) {
+            if (synchronized) {
+                // There's nothing to redo. Just step forwards.
                 this.onStep();
+                this.updateCursorForCurrentState(i, j, k);
             }
+            return;
         }
 
-        return true;
+        if (synchronized) {
+            if (result.executionStateId === undefined) {
+                // The current redo item is not associated with an execution state.
+                // To keep directional typing synchronized with execution, redo the code change without stepping
+                // forwards or moving the cursor.
+                // To test this case, stop execution, make a code change (not at the initial IP location), undo it,
+                // start execution, enter synchronized directional typing, then redo.
+                this.onRedo();
+            }
+            else {
+                const state = assertNotNull(this.getHexagonyState(), 'getHexagonyState');
+                const nextStateId = state.id + 1;
+                if (result.executionStateId > nextStateId) {
+                    // After the current redoable code change was made, execution stepped backwards without using the
+                    // undo feature and without making any code changes. To keep directional typing synchronized with
+                    // execution, take a step forwards and move the cursor, without redoing the code change.
+                    // To test this case, enter synchronized directional typing, step forward with space (doesn't make
+                    // a change), type an instruction different from the one at the active IP, undo twice, then redo.
+                    this.onStep();
+                    this.updateCursorForCurrentState(i, j, k);
+                }
+                else if (result.executionStateId === nextStateId) {
+                    // We are redoing the change that caused execution to transition to its successor state.
+                    // It's natural to redo the change in execution state as well by stepping forwards.
+                    // To test this case, enter synchronized directional typing, type an instruction different from
+                    // the one at the active IP, undo, then redo.
+                    this.onRedo();
+                    this.updateCursorForRedo(i, j, k, result);
+                    this.onStep();
+                }
+                else {
+                    // Execution moved forwards after the code change associated with the current redo item was
+                    // performed. To keep directional typing synchronized with execution, redo the code change without
+                    // stepping forwards or moving the cursor.
+                    // To test this case, in synchronized directional typing, type an instruction different from the one
+                    // at the active IP, undo, then step forward with space (doesn't make a change), then redo.
+                    this.onRedo();
+                }
+            }
+        }
+        else {
+            this.onRedo();
+            this.updateCursorForRedo(i, j, k, result);
+        }
+    }
+
+    /**
+     * If possible, move the cursor based on the result of an undo operation.
+     * On undo or redo, the only time we want to move the keyboard focus is when a hexagon cell already has keyboard
+     * focus. Otherwise, it would be inconvenient to activate the undo/redo buttons with the keyboard.
+     */
+    private updateCursorForUndo(i: number, j: number, k: number, undoResult: CodeChangeContext): void {
+        const newI = undoResult.i;
+        const newJ = undoResult.j;
+        const newDirection = undoResult.direction;
+        if (newDirection !== undefined) {
+            this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
+            if (undoResult.edgeTraversal) {
+                this.playEdgeAnimation(undoResult.edgeTraversal);
+            }
+        }
+    }
+
+    /**
+     * If possible, move the cursor based on the result of a redo operation.
+     */
+    private updateCursorForRedo(i: number, j: number, k: number, redoResult: CodeChangeContext): void {
+        const { newI, newJ, newDirection } = redoResult;
+        if (newI !== undefined && newJ !== undefined && newDirection !== undefined) {
+            this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, newDirection);
+            if (redoResult.edgeTraversal) {
+                this.playEdgeAnimation(redoResult.edgeTraversal);
+            }
+        }
+    }
+
+    /**
+     * Move the cursor to the location of the execution pointer.
+     * This is for synchronized directional typing after calling onStep or onStepBack during undo/redo.
+     */
+    private updateCursorForCurrentState(i: number, j: number, k: number): void {
+        const state = assertNotNull(this.getHexagonyState(), 'getHexagonyState');
+        const instructionPointer = HexagonyStateUtils.activeIpState(state);
+        const [newI, newJ] = axialToIndex(this.size, instructionPointer.coords);
+        this.changeTypingDirection(i, j, k, this.typingDirection, newI, newJ, k, instructionPointer.dir);
     }
 
     private onKeyDown(i: number, j: number, k: number, elem: HTMLInputElement, event: KeyboardEvent): void {
@@ -548,15 +659,13 @@ export class GridView {
         if (getControlKey(event)) {
             if (this.directionalTyping) {
                 if (event.key === 'z' && !event.shiftKey) {
-                    if (this.handleDirectionalTypingUndo(i, j, k)) {
-                        event.preventDefault();
-                    }
+                    this.handleDirectionalTypingUndo(i, j, k);
+                    event.preventDefault();
                     return;
                 }
                 if (event.key === 'y' || event.key === 'z' && event.shiftKey) {
-                    if (this.handleDirectionalTypingRedo(i, j, k)) {
-                        event.preventDefault();
-                    }
+                    this.handleDirectionalTypingRedo(i, j, k);
+                    event.preventDefault();
                     return;
                 }
             }

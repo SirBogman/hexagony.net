@@ -426,6 +426,9 @@ export class App extends React.Component<IAppProps, IAppState> {
     };
 
     private onStepBack = (): void => {
+        if (!this.canStepBack()) {
+            return;
+        }
         const hexagony = assertNotNull(this.hexagony, 'onStepBack hexagony');
 
         hexagony.edgeTraversals.forEach(this.gridView.playEdgeAnimation);
