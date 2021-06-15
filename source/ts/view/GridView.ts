@@ -7,7 +7,7 @@ import { EdgeTraversal, HexagonyState, HexagonyStateUtils } from '../hexagony/He
 import { ExecutionHistoryArray, InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
-import { CodeChangeContext, CodeChangeCallback } from './UndoItem';
+import { CodeChangeCallback, UndoFunction } from './UndoItem';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 import '../../styles/GridView.scss';
@@ -77,8 +77,8 @@ export class GridView {
     private updateCodeCallback: CodeChangeCallback;
     private toggleBreakpointCallback: (i: number, j: number) => void;
     private onTypingDirectionChanged: (value: Direction) => void;
-    private onUndo: () => CodeChangeContext | null;
-    private onRedo: () => CodeChangeContext | null;
+    private onUndo: UndoFunction;
+    private onRedo: UndoFunction;
     private onStep: () => void;
     private onStepBack: () => void;
     private getHexagonyInput: () => readonly string[] | null;
@@ -118,8 +118,8 @@ export class GridView {
         updateCodeCallback: CodeChangeCallback,
         toggleBreakpointCallback: (i: number, j: number) => void,
         onTypingDirectionChanged: (value: Direction) => void,
-        onUndo: () => CodeChangeContext | null,
-        onRedo: () => CodeChangeContext | null,
+        onUndo: UndoFunction,
+        onRedo: UndoFunction,
         onStep: () => void,
         onStepBack: () => void,
         getHexagonyInput: () => readonly string[] | null,
@@ -488,7 +488,7 @@ export class GridView {
         }
     }
 
-    private handleDirectionalTypingUndo(i: number, j: number, k: number): void {
+    private handleDirectionalTypingUndo(i: number, j: number, k: number): boolean {
         const result = this.onUndo();
         if (result !== null) {
             const newI = result.i;
@@ -502,17 +502,19 @@ export class GridView {
             }
 
             const state = this.getHexagonyState();
-            if (result.synchronizedExecutionTicks !== undefined &&
+            if (result.executionStateId !== undefined &&
                 state !== null &&
-                state.ticks === result.synchronizedExecutionTicks) {
+                state.id === result.executionStateId) {
                 // We are undoing the change that caused execution to transition to it's current state.
                 // It's natural to undo the change in execution state as well by stepping back.
                 this.onStepBack();
             }
         }
+
+        return true;
     }
 
-    private handleDirectionalTypingRedo(i: number, j: number, k: number): void {
+    private handleDirectionalTypingRedo(i: number, j: number, k: number): boolean {
         const result = this.onRedo();
         if (result !== null) {
             const { newI, newJ, newDirection } = result;
@@ -524,14 +526,16 @@ export class GridView {
             }
 
             const state = this.getHexagonyState();
-            if (result.synchronizedExecutionTicks !== undefined &&
+            if (result.executionStateId !== undefined &&
                 state !== null &&
-                state.ticks === result.synchronizedExecutionTicks - 1) {
+                state.id === result.executionStateId - 1) {
                 // We are redoing the change that caused execution to transition to the successor state.
                 // It's natural to redo the change in execution state as well by stepping forwards.
                 this.onStep();
             }
         }
+
+        return true;
     }
 
     private onKeyDown(i: number, j: number, k: number, elem: HTMLInputElement, event: KeyboardEvent): void {
@@ -544,13 +548,15 @@ export class GridView {
         if (getControlKey(event)) {
             if (this.directionalTyping) {
                 if (event.key === 'z' && !event.shiftKey) {
-                    this.handleDirectionalTypingUndo(i, j, k);
-                    event.preventDefault();
+                    if (this.handleDirectionalTypingUndo(i, j, k)) {
+                        event.preventDefault();
+                    }
                     return;
                 }
                 if (event.key === 'y' || event.key === 'z' && event.shiftKey) {
-                    this.handleDirectionalTypingRedo(i, j, k);
-                    event.preventDefault();
+                    if (this.handleDirectionalTypingRedo(i, j, k)) {
+                        event.preventDefault();
+                    }
                     return;
                 }
             }
@@ -768,15 +774,14 @@ export class GridView {
         }
     }
 
-    private isDirectionalTypingSynchronizedWithExecution(
+    private isSynchronizedDirectionalTypingActive(
         i: number,
         j: number,
         direction: Direction,
-        context: HexagonyContext,
     ): boolean {
         const executionState = this.getHexagonyState();
         if (executionState !== null) {
-            const coords = context.indexToAxial(i, j);
+            const coords = indexToAxial(this.size, i, j);
             const instructionPointer = HexagonyStateUtils.activeIpState(executionState);
             return coords.equals(instructionPointer.coords) && direction === instructionPointer.dir;
         }
@@ -803,10 +808,9 @@ export class GridView {
         }
 
         const direction = this.typingDirection;
+        const synchronizedExecution = this.isSynchronizedDirectionalTypingActive(i, j, direction);
         const context = new HexagonyContext(sourceCode, '');
         context.reverse = reverse;
-
-        const synchronizedExecution = this.isDirectionalTypingSynchronizedWithExecution(i, j, direction, context);
         let state2: HexagonyState;
 
         if (synchronizedExecution) {
@@ -860,13 +864,13 @@ export class GridView {
         if (newText !== null) {
             this.updateCodeCallback(newText, {
                 edgeTraversal,
+                executionStateId: synchronizedExecution ? state2.id : undefined,
                 direction,
                 i,
                 j,
                 newI,
                 newJ,
                 newDirection,
-                synchronizedExecutionTicks: synchronizedExecution ? state2.ticks : undefined,
             });
         }
 

@@ -81,7 +81,7 @@ export class Hexagony {
     }
 
     get ticks(): number {
-        return this.state.ticks;
+        return this.state.id;
     }
 
     step(): void {

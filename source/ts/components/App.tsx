@@ -24,7 +24,7 @@ import { NavigationLinks } from './NavigationLinks';
 import { ViewControls } from './ViewControls';
 import { EditControls } from './EditControls';
 import { PlayControls } from './PlayControls';
-import { CodeChangeCallback, CodeChangeContext, IUndoItem } from '../view/UndoItem';
+import { CodeChangeCallback, CodeChangeContext, IUndoItem, UndoFunction } from '../view/UndoItem';
 
 const maxSpeedIterations = 100_000;
 
@@ -189,12 +189,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     };
 
-    private onUndo = (): CodeChangeContext | null => {
-        let result: CodeChangeContext | null = null;
-        if (App.canUndo(this.state)) {
-            result = this.state.undoStack[this.state.undoStack.length - 1].codeChangeContext;
-        }
-
+    private onUndo = (): void =>
         this.updateState(state => {
             if (App.canUndo(state)) {
                 const undoItem = assertDefined(state.undoStack.pop(), 'undoStack.pop');
@@ -210,15 +205,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             }
         });
 
-        return result;
-    };
-
-    private onRedo = (): CodeChangeContext | null => {
-        let result: CodeChangeContext | null = null;
-        if (App.canRedo(this.state)) {
-            result = this.state.redoStack[this.state.redoStack.length - 1].codeChangeContext;
-        }
-
+    private onRedo = (): void =>
         this.updateState(state => {
             if (App.canRedo(state)) {
                 const undoItem = assertDefined(state.redoStack.pop(), 'redoStack.pop');
@@ -234,6 +221,25 @@ export class App extends React.Component<IAppProps, IAppState> {
             }
         });
 
+    private onUndoHelper: UndoFunction = (preview = false) => {
+        let result: CodeChangeContext | null = null;
+        if (App.canUndo(this.state)) {
+            result = this.state.undoStack[this.state.undoStack.length - 1].codeChangeContext;
+            if (!preview) {
+                this.onUndo();
+            }
+        }
+        return result;
+    };
+
+    private onRedoHelper: UndoFunction = (preview = false) => {
+        let result: CodeChangeContext | null = null;
+        if (App.canRedo(this.state)) {
+            result = this.state.redoStack[this.state.redoStack.length - 1].codeChangeContext;
+            if (!preview) {
+                this.onRedo();
+            }
+        }
         return result;
     };
 
@@ -583,6 +589,18 @@ export class App extends React.Component<IAppProps, IAppState> {
             state.ticks = 0;
             state.isRunning = false;
             state.typingDirection = east.toString();
+
+            // Clear links between undo items and execution states, because execution has ended.
+            for (const item of state.undoStack) {
+                if (item.codeChangeContext !== null) {
+                    item.codeChangeContext.executionStateId = undefined;
+                }
+            }
+            for (const item of state.redoStack) {
+                if (item.codeChangeContext !== null) {
+                    item.codeChangeContext.executionStateId = undefined;
+                }
+            }
         });
     };
 
@@ -705,8 +723,8 @@ export class App extends React.Component<IAppProps, IAppState> {
             this.updateCodeCallback,
             this.toggleBreakpointCallback,
             this.onTypingDirectionChanged,
-            this.onUndo,
-            this.onRedo,
+            this.onUndoHelper,
+            this.onRedoHelper,
             this.onStep,
             this.onStepBack,
             this.getHexagonyInput,

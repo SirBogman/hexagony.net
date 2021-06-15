@@ -23,21 +23,22 @@ export type EdgeTraversal = {
  * A HexagonyState needs a HexagonyContext to generate the next state.
  */
 export type HexagonyState = {
+    readonly activeIp: number;
+    readonly edgeTraversals: readonly EdgeTraversal[];
+    readonly id: number;
+    readonly inputPosition: number;
+    readonly ips: readonly InstructionPointer[];
     readonly memory: Memory;
     readonly mp: MemoryPointer;
-    readonly activeIp: number;
-    readonly ticks: number;
     readonly output: List<number>;
-    readonly ips: readonly InstructionPointer[];
-    readonly inputPosition: number;
     readonly terminationReason: string | null;
-    readonly edgeTraversals: readonly EdgeTraversal[];
 };
 
 export class HexagonyStateUtils {
     public static fromContext = ({ size }: HexagonyContext): HexagonyState => ({
         activeIp: 0,
         edgeTraversals: [],
+        id: 0,
         inputPosition: 0,
         ips: [
             createInstuctionPointer(size, new PointAxial(0, -size + 1), east),
@@ -51,7 +52,6 @@ export class HexagonyStateUtils {
         mp: MemoryPointer.initialState,
         output: List(),
         terminationReason: null,
-        ticks: 0,
     });
 
     public static activeIpState = (state: HexagonyState): InstructionPointer =>
@@ -257,7 +257,7 @@ export class HexagonyStateUtils {
             mp,
             output,
             terminationReason: null,
-            ticks: state.ticks + 1,
+            id: state.id + 1,
         };
     }
 

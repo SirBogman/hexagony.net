@@ -10,13 +10,15 @@ export interface IUndoItem {
 
 export type CodeChangeContext = {
     readonly edgeTraversal?: EdgeTraversal;
+    executionStateId?: number;
     readonly direction?: Direction;
     readonly i: number;
     readonly j: number;
     readonly newDirection?: Direction;
     readonly newI?: number;
     readonly newJ?: number;
-    readonly synchronizedExecutionTicks?: number;
 };
 
 export type CodeChangeCallback = (char: string, codeChangeContext: CodeChangeContext) => void;
+
+export type UndoFunction = (preview?: boolean) => CodeChangeContext | null;
