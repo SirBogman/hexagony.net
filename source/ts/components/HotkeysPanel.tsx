@@ -15,7 +15,7 @@ const HotkeysPanelFunction: React.FC<IHotkeysPanelProps> = ({ directionalTyping 
         </> : null;
 
     return (
-        <div id="hotkeysPanel">
+        <div id="hotkeysPanel" className="appPanel">
             <h1>Hotkeys</h1>
             <div id="hotkeysGrid">
                 {space}

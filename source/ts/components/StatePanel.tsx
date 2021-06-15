@@ -77,7 +77,7 @@ export const StatePanel: React.FC<IStatePanelProps> = ({
     ipStates,
     onSelectedIPChanged
 }) =>
-    <div id="statePanel">
+    <div id="statePanel" className="appPanel">
         <div id='statePanelTop'>
             <h1>State</h1>
             <div id='terminationReasonText'>{terminationReason}</div>

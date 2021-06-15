@@ -43,16 +43,12 @@ header {
     grid-area: header;
 }
 
-#appGrid > div {
+#appGrid > div.appPanel {
     background: var(--panel-background);
     padding: 0.5rem;
     // Overflow must be hidden in all panels to prevent horizontal scroll bars in the narrow layout.
     overflow: hidden;
     color: var(--foreground-color);
-}
-
-#appGrid > div.hiddenSection {
-    display: none;
 }
 
 #codePanel {

@@ -29,7 +29,7 @@ export const InfoContent: React.FC<IInfoPanelProps> = ({
     </>;
 
 export const InfoPanel: React.FC<IInfoPanelProps> = props =>
-    <div id="infoPanel">
+    <div id="infoPanel" className="appPanel">
         <h1>Info</h1>
         <div id="infoInfo">
             <InfoContent {...props}/>

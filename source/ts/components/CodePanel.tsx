@@ -4,7 +4,7 @@ import React from 'react';
 export class CodePanel extends React.PureComponent {
     render(): JSX.Element {
         return (
-            <div id="codePanel">
+            <div id="codePanel" className="appPanel">
                 <div id="focusProxy" tabIndex={0}/>
                 <div id="codeSvgContainer">
                     <div id="codeSvgParent">

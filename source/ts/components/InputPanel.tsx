@@ -20,7 +20,7 @@ export const InputPanel: React.FC<IInputPanelProps> = ({
     onInputChanged,
     onInputModeChanged
 }) =>
-    <div id="inputPanel">
+    <div id="inputPanel" className="appPanel">
         <h1>Input</h1>
         <div className="radio">
             <label title="Arguments input mode: each line of input is considered an argument and arguments are separate by null characters (ASCII 0). This is compatible with Code Golf.">

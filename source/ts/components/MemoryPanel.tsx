@@ -92,7 +92,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
     render(): JSX.Element {
         const { delay, memory, mp } = this.props;
         return (
-            <div id="memoryPanel">
+            <div id="memoryPanel" className="appPanel">
                 <h1>Memory</h1>
                 <div id="memoryContainer">
                     <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>

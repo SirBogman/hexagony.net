@@ -21,7 +21,7 @@ export const ImportExportPanel: React.FC<IImportExportPanelProps> = ({
     onLayoutCode,
     onMinifyCode
 }) =>
-    <div id="importExportPanel">
+    <div id="importExportPanel" className="appPanel">
         <h1>Import/Export</h1>
         <div>
             <button className="editButton bodyButton"
