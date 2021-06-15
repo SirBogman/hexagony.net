@@ -568,7 +568,7 @@ export class GridView {
                 return;
             }
         }
-        if (event.key === 'Backspace' || event.key === 'Delete') {
+        else if (event.key === 'Backspace' || event.key === 'Delete') {
             if (this.directionalTyping && event.key === 'Backspace') {
                 this.advanceCursor(i, j, k, '.', true);
             }
