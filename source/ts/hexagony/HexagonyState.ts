@@ -34,8 +34,8 @@ export type HexagonyState = {
     readonly terminationReason: string | null;
 };
 
-export class HexagonyStateUtils {
-    public static fromContext = ({ size }: HexagonyContext): HexagonyState => ({
+export const HexagonyStateUtils = Object.freeze({
+    fromContext: ({ size }: HexagonyContext): HexagonyState => ({
         activeIp: 0,
         edgeTraversals: [],
         id: 0,
@@ -52,20 +52,20 @@ export class HexagonyStateUtils {
         mp: MemoryPointer.initialState,
         output: List(),
         terminationReason: null,
-    });
+    }),
 
-    public static activeIpState = (state: HexagonyState): InstructionPointer =>
-        state.ips[state.activeIp];
+    activeIpState: (state: HexagonyState): InstructionPointer =>
+        state.ips[state.activeIp],
 
     /**
      * Set the value of the current memory edge. Used to determine whether branches are followed for directional typing.
      */
-    public static setMemoryValue = (state: HexagonyState, value: bigint | number): HexagonyState => ({
+    setMemoryValue: (state: HexagonyState, value: bigint | number): HexagonyState => ({
         ...state,
         memory: state.memory.setValue(state.mp, value),
-    });
+    }),
 
-    public static setIpLocation = (state: HexagonyState, coords: PointAxial, dir: Direction): HexagonyState => ({
+    setIpLocation: (state: HexagonyState, coords: PointAxial, dir: Direction): HexagonyState => ({
         ...state,
         ips: update(state.ips, state.activeIp, ip => ({
             coords,
@@ -75,9 +75,9 @@ export class HexagonyStateUtils {
             // since this method is only used for directional typing.
             executionHistory: ip.executionHistory,
         })),
-    });
+    }),
 
-    public static step(state: HexagonyState, context: HexagonyContext): HexagonyState {
+    step(state: HexagonyState, context: HexagonyContext): HexagonyState {
         if (state.terminationReason) {
             return state;
         }
@@ -89,7 +89,7 @@ export class HexagonyStateUtils {
 
         if (context.reverse) {
             dir = dir.reverse;
-            coords = HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp, edgeTraversals);
+            coords = handleMovement(context.size, coords, dir, memory, mp, edgeTraversals);
         }
 
         let [i, j] = context.axialToIndex(coords);
@@ -220,7 +220,7 @@ export class HexagonyStateUtils {
             case '$':
                 // When reversing for directional typing, ignore $, because not doing so would make it more confusing.
                 if (!context.reverse) {
-                    coords = HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp, edgeTraversals);
+                    coords = handleMovement(context.size, coords, dir, memory, mp, edgeTraversals);
                 }
                 break;
 
@@ -242,7 +242,7 @@ export class HexagonyStateUtils {
             dir = dir.reverse;
         }
         else {
-            coords = HexagonyStateUtils.handleMovement(context.size, coords, dir, memory, mp, edgeTraversals);
+            coords = handleMovement(context.size, coords, dir, memory, mp, edgeTraversals);
         }
 
         [i, j] = context.axialToIndex(coords);
@@ -259,65 +259,65 @@ export class HexagonyStateUtils {
             terminationReason: null,
             id: state.id + 1,
         };
+    },
+});
+
+const edgeTraversal = (coords: PointAxial, dir: Direction, edgeType = '0', isBranch = false): EdgeTraversal => ({
+    edgeName: `${coords},${dir},${edgeType}`,
+    isBranch,
+});
+
+function handleMovement(
+    size: number,
+    coords: PointAxial,
+    dir: Direction,
+    memory: Memory,
+    mp: MemoryPointer,
+    edgeTraversals: EdgeTraversal[]): PointAxial {
+    const newCoords = coords.add(dir.vector);
+
+    if (size === 1) {
+        return new PointAxial(0, 0);
     }
 
-    private static edgeTraversal = (coords: PointAxial, dir: Direction, edgeType = '0', isBranch = false): EdgeTraversal => ({
-        edgeName: `${coords},${dir},${edgeType}`,
-        isBranch,
-    });
+    const x = newCoords.q;
+    const z = newCoords.r;
+    const y = -x - z;
 
-    private static handleMovement(
-        size: number,
-        coords: PointAxial,
-        dir: Direction,
-        memory: Memory,
-        mp: MemoryPointer,
-        edgeTraversals: EdgeTraversal[]): PointAxial {
-        const newCoords = coords.add(dir.vector);
+    if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < size) {
+        return newCoords;
+    }
 
-        if (size === 1) {
-            return new PointAxial(0, 0);
-        }
+    const xBigger = Math.abs(x) >= size;
+    const yBigger = Math.abs(y) >= size;
+    const zBigger = Math.abs(z) >= size;
 
-        const x = newCoords.q;
-        const z = newCoords.r;
-        const y = -x - z;
+    // If two values are still in range, we are wrapping around an edge (not a corner).
+    if (!xBigger && !yBigger) {
+        edgeTraversals.push(edgeTraversal(coords, dir));
+        return new PointAxial(coords.q + coords.r, -coords.r);
+    }
+    else if (!yBigger && !zBigger) {
+        edgeTraversals.push(edgeTraversal(coords, dir));
+        return new PointAxial(-coords.q, coords.q + coords.r);
+    }
+    else if (!zBigger && !xBigger) {
+        edgeTraversals.push(edgeTraversal(coords, dir));
+        return new PointAxial(-coords.r, -coords.q);
+    }
+    else {
+        // If two values are out of range, we navigated into a corner.
+        // We teleport to a location that depends on the current memory value.
+        const isPositive = memory.getValue(mp) > 0;
+        edgeTraversals.push(edgeTraversal(coords, dir, isPositive ? '+' : '-', true));
 
-        if (Math.max(Math.abs(x), Math.abs(y), Math.abs(z)) < size) {
-            return newCoords;
-        }
-
-        const xBigger = Math.abs(x) >= size;
-        const yBigger = Math.abs(y) >= size;
-        const zBigger = Math.abs(z) >= size;
-
-        // If two values are still in range, we are wrapping around an edge (not a corner).
-        if (!xBigger && !yBigger) {
-            edgeTraversals.push(HexagonyStateUtils.edgeTraversal(coords, dir));
+        if (!xBigger && !isPositive || !yBigger && isPositive) {
             return new PointAxial(coords.q + coords.r, -coords.r);
         }
-        else if (!yBigger && !zBigger) {
-            edgeTraversals.push(HexagonyStateUtils.edgeTraversal(coords, dir));
+        else if (!yBigger || !zBigger && isPositive) {
             return new PointAxial(-coords.q, coords.q + coords.r);
         }
-        else if (!zBigger && !xBigger) {
-            edgeTraversals.push(HexagonyStateUtils.edgeTraversal(coords, dir));
-            return new PointAxial(-coords.r, -coords.q);
-        }
-        else {
-            // If two values are out of range, we navigated into a corner.
-            // We teleport to a location that depends on the current memory value.
-            const isPositive = memory.getValue(mp) > 0;
-            edgeTraversals.push(HexagonyStateUtils.edgeTraversal(coords, dir, isPositive ? '+' : '-', true));
 
-            if (!xBigger && !isPositive || !yBigger && isPositive) {
-                return new PointAxial(coords.q + coords.r, -coords.r);
-            }
-            else if (!yBigger || !zBigger && isPositive) {
-                return new PointAxial(-coords.q, coords.q + coords.r);
-            }
-
-            return new PointAxial(-coords.r, -coords.q);
-        }
+        return new PointAxial(-coords.r, -coords.q);
     }
 }
