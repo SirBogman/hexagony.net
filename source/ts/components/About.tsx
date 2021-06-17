@@ -29,8 +29,8 @@ export const About: React.FC = () =>
                 specification.
             </p>
             <h4>Is Hexagony.net open source?</h4>
-            <p>Yes! It&apos;s licensed under <a href="//opensource.org/licenses/MIT">the MIT license</a> and available
-                on <a href="//github.com/SirBogman/hexagony.net">GitHub</a>. Patches are welcome.
+            <p>Yes! It’s licensed under <a href="//opensource.org/licenses/MIT">the MIT license</a> and available on
+                <a href="//github.com/SirBogman/hexagony.net">GitHub</a>. Patches are welcome.
                 Please <a href="//github.com/SirBogman/hexagony.net/issues/new">report any issues</a>.
             </p>
             <h4>Can I see an example program?</h4>
@@ -97,8 +97,8 @@ export const About: React.FC = () =>
                     direction. This makes it easier to use synchronized directional typing.
                 </li>
                 <li>Directional typing can be turned off, by clicking the toolbar icon and then
-                    &quot;Disable Directional Typing&quot;. When disabled, you can move the cursor with the mouse or the
-                    arrow keys.</li>
+                    “Disable Directional Typing”. When disabled, you can move the cursor with the mouse or the arrow
+                    keys.</li>
             </ul>
             <h3>Step Back</h3>
             <p>
@@ -119,8 +119,8 @@ export const About: React.FC = () =>
                     <PlayIcon/>
                 </IconBorder>
                 You can change the Hexagony program and the input, while the program is running.
-                It doesn&apos;t affect previously executed instructions or previously consumed input.
-                It&apos;s not necessary to pause execution when editing code, but it&apos;s generally a good idea.
+                It doesn’t affect previously executed instructions or previously consumed input.
+                It’s not necessary to pause execution when editing code, but it’s generally a good idea.
             </p>
             <h3>Breakpoints</h3>
             <p>
@@ -189,7 +189,7 @@ export const About: React.FC = () =>
             <h4>Is there a fast command-line interpreter for Hexagony?</h4>
             <p>
                 This <a href="//github.com/SirBogman/Hexagony">C# interpreter</a> is faster than the reference
-                implementation. Additionally, it&apos;s the Hexagony interpreter
+                implementation. Additionally, it’s the Hexagony interpreter
                 for <a href="//code.golf/fibonacci#hexagony">Code Golf</a>.
             </p>
         </main>
