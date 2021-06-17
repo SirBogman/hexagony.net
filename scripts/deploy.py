@@ -26,19 +26,6 @@ def runNpmScript(name):
 def buildSite():
     subprocess.run('npm run build', cwd=ROOT, shell=True, check=True)
 
-def updateFiles():
-    for root, dirs, files in os.walk(BUILD_DIR):
-        for name in files:
-            if name.endswith('.html'):
-                path = os.path.join(root, name)
-                with open(path, 'r') as file:
-                    text = file.read()
-                newText = text.replace('VERSION_STRING', TIMESTAMP)
-                if text != newText:
-                    with open(path, 'w') as file:
-                        file.write(newText)
-                    print(f'Updated VERSION_STRING in {path}')
-
 def s3Upload():
     # s3 = boto3.client('s3')
     # for root, dirs, files in os.walk(BUILD_DIR):
@@ -62,7 +49,7 @@ def invalidate():
             'Paths': {
                 'Quantity': 1,
                 'Items': [
-                    '/*',
+                    '/*.html',
                 ]
             },
             'CallerReference': TIMESTAMP
@@ -93,7 +80,6 @@ def _main():
     runNpmScript("eslint")
     runNpmScript("tsc")
     runNpmScript("build")
-    updateFiles()
     s3Upload()
     invalidate()
 

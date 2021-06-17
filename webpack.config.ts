@@ -1,7 +1,11 @@
 /* eslint @typescript-eslint/no-var-requires: off */
 const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const htmlTemplate = './source/template.html.ejs';
 
 module.exports = {
     entry: {
@@ -9,7 +13,7 @@ module.exports = {
         secondary: './source/ts/secondary.ts',
     },
     output: {
-        filename: '[name].mjs',
+        filename: '[name].[contenthash].mjs',
         path: path.resolve(__dirname, 'build'),
     },
     devServer: {
@@ -31,12 +35,9 @@ module.exports = {
         ],
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new CopyPlugin({
             patterns: [
-                { from: 'source/index.html', to: 'index.html' },
-                { from: 'source/403.html', to: '403.html' },
-                { from: 'source/404.html', to: '404.html' },
-                { from: 'source/about.html', to: 'about.html' },
                 { from: 'source/icon.svg', to: 'icon.svg' },
                 { from: 'source/icon-16.png', to: 'icon-16.png' },
                 { from: 'source/icon-32.png', to: 'icon-32.png' },
@@ -45,7 +46,38 @@ module.exports = {
             ],
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
+            filename: '[name].[contenthash].css',
+        }),
+        new HtmlWebpackPlugin({
+            chunks: ['main'],
+            filename: 'index.html',
+            isReactApp: true,
+            template: htmlTemplate,
+            title: 'Hexagony',
+        }),
+        new HtmlWebpackPlugin({
+            chunks: ['secondary'],
+            filename: 'about.html',
+            hasReactHeader: true,
+            isReactApp: true,
+            template: htmlTemplate,
+            title: 'About',
+        }),
+        new HtmlWebpackPlugin({
+            chunks: ['secondary'],
+            filename: '403.html',
+            hasReactHeader: true,
+            isErrorMessage: true,
+            template: htmlTemplate,
+            title: '403 Forbidden',
+        }),
+        new HtmlWebpackPlugin({
+            chunks: ['secondary'],
+            filename: '404.html',
+            hasReactHeader: true,
+            isErrorMessage: true,
+            template: htmlTemplate,
+            title: '404 Not Found',
         }),
     ],
     resolve: {
