@@ -11,6 +11,7 @@ import { CodeChangeCallback, CodeChangeContext, UndoFunction } from './UndoItem'
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
 import '../../styles/GridView.scss';
+import { getInstructionDescription } from '../hexagony/Instructions';
 
 const edgeTransitionSizeLimit = 25;
 
@@ -482,7 +483,8 @@ export class GridView {
                 }
                 else {
                     const text = assertNotNull(cell.querySelector('text'), 'cell text');
-                    GridView.setSvgText(text, char);
+                    const title = assertNotNull(cell.querySelector('title'), 'cell title');
+                    GridView.setSvgText(text, title, char);
                 }
             }
         }
@@ -807,6 +809,7 @@ export class GridView {
         // Hide the text in the SVG cell, create an input element, and select it.
         const svgCell = this.cellPaths[k][i][j];
         const svgText = assertNotNull(svgCell.querySelector('text'), 'svgCell text');
+        const svgTitle = assertNotNull(svgCell.querySelector('title'), 'svgCell title');
         const originalText = assertNotNull(svgText.textContent, 'svgText.textContent');
 
         const input = document.createElement('input');
@@ -817,6 +820,7 @@ export class GridView {
         input.maxLength = 1;
         input.classList.add('cellInput');
         input.value = originalText;
+        input.title = getInstructionDescription(originalText);
         // Temporarily clear the text.
         svgText.textContent = '';
 
@@ -848,6 +852,7 @@ export class GridView {
                 this.updateCodeCallback(newText, { i, j });
                 // Reselect the text so that backspace can work normally.
                 input.select();
+                input.title = getInstructionDescription(newText);
             }
         });
 
@@ -862,7 +867,7 @@ export class GridView {
             this.clearTypingDirectionArrow(i, j, k);
             svgCell.removeChild(container);
             const newText = removeWhitespaceAndDebug(input.value) || '.';
-            GridView.setSvgText(svgText, newText);
+            GridView.setSvgText(svgText, svgTitle, newText);
         });
     }
 
@@ -1023,9 +1028,10 @@ export class GridView {
         }
     }
 
-    private static setSvgText(textElement: Element, text: string): void {
+    private static setSvgText(textElement: SVGTextElement, titleElement: HTMLTitleElement, text: string): void {
         textElement.textContent = text;
         textElement.classList.toggle('noop', text === '.');
+        titleElement.textContent = getInstructionDescription(text);
     }
 
     private addEdgeConnector(key: string, connector: SVGElement, isSecondary: boolean): void {
@@ -1134,7 +1140,6 @@ export class GridView {
             for (let i = 0; i < this.rowCount; i++) {
                 const pathRow = [];
                 for (let j = 0; j < getRowSize(size, i); j++) {
-                    const tooltip = `Coordinates: (${indexToAxial(size, i, j)})`;
                     const cell = this.cellTemplate.cloneNode(true) as CellSVGElement;
                     cell.hasBreakpoint = false;
                     cell.directions = [];
@@ -1143,8 +1148,6 @@ export class GridView {
                     const cellY = getY(i, k);
                     cell.id = `path_${i}_${j}_${k}`;
                     cell.setAttribute('transform', `translate(${cellX},${cellY})`);
-                    const title = assertNotNull(cell.querySelector('title'), 'cell title');
-                    title.textContent = tooltip;
                     hexagonParents[k].appendChild(cell);
                 }
                 pathGrid.push(pathRow);
