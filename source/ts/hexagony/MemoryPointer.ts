@@ -29,7 +29,7 @@ export class MemoryPointer {
     }
 
     get dataKey(): string {
-        return `${this.mp},${this.dir}`;
+        return `${this.mp.toString()},${this.dir.toString()}`;
     }
 
     reverse(): MemoryPointer {
