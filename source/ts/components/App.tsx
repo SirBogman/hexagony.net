@@ -170,7 +170,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
         // Can't use applySourceCodeChange, because side effects (the confirm dialog)
         // aren't compatible with produce.
-        if (!newCode.match(/-|:|%|\^|&/) ||
+        if (!/-|:|%|\^|&/.exec(newCode) ||
             confirm('Reversing the direction of memory movement commands will change the functionality of this program.')) {
             this.updateState(state => App.applyCodeChangeToState(state, newCode));
         }

@@ -75,7 +75,7 @@ export function isWhitespaceOrDebug(char: string): boolean {
 }
 
 export function containsWhitespace(code: string): boolean {
-    return Boolean(code.match(/ |\t|\n|\v|\f|\r/));
+    return Boolean(/ |\t|\n|\v|\f|\r/.exec(code));
 }
 
 export function removeWhitespace(code: string): string {
