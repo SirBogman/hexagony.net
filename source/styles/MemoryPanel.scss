@@ -6,13 +6,10 @@ div #memoryPanel {
     grid-template-rows: auto 1fr;
 }
 
-div #memoryPanel > h1 {
-    margin: 0.5rem;
-}
-
 #memoryContainer {
     grid-column: 1/3;
     overflow: hidden;
+    margin-top: 0.5rem;
 }
 
 .memoryCell {
@@ -38,5 +35,5 @@ div #memoryPanel > h1 {
     justify-self: end;
     grid-column: 2;
     grid-row: 1;
-    margin: 0.5rem;
+    margin: 0.5rem 0;
 }
