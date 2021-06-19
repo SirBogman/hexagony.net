@@ -63,7 +63,7 @@ const instructionDescriptions = new Map<string, string>([
 ]);
 
 const characterDescription = (character: string): string =>
-    `Sets the current memory edge to the character’s codepoint: ${character.codePointAt(0)}.`;
+    `Sets the current memory edge to the character’s codepoint: ${character.codePointAt(0) as number}.`;
 
 export const getInstructionDescription = (character: string): string =>
     instructionDescriptions.get(character) ?? characterDescription(character);

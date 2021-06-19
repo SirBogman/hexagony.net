@@ -27,11 +27,11 @@ const DirectionPickerButton: React.FC<IDirectionPickerButtonProps> = ({
     polygonPoints
 }) =>
     <button
-        aria-label={`${direction} Typing Direction`}
+        aria-label={`${direction.toString()} Typing Direction`}
         aria-checked={activeDirection === direction}
         className="directionPickerButton"
         onClick={event => onClick(direction, event)}
-        title={`Set typing direction to ${direction}`}>
+        title={`Set typing direction to ${direction.toString()}`}>
         <svg viewBox="0 0 50 26" width="100" height="52">
             <rect fill="transparent" height="26" width="50"/>
             <polygon fill="currentColor" points={polygonPoints}/>

@@ -263,7 +263,7 @@ export const HexagonyStateUtils = Object.freeze({
 });
 
 const edgeTraversal = (coords: PointAxial, dir: Direction, edgeType = '0', isBranch = false): EdgeTraversal => ({
-    edgeName: `${coords},${dir},${edgeType}`,
+    edgeName: `${coords.toString()},${dir.toString()},${edgeType}`,
     isBranch,
 });
 
