@@ -23,7 +23,10 @@ rules:
   # '@typescript-eslint/explicit-function-return-type': warn
   '@typescript-eslint/no-unused-vars': warn
   '@typescript-eslint/no-extra-parens': warn
+  '@typescript-eslint/no-extraneous-class': warn
   '@typescript-eslint/no-useless-constructor': warn
+  # '@typescript-eslint/explicit-member-accessibility': warn
+  # '@typescript-eslint/prefer-readonly': warn
   # This rule requires generating parsers:
   # '@typescript-eslint/no-unnecessary-condition':
   #   - warn
