@@ -5,17 +5,29 @@ env:
 extends:
   - eslint:recommended
   - plugin:react/recommended
-parser: '@babel/eslint-parser'
+  - plugin:react-hooks/recommended
+  - plugin:@typescript-eslint/recommended
+  # This requires generating parsers:
+  # - plugin:@typescript-eslint/recommended-requiring-type-checking
+ignorePatterns:
+  - webpack.config.ts
+parser: '@typescript-eslint/parser'
 parserOptions:
-  ecmaVersion: 12
-  sourceType: module
   ecmaFeatures:
     jsx: true
-plugins:
-  - '@babel'
+  ecmaVersion: 12
+  sourceType: module
+  project: ./tsconfig.json
 rules:
   # https://eslint.org/docs/rules/
-  # eqeqeq: warn
+  # '@typescript-eslint/explicit-function-return-type': warn
+  '@typescript-eslint/no-unused-vars': warn
+  '@typescript-eslint/no-extra-parens': warn
+  '@typescript-eslint/no-useless-constructor': warn
+  # This rule requires generating parsers:
+  # '@typescript-eslint/no-unnecessary-condition':
+  #   - warn
+  #   - allowConstantLoopConditions: true
   array-bracket-spacing:
     - warn
     - never
@@ -33,6 +45,7 @@ rules:
   curly: warn
   dot-notation: warn
   eol-last: warn
+  eqeqeq: warn
   func-call-spacing: warn
   indent:
     - warn
@@ -45,7 +58,6 @@ rules:
     - 120
   no-array-constructor: warn
   no-duplicate-imports: warn
-  no-extra-parens: warn
   no-lonely-if: warn
   no-multi-spaces: warn
   no-multiple-empty-lines:
@@ -54,7 +66,8 @@ rules:
   no-new-wrappers: warn
   no-trailing-spaces: warn
   no-unneeded-ternary: warn
-  no-unused-vars: warn
+  no-unused-expressions: warn
+  no-useless-return: warn
   no-var: warn
   no-whitespace-before-property: warn
   object-shorthand: warn
@@ -76,6 +89,8 @@ rules:
     - avoidEscape: true
   react/jsx-indent: warn
   react/no-typos: warn
+  # Disable react/prop-types, because it complains about types that could be inferred when using React.FC<Props>.
+  react/prop-types: off
   semi: warn
   template-curly-spacing: warn
   unicode-bom: warn

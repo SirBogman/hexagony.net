@@ -1,0 +1,65 @@
+@use 'sass:math';
+@use 'header.scss';
+
+$directionalTypingButtonSvgHeight: 56;
+
+svg.buttonSvg.directionalTypingButton {
+    // This is kind of hacky, because this is the tallest button.
+    // I could update the other buttons to use the same size viewport. It might have a very subtle effect on stroke thickness.
+    height: math.div(header.$buttonInnerHeight * $directionalTypingButtonSvgHeight, header.$buttonSvgHeight);
+}
+
+button.directionPickerButton {
+    color: var(--direction-picker-inactive);
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+button[aria-checked=true].directionPickerButton {
+    color: var(--direction-picker-foreground);
+}
+
+.directionPickerContainer {
+    display: grid;
+    color: var(--direction-picker-foreground);
+    grid-template-columns: 100px 100px;
+    grid-template-rows: 52px 52px 52px 52px;
+    background: var(--direction-picker-background);
+    border: solid 2px var(--direction-picker-border);
+    z-index: 2;
+}
+
+.directionPickerContainer.hidden {
+    display: none;
+}
+
+.directionPickerHexagon {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    pointer-events: none;
+}
+
+button.directionalTypingOffButton {
+    grid-column: 1/3;
+    padding: 0px;
+    background: transparent;
+    border: none;
+    color: var(--header-disabled-color);
+    margin: 0.5rem;
+}
+
+button.directionalTypingOffButton:enabled {
+    color: var(--direction-picker-foreground);
+}
+
+@media (hover: hover) {
+    button.directionalTypingOffButton:enabled:hover {
+        background: var(--header-hover-inactive);
+    }
+
+    button[aria-checked=false].directionPickerButton:hover {
+        color: var(--direction-picker-hover);
+    }
+}

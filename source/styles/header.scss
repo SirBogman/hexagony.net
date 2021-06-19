@@ -1,0 +1,188 @@
+$buttonInnerWidth: 1.5rem;
+$buttonInnerHeight: 1.5rem;
+$buttonSvgHeight: 50;
+$buttonOuterWidth: 2.75rem;
+$narrowButtonOuterWidth: 2.35rem;
+// $sliderButtonWidth is the width of the slider in button widths.
+$sliderButtonWidth: 3;
+$narrowSliderButtonWidth: 2;
+$buttonCount: 18;
+$narrowWidthPadding: 0.5;
+$transitionTime: 0.2s;
+
+body header {
+    background: var(--header-background);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+header nav {
+    margin: auto;
+    max-width: 1280px;
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+    grid-template-rows: auto;
+    grid-template-areas:
+        "navigation spacer1 viewControls spacer2 editControls spacer3 playControls";
+}
+
+nav > #navigation {
+    grid-area: navigation;
+}
+
+nav > #viewControls {
+    grid-area: viewControls;
+}
+
+nav > #editControls {
+    grid-area: editControls;
+    justify-self: right;
+}
+
+nav > #playControls {
+    grid-area: playControls;
+    justify-self: right;
+}
+
+svg.buttonSvg {
+    height: $buttonInnerWidth;
+}
+
+.toolbarButton,
+#speedSliderContainer {
+    height: $buttonOuterWidth;
+    width: $buttonOuterWidth;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    color: var(--header-foreground);
+    fill: var(--header-foreground);
+}
+
+.toolbarButton {
+    transition: background-color $transitionTime ease-out, color $transitionTime ease-out;
+}
+
+header > nav .group {
+    display: flex;
+}
+
+button.toolbarButton {
+    background: var(--header-background);
+    border: none;
+    padding: 0;
+}
+
+a.toolbarButton.active,
+button.toolbarButton[aria-checked=true] {
+    background: var(--header-foreground);
+    color: var(--header-background);
+}
+
+@media (hover: hover) {
+    a.toolbarButton:hover,
+    button.toolbarButton:enabled:hover,
+    button.toolbarButton[aria-expanded=true] {
+        background: var(--header-hover-inactive);
+    }
+
+    a.toolbarButton.active:hover,
+    button.toolbarButton[aria-checked=true]:enabled:hover,
+    button.toolbarButton[aria-checked=true][aria-expanded=true] {
+        background: var(--header-hover-active);
+    }
+}
+
+button.toolbarButton:disabled {
+    color: var(--header-disabled-color);
+}
+
+#speedSliderContainer.focused {
+    border: 1px dotted var(--header-foreground);
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    opacity: 0.8;
+    transition: opacity $transitionTime ease-out;
+    height: 1px;
+    // don't put a weird outline on it when using it in Chrome.
+    outline: none;
+}
+
+input[type=range]:hover,
+input[type=range]:focus {
+    opacity: 1.0;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--header-foreground);
+    width: 10px;
+    height: $buttonInnerHeight;
+}
+
+input[type=range]::-moz-range-thumb {
+    width: 10px;
+    height: $buttonInnerHeight;
+    background: var(--header-foreground);
+    border-radius: 0;
+    border: none;
+}
+
+#speedSliderContainer {
+    width: $buttonOuterWidth * $sliderButtonWidth;
+}
+
+#speedSlider {
+    width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
+}
+
+@media (max-width: 1000px) {
+    // Reduce the outer width of buttons a bit, before changing to the one column layout.
+    $buttonOuterWidth: $narrowButtonOuterWidth;
+    $sliderButtonWidth: $narrowSliderButtonWidth;
+
+    .toolbarButton {
+        width: $buttonOuterWidth;
+    }
+
+    #speedSliderContainer {
+        width: $buttonOuterWidth * $sliderButtonWidth;
+    }
+
+    #speedSlider {
+        width: $sliderButtonWidth * $buttonOuterWidth - ($buttonOuterWidth - $buttonInnerWidth);
+    }
+}
+
+// Use two-row toolbar for small widths.
+// window.innerWidth values:
+// Portrait:
+// iPhone 8: 375
+// iPhone 12: 390
+// iPhone 12 Pro: 390
+// iPhone 12 Pro Max: 428
+// Landscape:
+// iPhone 8: 667
+// iPhone 12: 750
+// iPhone 12 Pro: 750
+// iPhone 12 Pro Max: 832
+$two-row-width: ($buttonCount + $narrowSliderButtonWidth + $narrowWidthPadding) * $narrowButtonOuterWidth;
+@debug 'Two Row Width' $two-row-width;
+
+@media (max-width: $two-row-width) {
+    header nav {
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+        "navigation spacer1 editControls"
+        "viewControls spacer1 playControls";
+    }
+
+    .largeToolbarOnly {
+        display: none;
+    }
+}

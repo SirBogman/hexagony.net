@@ -2,7 +2,7 @@
 
 ## About
 
-This is the source code for [hexagony.net](https://hexagony.net), an online IDE for the [Hexagony](https://esolangs.org/wiki/hexagony) esoteric programming language.
+This is the source code for [hexagony.net](https://hexagony.net), an online integrated development environment (IDE) for the [Hexagony](https://esolangs.org/wiki/hexagony) esoteric programming language.
 
 ## Related
 

@@ -1,0 +1,221 @@
+@use 'sass:color';
+@use 'root.scss';
+
+.cellPath {
+    fill: var(--hexagon-fill);
+    stroke: var(--hexagon-stroke);
+    stroke-width: 0.5;
+    transition-timing-function: ease-out;
+}
+
+.cellInput {
+    font-size: 20px;
+    text-align: center;
+    outline: none;
+    padding: 0;
+    border-width: 0;
+    background: none;
+    font-family: root.$monospace;
+    color: var(--cell-text-color);
+}
+
+.cellText {
+    fill: var(--cell-text-color);
+    stroke: none;
+    font-size: 20px;
+    font-family: root.$monospace;
+}
+
+.noop {
+    fill: var(--hexagon-stroke);
+}
+
+.outline {
+    fill: none;
+    stroke: var(--cell-text-color);
+    stroke-width: 1.5;
+}
+
+.outlineSecondary {
+    fill: none;
+    stroke: var(--cell-text-color);
+    stroke-width: 0.75;
+}
+
+.cellBreakpoint {
+    fill: none;
+    stroke: var(--red);
+    stroke-width: 1.5;
+}
+
+.cellExecutedArrow {
+    animation: fadeIn ease-out;
+    stroke: none;
+    fill: rgba(0, 0, 0, 0);
+    transition-property: fill;
+}
+
+@function scaleLightness($color, $amount) {
+    // Example:
+    // color.scale(hsl(0, 100%, 70%), $lightness: 50%) == hsl(0, 100%, 85%)
+    @return color.scale($color, $lightness: $amount);
+}
+
+// This should match executedColorCount in gridview.mjs.
+$executedColorCount: 10;
+
+// Arrays for light and dark values.
+$colorModes: Light Dark;
+$arrowLightnessShifts: -50% 50%;
+$secondaryLightnessShifts: 75% -65%;
+$executedMinLightnessValues: 66% -51%;
+$executedMaxLightnessValues: 88% -73%;
+$executedLightnessShifts: 90% -75%;
+$executedLightnessIncrements:
+    (nth($executedMaxLightnessValues, 1) - nth($executedMinLightnessValues, 1)) / ($executedColorCount - 1)
+    (nth($executedMaxLightnessValues, 2) - nth($executedMinLightnessValues, 2)) / ($executedColorCount - 1);
+    
+$lightColors:
+    hsl(200, 100%, 50%)
+    hsl(270, 100%, 70%)
+    hsl(0, 100%, 70%)
+    hsl(30, 100%, 50%)
+    hsl(60, 90%, 50%)
+    hsl(140, 80%, 50%);
+
+$darkColors:
+    hsl(200, 100%, 50%)
+    hsl(270, 100%, 60%)
+    hsl(0, 100%, 50%)
+    hsl(30, 100%, 50%)
+    hsl(60, 90%, 40%)
+    hsl(140, 80%, 40%);
+
+$colorLists: $lightColors $darkColors;
+
+@for $colorModeIndex from 1 through 2 {
+    $colorMode: nth($colorModes, $colorModeIndex); 
+    $colors: nth($colorLists, $colorModeIndex);
+    $executedMinLightness: nth($executedMinLightnessValues, $colorModeIndex);
+    $arrowLightnessShift: nth($arrowLightnessShifts, $colorModeIndex);
+
+    @for $j from 5 through 0 {
+        $color: nth($colors, $j + 1);
+        $executedColor: scaleLightness($color, nth($executedLightnessShifts, $colorModeIndex));
+
+        .colorSwatch#{$j}#{$colorMode} {
+            display: inline-block;
+            margin: 0 0.5rem;
+            border: 1px solid var(--foreground-color);
+            background: $color;
+            width: 0.8rem;
+            height: 0.8rem;
+        }
+
+        .arrowExecuted#{$j}#{$colorMode} {
+            fill: scaleLightness($executedColor, $arrowLightnessShift);
+        }
+
+        .cellExecuted#{$j}#{$colorMode} {
+            fill: $executedColor;
+        }
+
+        @for $i from $executedColorCount - 1 through 0 {
+            $value: $executedMinLightness + $i * nth($executedLightnessIncrements, $colorModeIndex);
+            $currentColor: scaleLightness($color, $value);
+            @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
+
+            .arrowExecuted#{$j}_#{$i}#{$colorMode} {
+                fill: scaleLightness($currentColor, $arrowLightnessShift);
+            }
+
+            .cellExecuted#{$j}_#{$i}#{$colorMode} {
+                fill: $currentColor;
+            }
+        }
+    }
+
+    // The active/inactive colors are generated in a separate loop so they always have higher priority.
+    @for $j from 5 through 0 {
+        $color: nth($colors, $j + 1);
+        $inactiveColor: scaleLightness($color, $executedMinLightness);
+
+        .arrowInactive#{$j}#{$colorMode} {
+            fill: scaleLightness($inactiveColor, $arrowLightnessShift);
+        }
+
+        .cellInactive#{$j}#{$colorMode} {
+            fill: $inactiveColor;
+        }
+
+        .arrowActive#{$j}#{$colorMode} {
+            fill: scaleLightness($color, $arrowLightnessShift);
+        }
+
+        .cellActive#{$j}#{$colorMode} {
+            fill: $color;
+        }
+
+        .cellActive#{$j}#{$colorMode}Secondary {
+            fill: scaleLightness($color, nth($secondaryLightnessShifts, $colorModeIndex));
+        }
+    }
+}
+
+.typingDirectionArrow {
+    fill: var(--text-color);
+}
+
+.connector {
+    fill: none;
+    stroke: var(--orange);
+    stroke-width: 1.0;
+}
+
+.positiveConnector > path {
+    stroke: var(--red);
+}
+
+.negativeConnector > path {
+    stroke: var(--blue);
+}
+
+.positiveText {
+    fill: var(--red);
+    font-size: 20px;
+}
+
+.negativeText {
+    fill: var(--blue);
+    font-size: 20px;
+}
+
+@keyframes connectorFlash {
+    to {
+        stroke-width: 6;
+    }
+}
+
+@keyframes connectorFlashSecondary {
+    to {
+        stroke-width: 4;
+    }
+}
+
+path.connectorFlash {
+    animation: connectorFlash 0.5s ease-out 0s 2 alternate;
+}
+
+path.connectorNeutralFlash {
+    stroke: var(--orange);
+    animation: connectorFlash 0.5s ease-out 0s 2 alternate;
+}
+
+path.connectorFlashSecondary {
+    animation: connectorFlashSecondary 0.5s ease-out 0s 2 alternate;
+}
+
+path.connectorNeutralFlashSecondary {
+    stroke: var(--orange);
+    animation: connectorFlashSecondary 0.5s ease-out 0s 2 alternate;
+}

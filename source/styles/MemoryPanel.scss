@@ -1,0 +1,42 @@
+div #memoryPanel {
+    grid-area: memoryPanel;
+    padding: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+}
+
+div #memoryPanel > h1 {
+    margin: 0.5rem;
+}
+
+#memoryContainer {
+    grid-column: 1/3;
+    overflow: hidden;
+}
+
+.memoryCell {
+    fill: none;
+    stroke: var(--hexagon-stroke);
+    stroke-width: 0.5;
+}
+
+#memoryPointer {
+    fill: var(--red);
+    stroke: none;
+    transition: transform .25s ease-out;
+}
+
+.memoryValue {
+    fill: none;
+    stroke: var(--set-memory);
+    stroke-width: 1.0;
+}
+
+#resetViewButton {
+    align-self: flex-end;
+    justify-self: end;
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0.5rem;
+}

@@ -1,0 +1,74 @@
+$monospace: Consolas, Menlo, monospace;
+
+:root {
+    --background: hsl(0, 0%, 99%);
+    --panel-background: hsl(0, 0%, 95%);
+    --output-background: hsl(0, 0%, 83%);
+    --button: hsl(0, 0%, 83%);
+    --hover-button: hsl(0, 0%, 90%);
+    --active-button: hsl(0, 0%, 99%);
+    --hexagon-stroke: hsl(0, 0%, 50%);
+    --hexagon-fill: white;
+    --disabled-color: hsl(210, 5%, 44%);
+    --red: hsl(358, 85%, 52%);
+    --blue: hsl(207, 74%, 42%);
+    --orange: hsl(33, 93%, 54%);
+    --foreground-color: black;
+    --set-memory: var(--foreground-color);
+    --cell-text-color: var(--foreground-color);
+    --text-color: var(--foreground-color);
+    --link-color: hsl(240, 97%, 45%);
+    --visited-link-color: hsl(271, 68%, 32%);
+    --active-link-color: hsl(0, 100%, 47%);
+
+    // The header is always dark. Some of its colors are different in dark mode.
+    --header-background: hsl(210, 10%, 23%);
+    --header-foreground: var(--background);
+    --header-disabled-color: hsl(210, 5%, 44%);
+    --header-hover-inactive: hsl(210, 5%, 40%);
+    --header-hover-active: hsl(0, 0%, 90%);
+    --direction-picker-inactive: hsl(210, 10%, 25%);
+    --direction-picker-background: hsl(210, 10%, 13%);
+    --direction-picker-hover: hsl(210, 5%, 40%);
+    --direction-picker-foreground: hsl(0, 0%, 99%);
+    --direction-picker-border: var(--direction-picker-background);
+}
+
+:root.darkMode {
+    --background: hsl(210, 10%, 13%);
+    --panel-background: hsl(210, 10%, 23%);
+    --output-background: var(--background);
+    --button: hsl(0, 0%, 30%);
+    --hover-button: hsl(0, 0%, 20%);
+    --active-button: hsl(0, 0%, 10%);
+    --hexagon-stroke: hsl(0, 0%, 50%);
+    --hexagon-fill: hsl(210, 10%, 10%);
+    --disabled-color: hsl(210, 5%, 44%);
+    --red: hsl(358, 85%, 60%);
+    --blue: hsl(207, 74%, 60%);
+    --orange: hsl(33, 93%, 60%);
+    // The foreground color is a bit darker than pure white, except in the hexagons, where maximum contrast
+    // is required, particularly for reading cell text on top of the active execution cell background color.
+    --foreground-color: hsl(0, 0%, 92%);
+    --set-memory: var(--foreground-color);
+    --text-color: var(--foreground-color);
+    --cell-text-color: var(--foreground-color);
+    --cell-text-color: hsl(0, 0%, 99%);
+    --link-color: hsl(200, 100%, 60%);
+    --visited-link-color: hsl(270, 100%, 70%);
+    --active-link-color: hsl(0, 100%, 60%);
+
+    --header-foreground: var(--foreground-color);
+    --header-hover-active: hsl(0, 0%, 80%);
+    --direction-picker-border: var(--foreground-color);
+}
+
+body {
+    background: var(--background);
+    font: 16px emoji,system-ui,-apple-system,sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
