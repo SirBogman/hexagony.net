@@ -50,7 +50,7 @@ export const HexagonyStateUtils = Object.freeze({
         ],
         memory: Memory.initialState,
         mp: MemoryPointer.initialState,
-        output: List(),
+        output: List<number>(),
         terminationReason: null,
     }),
 
