@@ -13,9 +13,9 @@ export interface ISourceCode {
  * Intended to be used as an immutable object.
  */
 export class SourceCode {
-    readonly size: number;
-    readonly grid: string[][];
-    readonly prefixGrid: string[][];
+    public readonly size: number;
+    public readonly grid: string[][];
+    public readonly prefixGrid: string[][];
 
     private constructor(size: number, grid: string[][], prefixGrid: string[][]) {
         this.size = size;
@@ -24,12 +24,12 @@ export class SourceCode {
         this.prefixGrid = prefixGrid;
     }
 
-    static fromObject(object: ISourceCode): SourceCode {
+    public static fromObject(object: ISourceCode): SourceCode {
         const { size, grid, prefixGrid } = object;
         return new SourceCode(size, grid, prefixGrid);
     }
 
-    static fromString(code: string): SourceCode {
+    public static fromString(code: string): SourceCode {
         const size = getHexagonSize(countCodepoints(removeWhitespaceAndDebug(code)));
         const rowCount = getRowCount(size);
         const grid = [];
@@ -57,7 +57,7 @@ export class SourceCode {
         return new SourceCode(size, grid, prefixGrid);
     }
 
-    containsWhitespace(): boolean {
+    public containsWhitespace(): boolean {
         for (const row of this.prefixGrid) {
             for (const cell of row) {
                 if (cell && containsWhitespace(cell)) {
@@ -70,7 +70,7 @@ export class SourceCode {
 
     // Only works when changing the size by one, which is currently the only use case,
     // due to code involved in shifting the bottom half of the hexagon horizontally.
-    resizeCode(newSize: number): string {
+    public resizeCode(newSize: number): string {
         const { size, grid, prefixGrid } = this;
         const newRowCount = getRowCount(newSize);
         const result = {
@@ -122,7 +122,7 @@ export class SourceCode {
             newSourceCode.minifyCode();
     }
 
-    resetCode(): string {
+    public resetCode(): string {
         const newCode = '.'.repeat(getCodeLength(this.size));
         const newSourceCode = SourceCode.fromString(newCode);
         return this.containsWhitespace() ?
@@ -130,7 +130,7 @@ export class SourceCode {
             newSourceCode.minifyCode();
     }
 
-    minifyCode(): string {
+    public minifyCode(): string {
         const minimumLength = getCodeLength(this.size - 1) + 1;
         let result = removeWhitespace(this.toStringInternal()).replace(/\.+$/, '');
         const newLength = countCodepoints(result) - countDebug(result);
@@ -140,7 +140,7 @@ export class SourceCode {
         return result;
     }
 
-    layoutCode(): string {
+    public layoutCode(): string {
         let result = '';
         const rowCount = getRowCount(this.size);
         for (let i = 0; i < rowCount; i++) {
@@ -158,7 +158,7 @@ export class SourceCode {
         return result;
     }
 
-    toObject(): ISourceCode {
+    public toObject(): ISourceCode {
         // Convert to plain object for use with immer.
         // Alternatively, "[immerable] = true" could be added to this class.
         return {
@@ -179,7 +179,7 @@ export class SourceCode {
         return result;
     }
 
-    toString(): string {
+    public toString(): string {
         const result = this.toStringInternal();
         return containsWhitespace(result) ? result : this.minifyCode();
     }

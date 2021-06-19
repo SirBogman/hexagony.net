@@ -115,7 +115,7 @@ export class GridView {
     private positiveConnectorTemplate: SVGElement;
     private negativeConnectorTemplate: SVGElement;
 
-    constructor(
+    public constructor(
         updateCodeCallback: CodeChangeCallback,
         toggleBreakpointCallback: (i: number, j: number) => void,
         onTypingDirectionChanged: (value: Direction) => void,
@@ -190,8 +190,7 @@ export class GridView {
         });
     }
 
-    // Public API for updating source code.
-    setSourceCode(sourceCode: ISourceCode): void {
+    public setSourceCode(sourceCode: ISourceCode): void {
         this.sourceCode = sourceCode;
         if (sourceCode.size !== this.size) {
             this.lastFocused = null;
@@ -203,13 +202,13 @@ export class GridView {
         }
     }
 
-    setBreakpoints(breakpoints: Iterable<number[]>): void {
+    public setBreakpoints(breakpoints: Iterable<number[]>): void {
         for (const [i, j] of breakpoints) {
             this.setBreakpointState(i, j, true);
         }
     }
 
-    setBreakpointState(i: number, j: number, state: boolean): void {
+    public setBreakpointState(i: number, j: number, state: boolean): void {
         for (let k = 0; k < this.cellPaths.length; k++) {
             if (i >= this.cellPaths[k].length || j >= this.cellPaths[k][i].length) {
                 return;
@@ -240,8 +239,10 @@ export class GridView {
         }
     }
 
-    // Public API to recreate the grid after changing edgeTransitionMode.
-    recreateGrid(ips: readonly InstructionPointer[] | null): void {
+    /**
+     * Recreate the grid after changing edgeTransitionMode.
+     */
+    public recreateGrid(ips: readonly InstructionPointer[] | null): void {
         this.creatingGrid = true;
         this.createGrid(this.size);
 
@@ -339,7 +340,7 @@ export class GridView {
         }
     }
 
-    setExecutedState(ips: readonly InstructionPointer[]): void {
+    public setExecutedState(ips: readonly InstructionPointer[]): void {
         const { executedGrid } = ips[this.selectedIp];
         this.cellPaths[0].forEach((rows, i) => rows.forEach((cell, j) => {
             const directions = executedGrid[i][j];
@@ -356,7 +357,7 @@ export class GridView {
         }));
     }
 
-    clearCellExecutionColors(): void {
+    public clearCellExecutionColors(): void {
         if (!this.cellPaths.length) {
             return;
         }
@@ -422,26 +423,26 @@ export class GridView {
         }
     }
 
-    setDelay(value: string): void {
+    public setDelay(value: string): void {
         this.delay = value;
     }
 
-    setDirectionalTyping(value: boolean): void {
+    public setDirectionalTyping(value: boolean): void {
         this.directionalTyping = value;
     }
 
-    setShowArrows(value: boolean): void {
+    public setShowArrows(value: boolean): void {
         this.clearCellExecutionColors();
         this.showArrows = value;
     }
 
-    setShowIPs(value: boolean): void {
+    public setShowIPs(value: boolean): void {
         this.removeExecutionHistoryColors();
         this.showIPs = value;
         this.updateExecutionHistoryColors();
     }
 
-    updateActiveCell(
+    public updateActiveCell(
         ips: readonly InstructionPointer[],
         selectedIp: number,
         forceReset: boolean,

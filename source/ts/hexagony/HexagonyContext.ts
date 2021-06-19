@@ -18,7 +18,7 @@ export class HexagonyContext {
      */
     public isDirectionalTypingSimulation = false;
 
-    constructor(
+    public constructor(
         sourceCode: ISourceCode,
         inputString = '') {
         this.sourceCode = sourceCode;
@@ -29,26 +29,26 @@ export class HexagonyContext {
         return this.sourceCode.size;
     }
 
-    axialToIndex(coords: PointAxial): readonly [number, number] {
+    public axialToIndex(coords: PointAxial): readonly [number, number] {
         return axialToIndex(this.size, coords);
     }
 
-    indexToAxial(i: number, j: number): PointAxial {
+    public indexToAxial(i: number, j: number): PointAxial {
         return indexToAxial(this.size, i, j);
     }
 
-    setSourceCode(sourceCode: ISourceCode): void {
+    public setSourceCode(sourceCode: ISourceCode): void {
         if (this.sourceCode.size !== sourceCode.size) {
             throw new Error('Unexpected hexagon size change.');
         }
         this.sourceCode = sourceCode;
     }
 
-    setInput(inputString: string): void {
+    public setInput(inputString: string): void {
         this.input = [...inputString];
     }
 
-    getInstruction(i: number, j: number): string {
+    public getInstruction(i: number, j: number): string {
         return this.sourceCode.grid[i][j];
     }
 
