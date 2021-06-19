@@ -672,9 +672,7 @@ export class GridView {
                 }
             }
             if (event.key === 'b') {
-                if (this.toggleBreakpointCallback) {
-                    this.toggleBreakpointCallback(i, j);
-                }
+                this.toggleBreakpointCallback(i, j);
                 event.preventDefault();
                 return;
             }

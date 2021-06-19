@@ -764,9 +764,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         const prevSourceCode = prevState.sourceCode;
 
         if (userData !== prevUserData) {
-            if (prevState) {
-                saveUserData(userData);
-            }
+            saveUserData(userData);
 
             if (userData.code !== prevUserData.code) {
                 if (this.hexagony !== null) {
