@@ -17,10 +17,10 @@ interface IMemoryPanelProps {
 }
 
 export class MemoryPanel extends React.Component<IMemoryPanelProps> {
-    viewRef: React.RefObject<MemoryView> = React.createRef();
-    memoryPanZoomReference: PanZoom | null = null;
+    private viewRef: React.RefObject<MemoryView> = React.createRef();
+    private memoryPanZoomReference: PanZoom | null = null;
 
-    get memoryPanZoom(): PanZoom {
+    private get memoryPanZoom(): PanZoom {
         return assertNotNull(this.memoryPanZoomReference, 'memoryPanZoomReference');
     }
 
@@ -49,16 +49,16 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         this.memoryPanZoom.dispose();
     }
 
-    getContainerSize(): readonly [number, number] {
+    private getContainerSize(): readonly [number, number] {
         const containerStyle = getComputedStyle(assertNotNull(this.getSvg().parentElement, 'svg parentElement'));
         return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)];
     }
 
-    getMPCoordinates(): readonly [number, number] {
+    private getMPCoordinates(): readonly [number, number] {
         return getMPCoordinates(this.props.mp);
     }
 
-    isMPOffscreen(): boolean {
+    private isMPOffscreen(): boolean {
         const [x, y] = this.getMPCoordinates();
         const [point1, point2] = getMPEndpoints(x, y, getMPAngle(this.props.mp));
         const [x1, y1] = this.transformToNormalizeViewCoordinates(point1);
@@ -67,7 +67,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
                x2 < 0 || x2 > 1 || y2 < 0 || y2 > 1;
     }
 
-    transformToNormalizeViewCoordinates([x, y]: readonly [number, number]): readonly [number, number] {
+    private transformToNormalizeViewCoordinates([x, y]: readonly [number, number]): readonly [number, number] {
         const t = this.memoryPanZoom.getTransform();
         const [width, height] = this.getContainerSize();
         return [(t.scale * x + t.x) / width, (t.scale * y + t.y) / height];
@@ -75,17 +75,17 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
 
     // Gets the required offset to center the memory pointer in the container at the given scale.
     // This is essentially the inverse calculation of transformToNormalizeViewCoordinates.
-    getMPOffset(scale = 1.0): readonly [number, number] {
+    private getMPOffset(scale = 1.0): readonly [number, number] {
         const [x, y] = this.getMPCoordinates();
         const [width, height] = this.getContainerSize();
         return [0.5 * width - scale * x, 0.5 * height - scale * y];
     }
 
-    getScale(): number {
+    private getScale(): number {
         return this.memoryPanZoom.getTransform().scale;
     }
 
-    getSvg(): SVGSVGElement {
+    private getSvg(): SVGSVGElement {
         return assertNotNull(this.viewRef.current, 'MemoryPanel.viewRef').getSvg();
     }
 
@@ -105,12 +105,12 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         );
     }
 
-    recenterView(): void {
+    private recenterView(): void {
         const [x, y] = this.getMPOffset();
         this.memoryPanZoom.moveTo(x, y);
     }
 
-    resetView(): void {
+    private resetView(): void {
         const [x, y] = this.getMPOffset();
         // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting
         // (inertia), if that method were used.

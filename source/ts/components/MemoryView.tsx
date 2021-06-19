@@ -29,7 +29,7 @@ interface IMemoryViewProps {
  * @component
  */
 export class MemoryView extends React.Component<IMemoryViewProps> {
-    viewRef: React.RefObject<SVGSVGElement> = React.createRef();
+    private viewRef: React.RefObject<SVGSVGElement> = React.createRef();
 
     getSvg(): SVGSVGElement {
         return assertNotNull(this.viewRef.current, 'MemoryView.viewRef');
@@ -50,7 +50,7 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         );
     }
 
-    renderHexagonGrid(): JSX.Element {
+    private renderHexagonGrid(): JSX.Element {
         const { memory, mp } = this.props;
         const currentX = mp.x;
         const currentY = mp.y;

@@ -9,7 +9,7 @@ interface IOutputPanelProps {
 }
 
 export class OutputPanel extends React.Component<IOutputPanelProps> {
-    outputBoxRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private outputBoxRef: React.RefObject<HTMLDivElement> = React.createRef();
 
     shouldComponentUpdate(nextProps: IOutputPanelProps): boolean {
         return nextProps.outputBytes !== this.props.outputBytes ||
