@@ -26,6 +26,11 @@ import { EditControls } from './EditControls';
 import { PlayControls } from './PlayControls';
 import { CodeChangeCallback, CodeChangeContext, IUndoItem, UndoFunction } from '../view/UndoItem';
 
+/**
+ * Adds properties to window for easy access from a debug console.
+ */
+const windowExtra = window as Window & typeof globalThis & { totalTime: number; };
+
 const maxSpeedIterations = 100_000;
 
 export function updateAppHelper(element: HTMLElement): void {
@@ -469,8 +474,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         if (this.hexagony === null) {
             firstStep = true;
             this.hexagony = new Hexagony(sourceCode, App.getInput(this.state));
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (window as any).totalTime = 0;
+            windowExtra.totalTime = 0;
         }
 
         if (play) {
@@ -503,8 +507,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
 
         const p2 = performance.now();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).totalTime += p2 - p1;
+        windowExtra.totalTime += p2 - p1;
 
         // Don't show edge transition animations when running at high speed.
         if (userData.delay || !this.isPlaying()) {
