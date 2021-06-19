@@ -668,7 +668,7 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     private updateColorMode(): void {
         const { userData } = this.state;
-        applyColorMode(this.state.userData.colorMode);
+        applyColorMode(userData.colorMode);
         initializeGridColors(userData.colorMode, userData.colorOffset);
     }
 
