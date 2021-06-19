@@ -1,0 +1,31 @@
+div.inputEventDisplay {
+    position: absolute;
+    left: 1000px;
+    top: 328px;
+    width: 200px;
+    height: 50px;
+    background: var(--background);
+    border: 2px solid var(--cell-text-color);
+    color: var(--cell-text-color);
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    z-index: 10;
+}
+
+span.inputEventDisplay {
+    opacity: 0;
+}
+
+.inputEventDisplayAnimate {
+    animation: flash 1.0s ease-in-out;
+}
+
+@keyframes flash {
+    0%, 100% {
+        opacity: 0;
+    }
+    10%, 50% {
+        opacity: 1;
+    }
+}
