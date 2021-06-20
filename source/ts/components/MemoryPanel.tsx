@@ -22,6 +22,7 @@ type MemoryPanelState = {
 
 export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelState> {
     private viewRef: React.RefObject<MemoryView> = React.createRef();
+    private containerRef: React.RefObject<HTMLDivElement> = React.createRef();
     private panZoomReference: PanZoom | null = null;
 
     public constructor(props: IMemoryPanelProps) {
@@ -65,7 +66,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
     }
 
     private getContainerSize(): readonly [number, number] {
-        const containerStyle = getComputedStyle(assertNotNull(this.getSvg().parentElement, 'svg parentElement'));
+        const containerStyle = getComputedStyle(this.getContainer());
         return [parseFloat(containerStyle.width), parseFloat(containerStyle.height)];
     }
 
@@ -104,6 +105,10 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         return assertNotNull(this.viewRef.current, 'MemoryPanel.viewRef').getSvg();
     }
 
+    private getContainer(): HTMLDivElement {
+        return assertNotNull(this.containerRef.current, 'containerRef');
+    }
+
     private canResetView(): boolean {
         if (this.panZoomReference === null) {
             return false;
@@ -120,17 +125,17 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         const { delay, memory, mp } = this.props;
         return (
             <div id="memoryPanel" className="appPanel">
-                <div id="memoryPanelHeader">
-                    <h1>Memory</h1>
-                    <button id="resetViewButton"
-                        className="bodyButton"
-                        disabled={!this.canResetView()}
-                        onClick={this.resetView}
-                        title="Reset the position and zoom level of the memory panel.">
-                        Reset View
-                    </button>
-                </div>
-                <div id="memoryContainer">
+                <div id="memoryContainer" ref={this.containerRef}>
+                    <div id="memoryPanelHeader">
+                        <h1>Memory</h1>
+                        <button id="resetViewButton"
+                            className="bodyButton"
+                            disabled={!this.canResetView()}
+                            onClick={this.resetView}
+                            title="Reset the position and zoom level of the memory panel.">
+                            Reset View
+                        </button>
+                    </div>
                     <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
                 </div>
             </div>
