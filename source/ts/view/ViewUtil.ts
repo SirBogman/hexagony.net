@@ -1,3 +1,6 @@
+export const approximatelyEqual = (x: number, y: number, epsilon = 0.00001): boolean =>
+    Math.abs(x - y) < epsilon;
+
 export function assertDefined<T>(value: T | undefined, name: string): T {
     if (value === undefined) {
         throw new Error(`internal error: unexpected undefined value: ${name}`);

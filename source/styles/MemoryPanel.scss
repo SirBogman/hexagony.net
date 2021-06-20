@@ -2,20 +2,20 @@
 
 // Specificity should be at least (1, 1, 1).
 div #memoryPanel.appPanel {
+    position: relative;
     grid-area: memoryPanel;
     padding: 0;
     display: grid;
-    grid-template-rows: auto 1fr;
-
-    h1 {
-        margin: 0.5rem 0 0 0.5rem;
-    }
 }
 
-#memoryContainer {
-    grid-column: 1/3;
-    overflow: hidden;
-    margin-top: 0.5rem;
+#memoryPanelHeader {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 1;
+    background: var(--panel-overlay-background);
+    display: flex;
+    padding: 0.5rem;
 }
 
 .memoryCell {
@@ -37,10 +37,6 @@ div #memoryPanel.appPanel {
 }
 
 #resetViewButton {
-    align-self: flex-end;
-    justify-self: end;
-    grid-column: 2;
-    grid-row: 1;
     margin: 0.5rem;
 }
 

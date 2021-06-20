@@ -5,7 +5,7 @@ import { Memory } from '../hexagony/Memory';
 import { MemoryPointer } from '../hexagony/MemoryPointer';
 import { getMPEndpoints } from './MemoryPointerView';
 import { MemoryView } from './MemoryView';
-import { assertNotNull } from '../view/ViewUtil';
+import { approximatelyEqual, assertNotNull } from '../view/ViewUtil';
 
 import '../../styles/MemoryPanel.scss';
 
@@ -16,16 +16,26 @@ interface IMemoryPanelProps {
     mp: MemoryPointer;
 }
 
-export class MemoryPanel extends React.Component<IMemoryPanelProps> {
-    private viewRef: React.RefObject<MemoryView> = React.createRef();
-    private memoryPanZoomReference: PanZoom | null = null;
+type MemoryPanelState = {
+    canResetView: boolean;
+};
 
-    private get memoryPanZoom(): PanZoom {
-        return assertNotNull(this.memoryPanZoomReference, 'memoryPanZoomReference');
+export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelState> {
+    private viewRef: React.RefObject<MemoryView> = React.createRef();
+    private panZoomReference: PanZoom | null = null;
+
+    public constructor(props: IMemoryPanelProps) {
+        super(props);
+        this.state = { canResetView: false };
+    }
+
+    private get panZoom(): PanZoom {
+        return assertNotNull(this.panZoomReference, 'panZoomReference');
     }
 
     componentDidMount(): void {
-        this.memoryPanZoomReference = panzoom(this.getSvg(), {
+        this.panZoomReference = panzoom(this.getSvg(), {
+            minimumDistance: 10,
             // Don't pan when clicking on text elements. This allows text selection.
             beforeMouseDown: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
             beforeDoubleClick: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
@@ -34,6 +44,11 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
             zoomSpeed: 0.065,
         });
 
+        // The user may pan with the arrow keys. Use pan, instead of panend.
+        this.panZoom.on('pan', this.updateCanResetView);
+        this.panZoom.on('zoom', this.updateCanResetView);
+        this.panZoom.on('zoomend', this.updateCanResetView);
+
         this.recenterView();
     }
 
@@ -41,12 +56,12 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         // Recenter the memory pointer when it leaves the visible area.
         if (this.isMPOffscreen()) {
             const [x, y] = this.getMPOffset(this.getScale());
-            this.memoryPanZoom.smoothMoveTo(x, y);
+            this.panZoom.smoothMoveTo(x, y);
         }
     }
 
     componentWillUnmount(): void {
-        this.memoryPanZoom.dispose();
+        this.panZoom.dispose();
     }
 
     private getContainerSize(): readonly [number, number] {
@@ -68,7 +83,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
     }
 
     private transformToNormalizeViewCoordinates([x, y]: readonly [number, number]): readonly [number, number] {
-        const t = this.memoryPanZoom.getTransform();
+        const t = this.panZoom.getTransform();
         const [width, height] = this.getContainerSize();
         return [(t.scale * x + t.x) / width, (t.scale * y + t.y) / height];
     }
@@ -82,40 +97,57 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
     }
 
     private getScale(): number {
-        return this.memoryPanZoom.getTransform().scale;
+        return this.panZoom.getTransform().scale;
     }
 
     private getSvg(): SVGSVGElement {
         return assertNotNull(this.viewRef.current, 'MemoryPanel.viewRef').getSvg();
     }
 
+    private canResetView(): boolean {
+        if (this.panZoomReference === null) {
+            return false;
+        }
+        const { x, y, scale } = this.panZoom.getTransform();
+        const [centerX, centerY] = this.getMPOffset();
+        return !approximatelyEqual(x, centerX) || !approximatelyEqual(y, centerY) || !approximatelyEqual(scale, 1);
+    }
+
+    private readonly updateCanResetView = (): void =>
+        this.setState({ canResetView: this.canResetView() });
+
     render(): JSX.Element {
         const { delay, memory, mp } = this.props;
         return (
             <div id="memoryPanel" className="appPanel">
-                <h1>Memory</h1>
+                <div id="memoryPanelHeader">
+                    <h1>Memory</h1>
+                    <button id="resetViewButton"
+                        className="bodyButton"
+                        disabled={!this.canResetView()}
+                        onClick={this.resetView}
+                        title="Reset the position and zoom level of the memory panel.">
+                        Reset View
+                    </button>
+                </div>
                 <div id="memoryContainer">
                     <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
                 </div>
-                <button id="resetViewButton" className="bodyButton" onClick={this.resetView}
-                    title="Reset the position and zoom level of the view.">
-                    Reset View
-                </button>
             </div>
         );
     }
 
     private recenterView(): void {
         const [x, y] = this.getMPOffset();
-        this.memoryPanZoom.moveTo(x, y);
+        this.panZoom.moveTo(x, y);
     }
 
     private resetView = (): void => {
         const [x, y] = this.getMPOffset();
         // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting
         // (inertia), if that method were used.
-        this.memoryPanZoom.zoomTo(x, y, 1.0 / this.getScale());
-        this.memoryPanZoom.moveTo(x, y);
+        this.panZoom.zoomTo(x, y, 1.0 / this.getScale());
+        this.panZoom.moveTo(x, y);
     }
 
     shouldComponentUpdate(nextProps: IMemoryPanelProps): boolean {

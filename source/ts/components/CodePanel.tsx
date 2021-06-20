@@ -1,6 +1,6 @@
 import React from 'react';
 import panzoom, { PanZoom } from 'panzoom';
-import { assertNotNull } from '../view/ViewUtil';
+import { approximatelyEqual, assertNotNull } from '../view/ViewUtil';
 
 import '../../styles/CodePanel.scss';
 
@@ -52,9 +52,6 @@ type CodePanelProps = Record<string, never>;
 type CodePanelState = {
     canResetView: boolean;
 };
-
-const approximatelyEqual = (x: number, y: number, epsilon = 0.00001): boolean =>
-    Math.abs(x - y) < epsilon;
 
 // This is only a pure component because it's implementation is delegated to non-react code.
 export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelState> {
