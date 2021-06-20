@@ -14,7 +14,8 @@ body header {
     background: var(--header-background);
     position: sticky;
     top: 0;
-    z-index: 1;
+    // Above some code panel stuff at z-index: 1;
+    z-index: 2;
 }
 
 header nav {

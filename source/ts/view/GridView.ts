@@ -184,6 +184,10 @@ export class GridView {
     };
 
     private readonly onClick = (event: MouseEvent): void => {
+        if (event.defaultPrevented || event.target instanceof HTMLButtonElement) {
+            return;
+        }
+
         // Select text when clicking on the background or text of the cell.
         const parent = (event.target as Element).parentNode as Element;
         if (parent.classList.contains('cell')) {

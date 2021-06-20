@@ -1,5 +1,8 @@
 @use 'root.scss';
 
+// When the constraint max-width: $singleColumnWidth is met, display the panels in a single column.
+$singleColumnWidth: 640px;
+
 .pre {
     white-space: pre;
     font-family: root.$monospace;
@@ -49,16 +52,6 @@ header {
     // Overflow must be hidden in all panels to prevent horizontal scroll bars in the narrow layout.
     overflow: hidden;
     color: var(--foreground-color);
-}
-
-#codePanel {
-    grid-area: codePanel;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    // This number is a bit arbitrary. It prevents the layout from changing too much when switching
-    // from edit to play mode.
-    min-height: 585px;
 }
 
 #inputPanel {
@@ -200,8 +193,7 @@ textarea {
     justify-self: right;
 }
 
-// When the window is narrow enough, display the panels in a single column.
-@media (max-width: 640px) {
+@media (max-width: $singleColumnWidth) {
     #appGrid {
         grid-template-columns: 1fr;
     }
@@ -226,14 +218,5 @@ textarea {
             "outputPanel"
             "inputPanel"
             "statePanel";
-    }
-
-    #codePanel {
-        // Use the height of the content.
-        min-height: 0px;
-    }
-
-    #memoryPanel {
-        min-height: 400px;
     }
 }

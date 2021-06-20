@@ -1,0 +1,42 @@
+@use 'main.scss';
+
+#codePanel {
+    grid-area: codePanel;
+    display: grid;
+    grid-template-columns: auto 1fr 1fr auto;
+    // This number is a bit arbitrary. It prevents the layout from changing too much when switching
+    // from edit to play mode.
+    min-height: 585px;
+}
+
+#codePanel > h1 {
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 1;
+    background: hsl(210, 10%, 20%, 0.75);
+    display: grid;
+}
+
+#resetCodeViewButton {
+    align-self: flex-end;
+    justify-self: end;
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0.5rem;
+    z-index: 1;
+}
+
+#codePanelContent {
+    grid-column: 1/4;
+    grid-row: 1/3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-width: main.$singleColumnWidth) {
+    #codePanel {
+        // Use the height of the content.
+        min-height: 0px;
+    }
+}
