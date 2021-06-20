@@ -755,6 +755,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     componentWillUnmount(): void {
         document.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('hashchange', this.loadDataFromURL);
+        this.gridView.dispose();
     }
 
     componentDidUpdate(prevProps: IAppProps, prevState: IAppState): void {

@@ -162,33 +162,39 @@ export class GridView {
         this.positiveConnectorTemplate = querySelector('defs [class~=positiveConnector]');
         this.negativeConnectorTemplate = querySelector('defs [class~=negativeConnector]');
 
-        this.svg.addEventListener('animationend', event => {
-            if (event.animationName.startsWith('connector')) {
-                const target = event.target as Element;
-                target.classList.remove('connectorFlash');
-                target.classList.remove('connectorNeutralFlash');
-                target.classList.remove('connectorFlashSecondary');
-                target.classList.remove('connectorNeutralFlashSecondary');
-            }
-        });
-
-        this.codePanel.addEventListener('click', event => {
-            // Select text when clicking on the background or text of the cell.
-            const parent = (event.target as Element).parentNode as Element;
-            if (parent.classList.contains('cell')) {
-                const [i, j, k] = getIndices(parent);
-                this.navigateTo(i, j, k);
-                return;
-            }
-
-            // Clicking anywhere else in the code panel will focus the last focused cell.
-            this.focus();
-        });
-
-        this.focusProxy.addEventListener('focusin', () => {
-            this.focus();
-        });
+        this.svg.addEventListener('animationend', this.onAnimationEnd);
+        this.codePanel.addEventListener('mouseup', this.onClick);
+        this.focusProxy.addEventListener('focusin', this.focus);
     }
+
+    public dispose(): void {
+        this.svg.removeEventListener('animationend', this.onAnimationEnd);
+        this.codePanel.removeEventListener('mouseup', this.onClick);
+        this.focusProxy.removeEventListener('focusin', this.focus);
+    }
+
+    private readonly onAnimationEnd = (event: AnimationEvent): void => {
+        if (event.animationName.startsWith('connector')) {
+            const target = event.target as Element;
+            target.classList.remove('connectorFlash');
+            target.classList.remove('connectorNeutralFlash');
+            target.classList.remove('connectorFlashSecondary');
+            target.classList.remove('connectorNeutralFlashSecondary');
+        }
+    };
+
+    private readonly onClick = (event: MouseEvent): void => {
+        // Select text when clicking on the background or text of the cell.
+        const parent = (event.target as Element).parentNode as Element;
+        if (parent.classList.contains('cell')) {
+            const [i, j, k] = getIndices(parent);
+            this.navigateTo(i, j, k);
+            return;
+        }
+
+        // Clicking anywhere else in the code panel will focus the last focused cell.
+        this.focus();
+    };
 
     public setSourceCode(sourceCode: ISourceCode): void {
         this.sourceCode = sourceCode;
@@ -791,7 +797,7 @@ export class GridView {
         }
     }
 
-    public focus(): void {
+    public readonly focus = (): void => {
         if (this.lastFocused !== null) {
             const [i, j, k] = this.lastFocused;
             if (k < this.cellPaths.length &&
@@ -802,7 +808,7 @@ export class GridView {
             }
         }
         this.navigateTo(0, 0, 0);
-    }
+    };
 
     private navigateTo(i: number, j: number, k: number): void {
         // Hide the text in the SVG cell, create an input element, and select it.
