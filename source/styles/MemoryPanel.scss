@@ -1,4 +1,4 @@
-@use 'main.scss';
+@use 'root.scss';
 
 // Specificity should be at least (1, 1, 1).
 div #memoryPanel.appPanel {
@@ -44,7 +44,7 @@ div #memoryPanel.appPanel {
     margin: 0.5rem;
 }
 
-@media (max-width: main.$singleColumnWidth) {
+@media (max-width: root.$singleColumnWidth) {
     #memoryPanel {
         min-height: 400px;
     }

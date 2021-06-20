@@ -184,13 +184,17 @@ export class GridView {
     };
 
     private readonly onClick = (event: MouseEvent): void => {
-        if (event.defaultPrevented || event.target instanceof HTMLButtonElement) {
+        const parent = (event.target as Element).parentNode;
+
+        // Ignore panning/zooming and clicks in the title/reset overlay.
+        if (event.defaultPrevented ||
+            event.target instanceof HTMLDivElement ||
+            parent instanceof HTMLDivElement) {
             return;
         }
 
         // Select text when clicking on the background or text of the cell.
-        const parent = (event.target as Element).parentNode as Element;
-        if (parent.classList.contains('cell')) {
+        if (parent instanceof Element && parent.classList.contains('cell')) {
             const [i, j, k] = getIndices(parent);
             this.navigateTo(i, j, k);
             return;

@@ -1,5 +1,8 @@
 $monospace: Consolas, Menlo, monospace;
 
+// When the constraint max-width: $singleColumnWidth is met, display the panels in a single column.
+$singleColumnWidth: 640px;
+
 :root {
     --background: hsl(0, 0%, 99%);
     --panel-background: hsl(0, 0%, 95%);
