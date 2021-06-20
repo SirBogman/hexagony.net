@@ -38,8 +38,8 @@ $singleColumnWidth: 640px;
 }
 
 :root.darkMode {
-    --background: hsl(210, 10%, 13%);
-    --panel-background: hsl(210, 10%, 23%);
+    --background: hsl(210, 10%, 10%);
+    --panel-background: hsl(210, 10%, 20%);
     --output-background: var(--background);
     --button: hsl(0, 0%, 30%);
     --hover-button: hsl(0, 0%, 20%);
@@ -61,6 +61,7 @@ $singleColumnWidth: 640px;
     --visited-link-color: hsl(270, 100%, 70%);
     --active-link-color: hsl(0, 100%, 60%);
 
+    --header-background: var(--panel-background);
     --header-foreground: var(--foreground-color);
     --header-hover-active: hsl(0, 0%, 80%);
     --direction-picker-border: var(--foreground-color);
