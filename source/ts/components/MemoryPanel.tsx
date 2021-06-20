@@ -97,7 +97,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
                 <div id="memoryContainer">
                     <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
                 </div>
-                <button id="resetViewButton" className="bodyButton" onClick={() => this.resetView()}
+                <button id="resetViewButton" className="bodyButton" onClick={this.resetView}
                     title="Reset the position and zoom level of the view.">
                     Reset View
                 </button>
@@ -110,7 +110,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps> {
         this.memoryPanZoom.moveTo(x, y);
     }
 
-    private resetView(): void {
+    private resetView = (): void => {
         const [x, y] = this.getMPOffset();
         // zoomAbs doesn't cancel movement, so the user might have to wait for the memory view to stop drifting
         // (inertia), if that method were used.
