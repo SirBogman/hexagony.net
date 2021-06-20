@@ -1,11 +1,15 @@
 @use 'main.scss';
 
-div #memoryPanel {
+// Specificity should be at least (1, 1, 1).
+div #memoryPanel.appPanel {
     grid-area: memoryPanel;
     padding: 0;
     display: grid;
-    grid-template-columns: auto 1fr;
     grid-template-rows: auto 1fr;
+
+    h1 {
+        margin: 0.5rem 0 0 0.5rem;
+    }
 }
 
 #memoryContainer {
@@ -37,7 +41,7 @@ div #memoryPanel {
     justify-self: end;
     grid-column: 2;
     grid-row: 1;
-    margin: 0.5rem 0;
+    margin: 0.5rem;
 }
 
 @media (max-width: main.$singleColumnWidth) {
