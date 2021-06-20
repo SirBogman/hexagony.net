@@ -6,6 +6,7 @@ $singleColumnWidth: 640px;
 :root {
     --background: hsl(0, 0%, 99%);
     --panel-background: hsl(0, 0%, 95%);
+    --panel-overlay-background: hsl(0, 0%, 95%, 0.75);
     --output-background: hsl(0, 0%, 83%);
     --button: hsl(0, 0%, 83%);
     --hover-button: hsl(0, 0%, 90%);
@@ -40,6 +41,7 @@ $singleColumnWidth: 640px;
 :root.darkMode {
     --background: hsl(210, 10%, 10%);
     --panel-background: hsl(210, 10%, 20%);
+    --panel-overlay-background: hsl(210, 10%, 20%, 0.75);
     --output-background: var(--background);
     --button: hsl(0, 0%, 30%);
     --hover-button: hsl(0, 0%, 20%);
