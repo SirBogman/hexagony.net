@@ -53,9 +53,10 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         this.recenterView();
     }
 
-    componentDidUpdate(): void {
-        // Recenter the memory pointer when it leaves the visible area.
-        if (this.isMPOffscreen()) {
+    componentDidUpdate(prevProps: IMemoryPanelProps): void {
+        // Recenter the memory pointer when it leaves the visible area. Only check this when the memory pointer has
+        // moved, to prevent interactions with enabling/disabling the reset view button.
+        if (this.props.mp !== prevProps.mp && this.isMPOffscreen()) {
             const [x, y] = this.getMPOffset(this.getScale());
             this.panZoom.smoothMoveTo(x, y);
         }
@@ -118,8 +119,12 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         return !approximatelyEqual(x, centerX) || !approximatelyEqual(y, centerY) || !approximatelyEqual(scale, 1);
     }
 
-    private readonly updateCanResetView = (): void =>
-        this.setState({ canResetView: this.canResetView() });
+    private readonly updateCanResetView = (): void => {
+        const value = this.canResetView();
+        if (this.state.canResetView !== value) {
+            this.setState({ canResetView: this.canResetView() });
+        }
+    }
 
     render(): JSX.Element {
         const { delay, memory, mp } = this.props;
