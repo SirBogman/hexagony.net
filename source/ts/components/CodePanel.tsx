@@ -1,5 +1,5 @@
 import React from 'react';
-import panzoom, { PanZoom } from 'panzoom';
+import panzoom, { PanZoom, PanZoomController, Transform } from 'panzoom';
 import { approximatelyEqual, assertNotNull } from '../view/ViewUtil';
 
 import '../../styles/CodePanel.scss';
@@ -58,9 +58,24 @@ type CodePanelState = {
     canResetView: boolean;
 };
 
+// Special pan zoom control with a specific owner.
+// This enables automatically centering content on the panel when it's resized.
+// It uses the specified owner for keyboard focus, which helps to make the keyboard focus border more clear.
+function makePanZoomController(element: HTMLElement | SVGSVGElement, keyboardOwner: Element): PanZoomController {
+    element.style.transformOrigin = '0 0 0';
+    const owner = assertNotNull(element.parentElement, 'parentElement');
+    return {
+        getKeyboardOwner: () => keyboardOwner,
+        getOwner: () => owner,
+        applyTransform: ({ scale, x, y }: Transform) =>
+            element.style.transform = `matrix(${scale},0,0,${scale},${x},${y})`,
+    };
+}
+
 // This is only a pure component because it's implementation is delegated to non-react code.
 export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelState> {
-    private viewRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private panelRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private viewRef: React.RefObject<SVGSVGElement> = React.createRef();
     private panZoomReference: PanZoom | null = null;
 
     public constructor(props: CodePanelProps) {
@@ -69,13 +84,15 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
     }
 
     componentDidMount(): void {
+        const panel = assertNotNull(this.panelRef.current, 'panelRef');
         const view = assertNotNull(this.viewRef.current, 'viewRef');
         this.panZoomReference = panzoom(view, {
-            minimumDistance: 10,
             beforeMouseDown,
             beforeDoubleClick,
             beforeTouchStart,
+            controller: makePanZoomController(view, panel),
             filterKey,
+            minimumDistance: 10,
             zoomDoubleClickSpeed: 1.5,
             // 6.5% zoom per mouse wheel event:
             zoomSpeed: 0.065,
@@ -113,7 +130,7 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
 
     render(): JSX.Element {
         return (
-            <div id="codePanel" className="appPanel">
+            <div id="codePanel" className="appPanel" tabIndex={0} ref={this.panelRef}>
                 <div id="codePanelContent">
                     <div id="codePanelHeader">
                         <h1>Code</h1>
@@ -126,9 +143,9 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
                         </button>
                     </div>
                     <div id="focusProxy" tabIndex={0}/>
-                    <div id="codeSvgContainer" ref={this.viewRef}>
+                    <div id="codeSvgContainer">
                         {/* Focus proxy should be at the top, to prevent the browser from panning to the bottom. */}
-                        <svg id="codeSvg" overflow="visible">
+                        <svg id="codeSvg" overflow="visible" ref={this.viewRef}>
                             <defs>
                                 <g className="cell">
                                     <path className="cellPath" d="M17.32 10v-20L0-20l-17.32 10v20L0 20z"/>

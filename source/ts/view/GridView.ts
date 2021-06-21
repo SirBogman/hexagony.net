@@ -1079,10 +1079,13 @@ export class GridView {
         else {
             this.fullWidth = 2 * (cellWidth * this.rowCount + padding);
             this.fullHeight = 2 * (cellOffsetY * this.rowCount + padding);
+            // actual values:
+            // this.fullWidth = cellWidth * this.rowCount + padding;
+            // this.fullHeight = cellOffsetY * this.rowCount + padding + cellHeight - cellOffsetY;
         }
 
-        // Setting maxWidth is optional and doesn't seem to make too much difference. If it's not done, then centerX
-        // should be set to this.fullWidth / 2;
+        // Setting maxWidth is optional and doesn't seem to make too much difference. If it's not done, then uncomment the following line.
+        // const centerX = this.fullWidth / 2;
         const centerX = this.fullWidth / 4;
         this.codeSvgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
 
