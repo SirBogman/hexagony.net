@@ -44,7 +44,8 @@ export const DirectionPickerPopup: React.FC<IDirectionPickerProps> = ({
     onTypingDirectionChanged,
     toggleDirectionalTyping
 }) => {
-    // menuProps may include: ref,aria-labelledby,data-popper-reference-hidden,data-popper-escaped,data-popper-placement,style.
+    // menuProps may include: ref,aria-labelledby,data-popper-reference-hidden,data-popper-escaped,
+    // data-popper-placement,style.
     const [menuProps, { show, toggle }] = useDropdownMenu({
         flip: true,
         offset: [0, 0],

@@ -30,7 +30,8 @@ export class OutputPanel extends React.Component<IOutputPanelProps> {
             <div id="outputPanel" className="appPanel">
                 <h1>Output</h1>
                 <div className="radio">
-                    <label title="UTF-8 output mode: the output byte stream is interepreted as UTF-8. This is compatible with Code Golf.">
+                    <label title={'UTF-8 output mode: the output byte stream is interepreted as UTF-8. This is ' +
+                        'compatible with Code Golf.'}>
                         <input
                             type="radio"
                             name="outputMode"

@@ -6,7 +6,9 @@ import { arrayInitialize, axialToIndex, getRowCount, getRowSize } from './Util';
 
 const executionHistoryCount = 20;
 
-export type ExecutionHistoryArray = ReadonlyArray<readonly [number, number, Direction]>;
+export type ExecutionHistoryArrow = readonly [number, number, Direction];
+
+export type ExecutionHistoryArray = readonly ExecutionHistoryArrow[];
 
 export type InstructionPointer = {
     readonly coords: PointAxial;
@@ -37,7 +39,13 @@ export function updateExecutedGrid(i: number, j: number, ip: InstructionPointer)
     return ip;
 }
 
-export function updateInstructionPointer(coords: PointAxial, dir: Direction, i: number, j: number, ip: InstructionPointer): InstructionPointer {
+export function updateInstructionPointer(
+    coords: PointAxial,
+    dir: Direction,
+    i: number,
+    j: number,
+    ip: InstructionPointer
+): InstructionPointer {
     return {
         coords,
         dir,

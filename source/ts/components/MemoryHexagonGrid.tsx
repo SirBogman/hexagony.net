@@ -74,7 +74,8 @@ export class MemoryHexagonGrid extends React.PureComponent<IMemoryHexagonGrid> {
             // Vertical lines
             if (i < rows) {
                 for (let j = 0; j < columns + 1; j++) {
-                    path += `M${(startX + cellOffsetX * (i % 2) + j * cellOffsetX * 2).toFixed(2)} ${rowY.toFixed(2)}v${edgeLength.toFixed(2)}`;
+                    path += `M${(startX + cellOffsetX * (i % 2) + j * cellOffsetX * 2).toFixed(2)} ` +
+                        `${rowY.toFixed(2)}v${edgeLength.toFixed(2)}`;
                 }
             }
         }

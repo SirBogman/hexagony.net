@@ -16,7 +16,8 @@ interface IMemoryEdgeProps {
  */
 export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
     render(): JSX.Element {
-        const transform = `translate(${(this.props.x * xFactor).toFixed(2)},${(this.props.y * yFactor).toFixed(2)})rotate(${this.props.angle})`;
+        const { angle, x, y } = this.props;
+        const transform = `translate(${(x * xFactor).toFixed(2)},${(y * yFactor).toFixed(2)})rotate(${angle})`;
 
         const string = this.props.value.toLocaleString('en');
         let extraString = '';

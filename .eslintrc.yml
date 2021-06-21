@@ -57,7 +57,7 @@ rules:
   key-spacing: warn
   keyword-spacing: warn
   max-len:
-    - off
+    - warn
     - 120
   no-array-constructor: warn
   no-duplicate-imports: warn

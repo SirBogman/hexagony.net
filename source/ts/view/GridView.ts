@@ -4,9 +4,10 @@ import memoizeOne from 'memoize-one';
 import { Direction, east, northEast, northWest, southEast, southWest, west } from '../hexagony/Direction';
 import { HexagonyContext } from '../hexagony/HexagonyContext';
 import { EdgeTraversal, HexagonyState, HexagonyStateUtils } from '../hexagony/HexagonyState';
-import { ExecutionHistoryArray, InstructionPointer } from '../hexagony/InstructionPointer';
+import { ExecutionHistoryArray, ExecutionHistoryArrow, InstructionPointer } from '../hexagony/InstructionPointer';
 import { ISourceCode } from '../hexagony/SourceCode';
-import { arrayInitialize, axialToIndex, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug } from '../hexagony/Util';
+import { arrayInitialize, axialToIndex, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug }
+    from '../hexagony/Util';
 import { CodeChangeCallback, CodeChangeContext, UndoFunction } from './UndoItem';
 import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
 
@@ -268,7 +269,7 @@ export class GridView {
     }
 
     private foreachExecutionArrow(
-        [i, j, dir] : readonly [number, number, Direction],
+        [i, j, dir] : ExecutionHistoryArrow,
         k: number,
         allowCreate: boolean,
         callback: (element: ArrowSVGElement) => void): void {
@@ -306,21 +307,21 @@ export class GridView {
         }
     }
 
-    private addExecutionAngleClass(indices: readonly [number, number, Direction], className: string, k = 0): void {
+    private addExecutionAngleClass(indices: ExecutionHistoryArrow, className: string, k = 0): void {
         this.foreachExecutionArrow(indices, k, true, arrow => {
             arrow.classList.add(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    private removeExecutionAngleClass(indices: readonly [number, number, Direction], className: string, k = 0): void {
+    private removeExecutionAngleClass(indices: ExecutionHistoryArrow, className: string, k = 0): void {
         this.foreachExecutionArrow(indices, k, false, arrow => {
             arrow.classList.remove(className);
             arrow.style.transitionDuration = this.delay;
         });
     }
 
-    private addCellClass(indices: readonly [number, number, Direction], className: string, centerHexagonOnly = false): void {
+    private addCellClass(indices: ExecutionHistoryArrow, className: string, centerHexagonOnly = false): void {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -334,7 +335,7 @@ export class GridView {
         }
     }
 
-    private removeCellClass(indices: readonly [number, number, Direction], className: string, centerHexagonOnly = false): void {
+    private removeCellClass(indices: ExecutionHistoryArrow, className: string, centerHexagonOnly = false): void {
         const [i, j] = indices;
         const limit = centerHexagonOnly ? 1 : this.cellPaths.length;
         for (let k = 0; k < limit; k++) {
@@ -1092,7 +1093,8 @@ export class GridView {
             // this.fullHeight = cellOffsetY * this.rowCount + padding + cellHeight - cellOffsetY;
         }
 
-        // Setting maxWidth is optional and doesn't seem to make too much difference. If it's not done, then uncomment the following line.
+        // Setting maxWidth is optional and doesn't seem to make too much difference.
+        // If it's not done, then uncomment the following line.
         // const centerX = this.fullWidth / 2;
         const centerX = this.fullWidth / 4;
         this.codeSvgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
@@ -1196,7 +1198,8 @@ export class GridView {
 
                     // Top edge.
                     if (offsets[k][1] > verticalConnectorsLimit) {
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
+                        let template = isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate;
+                        connector = template.cloneNode(true) as SVGElement;
                         cellX = getX(0, i, k) + 0.5 * cellOffsetX;
                         cellY = getY(0, k) - 0.75 * edgeLength;
                         scaleX = 1;
@@ -1208,14 +1211,17 @@ export class GridView {
                             scaleX *= -1;
                             scaleY *= -1;
                         }
-                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
+                        connector.setAttribute('transform',
+                            `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(60)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
                         const isSecondary = k !== 0 && offsets[k][2] !== 'S';
                         this.addEdgeConnector(`${i},${-size + 1},NE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
-                        this.addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
+                        this.addEdgeConnector(`${i + 1 - size},${size - 1},SW,${leftEnd ? '+' : '0'}`, connector,
+                            isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
+                        template = isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate;
+                        connector = template.cloneNode(true) as SVGElement;
                         cellX = getX(0, i, k) + 0.5 * cellOffsetX;
                         cellY = getY(0, k) - cellOffsetY - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
@@ -1224,16 +1230,19 @@ export class GridView {
                             cellY += cellOffsetY;
                             scaleX = scaleY *= -1;
                         }
-                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
+                        connector.setAttribute('transform',
+                            `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(240)`);
                         connectors.push(connector);
 
                         this.addEdgeConnector(`${i},${-size + 1},NW,${leftEnd ? '-' : '0'}`, connector, isSecondary);
-                        this.addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector, isSecondary);
+                        this.addEdgeConnector(`${i + 1 - size},${size - 1},SE,${rightEnd ? '-' : '0'}`, connector,
+                            isSecondary);
                     }
 
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] >= verticalConnectorsLimit) {
                         // North east edge
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
+                        let template = isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate;
+                        connector = template.cloneNode(true) as SVGElement;
                         cellX = getX(i, getRowSize(size, i) - 1, k) + cellOffsetX;
                         cellY = getY(i, k);
                         scaleX = 1;
@@ -1248,10 +1257,12 @@ export class GridView {
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
                         const isSecondary = k !== 0 && offsets[k][2] !== 'SW';
-                        this.addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector, isSecondary);
+                        this.addEdgeConnector(`${size - 1},${i + 1 - size},E,${rightEnd ? '+' : '0'}`, connector,
+                            isSecondary);
                         this.addEdgeConnector(`${-size + 1},${i},W,${leftEnd ? '+' : '0'}`, connector, isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
+                        template = isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate;
+                        connector = template.cloneNode(true) as SVGElement;
                         cellX = getX(i, getRowSize(size, i) - 1, k) + cellWidth + 0.5 * cellOffsetX;
                         cellY = getY(i, k) - 0.75 * edgeLength;
                         scaleX = scaleY = -1;
@@ -1259,17 +1270,20 @@ export class GridView {
                             cellX -= cellWidth;
                             scaleX = scaleY *= -1;
                         }
-                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                        connector.setAttribute('transform',
+                            `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
                         connectors.push(connector);
 
-                        this.addEdgeConnector(`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`, connector, isSecondary);
+                        this.addEdgeConnector(`${size - 1},${i + 1 - size},NE,${leftEnd ? '-' : '0'}`, connector,
+                            isSecondary);
                         this.addEdgeConnector(`${-size + 1},${i},SW,${rightEnd ? '-' : '0'}`, connector, isSecondary);
                     }
 
                     if (offsets[k][0] < horizontalConnectorsLimit && offsets[k][1] <= -verticalConnectorsLimit) {
                         // South east edge
                         const a = i + size - 1;
-                        connector = (isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
+                        let template = isSpecial ? this.positiveConnectorTemplate : this.neutralConnectorTemplate;
+                        connector = template.cloneNode(true) as SVGElement;
                         cellX = getX(a, getRowSize(size, a) - 1, k) + 0.5 * cellOffsetX;
                         cellY = getY(a, k) + 0.75 * edgeLength;
                         scaleX = 1;
@@ -1279,14 +1293,18 @@ export class GridView {
                             scaleX *= -1;
                             scaleY *= -1;
                         }
-                        connector.setAttribute('transform', `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
+                        connector.setAttribute('transform',
+                            `translate(${cellX},${cellY})scale(${scaleX},${scaleY})rotate(300)`);
                         (isSpecial ? positiveConnectors : connectors).push(connector);
 
                         const isSecondary = k !== 0 && offsets[k][2] !== 'NW';
-                        this.addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector, isSecondary);
-                        this.addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector, isSecondary);
+                        this.addEdgeConnector(`${size - 1 - i},${i},SE,${rightEnd ? '+' : '0'}`, connector,
+                            isSecondary);
+                        this.addEdgeConnector(`${-i},${i - size + 1},NW,${leftEnd ? '+' : '0'}`, connector,
+                            isSecondary);
 
-                        connector = (isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate).cloneNode(true) as SVGElement;
+                        template = isSpecial ? this.negativeConnectorTemplate : this.neutralConnectorTemplate;
+                        connector = template.cloneNode(true) as SVGElement;
                         cellX = getX(a, getRowSize(size, a) - 1, k) + cellWidth;
                         cellY = getY(a, k) + cellOffsetY;
                         scaleX = scaleY = -1;
@@ -1299,7 +1317,8 @@ export class GridView {
                         connectors.push(connector);
 
                         this.addEdgeConnector(`${size - 1 - i},${i},E,${leftEnd ? '-' : '0'}`, connector, isSecondary);
-                        this.addEdgeConnector(`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`, connector, isSecondary);
+                        this.addEdgeConnector(`${-i},${i - size + 1},W,${rightEnd ? '-' : '0'}`, connector,
+                            isSecondary);
                     }
                 }
             }

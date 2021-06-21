@@ -40,8 +40,13 @@ function getIPState(
     const i = state.number;
     return (
         <React.Fragment key={`IP${i}`}>
-            <label className={className} title={`Select to show the execution path for instruction pointer ${i}${titleExtra}.`}>
-                <input type="radio" name="selectIp" value={i} checked={state.selected} onChange={() => onSelectedIPChanged(i)}/>
+            <label className={className}
+                title={`Select to show the execution path for instruction pointer ${i}${titleExtra}.`}>
+                <input type="radio"
+                    name="selectIp"
+                    value={i}
+                    checked={state.selected}
+                    onChange={() => onSelectedIPChanged(i)}/>
                 <span className={`colorSwatch${(i + colorOffset) % 6}${colorMode}`}></span>
                 IP {i}
             </label>
@@ -56,9 +61,13 @@ function getExecutionInfo(ticks: number, memoryEdges: number) {
     return (
         <>
             <p key="ec" className="extraState col1" title="Number of executed instructions">Executed</p>
-            <p key="ec2" className="extraState col2 right" title="Number of executed instructions">{ticks.toLocaleString('en')}</p>
+            <p key="ec2" className="extraState col2 right" title="Number of executed instructions">
+                {ticks.toLocaleString('en')}
+            </p>
             <p key="mc" className="extraState col1" title="Number of memory edges storing data">Memory Edges</p>
-            <p key="mc2" className="extraState col2 right" title="Number of memory edges storing data">{memoryEdges.toLocaleString('en')}</p>
+            <p key="mc2" className="extraState col2 right" title="Number of memory edges storing data">
+                {memoryEdges.toLocaleString('en')}
+            </p>
         </>
     );
 }

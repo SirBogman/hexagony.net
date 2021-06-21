@@ -6,11 +6,14 @@ import { Direction, DirectionString, east } from '../hexagony/Direction';
 import { Hexagony } from '../hexagony/Hexagony';
 import { HexagonyState } from '../hexagony/HexagonyState';
 import { ISourceCode, SourceCode } from '../hexagony/SourceCode';
-import { countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize, removeWhitespaceAndDebug } from '../hexagony/Util';
+import { countBytes, countCodepoints, countOperators, getHexagonSize, getRowCount, getRowSize,
+    removeWhitespaceAndDebug } from '../hexagony/Util';
 
 import { GridView, initializeGridColors } from '../view/GridView';
-import { applyColorMode, assertDefined, assertNotNull, colorModes, darkColorMode, getControlKey } from '../view/ViewUtil';
-import { clearLocationHash, generateLink, IHashData, IUserData, loadHashData, loadUserData, saveUserData } from '../view/UserData';
+import { applyColorMode, assertDefined, assertNotNull, colorModes, darkColorMode, getControlKey }
+    from '../view/ViewUtil';
+import { clearLocationHash, generateLink, IHashData, IUserData, loadHashData, loadUserData, saveUserData }
+    from '../view/UserData';
 
 import { CodePanel } from './CodePanel';
 import { HotkeysPanel } from './HotkeysPanel';
@@ -176,7 +179,8 @@ export class App extends React.Component<IAppProps, IAppState> {
         // Can't use applySourceCodeChange, because side effects (the confirm dialog)
         // aren't compatible with produce.
         if (!/-|:|%|\^|&/.exec(newCode) ||
-            confirm('Reversing the direction of memory movement commands will change the functionality of this program.')) {
+            confirm('Reversing the direction of memory movement commands will change the functionality of this ' +
+                ' program.')) {
             this.updateState(state => App.applyCodeChangeToState(state, newCode));
         }
     };
@@ -702,7 +706,9 @@ export class App extends React.Component<IAppProps, IAppState> {
         this.updateState(state => { state.userData.showIPs = !state.userData.showIPs; });
 
     private toggleDarkMode = (): void =>
-        this.updateState(state => { state.userData.colorMode = colorModes[1 - colorModes.indexOf(state.userData.colorMode)]; });
+        this.updateState(state => {
+            state.userData.colorMode = colorModes[1 - colorModes.indexOf(state.userData.colorMode)];
+        });
 
     private cycleColorOffset = (): void =>
         this.updateState(state => { state.userData.colorOffset = (state.userData.colorOffset + 1) % 6; });

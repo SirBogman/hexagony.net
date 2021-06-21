@@ -1,7 +1,8 @@
 import { List, set, update } from 'immutable';
 
 import { Direction, east, northEast, northWest, southEast, southWest, west } from './Direction';
-import { createInstuctionPointer, InstructionPointer, updateExecutedGrid, updateInstructionPointer } from './InstructionPointer';
+import { createInstuctionPointer, InstructionPointer, updateExecutedGrid, updateInstructionPointer }
+    from './InstructionPointer';
 import { Memory } from './Memory';
 import { MemoryPointer } from './MemoryPointer';
 import { PointAxial } from './PointAxial';
