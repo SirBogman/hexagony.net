@@ -7,9 +7,7 @@ div #codePanel.appPanel {
     // This number is a bit arbitrary. It prevents the layout from changing too much when switching
     // from edit to play mode.
     min-height: 585px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
     padding: 0;
 }
 
@@ -17,18 +15,25 @@ div #codePanel.appPanel {
     position: absolute;
     left: 0px;
     top: 0px;
-    grid-column: 1;
-    grid-row: 1;
     z-index: 1;
     background: var(--panel-overlay-background);
     display: flex;
     padding: 0.5rem;
 }
 
+#codePanelContent {
+    // Leave room for a one pixel border around the panel, for when the panzoom control has keyboard focus.
+    margin: 2px;
+    position: relative;
+    // Setting overflow to hidden prevents things in the container from blocking the focus outline.
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #resetCodeViewButton {
-    grid-row: 1;
     margin: 0.5rem;
-    z-index: 1;
 }
 
 @media (max-width: root.$singleColumnWidth) {

@@ -104,7 +104,6 @@ export class GridView {
     private typingDirection: Direction = east;
     private codePanel: HTMLElement;
     private codeSvgContainer: HTMLElement;
-    private codeSvgParent: HTMLElement;
     private focusProxy: HTMLElement;
     private svg: SVGSVGElement;
     private cellContainer: SVGElement;
@@ -147,7 +146,6 @@ export class GridView {
 
         this.codePanel = getElementById('codePanel');
         this.codeSvgContainer = getElementById('codeSvgContainer');
-        this.codeSvgParent = getElementById('codeSvgParent');
         this.focusProxy = getElementById('focusProxy');
         this.svg = getElementById('codeSvg') as Element as SVGSVGElement;
         this.cellContainer = this.svg.appendChild(createSvgElement('g'));
@@ -1087,11 +1085,13 @@ export class GridView {
             this.fullHeight = 2 * (cellOffsetY * this.rowCount + padding);
         }
 
-        const centerX = this.fullWidth / 2;
-        const centerY = this.fullHeight / 2;
-
-        this.codeSvgParent.style.transform = `matrix(1,0,0,1,${-this.fullWidth*0.25},${-this.fullHeight*0.25})`;
+        // Setting maxWidth is optional and doesn't seem to make too much difference. If it's not done, then centerX
+        // should be set to this.fullWidth / 2;
+        const centerX = this.fullWidth / 4;
         this.codeSvgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
+
+        // Limit the visible height. Hides parts of the secondary hexagons that are farther from the center hexagon.
+        const centerY = this.fullHeight / 4;
         this.codeSvgContainer.style.maxHeight = `${this.fullHeight /2}px`;
 
         this.svg.setAttribute('width', this.fullWidth.toString());

@@ -65,7 +65,7 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
 
     componentDidMount(): void {
         const view = assertNotNull(this.viewRef.current, 'viewRef');
-        const panZoom = panzoom(view, {
+        this.panZoomReference = panzoom(view, {
             minimumDistance: 10,
             beforeMouseDown,
             beforeDoubleClick,
@@ -73,10 +73,10 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
             zoomDoubleClickSpeed: 1.5,
             // 6.5% zoom per mouse wheel event:
             zoomSpeed: 0.065,
+            // Ignore keyboard events that have already been processed.
             filterKey: (e: KeyboardEvent) => e.defaultPrevented,
         });
 
-        this.panZoomReference = panZoom;
         // The user may pan with the arrow keys. Use pan, instead of panend.
         this.panZoom.on('pan', this.updateCanResetView);
         this.panZoom.on('zoom', this.updateCanResetView);
@@ -85,7 +85,6 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
     }
 
     private readonly updateCanResetView = (): void => {
-        console.log('uCSR');
         const { x, y, scale } = this.panZoom.getTransform();
         this.setState({ canResetView:
             !approximatelyEqual(x, 0) || !approximatelyEqual(y, 0) || !approximatelyEqual(scale, 1) });
@@ -110,21 +109,21 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
     render(): JSX.Element {
         return (
             <div id="codePanel" className="appPanel">
-                <div id="codePanelHeader">
-                    <h1>Code</h1>
-                    <button id="resetCodeViewButton"
-                        className="bodyButton"
-                        disabled={!this.state.canResetView}
-                        onClick={this.resetView}
-                        title="Reset the position and zoom level of the view.">
-                        Reset View
-                    </button>
-                </div>
-                <div id="codeSvgContainer" ref={this.viewRef}>
-                    {/* Focus proxy should be at the top, to prevent the browser from panning to the bottom. */}
+                <div id="codePanelContent">
+                    <div id="codePanelHeader">
+                        <h1>Code</h1>
+                        <button id="resetCodeViewButton"
+                            className="bodyButton"
+                            disabled={!this.state.canResetView}
+                            onClick={this.resetView}
+                            title="Reset the position and zoom level of the code panel.">
+                            Reset View
+                        </button>
+                    </div>
                     <div id="focusProxy" tabIndex={0}/>
-                    <div id="codeSvgParent">
-                        <svg id="codeSvg">
+                    <div id="codeSvgContainer" ref={this.viewRef}>
+                        {/* Focus proxy should be at the top, to prevent the browser from panning to the bottom. */}
+                        <svg id="codeSvg" overflow="visible">
                             <defs>
                                 <g className="cell">
                                     <path className="cellPath" d="M17.32 10v-20L0-20l-17.32 10v20L0 20z"/>
