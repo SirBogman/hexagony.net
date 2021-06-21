@@ -9,6 +9,8 @@ import { approximatelyEqual, assertNotNull } from '../view/ViewUtil';
 
 import '../../styles/MemoryPanel.scss';
 
+const memoryPanelHeaderClass = 'memoryPanelHeader';
+
 interface IMemoryPanelProps {
     delay: string;
     isPlayingAtHighSpeed: boolean;
@@ -19,6 +21,34 @@ interface IMemoryPanelProps {
 type MemoryPanelState = {
     canResetView: boolean;
 };
+
+function ignoreElement(element: Element): boolean {
+    return element instanceof SVGTextElement || isHeader(element) || isHeader(element.parentElement);
+}
+
+function isHeader(element: Element | null): boolean {
+    return element instanceof HTMLDivElement && element.classList.contains(memoryPanelHeaderClass);
+}
+
+function filterMouseEvent(event: MouseEvent): boolean | undefined {
+    if (event.defaultPrevented || event.target instanceof Element && ignoreElement(event.target)) {
+        // Allow clicking/double clicking on text and in the header. Enables text selection.
+        return true;
+    }
+
+    return undefined;
+}
+
+function beforeTouchStart(event: TouchEvent): boolean | undefined {
+    if (event.defaultPrevented ||
+        event.touches.length === 1 &&
+        event.touches[0].target instanceof Element &&
+        ignoreElement(event.touches[0].target)) {
+        return true;
+    }
+
+    return undefined;
+}
 
 export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelState> {
     private viewRef: React.RefObject<MemoryView> = React.createRef();
@@ -37,9 +67,9 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
     componentDidMount(): void {
         this.panZoomReference = panzoom(this.getSvg(), {
             minimumDistance: 10,
-            // Don't pan when clicking on text elements. This allows text selection.
-            beforeMouseDown: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
-            beforeDoubleClick: (e: MouseEvent) => (e.target as Node).nodeName === 'text',
+            beforeMouseDown: filterMouseEvent,
+            beforeDoubleClick: filterMouseEvent,
+            beforeTouchStart,
             zoomDoubleClickSpeed: 1.5,
             // 6.5% zoom per mouse wheel event:
             zoomSpeed: 0.065,
@@ -130,7 +160,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         const { delay, memory, mp } = this.props;
         return (
             <div id="memoryPanel" className="appPanel" ref={this.containerRef}>
-                <div id="memoryPanelHeader">
+                <div className={memoryPanelHeaderClass}>
                     <h1>Memory</h1>
                     <button id="resetViewButton"
                         className="bodyButton"

@@ -4,13 +4,31 @@ import { approximatelyEqual, assertNotNull } from '../view/ViewUtil';
 
 import '../../styles/CodePanel.scss';
 
+const codePanelHeaderClass = 'codePanelHeader';
+
+function alwaysIgnoreElement(element: Element): boolean {
+    return isHeader(element) || isHeader(element.parentElement);
+}
+
 function ignoreElement(element: Element): boolean {
-    return element instanceof HTMLInputElement || (element.parentElement?.classList.contains('cell') ?? false);
+    return element instanceof HTMLInputElement ||
+        (element.parentElement?.classList.contains('cell') ?? false) ||
+        alwaysIgnoreElement(element);
+}
+
+function isHeader(element: Element | null): boolean {
+    return element instanceof HTMLDivElement && element.classList.contains(codePanelHeaderClass);
 }
 
 function beforeMouseDown(event: MouseEvent): boolean | undefined {
-    if (event.defaultPrevented || event.target instanceof Element && ignoreElement(event.target)) {
-        return false;
+    if (event.defaultPrevented) {
+        return true;
+    }
+
+    if (event.target instanceof Element && alwaysIgnoreElement(event.target)) {
+        // Don't process clicks on elements in the header (always ignored elements).
+        // For other elements, don't prevent them from being processed by other code.
+        return alwaysIgnoreElement(event.target);
     }
 
     return undefined;
@@ -26,6 +44,10 @@ function beforeDoubleClick(event: MouseEvent): boolean | undefined {
 }
 
 function beforeTouchStart(event: TouchEvent): boolean | undefined {
+    if (event.defaultPrevented) {
+        return true;
+    }
+
     if (event.touches.length === 1 &&
         event.touches[0].target instanceof Element &&
         ignoreElement(event.touches[0].target)) {
@@ -35,7 +57,7 @@ function beforeTouchStart(event: TouchEvent): boolean | undefined {
         // on touchend, preventDefault will be called and will stop the touch from giving focus to the hexagon cell.
         // Otherwise, when the touch is release, if it has not moved too far from the hexagon cell, according to
         // internal tests by the user agent, then the hexagon cell will get focus.
-        return false;
+        return alwaysIgnoreElement(event.touches[0].target);
     }
 
     // Returning undefined means that the library will do its default behavior.
@@ -131,7 +153,7 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
     render(): JSX.Element {
         return (
             <div id="codePanel" className="appPanel" tabIndex={0} ref={this.panelRef}>
-                <div id="codePanelHeader">
+                <div className={codePanelHeaderClass}>
                     <h1>Code</h1>
                     <button id="resetCodeViewButton"
                         className="bodyButton"
