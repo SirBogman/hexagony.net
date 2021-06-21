@@ -129,20 +129,18 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
     render(): JSX.Element {
         const { delay, memory, mp } = this.props;
         return (
-            <div id="memoryPanel" className="appPanel">
-                <div id="memoryContainer" ref={this.containerRef}>
-                    <div id="memoryPanelHeader">
-                        <h1>Memory</h1>
-                        <button id="resetViewButton"
-                            className="bodyButton"
-                            disabled={!this.canResetView()}
-                            onClick={this.resetView}
-                            title="Reset the position and zoom level of the memory panel.">
-                            Reset View
-                        </button>
-                    </div>
-                    <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
+            <div id="memoryPanel" className="appPanel" ref={this.containerRef}>
+                <div id="memoryPanelHeader">
+                    <h1>Memory</h1>
+                    <button id="resetViewButton"
+                        className="bodyButton"
+                        disabled={!this.canResetView()}
+                        onClick={this.resetView}
+                        title="Reset the position and zoom level of the memory panel.">
+                        Reset View
+                    </button>
                 </div>
+                <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
             </div>
         );
     }

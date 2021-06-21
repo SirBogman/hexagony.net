@@ -2,6 +2,7 @@
 
 // Specificity should be at least (1, 1, 1).
 div #memoryPanel.appPanel {
+    position: relative;
     grid-area: memoryPanel;
     padding: 0;
     display: grid;
@@ -15,14 +16,6 @@ div #memoryPanel.appPanel {
     background: var(--panel-overlay-background);
     display: flex;
     padding: 0.5rem;
-}
-
-#memoryContainer {
-    // Leave room for a one pixel border around the memory panel, for when the panzoom control has keyboard focus.
-    margin: 2px;
-    position: relative;
-    // Setting overflow to hidden prevents things in the container from blocking the focus outline.
-    overflow: hidden;
 }
 
 .memoryCell {
