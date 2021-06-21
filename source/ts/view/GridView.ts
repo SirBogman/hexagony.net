@@ -698,7 +698,7 @@ export class GridView {
         }
 
         if (this.directionalTyping) {
-            if (event.key === ' ') {
+            if (event.key === ' ' || event.key === 'Enter' && !getControlKey(event)) {
                 this.advanceCursor(i, j, k, null, event.shiftKey);
                 event.preventDefault();
                 return;
