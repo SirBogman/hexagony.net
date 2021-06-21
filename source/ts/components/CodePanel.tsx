@@ -46,6 +46,11 @@ function beforeTouchStart(event: TouchEvent): boolean | undefined {
     return undefined;
 }
 
+function filterKey(event: KeyboardEvent): boolean {
+    // Ignore keyboard events that were already process or that occurred in an HTMLInputElement.
+    return event.defaultPrevented || event.target instanceof Element && ignoreElement(event.target);
+}
+
 // Props aren't used for this component. The type indicates an empty object.
 type CodePanelProps = Record<string, never>;
 
@@ -70,11 +75,11 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
             beforeMouseDown,
             beforeDoubleClick,
             beforeTouchStart,
+            filterKey,
             zoomDoubleClickSpeed: 1.5,
             // 6.5% zoom per mouse wheel event:
             zoomSpeed: 0.065,
             // Ignore keyboard events that have already been processed.
-            filterKey: (e: KeyboardEvent) => e.defaultPrevented,
         });
 
         // The user may pan with the arrow keys. Use pan, instead of panend.
