@@ -850,6 +850,14 @@ export class GridView {
             this.addExecutionAngleClass([i, j, this.typingDirection], 'typingDirectionArrow', k);
         }
 
+        input.addEventListener('beforeinput', e => {
+            // Android gboard uses IME when space is pressed. Can't intercept in keydown.
+            if (this.directionalTyping && e.data === ' ') {
+                this.advanceCursor(i, j, k, null);
+                e.preventDefault();
+            }
+        });
+
         input.addEventListener('input', () => {
             const newText = removeWhitespaceAndDebug(input.value) || '.';
             if (this.directionalTyping && newText !== '@') {
