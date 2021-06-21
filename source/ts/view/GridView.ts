@@ -195,11 +195,7 @@ export class GridView {
         if (parent instanceof Element && parent.classList.contains('cell')) {
             const [i, j, k] = getIndices(parent);
             this.navigateTo(i, j, k);
-            return;
         }
-
-        // Clicking anywhere else in the code panel will focus the last focused cell.
-        this.focus();
     };
 
     public setSourceCode(sourceCode: ISourceCode): void {

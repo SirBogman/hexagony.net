@@ -66,8 +66,8 @@ export const About: React.FC = () =>
                 <li>When moving backwards with directional typing (shift + space, or backspace), it works as if you
                     had pressed the step back button, except that the cursor follows as well.</li>
                 <li>An easy way to try this is to press the reset button to start with an empty program, press the
-                    step forward button to begin execution, then click the active cell (or anywhere in the
-                    background of the code panel) and type the first instruction.</li>
+                    step forward button to begin execution, then click the active cell and type the first instruction.
+                </li>
             </ul>
             <h4>Unsynchronized Directional Typing</h4>
             <p>
@@ -89,9 +89,8 @@ export const About: React.FC = () =>
                 <li>Holding shift and pressing space will move the cursor backwards along the typing axis, without
                     changing the code.</li>
                 <li>Backspace moves backwards along the typing axis and replaces instructions with no-ops.</li>
-                <li>Clicking on the background of the code panel will focus either the last active cell or, if the
-                    program is executing, the cell at the currently active instruction pointer. Using tab to focus
-                    the code panel with the keyboard will do the same.
+                <li>Using tab to focus the code panel will focus either the last active cell or, if the
+                    program is executing, the cell at the currently active instruction pointer.
                 </li>
                 <li>While executing a program, the typing direction automatically changes to match the current execution
                     direction. This makes it easier to use synchronized directional typing.
