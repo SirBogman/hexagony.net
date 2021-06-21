@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getControlKey } from '../view/ViewUtil';
+import { emptyElement, getControlKey } from '../view/ViewUtil';
 
 import '../../styles/InputEventDisplay.scss';
 
@@ -9,33 +9,46 @@ import '../../styles/InputEventDisplay.scss';
  * Events may be missed if Event.stopPropagation is used.
  */
 export class InputEventDisplay extends React.PureComponent {
-    private spanRef: React.RefObject<HTMLSpanElement> = React.createRef();
+    private readonly divRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly spanRef: React.RefObject<HTMLSpanElement> = React.createRef();
 
     componentDidMount(): void {
         document.addEventListener('keydown', this.onKeyDown);
         document.addEventListener('mousedown', this.onMouseDown);
+        document.addEventListener('mouseup', this.onMouseUp);
+        document.addEventListener('wheel', this.onWheel);
     }
 
     componentWillUnmount(): void {
         document.removeEventListener('keydown', this.onKeyDown);
         document.removeEventListener('mousedown', this.onMouseDown);
+        document.removeEventListener('mouseup', this.onMouseUp);
+        document.removeEventListener('wheel', this.onWheel);
     }
 
-    private onAnimationEnd = (): void => {
-        this.spanRef.current?.classList.remove('inputEventDisplayAnimate');
-    }
-
-    private onMouseDown = (e: MouseEvent): void => {
-        const span = this.spanRef.current;
-        if (span !== null) {
-            span.textContent = `Mouse: ${e.button === 0 ? 'Left' : e.button} Click`;
-            span.classList.add('inputEventDisplayAnimate');
+    private updateText(text: string): void {
+        const div = this.divRef.current;
+        if (div !== null) {
+            // Remove any previous text and add new text. This will reset its animation.
+            emptyElement(div);
+            const span = document.createElement('span');
+            span.textContent = text;
+            span.classList.add('inputEventDisplay');
+            div.appendChild(span);
         }
     }
 
+    private onMouseDown = (e: MouseEvent): void =>
+        this.updateText(`Mouse: ${e.button === 0 ? 'Left' : e.button} Down`);
+
+    private onMouseUp = (e: MouseEvent): void =>
+        this.updateText(`Mouse: ${e.button === 0 ? 'Left' : e.button} Up`);
+
+    private onWheel = (e: WheelEvent): void =>
+        this.updateText(`Wheel: ${e.deltaY > 0 ? 'Down' : 'Up'}`);
+
     private onKeyDown = (e: KeyboardEvent): void => {
-        const span = this.spanRef.current;
-        if (span !== null && (e.key !== 'Control' && e.key !== 'Shift')) {
+        if (e.key !== 'Control' && e.key !== 'Shift') {
             let prefix = '';
             if (getControlKey(e)) {
                 prefix = 'Control + ';
@@ -47,16 +60,11 @@ export class InputEventDisplay extends React.PureComponent {
             if (key === 'Escape') {
                 key = '';
             }
-            span.textContent = `Key: ${prefix}${key}`;
-            span.classList.add('inputEventDisplayAnimate');
+            this.updateText(`Key: ${prefix}${key}`);
         }
     }
 
     render(): JSX.Element {
-        return (
-            <div className="inputEventDisplay">
-                <span className="inputEventDisplay" ref={this.spanRef} onAnimationEnd={this.onAnimationEnd}/>
-            </div>
-        );
+        return <div className="inputEventDisplay" ref={this.divRef}/>;
     }
 }

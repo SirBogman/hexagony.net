@@ -1,6 +1,6 @@
 div.inputEventDisplay {
     position: absolute;
-    left: 1000px;
+    left: 900px;
     top: 328px;
     width: 200px;
     height: 50px;
@@ -15,9 +15,6 @@ div.inputEventDisplay {
 
 span.inputEventDisplay {
     opacity: 0;
-}
-
-.inputEventDisplayAnimate {
     animation: flash 1.0s ease-in-out;
 }
 
@@ -25,7 +22,7 @@ span.inputEventDisplay {
     0%, 100% {
         opacity: 0;
     }
-    10%, 50% {
+    20%, 50% {
         opacity: 1;
     }
 }
