@@ -175,7 +175,7 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
         return (
             <div id="codePanel" className="appPanel" tabIndex={0} ref={this.panelRef}>
                 <div className={codePanelHeaderClass}>
-                    <h1>Code</h1>
+                    <h1 title="Enter your hexagony code in the Code panel.">Code</h1>
                     {resetViewButton}
                 </div>
                 <div id="focusProxy" tabIndex={0}/>
