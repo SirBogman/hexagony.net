@@ -106,7 +106,7 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
         this.state = { canResetView: false };
     }
 
-    componentDidMount(): void {
+    override componentDidMount(): void {
         if (!this.props.zoomable) {
             return;
         }
@@ -133,7 +133,7 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
         this.resetView();
     }
 
-    componentWillUnmount(): void {
+    override componentWillUnmount(): void {
         if (this.panZoomReference !== null) {
             this.panZoomReference.dispose();
         }
@@ -161,7 +161,7 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
         this.updateCanResetView();
     }
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const resetViewButton = this.props.zoomable ?
             <button id="resetCodeViewButton"
                 className="bodyButton"

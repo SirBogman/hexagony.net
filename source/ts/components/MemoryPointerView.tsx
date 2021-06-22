@@ -39,7 +39,7 @@ interface IMemoryPointerViewProps {
 export class MemoryPointerView extends React.PureComponent<IMemoryPointerViewProps> {
     rotation = 0;
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { x, y, angle, delay } = this.props;
         this.rotation = smoothRotation(this.rotation, angle);
         return <path id="memoryPointer"

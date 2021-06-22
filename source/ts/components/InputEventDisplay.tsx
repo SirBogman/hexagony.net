@@ -12,14 +12,14 @@ export class InputEventDisplay extends React.PureComponent {
     private readonly divRef: React.RefObject<HTMLDivElement> = React.createRef();
     private readonly spanRef: React.RefObject<HTMLSpanElement> = React.createRef();
 
-    componentDidMount(): void {
+    override componentDidMount(): void {
         document.addEventListener('keydown', this.onKeyDown);
         document.addEventListener('mousedown', this.onMouseDown);
         document.addEventListener('mouseup', this.onMouseUp);
         document.addEventListener('wheel', this.onWheel);
     }
 
-    componentWillUnmount(): void {
+    override componentWillUnmount(): void {
         document.removeEventListener('keydown', this.onKeyDown);
         document.removeEventListener('mousedown', this.onMouseDown);
         document.removeEventListener('mouseup', this.onMouseUp);
@@ -64,7 +64,7 @@ export class InputEventDisplay extends React.PureComponent {
         }
     }
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         return <div className="inputEventDisplay" ref={this.divRef}/>;
     }
 }

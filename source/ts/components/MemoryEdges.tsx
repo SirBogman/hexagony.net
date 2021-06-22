@@ -16,7 +16,7 @@ interface IMemoryEdgesProps {
 export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
     lastDataVersion = -1;
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { memory } = this.props;
         this.lastDataVersion = memory.dataVersion;
         const cells = [];
@@ -27,7 +27,7 @@ export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
         return <g>{cells}</g>;
     }
 
-    shouldComponentUpdate(nextProps: IMemoryEdgesProps): boolean {
+    override shouldComponentUpdate(nextProps: IMemoryEdgesProps): boolean {
         return nextProps.memory.dataVersion !== this.lastDataVersion;
     }
 }

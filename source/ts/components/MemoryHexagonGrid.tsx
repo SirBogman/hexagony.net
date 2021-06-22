@@ -30,7 +30,7 @@ interface IMemoryHexagonGrid {
  * @component
  */
 export class MemoryHexagonGrid extends React.PureComponent<IMemoryHexagonGrid> {
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { rows, columns } = this.props;
         let path = '';
         const startX = (2 * this.props.x - 1.5 + this.props.y % 2) * cellOffsetX;

@@ -11,12 +11,12 @@ interface IOutputPanelProps {
 export class OutputPanel extends React.Component<IOutputPanelProps> {
     private outputBoxRef: React.RefObject<HTMLDivElement> = React.createRef();
 
-    shouldComponentUpdate(nextProps: IOutputPanelProps): boolean {
+    override shouldComponentUpdate(nextProps: IOutputPanelProps): boolean {
         return nextProps.outputBytes !== this.props.outputBytes ||
             nextProps.utf8Output !== this.props.utf8Output;
     }
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { outputBytes, utf8Output, onUtf8OutputChanged } = this.props;
         let output;
         if (utf8Output) {
@@ -57,11 +57,11 @@ export class OutputPanel extends React.Component<IOutputPanelProps> {
         );
     }
 
-    componentDidMount(): void {
+    override componentDidMount(): void {
         this.scrollToEnd();
     }
 
-    componentDidUpdate(): void {
+    override componentDidUpdate(): void {
         this.scrollToEnd();
     }
 

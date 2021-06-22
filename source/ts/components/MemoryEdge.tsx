@@ -15,7 +15,7 @@ interface IMemoryEdgeProps {
  * @component
  */
 export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { angle, x, y } = this.props;
         const transform = `translate(${(x * xFactor).toFixed(2)},${(y * yFactor).toFixed(2)})rotate(${angle})`;
 

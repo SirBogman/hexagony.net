@@ -64,7 +64,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         return assertNotNull(this.panZoomReference, 'panZoomReference');
     }
 
-    componentDidMount(): void {
+    override componentDidMount(): void {
         this.panZoomReference = panzoom(this.getSvg(), {
             minimumDistance: 10,
             beforeMouseDown: filterMouseEvent,
@@ -83,7 +83,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         this.recenterView();
     }
 
-    componentDidUpdate(prevProps: IMemoryPanelProps): void {
+    override componentDidUpdate(prevProps: IMemoryPanelProps): void {
         // Recenter the memory pointer when it leaves the visible area. Only check this when the memory pointer has
         // moved, to prevent interactions with enabling/disabling the reset view button.
         if (this.props.mp !== prevProps.mp && this.isMPOffscreen()) {
@@ -92,7 +92,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         }
     }
 
-    componentWillUnmount(): void {
+    override componentWillUnmount(): void {
         this.panZoom.dispose();
     }
 
@@ -156,7 +156,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         }
     }
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { delay, memory, mp } = this.props;
         return (
             <div id="memoryPanel" className="appPanel" ref={this.containerRef}>
@@ -188,7 +188,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         this.panZoom.moveTo(x, y);
     }
 
-    shouldComponentUpdate(nextProps: IMemoryPanelProps): boolean {
+    override shouldComponentUpdate(nextProps: IMemoryPanelProps): boolean {
         // It slows down the app too much to render the memory panel when executing at maximum speed.
         // Don't render until the execution stops, or the execution speed is reduced.
         return !nextProps.isPlayingAtHighSpeed;

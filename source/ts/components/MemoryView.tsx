@@ -35,7 +35,7 @@ export class MemoryView extends React.Component<IMemoryViewProps> {
         return assertNotNull(this.viewRef.current, 'MemoryView.viewRef');
     }
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { delay, memory, mp } = this.props;
 
         const [x, y] = getMPCoordinates(mp);

@@ -728,7 +728,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     private getLastHexagonyState = (): HexagonyState | null =>
         this.hexagony !== null ? this.hexagony.lastState : null;
 
-    componentDidMount(): void {
+    override componentDidMount(): void {
         const { animationDelay, sourceCode, typingDirection, userData } = this.state;
 
         const gridView = new GridView(
@@ -758,13 +758,13 @@ export class App extends React.Component<IAppProps, IAppState> {
         window.addEventListener('hashchange', this.loadDataFromURL);
     }
 
-    componentWillUnmount(): void {
+    override componentWillUnmount(): void {
         document.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('hashchange', this.loadDataFromURL);
         this.gridView.dispose();
     }
 
-    componentDidUpdate(prevProps: IAppProps, prevState: IAppState): void {
+    override componentDidUpdate(prevProps: IAppProps, prevState: IAppState): void {
         const { gridView, state } = this;
         const { animationDelay, selectedIp, sourceCode, typingDirection, userData } = state;
         const prevUserData = prevState.userData;
@@ -833,7 +833,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         }
     }
 
-    render(): JSX.Element {
+    override render(): JSX.Element {
         const { animationDelay, link, isGeneratedLinkUpToDate, isRunning, typingDirection, userData } = this.state;
         const { hexagony } = this;
 
