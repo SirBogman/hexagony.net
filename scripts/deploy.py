@@ -47,7 +47,8 @@ def invalidate():
         DistributionId=CLOUDFRONT_DISTRIBUTION_ID,
         InvalidationBatch={
             'Paths': {
-                'Quantity': 1,
+                # Todo, check whether html files have changed, before uploading and invalidating them.
+                'Quantity': 4,
                 'Items': [
                     '/403.html',
                     '/404.html',
