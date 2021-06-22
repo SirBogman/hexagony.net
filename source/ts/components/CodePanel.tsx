@@ -73,8 +73,9 @@ function filterKey(event: KeyboardEvent): boolean {
     return event.defaultPrevented || event.target instanceof Element && ignoreElement(event.target);
 }
 
-// Props aren't used for this component. The type indicates an empty object.
-type CodePanelProps = Record<string, never>;
+type CodePanelProps = {
+    zoomable?: boolean;
+}
 
 type CodePanelState = {
     canResetView: boolean;
@@ -106,6 +107,10 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
     }
 
     componentDidMount(): void {
+        if (!this.props.zoomable) {
+            return;
+        }
+
         const panel = assertNotNull(this.panelRef.current, 'panelRef');
         const view = assertNotNull(this.viewRef.current, 'viewRef');
         this.panZoomReference = panzoom(view, {
@@ -126,6 +131,12 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
         this.panZoom.on('zoom', this.updateCanResetView);
         this.panZoom.on('zoomend', this.updateCanResetView);
         this.resetView();
+    }
+
+    componentWillUnmount(): void {
+        if (this.panZoomReference !== null) {
+            this.panZoomReference.dispose();
+        }
     }
 
     private readonly updateCanResetView = (): void => {
@@ -151,17 +162,21 @@ export class CodePanel extends React.PureComponent<CodePanelProps, CodePanelStat
     }
 
     render(): JSX.Element {
+        const resetViewButton = this.props.zoomable ?
+            <button id="resetCodeViewButton"
+                className="bodyButton"
+                disabled={!this.state.canResetView}
+                onClick={this.resetView}
+                title="Reset the position and zoom level of the code panel.">
+                Reset View
+            </button> :
+            null;
+
         return (
             <div id="codePanel" className="appPanel" tabIndex={0} ref={this.panelRef}>
                 <div className={codePanelHeaderClass}>
                     <h1>Code</h1>
-                    <button id="resetCodeViewButton"
-                        className="bodyButton"
-                        disabled={!this.state.canResetView}
-                        onClick={this.resetView}
-                        title="Reset the position and zoom level of the code panel.">
-                        Reset View
-                    </button>
+                    {resetViewButton}
                 </div>
                 <div id="focusProxy" tabIndex={0}/>
                 <div id="codeSvgContainer">
