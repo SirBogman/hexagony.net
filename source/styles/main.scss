@@ -44,9 +44,6 @@ header {
 
 #appGrid > div.appPanel {
     background: var(--panel-background);
-    // One pixel margin allows user to see all four edge of border that appears around the edges of code and memory
-    // panels when they have keyboard focus.
-    margin: 1px;
     padding: 0.5rem;
     // Overflow must be hidden in all panels to prevent horizontal scroll bars in the narrow layout.
     overflow: hidden;
