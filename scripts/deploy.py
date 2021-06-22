@@ -49,7 +49,10 @@ def invalidate():
             'Paths': {
                 'Quantity': 1,
                 'Items': [
-                    '/*.html',
+                    '/403.html',
+                    '/404.html',
+                    '/about.html',
+                    '/index.html',
                 ]
             },
             'CallerReference': TIMESTAMP
