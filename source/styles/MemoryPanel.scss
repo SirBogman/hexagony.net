@@ -1,6 +1,6 @@
 @use 'root.scss';
 
-// Specificity should be at least (1, 1, 1).
+// Specificity should be at least (1, 1, 1), because it must be at least as high as "#appGrid > div.appPanel".
 div #memoryPanel.appPanel {
     position: relative;
     grid-area: memoryPanel;

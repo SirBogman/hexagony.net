@@ -1,6 +1,6 @@
 @use 'root.scss';
 
-// Specificity should be at least (1, 1, 1).
+// Specificity should be at least (1, 1, 1), because it must be at least as high as "#appGrid > div.appPanel".
 div #codePanel.appPanel {
     position: relative;
     grid-area: codePanel;
@@ -28,7 +28,8 @@ div #codePanel.appPanel {
 }
 
 @media (max-width: root.$singleColumnWidth) {
-    #codePanel {
+    // Specificity should be at least (1, 1, 1), because it must be at least as high as "div #codePanel.appPanel".
+    div #codePanel.appPanel {
         // Use the height of the content.
         min-height: 0px;
     }
