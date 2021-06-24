@@ -193,6 +193,19 @@ export class GridView {
 
         // Select text when clicking on the background or text of the cell.
         if (parent instanceof Element && parent.classList.contains('cell')) {
+            const hexagonElement = parent.parentElement;
+            const selection = document.getSelection();
+            if (selection !== null) {
+                for (let i = 0; i < selection.rangeCount; i++) {
+                    const range = selection.getRangeAt(i);
+                    if (range.commonAncestorContainer === hexagonElement) {
+                        // The user just selected text in this hexagon. Don't activate the hexagon cell. This makes it
+                        // easier for the user to copy text from the hexagon.
+                        return;
+                    }
+                }
+            }
+
             const [i, j, k] = getIndices(parent);
             this.navigateTo(i, j, k);
         }
