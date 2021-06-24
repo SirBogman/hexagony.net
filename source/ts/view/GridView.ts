@@ -21,7 +21,6 @@ const cellHeight = edgeLength * 2;
 const cellOffsetY = 3 / 4 * cellHeight;
 const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
 const cellWidth = cellOffsetX * 2;
-const padding = 35;
 const executedColorCount = 10;
 
 let cellExecuted: readonly string[];
@@ -162,13 +161,13 @@ export class GridView {
         this.negativeConnectorTemplate = querySelector('defs [class~=negativeConnector]');
 
         this.svg.addEventListener('animationend', this.onAnimationEnd);
-        this.codePanel.addEventListener('mouseup', this.onClick);
+        this.codePanel.addEventListener('mouseup', this.onMouseUp);
         this.focusProxy.addEventListener('focusin', this.focus);
     }
 
     public dispose(): void {
         this.svg.removeEventListener('animationend', this.onAnimationEnd);
-        this.codePanel.removeEventListener('mouseup', this.onClick);
+        this.codePanel.removeEventListener('mouseup', this.onMouseUp);
         this.focusProxy.removeEventListener('focusin', this.focus);
     }
 
@@ -182,7 +181,7 @@ export class GridView {
         }
     };
 
-    private readonly onClick = (event: MouseEvent): void => {
+    private readonly onMouseUp = (event: MouseEvent): void => {
         const parent = (event.target as Element).parentNode;
 
         // Ignore panning/zooming and clicks in the title/reset overlay.
@@ -1079,29 +1078,28 @@ export class GridView {
         // the "size" represents the number of rows on the top and bottom edges of the center hexagons.
         // and 1 represents the gap between them.
         if (edgeTransitionMode) {
-            this.fullWidth = 2*(cellWidth * (this.rowCount * 2 + size + 1) + padding);
-
-            // This is just enough room to show a couple rows of the hexagons above and below the center one.
-            // More might be shown than this, but this is the minimum to show.
-            this.fullHeight = 2 * (cellOffsetY * (this.rowCount + 6));
+            // The essential area for the code panel includes closest two rows on each of the adjacent hexagons.
+            this.fullWidth = cellWidth * (this.rowCount + 5);
+            this.fullHeight = cellOffsetY * (this.rowCount + 5) + cellHeight;
         }
         else {
-            this.fullWidth = 2 * (cellWidth * this.rowCount + padding);
-            this.fullHeight = 2 * (cellOffsetY * this.rowCount + padding);
-            // actual values:
-            // this.fullWidth = cellWidth * this.rowCount + padding;
-            // this.fullHeight = cellOffsetY * this.rowCount + padding + cellHeight - cellOffsetY;
+            // There's just one hexagon. The essential area is all of it, plus a little bit of padding.
+            const padding = 6;
+            this.fullWidth = cellWidth * this.rowCount + padding;
+            this.fullHeight = cellOffsetY * this.rowCount + cellHeight - cellOffsetY + padding;
         }
 
-        // Setting maxWidth is optional and doesn't seem to make too much difference.
-        // If it's not done, then uncomment the following line.
-        // const centerX = this.fullWidth / 2;
-        const centerX = this.fullWidth / 4;
-        this.codeSvgContainer.style.maxWidth = `${this.fullWidth / 2}px`;
+        const centerX = this.fullWidth / 2;
+        const centerY = this.fullHeight / 2;
 
-        // Limit the visible height. Hides parts of the secondary hexagons that are farther from the center hexagon.
-        const centerY = this.fullHeight / 4;
-        this.codeSvgContainer.style.maxHeight = `${this.fullHeight /2}px`;
+        // Define the essential area. If this area doesn't fit either horizontally or vertically, then users will be
+        // able to scroll to see the rest of it, but no more on that dimension. Users will only see past the area
+        // horizontally, if their screen is big enough. Users will only see past the area vertically if their display
+        // is wide enough to use the two column layout and the hexagon is small relative to the two rows on the right
+        // that share the same grid layout slot. This will help to avoid getting disoriented when scrolling around a
+        // large hexagon.
+        this.codeSvgContainer.style.maxWidth = `${this.fullWidth}px`;
+        this.codeSvgContainer.style.maxHeight = `${this.fullHeight}px`;
 
         this.svg.setAttribute('width', this.fullWidth.toString());
         this.svg.setAttribute('height', this.fullHeight.toString());

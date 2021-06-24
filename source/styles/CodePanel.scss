@@ -8,9 +8,11 @@ div #codePanel.appPanel {
     // from edit to play mode.
     min-height: 585px;
     display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 0;
+
+    // Allow horizontal scrolling, if necessary. Content will not overflow vertically, because the container will
+    // expand.
+    overflow-x: auto;
 }
 
 .codePanelHeader {
@@ -25,6 +27,16 @@ div #codePanel.appPanel {
 
 #resetCodeViewButton {
     margin: 0.5rem;
+}
+
+#codeSvgContainer {
+    // Using auto horizontal margin works the same way as putting "justify-content: safe center;" on the container,
+    // except that isn't widely supported at this time. If "justify-content: center;" is used on the container, and this
+    // element is too big to fit, then content at the left side is inaccessible.
+    margin: 0 auto;
+    // When the content is smaller than the container, center it vertically. The Container is always at least as large
+    // as the content.
+    align-self: center;
 }
 
 @media (max-width: root.$singleColumnWidth) {
