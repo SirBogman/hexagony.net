@@ -182,6 +182,10 @@ export class GridView {
     };
 
     private readonly onMouseUp = (event: MouseEvent): void => {
+        // Only process primary mouse button. Allows horizontal scrolling by clicking the mouse wheel.
+        if (event.button !== 0) {
+            return;
+        }
         const parent = (event.target as Element).parentNode;
 
         // Ignore panning/zooming and clicks in the title/reset overlay.
