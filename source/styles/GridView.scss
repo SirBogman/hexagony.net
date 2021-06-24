@@ -46,8 +46,15 @@
     stroke-width: 1.5;
 }
 
+
+@keyframes fadeInFillColor {
+    from {
+        fill: rgba(0, 0, 0, 0);
+    }
+}
+
 .cellExecutedArrow {
-    animation: fadeIn ease-out;
+    animation: fadeInFillColor ease-out;
     stroke: none;
     fill: rgba(0, 0, 0, 0);
     transition-property: fill;
