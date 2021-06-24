@@ -9,8 +9,6 @@ import { approximatelyEqual, assertNotNull } from '../view/ViewUtil';
 
 import '../../styles/MemoryPanel.scss';
 
-const memoryPanelHeaderClass = 'memoryPanelHeader';
-
 interface IMemoryPanelProps {
     delay: string;
     isPlayingAtHighSpeed: boolean;
@@ -23,11 +21,7 @@ type MemoryPanelState = {
 };
 
 function ignoreElement(element: Element): boolean {
-    return element instanceof SVGTextElement || isHeader(element) || isHeader(element.parentElement);
-}
-
-function isHeader(element: Element | null): boolean {
-    return element instanceof HTMLDivElement && element.classList.contains(memoryPanelHeaderClass);
+    return element instanceof SVGTextElement;
 }
 
 function filterMouseEvent(event: MouseEvent): boolean | undefined {
@@ -159,18 +153,18 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
     override render(): JSX.Element {
         const { delay, memory, mp } = this.props;
         return (
-            <div id="memoryPanel" className="appPanel" ref={this.containerRef}>
-                <div className={memoryPanelHeaderClass}>
-                    <h1>Memory</h1>
-                    <button id="resetViewButton"
-                        className="bodyButton"
-                        disabled={!this.canResetView()}
-                        onClick={this.resetView}
-                        title="Reset the position and zoom level of the memory panel.">
-                        Reset View
-                    </button>
+            <div id="memoryPanel" className="appPanel">
+                <h1>Memory</h1>
+                <div id="memoryContainer" ref={this.containerRef}>
+                    <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
                 </div>
-                <MemoryView memory={memory} mp={mp} delay={delay} ref={this.viewRef}/>
+                <button id="resetViewButton"
+                    className="bodyButton"
+                    disabled={!this.canResetView()}
+                    onClick={this.resetView}
+                    title="Reset the position and zoom level of the memory panel.">
+                    Reset View
+                </button>
             </div>
         );
     }
