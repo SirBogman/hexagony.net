@@ -45,6 +45,7 @@ rules:
     - warn
     - stroustrup
     - allowSingleLine: true
+  comma-spacing: warn
   curly: warn
   dot-notation: warn
   eol-last: warn
