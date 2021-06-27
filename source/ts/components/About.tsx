@@ -58,13 +58,13 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
             </p>
             <h4>Synchronized Directional Typing</h4>
             <ul>
-                <li>Directional typing is synchronized with program execution.</li>
                 <li>Is activated automatically when the program is executing and the cursor is at the active instruction
                     pointer (IP) and oriented in the current execution direction.</li>
-                <li>Typing a character will execute that instruction and advance the instruction pointer.</li>
+                <li>Is synchronized with program execution. Typing a character will execute that instruction and advance
+                    the instruction pointer.</li>
                 <li>Undoing that change will step back the execution, as if you had pressed the step back button,
                     except the cursor also follows and the change is undone.</li>
-                <li>Branches will be taken based on the current memory value.</li>
+                <li>Branches will be taken based on the value of the current memory edge.</li>
                 <li>When moving backwards with backspace or shift + space/enter, execution state takes one step back.
                 </li>
                 <li>An easy way to try synchronized directional is to press the step forward button to begin execution,
@@ -73,25 +73,11 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
             </ul>
             <h4>Unsynchronized Directional Typing</h4>
             <ul>
+                <li>Use the direction picker on the toolbar or the arrow keys to select one of the six directions.</li>
                 <li>The cursor advances in the same way that the instruction pointer would during program
                     execution. It interacts with mirrors and wraps around edges.</li>
-                <li>Positive branches are always followed when stepping either forward or backwards.</li>
+                <li>Positive branches are always followed.</li>
                 <li>Instructions that switch to different instruction pointers are ignored.</li>
-            </ul>
-            <h4>All Directional Typing</h4>
-            <ul>
-                <li>You can access the direction picker by clicking on its toolbar icon, or set the typing direction
-                    using the arrow keys on the keyboard.</li>
-                <li>Pressing the space key will move the cursor along the typing direction axis, without changing
-                    the code.</li>
-                <li>Holding shift and pressing space will move the cursor backwards along the typing axis, without
-                    changing the code.</li>
-                <li>Backspace moves backwards along the typing axis and replaces instructions with no-ops.</li>
-                <li>While executing a program, the typing direction automatically changes to match the current execution
-                    direction. This makes it easier to use synchronized directional typing.
-                </li>
-                <li>Directional typing can be turned off, by clicking the toolbar icon and then
-                    “Disable Directional Typing”. When disabled, the arrow keys move the cursor.</li>
             </ul>
             <h3>Step Back</h3>
             <p>
