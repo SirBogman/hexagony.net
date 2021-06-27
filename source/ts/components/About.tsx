@@ -57,28 +57,21 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 directional typing is automatically activated under the following conditions.
             </p>
             <h4>Synchronized Directional Typing</h4>
-            <p>
-                The program is executing and the cursor is at the active instruction pointer (IP) and oriented in the
-                current execution direction.
-            </p>
             <ul>
                 <li>Directional typing is synchronized with program execution.</li>
+                <li>Is activated automatically when the program is executing and the cursor is at the active instruction
+                    pointer (IP) and oriented in the current execution direction.</li>
                 <li>Typing a character will execute that instruction and advance the instruction pointer.</li>
                 <li>Undoing that change will step back the execution, as if you had pressed the step back button,
                     except the cursor also follows and the change is undone.</li>
-                <li>Redo does the reverse.</li>
                 <li>Branches will be taken based on the current memory value.</li>
-                <li>When moving backwards with directional typing (shift + space, or backspace), it works as if you
-                    had pressed the step back button, except that the cursor follows as well.</li>
-                <li>An easy way to try this is to press the reset button to start with an empty program, press the
-                    step forward button to begin execution, then click the active cell and type the first instruction.
+                <li>When moving backwards with backspace or shift + space/enter, execution state takes one step back.
+                </li>
+                <li>An easy way to try synchronized directional is to press the step forward button to begin execution,
+                    then click the active cell and type the first instruction.
                 </li>
             </ul>
             <h4>Unsynchronized Directional Typing</h4>
-            <p>
-                Either the program is not executing, the cursor is not at the active IP, or the cursor is not oriented
-                in the current execution direction.
-            </p>
             <ul>
                 <li>The cursor advances in the same way that the instruction pointer would during program
                     execution. It interacts with mirrors and wraps around edges.</li>
@@ -94,15 +87,11 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 <li>Holding shift and pressing space will move the cursor backwards along the typing axis, without
                     changing the code.</li>
                 <li>Backspace moves backwards along the typing axis and replaces instructions with no-ops.</li>
-                <li>Using tab to focus the code panel will focus either the last active cell or, if the
-                    program is executing, the cell at the currently active instruction pointer.
-                </li>
                 <li>While executing a program, the typing direction automatically changes to match the current execution
                     direction. This makes it easier to use synchronized directional typing.
                 </li>
                 <li>Directional typing can be turned off, by clicking the toolbar icon and then
-                    “Disable Directional Typing”. When disabled, you can move the cursor with the mouse or the arrow
-                    keys.</li>
+                    “Disable Directional Typing”. When disabled, the arrow keys move the cursor.</li>
             </ul>
             <h3>Step Back</h3>
             <p>
@@ -174,6 +163,13 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 Increase the speed slider to the maximum value to execute the program as fast as possible, updating the
                 UI every 100,000 execution steps. It will stop automatically when a breakpoint is
                 hit, <span className="pre">@</span> is executed, or division by zero occurs.
+            </p>
+            <h3>Session Storage</h3>
+            <p>
+                Each browser tab has it’s own saved state, which is preserved when the page is reloaded. However, the
+                undo history is lost on reload. Using multiple tabs is a good way to work on multiple programs. Backing
+                up your code using the import/export panel is recommended, either by copying the source code itself or
+                generating and copying a link. Your hexagony code is never sent to or stored on the server.
             </p>
             <h2>Hexagony Language</h2>
             <h4>Mirrors and Branches</h4>
