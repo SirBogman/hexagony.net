@@ -9,7 +9,7 @@ import { ISourceCode } from '../hexagony/SourceCode';
 import { arrayInitialize, axialToIndex, getRowCount, getRowSize, indexToAxial, removeWhitespaceAndDebug }
     from '../hexagony/Util';
 import { CodeChangeCallback, CodeChangeContext, UndoFunction } from './UndoItem';
-import { assertNotNull, createSvgElement, emptyElement, getControlKey } from './ViewUtil';
+import { assertNotNull, createSvgElement, emptyElement, getControlKey, getFirstCodepoint } from './ViewUtil';
 
 import '../../styles/GridView.scss';
 import { getInstructionDescription } from '../hexagony/Instructions';
@@ -875,8 +875,19 @@ export class GridView {
             }
         });
 
-        input.addEventListener('input', () => {
-            const newText = removeWhitespaceAndDebug(input.value) || '.';
+        input.addEventListener('input', (e: Event) => {
+            // For some strange reason, typescript thinks the type of 'input' event args is 'Event', not 'InputEvent'.
+            if ((e as InputEvent).data === null) {
+                // Some Android keyboards send strange input events. This occurred when using the swiftkey keyboard.
+                return;
+            }
+
+            // Chome on Android doesn't seem to always respect input.maxLength. The swiftkey keyboard can input multiple
+            // characters when using a swipe gesture. It seems to send another input event that removes those
+            // characters though, but by then, we may have moved on. Remove extra codepoints.
+            const value = getFirstCodepoint(input.value);
+            const newText = removeWhitespaceAndDebug(value) || '.';
+
             if (this.directionalTyping && newText !== '@') {
                 this.advanceCursor(i, j, k, newText);
             }

@@ -32,6 +32,12 @@ export function getControlKey(keyboardEvent: KeyboardEvent): boolean {
     return keyboardEvent.ctrlKey || keyboardEvent.metaKey;
 }
 
+export function getFirstCodepoint(value: string): string {
+    const iterator = value[Symbol.iterator]();
+    const result = iterator.next();
+    return result.value ?? '';
+}
+
 export function unicodeStringToBase64(value: string): string {
     const utf8 = String.fromCharCode(...new TextEncoder().encode(value));
     return btoa(utf8);
