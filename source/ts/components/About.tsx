@@ -12,9 +12,9 @@ export function updateAbout(element: HTMLElement): void {
 }
 
 const IconBorder: React.FC = ({ children }) =>
-    <div className="toolbarButton aboutButton">
+    <span className="toolbarButton aboutButton">
         {children}
-    </div>;
+    </span>;
 
 export const About: React.FC = () =>
     <>
