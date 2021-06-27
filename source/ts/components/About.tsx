@@ -2,12 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { SixWayDirectionalTypingIcon } from './EditControls';
+import { GridMirrorHelper, multipleMirrorHelper, singleMirrorHelper } from './GridMirrorHelper';
 import { PlayIcon, StepBackIcon } from './PlayControls';
 import { EdgeTransitionModeIcon, ShowArrowsIcon, ShowInstructionPointersIcon } from './ViewControls';
 
-export function updateAbout(element: HTMLElement): void {
+export function updateAbout(element: HTMLElement, colorMode: string): void {
     ReactDOM.render(
-        <React.StrictMode><About/></React.StrictMode>,
+        <React.StrictMode><About colorMode={colorMode}/></React.StrictMode>,
         element);
 }
 
@@ -16,7 +17,11 @@ const IconBorder: React.FC = ({ children }) =>
         {children}
     </span>;
 
-export const About: React.FC = () =>
+type AboutProps = {
+    colorMode: string;
+};
+
+export const About: React.FC<AboutProps> = ({ colorMode }) =>
     <>
         <main className="about">
             <h1>About</h1>
@@ -170,8 +175,30 @@ export const About: React.FC = () =>
                 UI every 100,000 execution steps. It will stop automatically when a breakpoint is
                 hit, <span className="pre">@</span> is executed, or division by zero occurs.
             </p>
-            </p>
             <h2>Hexagony Language</h2>
+            <h4>Mirrors and Branches</h4>
+            <p>
+                For each mirror/branch instruction, the following shows how the instruction pointer moves, for each of
+                the six execution directions.
+                For branches, <span className="pre">+</span> and <span className="pre">-</span> indicate that the value
+                of the current memory edge must be either positive or negative (including 0) to reach the cell.
+            </p>
+            <div className="gridSingleMirrorHelpers">
+                <GridMirrorHelper cellInfo={singleMirrorHelper(5, '<', colorMode)}/>
+                <GridMirrorHelper cellInfo={singleMirrorHelper(5, '>', colorMode)}/>
+                <GridMirrorHelper cellInfo={singleMirrorHelper(5, '/', colorMode)}/>
+                <GridMirrorHelper cellInfo={singleMirrorHelper(5, '\\', colorMode)}/>
+                <GridMirrorHelper cellInfo={singleMirrorHelper(5, '_', colorMode)}/>
+                <GridMirrorHelper cellInfo={singleMirrorHelper(5, '|', colorMode)}/>
+            </div>
+            <p>
+                The following shows which mirrors and branches are required to move to each adjacent cell, for each
+                execution direction. Where multiple instructions are listed, either can be used.
+                The <span className="pre">+</span> and <span className="pre">-</span> subscripts/superscripts
+                indicate that the value of the current memory edge must be either positive or negative (including 0)
+                to reach the cell.
+            </p>
+            <GridMirrorHelper cellInfo={multipleMirrorHelper(6, colorMode)}/>
             <h4>What happens when characters not listed in the specification are used as instructions?</h4>
             <p>
                 When codepoints are used other than defined instructions, the value at the memory pointer is set to the

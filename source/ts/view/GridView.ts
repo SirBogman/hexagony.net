@@ -16,13 +16,39 @@ import { getInstructionDescription } from '../hexagony/Instructions';
 
 const edgeTransitionSizeLimit = 25;
 
-const edgeLength = 20;
-const cellHeight = edgeLength * 2;
-const cellOffsetY = 3 / 4 * cellHeight;
-const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
-const cellWidth = cellOffsetX * 2;
-const executedColorCount = 10;
+export const edgeLength = 20;
+export const cellHeight = edgeLength * 2;
+export const cellOffsetY = 3 / 4 * cellHeight;
+export const cellOffsetX = Math.sqrt(3) / 2 * edgeLength;
+export const cellWidth = cellOffsetX * 2;
 
+export type OffsetsArray = readonly (readonly [number, number, string])[];
+
+export const getHexagonOffsets = memoizeOne((size: number): OffsetsArray => {
+    const largeGridTwoRowOffset = size * 2;
+    const largeGridOneRowOffset = size;
+    const largeGridOneColumnOffset = size * 3 / 2;
+    // Layout with seven hexagons.
+    return [
+        [0, 0, 'Center'],
+        [0, -largeGridTwoRowOffset, 'N'],
+        [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
+        [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
+        [0, largeGridTwoRowOffset, 'S'],
+        [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
+        [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
+    ];
+});
+
+export const singleHexagonOffsets: OffsetsArray = [[0, 0, 'Center']];
+
+export const calculateX = (size: number, offsets: OffsetsArray, i: number, j: number, k: number): number =>
+    (j - size + 1 + offsets[k][0]) * cellWidth + Math.abs(i - size + 1) * cellOffsetX;
+
+export const calculateY = (size: number, offsets: OffsetsArray, i: number, k: number): number =>
+    (i - size + 1 + offsets[k][1]) * cellOffsetY;
+
+const executedColorCount = 10;
 let cellExecuted: readonly string[];
 let cellActive: readonly string[];
 let cellInactive: readonly string[];
@@ -61,7 +87,7 @@ function getIndices(elem: Element) {
 const outlineHelper = (x1: number, y1: number, x2: number, y2: number, size: number) =>
     `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
 
-const getOutlinePath = memoizeOne((size: number) =>
+export const getOutlinePath = memoizeOne((size: number) =>
     `m ${-cellOffsetX} ${-edgeLength/2}` +
     `l ${cellOffsetX} ${-edgeLength / 2} l ${cellOffsetX} ${edgeLength / 2}`.repeat(size) +
     outlineHelper(0, edgeLength, cellOffsetX, edgeLength / 2, size) +
@@ -1136,41 +1162,11 @@ export class GridView {
         this.edgeConnectors.clear();
         this.edgeConnectors2.clear();
 
-        const largeGridTwoColumnOffset = size * 3;
-        const largeGridTwoRowOffset = size * 2;
-        const largeGridOneColumnOffset = largeGridTwoColumnOffset / 2;
-        const largeGridOneRowOffset = size;
-
-        const horizontalConnectorsLimit = largeGridOneRowOffset;
-        const verticalConnectorsLimit = -largeGridOneRowOffset;
-        let offsets: (readonly [number, number, string])[];
-
-        if (this.edgeTransitionMode) {
-            // Layout with seven hexagons.
-            offsets = [
-                [0, 0, 'Center'],
-                [0, -largeGridTwoRowOffset, 'N'],
-                [largeGridOneColumnOffset, largeGridOneRowOffset, 'SE'],
-                [largeGridOneColumnOffset, -largeGridOneRowOffset, 'NE'],
-                [0, largeGridTwoRowOffset, 'S'],
-                [-largeGridOneColumnOffset, largeGridOneRowOffset, 'SW'],
-                [-largeGridOneColumnOffset, -largeGridOneRowOffset, 'NW'],
-            ];
-        }
-        else {
-            // Center hexagon only.
-            offsets = [[0, 0, 'Center']];
-        }
-
-        function getX(i: number, j: number, k: number) {
-            return centerX +
-                (j - size + 1 + offsets[k][0]) * cellWidth +
-                Math.abs(i - size + 1) * cellOffsetX;
-        }
-
-        function getY(i: number, k: number) {
-            return centerY + (i - size + 1 + offsets[k][1]) * cellOffsetY;
-        }
+        const horizontalConnectorsLimit = size;
+        const verticalConnectorsLimit = -size;
+        const offsets = this.edgeTransitionMode ? getHexagonOffsets(size) : singleHexagonOffsets;
+        const getX = (i: number, j: number, k: number) => centerX + calculateX(size, offsets, i, j, k);
+        const getY = (i: number, k: number) => centerY + calculateY(size, offsets, i, k);
 
         const outlines = [] as SVGElement[];
         const connectors = [] as SVGElement[];

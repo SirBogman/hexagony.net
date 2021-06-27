@@ -56,3 +56,9 @@ span.pre {
     float: left;
     margin-right: 0.5rem;
 }
+
+.gridSingleMirrorHelpers {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}

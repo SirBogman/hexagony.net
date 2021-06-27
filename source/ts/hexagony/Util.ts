@@ -86,6 +86,10 @@ export function removeWhitespaceAndDebug(code: string): string {
     return code.replace(/ |\t|\n|\v|\f|\r|`/g, '');
 }
 
+export function getSizeFromRowCount(rowCount: number): number {
+    return (rowCount + 1) / 2;
+}
+
 export function getRowCount(size: number): number {
     return size * 2 - 1;
 }

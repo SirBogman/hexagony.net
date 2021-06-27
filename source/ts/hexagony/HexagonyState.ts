@@ -36,7 +36,9 @@ export type HexagonyState = {
 };
 
 export const HexagonyStateUtils = Object.freeze({
-    fromContext: ({ size }: HexagonyContext): HexagonyState => ({
+    fromContext: ({ size }: HexagonyContext): HexagonyState => HexagonyStateUtils.fromSize(size),
+
+    fromSize: (size: number): HexagonyState => ({
         activeIp: 0,
         edgeTraversals: [],
         id: 0,

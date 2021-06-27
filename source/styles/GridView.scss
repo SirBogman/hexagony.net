@@ -2,6 +2,12 @@
 @use 'sass:math';
 @use 'root.scss';
 
+.gridBackground {
+    display: inline;
+    background: var(--panel-background);
+    padding: 1rem;
+}
+
 .cellPath {
     fill: var(--hexagon-fill);
     stroke: var(--hexagon-stroke);
@@ -25,6 +31,10 @@
     stroke: none;
     font-size: 20px;
     font-family: root.$monospace;
+}
+
+.subscriptSuperscript {
+    font-size: 14px;
 }
 
 .noop {

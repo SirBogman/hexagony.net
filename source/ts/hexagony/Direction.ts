@@ -10,6 +10,7 @@ export abstract class Direction {
     abstract reflectAtLessThan(positive: boolean): Direction;
     abstract reflectAtGreaterThan(positive: boolean): Direction;
     abstract get reverse(): Direction;
+    abstract get rotateClockwise(): Direction;
     abstract get angle(): number;
     abstract get vector(): readonly [number, number];
 
@@ -40,6 +41,7 @@ export class NorthEast extends Direction {
     reflectAtLessThan(): Direction { return southWest; }
     reflectAtGreaterThan(): Direction { return east; }
     get reverse(): Direction { return southWest; }
+    get rotateClockwise(): Direction { return east; }
     get angle(): number { return 300; }
     get vector(): readonly [number, number] { return [1, -1]; }
     toString(): 'NE' { return 'NE'; }
@@ -53,6 +55,7 @@ export class NorthWest extends Direction {
     reflectAtLessThan(): Direction { return west; }
     reflectAtGreaterThan(): Direction { return southEast; }
     get reverse(): Direction { return southEast; }
+    get rotateClockwise(): Direction { return northEast; }
     get angle(): number { return 240; }
     get vector(): readonly [number, number] { return [0, -1]; }
     toString(): 'NW' { return 'NW'; }
@@ -66,6 +69,7 @@ export class West extends Direction {
     reflectAtLessThan(): Direction { return east; }
     reflectAtGreaterThan(positive: boolean): Direction { return positive ? northWest : southWest; }
     get reverse(): Direction { return east; }
+    get rotateClockwise(): Direction { return northWest; }
     get angle(): number { return 180; }
     get vector(): readonly [number, number] { return [-1, 0]; }
     toString(): 'W' { return 'W'; }
@@ -79,6 +83,7 @@ export class SouthWest extends Direction {
     reflectAtLessThan(): Direction { return west; }
     reflectAtGreaterThan(): Direction { return northEast; }
     get reverse(): Direction { return northEast; }
+    get rotateClockwise(): Direction { return west; }
     get angle(): number { return 120; }
     get vector(): readonly [number, number] { return [-1, 1]; }
     toString(): 'SW' { return 'SW'; }
@@ -92,6 +97,7 @@ export class SouthEast extends Direction {
     reflectAtLessThan(): Direction { return northWest; }
     reflectAtGreaterThan(): Direction { return east; }
     get reverse(): Direction { return northWest; }
+    get rotateClockwise(): Direction { return southWest; }
     get angle(): number { return 60; }
     get vector(): readonly [number, number] { return [0, 1]; }
     toString(): 'SE' { return 'SE'; }
@@ -105,6 +111,7 @@ export class East extends Direction {
     reflectAtLessThan(positive: boolean): Direction { return positive ? southEast : northEast; }
     reflectAtGreaterThan(): Direction { return west; }
     get reverse(): Direction { return west; }
+    get rotateClockwise(): Direction { return southEast; }
     get angle(): number { return 0; }
     get vector(): readonly [number, number] { return [1, 0]; }
     toString(): 'E' { return 'E'; }
