@@ -83,6 +83,7 @@ $executedColorCount: 10;
 // Arrays for light and dark values.
 $colorModes: Light Dark;
 $arrowLightnessShifts: -50% 50%;
+$activeArrowLightnessShifts: -65% 75%;
 $secondaryLightnessShifts: 75% -65%;
 $executedMinLightnessValues: 66% -51%;
 $executedMaxLightnessValues: 88% -73%;
@@ -114,6 +115,7 @@ $colorLists: $lightColors $darkColors;
     $colors: nth($colorLists, $colorModeIndex);
     $executedMinLightness: nth($executedMinLightnessValues, $colorModeIndex);
     $arrowLightnessShift: nth($arrowLightnessShifts, $colorModeIndex);
+    $activeArrowLightnessShift: nth($activeArrowLightnessShifts, $colorModeIndex);
 
     @for $j from 5 through 0 {
         $color: nth($colors, $j + 1);
@@ -156,8 +158,10 @@ $colorLists: $lightColors $darkColors;
         $color: nth($colors, $j + 1);
         $inactiveColor: scaleLightness($color, $executedMinLightness);
 
+        // When showing all IPs, the inactive arrow/cell colors are used for the current direction and position of IPs
+        // other than the active one.
         .arrowInactive#{$j}#{$colorMode} {
-            fill: scaleLightness($inactiveColor, $arrowLightnessShift);
+            fill: scaleLightness($inactiveColor, $activeArrowLightnessShift);
         }
 
         .cellInactive#{$j}#{$colorMode} {
@@ -165,7 +169,7 @@ $colorLists: $lightColors $darkColors;
         }
 
         .arrowActive#{$j}#{$colorMode} {
-            fill: scaleLightness($color, $arrowLightnessShift);
+            fill: scaleLightness($color, $activeArrowLightnessShift);
         }
 
         .cellActive#{$j}#{$colorMode} {
