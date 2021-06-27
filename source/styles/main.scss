@@ -1,11 +1,11 @@
 @use 'root.scss';
 
-.pre {
+div.pre {
     white-space: pre;
     font-family: root.$monospace;
 }
 
-.pre:after {
+div.pre:after {
     // Allows user to see a trailing line break.
     // For Chrome and Safari, this cannot be an empty string.
     content: ' ';

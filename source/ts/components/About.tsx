@@ -141,9 +141,9 @@ export const About: React.FC = () =>
                 Edge transition mode helps you to line up instructions with edge transitions so that program execution
                 can wrap around. You code is automatically replicated in all of the hexagons to help you align code with
                 the edge transitions. Corners have special behavior in Hexagony.
-                The <span className="monospace">+</span> transitions are followed,
+                The <span className="pre">+</span> transitions are followed,
                 if the value at the current memory location is positive. If the value is zero or negative,
-                the <span className="monospace">-</span> transitions are followed. Look for this icon on the toolbar.
+                the <span className="pre">-</span> transitions are followed. Look for this icon on the toolbar.
             </p>
             <h3>Execution History</h3>
             <p>
@@ -162,13 +162,14 @@ export const About: React.FC = () =>
                 </IconBorder>
                 Hexagony has six instruction pointers and one of them is active at any given time. Use this button to
                 see where all of the instruction pointers are at once. The
-                instructions <span className="monospace">[]#</span> are used to access the other instruction pointers.
+                instructions <span className="pre">[]#</span> are used to access the other instruction pointers.
             </p>
             <h3>High Speed Mode</h3>
             <p>
                 Increase the speed slider to the maximum value to execute the program as fast as possible, updating the
                 UI every 100,000 execution steps. It will stop automatically when a breakpoint is
-                hit, <span className="monospace">@</span> is executed, or division by zero occurs.
+                hit, <span className="pre">@</span> is executed, or division by zero occurs.
+            </p>
             </p>
             <h2>Hexagony Language</h2>
             <h4>What happens when characters not listed in the specification are used as instructions?</h4>
@@ -176,7 +177,7 @@ export const About: React.FC = () =>
                 When codepoints are used other than defined instructions, the value at the memory pointer is set to the
                 codepoint value. This is the same behavior as the instructions A-Z and a-z. All Unicode codepoints are
                 allowed. The characters tab (9), line feed (10), vertical tab (11), form feed (12), carriage return
-                (13), space (32), and <span className="monospace">`</span> (96) are ignored. Note that codepoints above
+                (13), space (32), and <span className="pre">`</span> (96) are ignored. Note that codepoints above
                 65535 can currently only be entered using the import/export panel.
             </p>
             <h4>Where else can I use Hexagony?</h4>
