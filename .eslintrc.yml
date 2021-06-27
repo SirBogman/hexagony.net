@@ -41,16 +41,19 @@ rules:
     - warn
     - as-needed
   arrow-spacing: warn
+  block-spacing: warn
   brace-style:
     - warn
     - stroustrup
     - allowSingleLine: true
   comma-spacing: warn
+  computed-property-spacing: warn
   curly: warn
   dot-notation: warn
   eol-last: warn
   eqeqeq: warn
   func-call-spacing: warn
+  generator-star-spacing: warn
   indent:
     - warn
     - 4
@@ -62,6 +65,7 @@ rules:
     - 120
   no-array-constructor: warn
   no-duplicate-imports: warn
+  no-irregular-whitespace: warn
   no-lonely-if: warn
   no-multi-spaces: warn
   no-multiple-empty-lines:
@@ -95,9 +99,22 @@ rules:
   react/no-typos: warn
   # Disable react/prop-types, because it complains about types that could be inferred when using React.FC<Props>.
   react/prop-types: off
+  rest-spread-spacing: warn
   semi: warn
+  semi-spacing: warn
+  space-before-blocks: warn
+  space-before-function-paren:
+    - warn
+    - never
+  space-in-parens: warn
+  space-infix-ops: warn
+  space-unary-ops: warn
+  spaced-comment: warn
+  switch-colon-spacing: warn
   template-curly-spacing: warn
+  template-tag-spacing: warn
   unicode-bom: warn
+  yield-star-spacing: warn
   yoda: warn
 reportUnusedDisableDirectives: true
 settings:

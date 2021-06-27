@@ -342,7 +342,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         return this.state.userData.breakpoints.indexOf(id) > -1;
     }
 
-    private * getBreakpoints(): Generator<number[]> {
+    private *getBreakpoints(): Generator<number[]> {
         for (const id of this.state.userData.breakpoints) {
             yield id.split(',').map(Number);
         }

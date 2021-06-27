@@ -88,13 +88,13 @@ const outlineHelper = (x1: number, y1: number, x2: number, y2: number, size: num
     `l ${x1} ${y1}` + `l ${x2} ${y2} l ${x1} ${y1}`.repeat(size - 1);
 
 export const getOutlinePath = memoizeOne((size: number) =>
-    `m ${-cellOffsetX} ${-edgeLength/2}` +
+    `m ${-cellOffsetX} ${-edgeLength / 2}` +
     `l ${cellOffsetX} ${-edgeLength / 2} l ${cellOffsetX} ${edgeLength / 2}`.repeat(size) +
     outlineHelper(0, edgeLength, cellOffsetX, edgeLength / 2, size) +
     outlineHelper(-cellOffsetX, edgeLength / 2, 0, edgeLength, size) +
     outlineHelper(-cellOffsetX, -edgeLength / 2, -cellOffsetX, edgeLength / 2, size) +
     outlineHelper(0, -edgeLength, -cellOffsetX, -edgeLength / 2, size) +
-    outlineHelper(cellOffsetX, -edgeLength/2, 0, -edgeLength, size));
+    outlineHelper(cellOffsetX, -edgeLength / 2, 0, -edgeLength, size));
 
 const emptyExecutionHistory = arrayInitialize(6, () => [] as [number, number, Direction][]);
 
