@@ -77,9 +77,9 @@ $executedMinLightnessValues: 66% -51%;
 $executedMaxLightnessValues: 88% -73%;
 $executedLightnessShifts: 90% -75%;
 $executedLightnessIncrements:
-    (nth($executedMaxLightnessValues, 1) - nth($executedMinLightnessValues, 1)) / ($executedColorCount - 1)
-    (nth($executedMaxLightnessValues, 2) - nth($executedMinLightnessValues, 2)) / ($executedColorCount - 1);
-    
+    math.div(nth($executedMaxLightnessValues, 1) - nth($executedMinLightnessValues, 1), $executedColorCount - 1)
+    math.div(nth($executedMaxLightnessValues, 2) - nth($executedMinLightnessValues, 2), $executedColorCount - 1);
+
 $lightColors:
     hsl(200, 100%, 50%)
     hsl(270, 100%, 70%)
