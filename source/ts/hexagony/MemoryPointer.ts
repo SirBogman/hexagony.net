@@ -85,4 +85,12 @@ export class MemoryPointer {
             northEast,
             MemoryPointer.flipClockwise(!cw, reverse));
     }
+
+    moveBackLeft(): MemoryPointer {
+        return this.moveRight(true);
+    }
+
+    moveBackRight(): MemoryPointer {
+        return this.moveLeft(true);
+    }
 }

@@ -34,18 +34,20 @@ interface IMemoryPointerViewProps {
     y: number;
     angle: number;
     delay: string;
+    scale?: number;
 }
 
 export class MemoryPointerView extends React.PureComponent<IMemoryPointerViewProps> {
     rotation = 0;
 
     override render(): JSX.Element {
-        const { x, y, angle, delay } = this.props;
+        const { x, y, angle, delay, scale } = this.props;
         this.rotation = smoothRotation(this.rotation, angle);
-        return <path id="memoryPointer"
+        return <path className="memoryPointer"
             d={path}
             style={{
-                transform: `translate(${x.toFixed(2)}px,${y.toFixed(2)}px)rotate(${this.rotation}deg)`,
+                transform:
+                    `translate(${x.toFixed(2)}px,${y.toFixed(2)}px)rotate(${this.rotation}deg)scale(${scale ?? 1})`,
                 transitionDuration: delay,
             }}
         />;

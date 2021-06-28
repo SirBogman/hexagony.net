@@ -26,7 +26,7 @@ div #memoryPanel.appPanel {
     stroke-width: 0.5;
 }
 
-#memoryPointer {
+.memoryPointer {
     fill: var(--red);
     stroke: none;
     transition: transform .25s ease-out;

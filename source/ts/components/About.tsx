@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import { SixWayDirectionalTypingIcon } from './EditControls';
 import { GridMirrorHelper, multipleMirrorHelper, singleMirrorHelper } from './GridMirrorHelper';
+import { MemoryMovementHelper } from './MemoryMovementHelper';
 import { PlayIcon, StepBackIcon } from './PlayControls';
 import { EdgeTransitionModeIcon, ShowArrowsIcon, ShowInstructionPointersIcon } from './ViewControls';
 
@@ -189,6 +190,13 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 (13), space (32), and <span className="pre">`</span> (96) are ignored. Note that codepoints above
                 65535 can currently only be entered using the import/export panel.
             </p>
+            <h4>Memory Grid Movement</h4>
+            <p>
+                The following shows the results of the primary memory movement instructions, when the memory pointer
+                starts in the center pointing up. Movement is always relative to the current position and orientation of
+                the memory pointer.
+            </p>
+            <MemoryMovementHelper/>
             <h4>Where else can I use Hexagony?</h4>
             <p>You can compete in Hexagony on <a href="//code.golf/fibonacci#hexagony">Code Golf</a>.</p>
             <p>

@@ -1,23 +1,23 @@
 import React from 'react';
-import { edgeLength, xFactor, yFactor } from './MemoryHexagonGrid';
+import { edgeLength } from './MemoryHexagonGrid';
 
 const path = `M${-edgeLength / 2} 0h${edgeLength}`;
 
-interface IMemoryEdgeProps {
+type MemoryEdgeProps = {
     x: number;
     y: number;
     angle: number;
     value: bigint;
-}
+};
 
 /**
  * Displays the value of a single edge in the memory grid.
  * @component
  */
-export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
+export class MemoryEdge extends React.PureComponent<MemoryEdgeProps> {
     override render(): JSX.Element {
         const { angle, x, y } = this.props;
-        const transform = `translate(${(x * xFactor).toFixed(2)},${(y * yFactor).toFixed(2)})rotate(${angle})`;
+        const transform = `translate(${x.toFixed(2)},${y.toFixed(2)})rotate(${angle})`;
 
         const string = this.props.value.toLocaleString('en');
         let extraString = '';
@@ -43,6 +43,25 @@ export class MemoryEdge extends React.PureComponent<IMemoryEdgeProps> {
                 <path className="memoryValue" d={path}/>
                 <text fill="currentColor" fontSize="12px" transform="translate(0 14)" textAnchor="middle">{text}</text>
                 <title>{fullString}</title>
+            </g>
+        );
+    }
+}
+
+type MemoryEdgeLargeTextProps = {
+    x: number;
+    y: number;
+    text: string;
+};
+
+export class MemoryEdgeLargeText extends React.PureComponent<MemoryEdgeLargeTextProps> {
+    override render(): JSX.Element {
+        const { text, x, y } = this.props;
+        const transform = `translate(${x.toFixed(2)},${y.toFixed(2)})`;
+
+        return (
+            <g transform={transform}>
+                <text fill="currentColor" fontSize="20px" transform="translate(0 30)" textAnchor="middle">{text}</text>
             </g>
         );
     }

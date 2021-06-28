@@ -1,5 +1,6 @@
 import React from 'react';
-import { MemoryPointer } from '../hexagony/MemoryPointer';
+import { northEast } from '../hexagony/Direction';
+import { MemoryPointer, MemoryPointerDirection } from '../hexagony/MemoryPointer';
 
 export const edgeLength = 46.24 * 1.4;
 export const halfEdgeLength = 0.5 * edgeLength;
@@ -12,6 +13,10 @@ export const yFactor = 0.5 * cellOffsetY;
 
 export function getMPAngle(mp: MemoryPointer): number {
     return mp.dir.angle + (mp.cw ? 180 : 0);
+}
+
+export function getMemoryEdgeAngle(dir: MemoryPointerDirection): number {
+    return dir.angle - (dir === northEast ? 270 : 90);
 }
 
 export function getMPCoordinates(mp: MemoryPointer): readonly [number, number] {

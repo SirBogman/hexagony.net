@@ -1,7 +1,7 @@
 import React from 'react';
-import { northEast, southEast } from '../hexagony/Direction';
 import { Memory } from '../hexagony/Memory';
 import { MemoryEdge } from './MemoryEdge';
+import { getMemoryEdgeAngle, xFactor, yFactor } from './MemoryHexagonGrid';
 
 interface IMemoryEdgesProps {
     memory: Memory;
@@ -21,8 +21,8 @@ export class MemoryEdges extends React.Component<IMemoryEdgesProps> {
         this.lastDataVersion = memory.dataVersion;
         const cells = [];
         for (const { x, y, dir, value } of memory.iterateData()) {
-            const angle = dir === northEast ? 30 : dir === southEast ? -30 : -90;
-            cells.push(<MemoryEdge key={`${x},${y}`} x={x} y={y} angle={angle} value={value}/>);
+            const angle = getMemoryEdgeAngle(dir);
+            cells.push(<MemoryEdge key={`${x},${y}`} x={x * xFactor} y={y * yFactor} angle={angle} value={value}/>);
         }
         return <g>{cells}</g>;
     }

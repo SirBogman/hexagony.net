@@ -160,8 +160,8 @@ export const HexagonyStateUtils = Object.freeze({
             case '{': mp = mp.moveLeft(); break;
             case '}': mp = mp.moveRight(); break;
             case '=': mp = mp.reverse(); break;
-            case '"': mp = mp.moveRight(true); break;
-            case '\'': mp = mp.moveLeft(true); break;
+            case '"': mp = mp.moveBackLeft(); break;
+            case '\'': mp = mp.moveBackRight(); break;
             case '^':
                 mp = memory.getValue(mp) > 0 ?
                     mp.moveRight() :
