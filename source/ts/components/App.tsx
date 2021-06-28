@@ -463,6 +463,9 @@ export class App extends React.Component<IAppProps, IAppState> {
         let { input } = userData;
         if (userData.inputMode === inputModeArguments) {
             input = input.replace(/\n/g, '\0');
+            if (input !== '') {
+                input += '\0';
+            }
         }
         return input;
     }

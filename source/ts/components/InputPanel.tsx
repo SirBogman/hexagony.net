@@ -25,7 +25,7 @@ export const InputPanel: React.FC<IInputPanelProps> = ({
         <div className="radio">
             <label
                 title={'Arguments input mode: each line of input is considered an argument and arguments are ' +
-                       'separated by null characters (ASCII 0). This is compatible with Code Golf.'}>
+                       'terminated by null characters (ASCII 0). This is compatible with Code Golf.'}>
                 <input
                     type="radio"
                     name="inputMode"
