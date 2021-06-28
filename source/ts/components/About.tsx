@@ -31,8 +31,8 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 <li><a href="#features">Hexagony.net Features</a></li>
                 <li><a href="#language">Hexagony Language</a></li>
                 <ul>
-                    <li><a href="#mirrorsAndBranches">Mirrors and Branches</a></li>
-                    <li><a href="#memoryGridMovement">Memory Grid Movement</a></li>
+                    <li><a href="#mirrors-and-branches">Mirrors and Branches</a></li>
+                    <li><a href="#memory-grid-movement">Memory Grid Movement</a></li>
                 </ul>
             </ul>
             <h2 id="general">General</h2>
@@ -168,7 +168,7 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 generating and copying a link. Your hexagony code is never sent to or stored on the server.
             </p>
             <h2 id="language">Hexagony Language</h2>
-            <h4 id="mirrorsAndBranches">Mirrors and Branches</h4>
+            <h4 id="mirrors-and-branches">Mirrors and Branches</h4>
             <p>
                 For each mirror/branch instruction, the following shows how the instruction pointer moves, for each of
                 the six execution directions.
@@ -191,7 +191,7 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 to reach the cell.
             </p>
             <GridMirrorHelper cellInfo={multipleMirrorHelper(5, colorMode)}/>
-            <h4 id="memoryGridMovement">Memory Grid Movement</h4>
+            <h4 id="memory-grid-movement">Memory Grid Movement</h4>
             <p>
                 The following shows the results of the primary memory movement instructions, when the memory pointer
                 starts in the center pointing up. Movement is always relative to the current position and orientation of
