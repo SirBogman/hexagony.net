@@ -1,5 +1,12 @@
 @use 'root.scss';
 
+body header {
+    position: sticky;
+    top: 0;
+    // Above some code panel stuff at z-index: 1;
+    z-index: 2;
+}
+
 div.pre {
     white-space: pre;
     font-family: root.$monospace;

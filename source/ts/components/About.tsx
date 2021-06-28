@@ -26,7 +26,16 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
     <>
         <main className="about">
             <h1>About</h1>
-            <h2>General</h2>
+            <ul>
+                <li><a href="#general">General</a></li>
+                <li><a href="#features">Hexagony.net Features</a></li>
+                <li><a href="#language">Hexagony Language</a></li>
+                <ul>
+                    <li><a href="#mirrorsAndBranches">Mirrors and Branches</a></li>
+                    <li><a href="#memoryGridMovement">Memory Grid Movement</a></li>
+                </ul>
+            </ul>
+            <h2 id="general">General</h2>
             <h4>What is Hexagony.net?</h4>
             <p>This is an online integrated development environment (IDE) for Hexagony, an esoteric programming language
                 created by Martin Ender.
@@ -46,7 +55,7 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 newlines.
                 See the <a href="//codegolf.stackexchange.com/a/65017">original source of this Fibonacci program</a>.
             </p>
-            <h2>Hexagony.net Features</h2>
+            <h2 id="features">Hexagony.net Features</h2>
             <h3>Directional Typing</h3>
             <p>
                 <IconBorder>
@@ -158,8 +167,8 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 up your code using the import/export panel is recommended, either by copying the source code itself or
                 generating and copying a link. Your hexagony code is never sent to or stored on the server.
             </p>
-            <h2>Hexagony Language</h2>
-            <h4>Mirrors and Branches</h4>
+            <h2 id="language">Hexagony Language</h2>
+            <h4 id="mirrorsAndBranches">Mirrors and Branches</h4>
             <p>
                 For each mirror/branch instruction, the following shows how the instruction pointer moves, for each of
                 the six execution directions.
@@ -182,6 +191,13 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 to reach the cell.
             </p>
             <GridMirrorHelper cellInfo={multipleMirrorHelper(5, colorMode)}/>
+            <h4 id="memoryGridMovement">Memory Grid Movement</h4>
+            <p>
+                The following shows the results of the primary memory movement instructions, when the memory pointer
+                starts in the center pointing up. Movement is always relative to the current position and orientation of
+                the memory pointer.
+            </p>
+            <MemoryMovementHelper/>
             <h4>What happens when characters not listed in the specification are used as instructions?</h4>
             <p>
                 When codepoints are used other than defined instructions, the value at the memory pointer is set to the
@@ -190,13 +206,6 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 (13), space (32), and <span className="pre">`</span> (96) are ignored. Note that codepoints above
                 65535 can currently only be entered using the import/export panel.
             </p>
-            <h4>Memory Grid Movement</h4>
-            <p>
-                The following shows the results of the primary memory movement instructions, when the memory pointer
-                starts in the center pointing up. Movement is always relative to the current position and orientation of
-                the memory pointer.
-            </p>
-            <MemoryMovementHelper/>
             <h4>Where else can I use Hexagony?</h4>
             <p>You can compete in Hexagony on <a href="//code.golf/fibonacci#hexagony">Code Golf</a>.</p>
             <p>
