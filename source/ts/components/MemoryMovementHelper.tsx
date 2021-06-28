@@ -38,14 +38,13 @@ export const MemoryMovementHelper: React.FC = () => {
     }
 
     return (
-        <span className="gridBackground" style={{ maxWidth: width + 32 }}>
-            <svg width={width} height={height}>
-                <g transform={`translate(${offsetX},${offsetY})`}>
-                    <MemoryHexagonGrid x={-1} y={-2} columns={5} rows={5}/>
-                </g>
-                {memoryEdgeViews}
-                {memoryPointerViews}
-            </svg>
-        </span>
+        <svg width={width} height={height}>
+            <rect width={width} height={height} className="svgBackground"/>
+            <g transform={`translate(${offsetX},${offsetY})`}>
+                <MemoryHexagonGrid x={-1} y={-2} columns={5} rows={5}/>
+            </g>
+            {memoryEdgeViews}
+            {memoryPointerViews}
+        </svg>
     );
 };

@@ -179,8 +179,9 @@ export const GridMirrorHelper : React.FC<GridMirrorHelperProps> = ({
 }) => {
     const rowCount = cellInfo.length;
     const size = getSizeFromRowCount(rowCount);
-    const width = cellWidth * rowCount;
-    const height = cellOffsetY * rowCount + cellHeight - cellOffsetY;
+    const padding = 32;
+    const width = cellWidth * rowCount + padding;
+    const height = cellOffsetY * rowCount + cellHeight - cellOffsetY + padding;
     const centerX = width / 2;
     const centerY = height / 2;
     const offsets = singleHexagonOffsets;
@@ -203,16 +204,15 @@ export const GridMirrorHelper : React.FC<GridMirrorHelperProps> = ({
     }
 
     return (
-        <span className="gridBackground" style={{ maxWidth: width + 32 }}>
-            <svg width={width} height={height}>
-                {cells}
-                <GridOutline
-                    key="outline"
-                    size={size}
-                    isSecondary={false}
-                    x={getX(0, 0)}
-                    y={getY(0)}/>
-            </svg>
-        </span>
+        <svg width={width} height={height}>
+            <rect width={width} height={height} className="svgBackground"/>
+            {cells}
+            <GridOutline
+                key="outline"
+                size={size}
+                isSecondary={false}
+                x={getX(0, 0)}
+                y={getY(0)}/>
+        </svg>
     );
 };

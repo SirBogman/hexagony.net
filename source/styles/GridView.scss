@@ -2,10 +2,8 @@
 @use 'sass:math';
 @use 'root.scss';
 
-.gridBackground {
-    display: inline;
-    background: var(--panel-background);
-    padding: 1rem;
+.svgBackground {
+    fill: var(--panel-background);
 }
 
 .cellPath {
