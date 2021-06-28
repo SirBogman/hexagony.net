@@ -181,7 +181,7 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 indicate that the value of the current memory edge must be either positive or negative (including 0)
                 to reach the cell.
             </p>
-            <GridMirrorHelper cellInfo={multipleMirrorHelper(6, colorMode)}/>
+            <GridMirrorHelper cellInfo={multipleMirrorHelper(5, colorMode)}/>
             <h4>What happens when characters not listed in the specification are used as instructions?</h4>
             <p>
                 When codepoints are used other than defined instructions, the value at the memory pointer is set to the
