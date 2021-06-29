@@ -903,8 +903,9 @@ export class GridView {
 
         input.addEventListener('input', (e: Event) => {
             // For some strange reason, typescript thinks the type of 'input' event args is 'Event', not 'InputEvent'.
-            if ((e as InputEvent).data === null) {
-                // Some Android keyboards send strange input events. This occurred when using the swiftkey keyboard.
+            const inputEvent = e as InputEvent;
+            if (inputEvent.inputType === 'deleteContentBackward') {
+                // This occurred when using the swiftkey keyboard on Android with Chrome.
                 return;
             }
 
