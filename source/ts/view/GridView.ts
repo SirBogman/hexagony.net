@@ -913,7 +913,7 @@ export class GridView {
             const value = getFirstCodepoint(input.value);
             const newText = removeWhitespaceAndDebug(value) || '.';
 
-            if (this.directionalTyping && newText !== '@') {
+            if (this.directionalTyping && newText !== '@' && inputEvent.inputType !== 'deleteByCut') {
                 this.advanceCursor(i, j, k, newText);
             }
             else {
