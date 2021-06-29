@@ -203,8 +203,7 @@ export const About: React.FC<AboutProps> = ({ colorMode }) =>
                 When codepoints are used other than defined instructions, the value at the memory pointer is set to the
                 codepoint value. This is the same behavior as the instructions A-Z and a-z. All Unicode codepoints are
                 allowed. The characters tab (9), line feed (10), vertical tab (11), form feed (12), carriage return
-                (13), space (32), and <span className="pre">`</span> (96) are ignored. Note that codepoints above
-                65535 can currently only be entered using the import/export panel.
+                (13), space (32), and <span className="pre">`</span> (96) are ignored.
             </p>
             <h4>Where else can I use Hexagony?</h4>
             <p>You can compete in Hexagony on <a href="//code.golf/fibonacci#hexagony">Code Golf</a>.</p>

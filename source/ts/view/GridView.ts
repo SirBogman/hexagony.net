@@ -867,7 +867,7 @@ export class GridView {
         input.autocomplete = 'off';
         input.autocapitalize = 'off';
         input.spellcheck = false;
-        input.maxLength = 1;
+        input.maxLength = 2;
         input.classList.add('cellInput');
         input.value = originalText;
         input.title = getInstructionDescription(originalText);
@@ -909,9 +909,7 @@ export class GridView {
                 return;
             }
 
-            // Chome on Android doesn't seem to always respect input.maxLength. The swiftkey keyboard can input multiple
-            // characters when using a swipe gesture. It seems to send another input event that removes those
-            // characters though, but by then, we may have moved on. Remove extra codepoints.
+            // Remove extra codepoints. This allows unicode characters that require two bytes in UTF-16 to be pasted.
             const value = getFirstCodepoint(input.value);
             const newText = removeWhitespaceAndDebug(value) || '.';
 
