@@ -223,3 +223,48 @@ textarea {
             "statePanel";
     }
 }
+
+@media print {
+    header {
+        display: none;
+    }
+
+    div #hotkeysPanel {
+        display: none;
+    }
+
+    div #infoPanel {
+        display: none;
+    }
+
+    div #inputPanel {
+        display: none;
+    }
+
+    div #importExportPanel {
+        display: none;
+    }
+
+    div #statePanel,
+    div #outputPanel {
+        display: none;
+    }
+
+    .editGrid, .playGrid {
+        grid-template-areas:
+            "header"
+            "codePanel";
+    }
+
+    div .codePanelHeader {
+        display: none;
+    }
+
+    div #codePanel {
+        width: 100%;
+    }
+
+    @page {
+        size: landscape;
+    }
+}

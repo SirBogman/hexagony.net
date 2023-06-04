@@ -46,3 +46,9 @@ div #codePanel.appPanel {
         min-height: 0px;
     }
 }
+
+@media print {
+    div #codePanel.appPanel {
+        overflow: visible;
+    }
+}
