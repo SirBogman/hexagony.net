@@ -13,6 +13,7 @@ export class GridExecutionArrow extends React.PureComponent<GridExecutionArrowPr
             className={`cellExecutedArrow ${className}`}
             d="M-12 0l-5-7.21V7.2L-12 0z"
             style={{ animationDuration: delay, transitionDuration: delay }}
-            transform={`rotate(${angle})`}/>;
+            transform={`rotate(${angle})`}
+        />;
     }
 }

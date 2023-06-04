@@ -16,6 +16,7 @@ export class GridOutline extends React.PureComponent<GridOutlineProps> {
         return <path
             className={classNames('outline', { outlineSecondary: isSecondary })}
             d={getOutlinePath(size)}
-            transform={`translate(${x},${y})`}/>;
+            transform={`translate(${x},${y})`}
+        />;
     }
 }
