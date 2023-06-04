@@ -54,7 +54,7 @@ export class Hexagony {
         return this.activeIpState.coords;
     }
 
-    get input(): readonly string[] {
+    get input(): Uint8Array {
         return this.context.input;
     }
 

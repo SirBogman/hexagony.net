@@ -722,7 +722,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     private onTypingDirectionChanged = (value: Direction): void =>
         this.updateState((state: IAppState) => { state.typingDirection = value.toString(); });
 
-    private getHexagonyInput = (): readonly string[] | null =>
+    private getHexagonyInput = (): Uint8Array | null =>
         this.hexagony !== null ? this.hexagony.input : null;
 
     private getHexagonyState = (): HexagonyState | null =>

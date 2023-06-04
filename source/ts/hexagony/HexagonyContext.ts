@@ -10,7 +10,7 @@ import { axialToIndex, indexToAxial } from './Util';
  */
 export class HexagonyContext {
     public sourceCode: ISourceCode;
-    public input: readonly string[];
+    public input: Uint8Array;
     public reverse = false;
 
     /**
@@ -22,7 +22,7 @@ export class HexagonyContext {
         sourceCode: ISourceCode,
         inputString = '') {
         this.sourceCode = sourceCode;
-        this.input = [...inputString];
+        this.input = new TextEncoder().encode(inputString);
     }
 
     public get size(): number {
@@ -45,7 +45,7 @@ export class HexagonyContext {
     }
 
     public setInput(inputString: string): void {
-        this.input = [...inputString];
+        this.input = new TextEncoder().encode(inputString);
     }
 
     public getInstruction(i: number, j: number): string {
@@ -59,19 +59,18 @@ export class HexagonyContext {
         // eslint-disable-next-line no-constant-condition
         while (true) {
             const byteValue = this.getInputByte(inputPosition);
-            if (byteValue === '+' || byteValue === undefined) {
+            if (byteValue === '+'.charCodeAt(0) || byteValue === undefined) {
                 // Consume this character.
                 inputPosition++;
                 break;
             }
-            if (byteValue === '-') {
+            if (byteValue === '-'.charCodeAt(0)) {
                 positive = false;
                 // Consume this character.
                 inputPosition++;
                 break;
             }
-            const codePoint = byteValue.codePointAt(0) as number;
-            if (codePoint >= 48 && codePoint <= 57) {
+            if (byteValue >= 48 && byteValue <= 57) {
                 break;
             }
 
@@ -85,8 +84,7 @@ export class HexagonyContext {
             if (byteValue === undefined) {
                 break;
             }
-            const codePoint = byteValue.codePointAt(0) as number;
-            if (codePoint >= 48 && codePoint <= 57) {
+            if (byteValue >= 48 && byteValue <= 57) {
                 value = value * 10n + BigInt(byteValue);
                 // Consume this character.
                 inputPosition++;
@@ -102,7 +100,7 @@ export class HexagonyContext {
         };
     }
 
-    public getInputByte(inputPosition: number): string | undefined {
+    public getInputByte(inputPosition: number): number | undefined {
         return inputPosition < this.input.length ? this.input[inputPosition] : undefined;
     }
 }

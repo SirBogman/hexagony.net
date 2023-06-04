@@ -108,7 +108,7 @@ export class GridView {
     private onRedo: UndoFunction;
     private onStep: () => void;
     private onStepBack: () => void;
-    private getHexagonyInput: () => readonly string[] | null;
+    private getHexagonyInput: () => Uint8Array | null;
     private getHexagonyState: () => HexagonyState | null;
     private getLastHexagonyState: () => HexagonyState | null;
     private cellPaths: CellSVGElement[][][] = [];
@@ -148,7 +148,7 @@ export class GridView {
         onRedo: UndoFunction,
         onStep: () => void,
         onStepBack: () => void,
-        getHexagonyInput: () => readonly string[] | null,
+        getHexagonyInput: () => Uint8Array | null,
         getHexagonyState: () => HexagonyState | null,
         getLastHexagonyState: () => HexagonyState | null,
         sourceCode: ISourceCode,

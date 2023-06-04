@@ -177,7 +177,7 @@ export const HexagonyStateUtils = Object.freeze({
 
             case ',': {
                 const byteValue = context.getInputByte(inputPosition++);
-                memory = memory.setValue(mp, byteValue !== undefined ? byteValue.codePointAt(0) as number : -1);
+                memory = memory.setValue(mp, byteValue !== undefined ? byteValue : -1);
                 break;
             }
             case ';':
