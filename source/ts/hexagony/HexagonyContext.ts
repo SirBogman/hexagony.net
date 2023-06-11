@@ -85,7 +85,7 @@ export class HexagonyContext {
                 break;
             }
             if (byteValue >= 48 && byteValue <= 57) {
-                value = value * 10n + BigInt(byteValue);
+                value = value * 10n + BigInt(byteValue - 48);
                 // Consume this character.
                 inputPosition++;
             }
