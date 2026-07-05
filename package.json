@@ -6,7 +6,7 @@
   "dependencies": {
     "classnames": "^2.3.1",
     "immer": "^9.0.1",
-    "immutable": "*",
+    "immutable": "5.1.9",
     "lz-string": "^1.4.4",
     "memoize-one": "^5.2.1",
     "panzoom": "github:SirBogman/panzoom#1f6c3ed",
@@ -25,7 +25,7 @@
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "babel-loader": "^8.2.2",
-    "clean-webpack-plugin": "*",
+    "clean-webpack-plugin": "4.0.0",
     "copy-webpack-plugin": "^8.0.0",
     "css-loader": "^5.1.2",
     "eslint": "^7.20.0",
