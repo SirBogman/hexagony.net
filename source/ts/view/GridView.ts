@@ -954,7 +954,7 @@ export class GridView {
             this.startEdgeAnimation(this.edgeConnectors.get(edgeName), name);
             this.startEdgeAnimation(this.edgeConnectors2.get(edgeName), `${name}Secondary`);
         }
-    }
+    };
 
     private isSynchronizedDirectionalTypingActive(
         i: number,

@@ -62,7 +62,7 @@ export class InputEventDisplay extends React.PureComponent {
             }
             this.updateText(`Key: ${prefix}${key}`);
         }
-    }
+    };
 
     override render(): JSX.Element {
         return <div className="inputEventDisplay" ref={this.divRef}/>;

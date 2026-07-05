@@ -63,8 +63,8 @@ export function loadHashData() : IHashData | null {
                 }
             }
         }
-        // eslint-disable-next-line no-empty
-        catch (e) {
+        // eslint-disable-next-line no-empty, @typescript-eslint/no-unused-vars
+        catch (_) {
         }
     }
     else if (location.hash === '#fibonacci') {

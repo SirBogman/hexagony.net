@@ -148,7 +148,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         if (this.state.canResetView !== value) {
             this.setState({ canResetView: this.canResetView() });
         }
-    }
+    };
 
     override render(): JSX.Element {
         const { delay, memory, mp } = this.props;
@@ -180,7 +180,7 @@ export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelS
         // (inertia), if that method were used.
         this.panZoom.zoomTo(x, y, 1.0 / this.getScale());
         this.panZoom.moveTo(x, y);
-    }
+    };
 
     override shouldComponentUpdate(nextProps: IMemoryPanelProps): boolean {
         // It slows down the app too much to render the memory panel when executing at maximum speed.
