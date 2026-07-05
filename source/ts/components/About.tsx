@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import ReactDOM from 'react-dom';
 
 import { SixWayDirectionalTypingIcon } from './EditControls';
@@ -13,7 +13,7 @@ export function updateAbout(element: HTMLElement, colorMode: string): void {
         element);
 }
 
-const IconBorder: React.FC = ({ children }) =>
+const IconBorder: React.FC<{children: JSX.Element}> = ({ children }) =>
     <span className="toolbarButton aboutButton">
         {children}
     </span>;

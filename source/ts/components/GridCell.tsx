@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 type GridCellProps = {
+    children: ReactNode | undefined,
     className: string,
     text: React.ReactNode;
     x: number;
