@@ -140,7 +140,6 @@ $colorLists: $lightColors $darkColors;
         @for $i from $executedColorCount - 1 through 0 {
             $value: $executedMinLightness + $i * list.nth($executedLightnessIncrements, $colorModeIndex);
             $currentColor: scaleLightness($color, $value);
-            @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
 
             .arrowExecuted#{$j}_#{$i}#{$colorMode} {
                 fill: scaleLightness($currentColor, $arrowLightnessShift);
