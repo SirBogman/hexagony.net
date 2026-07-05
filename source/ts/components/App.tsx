@@ -1,5 +1,4 @@
 import React, { JSX } from 'react';
-import ReactDOM from 'react-dom';
 import { produce } from 'immer';
 
 import { Direction, DirectionString, east } from '../hexagony/Direction';
@@ -28,6 +27,7 @@ import { ViewControls } from './ViewControls';
 import { EditControls } from './EditControls';
 import { PlayControls } from './PlayControls';
 import { CodeChangeCallback, CodeChangeContext, IUndoItem, UndoFunction } from '../view/UndoItem';
+import { createRoot } from 'react-dom/client';
 
 /**
  * Adds properties to window for easy access from a debug console.
@@ -37,7 +37,8 @@ const windowExtra = window as Window & typeof globalThis & { totalTime: number; 
 const maxSpeedIterations = 100_000;
 
 export function updateAppHelper(element: HTMLElement): void {
-    ReactDOM.render(<React.StrictMode><App/></React.StrictMode>, element);
+    const root = createRoot(element);
+    root.render(<React.StrictMode><App/></React.StrictMode>);
 }
 
 function getAnimationDelay(value: number) {
