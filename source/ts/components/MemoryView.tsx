@@ -29,7 +29,7 @@ interface IMemoryViewProps {
  * @component
  */
 export class MemoryView extends React.Component<IMemoryViewProps> {
-    private viewRef: React.RefObject<SVGSVGElement> = React.createRef();
+    private viewRef: React.RefObject<SVGSVGElement | null> = React.createRef();
 
     getSvg(): SVGSVGElement {
         return assertNotNull(this.viewRef.current, 'MemoryView.viewRef');

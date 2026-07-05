@@ -45,8 +45,8 @@ function beforeTouchStart(event: TouchEvent): boolean | undefined {
 }
 
 export class MemoryPanel extends React.Component<IMemoryPanelProps, MemoryPanelState> {
-    private viewRef: React.RefObject<MemoryView> = React.createRef();
-    private containerRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private viewRef: React.RefObject<MemoryView | null> = React.createRef();
+    private containerRef: React.RefObject<HTMLDivElement | null> = React.createRef();
     private panZoomReference: PanZoom | null = null;
 
     public constructor(props: IMemoryPanelProps) {
