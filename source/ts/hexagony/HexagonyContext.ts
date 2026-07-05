@@ -56,7 +56,6 @@ export class HexagonyContext {
         let value = 0n;
         let positive = true;
 
-        // eslint-disable-next-line no-constant-condition
         while (true) {
             const byteValue = this.getInputByte(inputPosition);
             if (byteValue === '+'.charCodeAt(0) || byteValue === undefined) {
@@ -78,7 +77,6 @@ export class HexagonyContext {
             inputPosition++;
         }
 
-        // eslint-disable-next-line no-constant-condition
         while (true) {
             const byteValue = this.getInputByte(inputPosition);
             if (byteValue === undefined) {
