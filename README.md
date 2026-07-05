@@ -10,4 +10,4 @@ My [C# command line Hexagony interpreter](https://github.com/SirBogman/Hexagony)
 
 ## Building
 
-Run `npm install`, followed by `npm run server` to start a development server at [http://127.0.0.1:8082/](http://127.0.0.1:8082/), or `npm run build` to create a `build/` folder that can be deployed.
+Run `npm install`, followed by `npm run server` to start a development server at [localhost:8082](http://localhost:8082/), or `npm run build` to create a `build/` folder that can be deployed.
