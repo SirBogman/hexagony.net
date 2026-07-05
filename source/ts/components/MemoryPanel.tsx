@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import panzoom, { PanZoom } from 'panzoom';
 import { getMPAngle, getMPCoordinates } from './MemoryHexagonGrid';
 import { Memory } from '../hexagony/Memory';

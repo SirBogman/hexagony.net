@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { northEast } from '../hexagony/Direction';
 import { MemoryPointer, MemoryPointerDirection } from '../hexagony/MemoryPointer';
 

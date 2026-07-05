@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { edgeLength } from './MemoryHexagonGrid';
 
 const path = `M${-edgeLength / 2} 0h${edgeLength}`;

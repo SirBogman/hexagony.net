@@ -1,5 +1,5 @@
 import { List } from 'immutable';
-import React from 'react';
+import React, { JSX } from 'react';
 import { assertNotNull } from '../view/ViewUtil';
 
 interface IOutputPanelProps {

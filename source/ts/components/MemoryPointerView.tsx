@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { edgeLength, halfEdgeLength } from './MemoryHexagonGrid';
 
 const fatEndWidth = 6 * edgeLength / 46.24;
