@@ -59,7 +59,7 @@ export function indexToAxial(size: number, rowIndex: number, columnIndex: number
     return new PointAxial(Math.max(1 - size, -rowIndex) + columnIndex, rowIndex - size + 1);
 }
 
-export function isWhitespaceOrDebug(char: string): boolean {
+export function isWhitespaceOrDebug(char: string | undefined): boolean {
     switch (char) {
         case '`':
         case ' ':

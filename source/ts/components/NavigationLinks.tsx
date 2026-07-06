@@ -1,11 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import { createRoot } from 'react-dom/client';
 
 export function updateNavigationLinks(element: HTMLElement): void {
-    ReactDOM.render(
+    const root = createRoot(element);
+    root.render(
         <React.StrictMode><NavigationLinks/></React.StrictMode>,
-        element);
+    );
 }
 
 const NavigationLinksFunction: React.FC = () => {

@@ -1,19 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { JSX } from 'react';
 
 import { SixWayDirectionalTypingIcon } from './EditControls';
 import { GridMirrorHelper, multipleMirrorHelper, singleMirrorHelper } from './GridMirrorHelper';
 import { MemoryMovementHelper } from './MemoryMovementHelper';
 import { PlayIcon, StepBackIcon } from './PlayControls';
 import { EdgeTransitionModeIcon, ShowArrowsIcon, ShowInstructionPointersIcon } from './ViewControls';
+import { createRoot } from 'react-dom/client';
 
 export function updateAbout(element: HTMLElement, colorMode: string): void {
-    ReactDOM.render(
+    const root = createRoot(element);
+    root.render(
         <React.StrictMode><About colorMode={colorMode}/></React.StrictMode>,
-        element);
+    );
 }
 
-const IconBorder: React.FC = ({ children }) =>
+const IconBorder: React.FC<{children: JSX.Element}> = ({ children }) =>
     <span className="toolbarButton aboutButton">
         {children}
     </span>;

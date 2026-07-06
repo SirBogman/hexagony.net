@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use 'sass:math';
+@use 'sass:list';
 @use 'root.scss';
 
 .svgBackground {
@@ -87,8 +88,8 @@ $executedMinLightnessValues: 66% -51%;
 $executedMaxLightnessValues: 88% -73%;
 $executedLightnessShifts: 90% -75%;
 $executedLightnessIncrements:
-    math.div(nth($executedMaxLightnessValues, 1) - nth($executedMinLightnessValues, 1), $executedColorCount - 1)
-    math.div(nth($executedMaxLightnessValues, 2) - nth($executedMinLightnessValues, 2), $executedColorCount - 1);
+    math.div(list.nth($executedMaxLightnessValues, 1) - list.nth($executedMinLightnessValues, 1), $executedColorCount - 1)
+    math.div(list.nth($executedMaxLightnessValues, 2) - list.nth($executedMinLightnessValues, 2), $executedColorCount - 1);
 
 $lightColors:
     hsl(200, 100%, 50%)
@@ -109,15 +110,15 @@ $darkColors:
 $colorLists: $lightColors $darkColors;
 
 @for $colorModeIndex from 1 through 2 {
-    $colorMode: nth($colorModes, $colorModeIndex); 
-    $colors: nth($colorLists, $colorModeIndex);
-    $executedMinLightness: nth($executedMinLightnessValues, $colorModeIndex);
-    $arrowLightnessShift: nth($arrowLightnessShifts, $colorModeIndex);
-    $activeArrowLightnessShift: nth($activeArrowLightnessShifts, $colorModeIndex);
+    $colorMode: list.nth($colorModes, $colorModeIndex); 
+    $colors: list.nth($colorLists, $colorModeIndex);
+    $executedMinLightness: list.nth($executedMinLightnessValues, $colorModeIndex);
+    $arrowLightnessShift: list.nth($arrowLightnessShifts, $colorModeIndex);
+    $activeArrowLightnessShift: list.nth($activeArrowLightnessShifts, $colorModeIndex);
 
     @for $j from 5 through 0 {
-        $color: nth($colors, $j + 1);
-        $executedColor: scaleLightness($color, nth($executedLightnessShifts, $colorModeIndex));
+        $color: list.nth($colors, $j + 1);
+        $executedColor: scaleLightness($color, list.nth($executedLightnessShifts, $colorModeIndex));
 
         .colorSwatch#{$j}#{$colorMode} {
             display: inline-block;
@@ -137,9 +138,8 @@ $colorLists: $lightColors $darkColors;
         }
 
         @for $i from $executedColorCount - 1 through 0 {
-            $value: $executedMinLightness + $i * nth($executedLightnessIncrements, $colorModeIndex);
+            $value: $executedMinLightness + $i * list.nth($executedLightnessIncrements, $colorModeIndex);
             $currentColor: scaleLightness($color, $value);
-            @debug $j $i $value color.hue($currentColor) color.saturation($currentColor) color.lightness($currentColor) color.blackness($currentColor);
 
             .arrowExecuted#{$j}_#{$i}#{$colorMode} {
                 fill: scaleLightness($currentColor, $arrowLightnessShift);
@@ -153,7 +153,7 @@ $colorLists: $lightColors $darkColors;
 
     // The active/inactive colors are generated in a separate loop so they always have higher priority.
     @for $j from 5 through 0 {
-        $color: nth($colors, $j + 1);
+        $color: list.nth($colors, $j + 1);
         $inactiveColor: scaleLightness($color, $executedMinLightness);
 
         // When showing all IPs, the inactive arrow/cell colors are used for the current direction and position of IPs
@@ -175,7 +175,7 @@ $colorLists: $lightColors $darkColors;
         }
 
         .cellActive#{$j}#{$colorMode}Secondary {
-            fill: scaleLightness($color, nth($secondaryLightnessShifts, $colorModeIndex));
+            fill: scaleLightness($color, list.nth($secondaryLightnessShifts, $colorModeIndex));
         }
     }
 }

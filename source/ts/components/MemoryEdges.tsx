@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { Memory } from '../hexagony/Memory';
 import { MemoryEdge } from './MemoryEdge';
 import { getMemoryEdgeAngle, xFactor, yFactor } from './MemoryHexagonGrid';

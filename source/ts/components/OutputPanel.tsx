@@ -1,5 +1,5 @@
 import { List } from 'immutable';
-import React from 'react';
+import React, { JSX } from 'react';
 import { assertNotNull } from '../view/ViewUtil';
 
 interface IOutputPanelProps {
@@ -9,7 +9,7 @@ interface IOutputPanelProps {
 }
 
 export class OutputPanel extends React.Component<IOutputPanelProps> {
-    private outputBoxRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private outputBoxRef: React.RefObject<HTMLDivElement | null> = React.createRef();
 
     override shouldComponentUpdate(nextProps: IOutputPanelProps): boolean {
         return nextProps.outputBytes !== this.props.outputBytes ||

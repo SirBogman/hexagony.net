@@ -954,7 +954,7 @@ export class GridView {
             this.startEdgeAnimation(this.edgeConnectors.get(edgeName), name);
             this.startEdgeAnimation(this.edgeConnectors2.get(edgeName), `${name}Secondary`);
         }
-    }
+    };
 
     private isSynchronizedDirectionalTypingActive(
         i: number,
@@ -986,7 +986,7 @@ export class GridView {
 
         const sourceCode = { ...this.sourceCode };
         if (newText !== null) {
-            sourceCode.grid = update(sourceCode.grid, i, row => set(row, j, newText));
+            sourceCode.grid = update(sourceCode.grid, i, (row: string[]) => set(row, j, newText));
         }
 
         const direction = this.typingDirection;

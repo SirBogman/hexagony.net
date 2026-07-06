@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 
 import { emptyElement, getControlKey } from '../view/ViewUtil';
 
@@ -9,8 +9,7 @@ import '../../styles/InputEventDisplay.scss';
  * Events may be missed if Event.stopPropagation is used.
  */
 export class InputEventDisplay extends React.PureComponent {
-    private readonly divRef: React.RefObject<HTMLDivElement> = React.createRef();
-    private readonly spanRef: React.RefObject<HTMLSpanElement> = React.createRef();
+    private readonly divRef: React.RefObject<HTMLDivElement | null> = React.createRef();
 
     override componentDidMount(): void {
         document.addEventListener('keydown', this.onKeyDown);
@@ -62,7 +61,7 @@ export class InputEventDisplay extends React.PureComponent {
             }
             this.updateText(`Key: ${prefix}${key}`);
         }
-    }
+    };
 
     override render(): JSX.Element {
         return <div className="inputEventDisplay" ref={this.divRef}/>;
