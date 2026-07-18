@@ -192,6 +192,7 @@ export class GridView {
     }
 
     public dispose(): void {
+        this.cellContainer.remove();
         this.svg.removeEventListener('animationend', this.onAnimationEnd);
         this.codePanel.removeEventListener('mouseup', this.onMouseUp);
         this.focusProxy.removeEventListener('focusin', this.focus);
